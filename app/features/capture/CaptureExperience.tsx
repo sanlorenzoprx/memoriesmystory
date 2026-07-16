@@ -16,8 +16,13 @@ import {
   type LocalMemoryDraft,
   type LocalPhoto
 } from "./local-draft";
-import { loadLocalDraft, saveLocalDraft } from "../../services/local-draft-store";
+import {
+  loadLocalDraft,
+  makeDraftToken,
+  saveLocalDraft
+} from "../../services/local-draft-store";
 import { inspectLocalPhoto } from "../../services/photo-inspection";
+import { OriginalsExperience } from "./OriginalsExperience";
 
 type CaptureStep =
   | "loading"
@@ -130,7 +135,8 @@ export function CaptureExperience() {
           createLocalDraft({
             id: draftId,
             entryMode,
-            locale: navigator.language
+            locale: navigator.language,
+            draftToken: makeDraftToken()
           });
 
         if (!storedDraft) {
@@ -502,28 +508,12 @@ export function CaptureExperience() {
       )}
 
       {step === "ready" && draft?.photo && photoUrl && (
-        <section className="capture-state ready-state">
-          <p className="eyebrow">Photo ready</p>
-          <h1 ref={headingRef} tabIndex={-1}>Your photograph is ready for its story.</h1>
-          <div className="ready-photo-wrap">
-            <img src={photoUrl} alt="Your photograph, ready for its story" />
-          </div>
-          <div className="local-status" role="status">
-            <span aria-hidden="true">✓</span>
-            <div>
-              <strong>Kept on this device</strong>
-              <p>It will return here after a reload. It is not backed up yet.</p>
-            </div>
-          </div>
-          <div className="next-memory-step" aria-label="Next step">
-            <span aria-hidden="true">Photo</span>
-            <span aria-hidden="true">→</span>
-            <strong>Next, add your voice</strong>
-          </div>
-          <button className="secondary-action" type="button" onClick={tryAnother}>
-            Change photograph
-          </button>
-        </section>
+        <OriginalsExperience
+          draft={draft}
+          onDraftChange={setDraft}
+          photoUrl={photoUrl}
+          onChangePhoto={tryAnother}
+        />
       )}
 
       {step === "error" && (
@@ -537,4 +527,3 @@ export function CaptureExperience() {
     </div>
   );
 }
-

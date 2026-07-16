@@ -34,21 +34,54 @@ export type LocalPhoto = {
   readonly acceptedAt: string | null;
 };
 
+export type DurableMediaReceipt = {
+  readonly assetId: string;
+  readonly role: "original_photo" | "original_audio";
+  readonly byteSize: number;
+  readonly durationMs: number | null;
+  readonly sha256: string;
+  readonly r2Etag: string;
+  readonly durableAt: string;
+  readonly correlationId: string;
+};
+
+export type LocalUploadState = {
+  readonly assetId: string;
+  readonly idempotencyKey: string;
+  readonly status: "local" | "uploading" | "needs_connection" | "durable";
+  readonly receipt: DurableMediaReceipt | null;
+  readonly lastError: string | null;
+};
+
+export type LocalAudio = {
+  readonly blob: Blob;
+  readonly mimeType: string;
+  readonly byteSize: number;
+  readonly sha256: string;
+  readonly durationMs: number;
+  readonly capturedAt: string;
+};
+
 export type LocalMemoryDraft = {
   readonly id: string;
   readonly status: Extract<DraftStatus, "local_draft" | "photo_local">;
   readonly entryMode: CaptureEntryMode;
   readonly locale: string;
+  readonly draftToken: string;
   readonly photo: LocalPhoto | null;
+  readonly photoUpload: LocalUploadState | null;
+  readonly audio: LocalAudio | null;
+  readonly audioUpload: LocalUploadState | null;
   readonly createdAt: string;
   readonly updatedAt: string;
-  readonly version: 1;
+  readonly version: 2;
 };
 
 export function createLocalDraft(input: {
   readonly id: string;
   readonly entryMode: CaptureEntryMode;
   readonly locale: string;
+  readonly draftToken: string;
   readonly now?: string;
 }): LocalMemoryDraft {
   const now = input.now ?? new Date().toISOString();
@@ -58,10 +91,14 @@ export function createLocalDraft(input: {
     status: "local_draft",
     entryMode: input.entryMode,
     locale: input.locale,
+    draftToken: input.draftToken,
     photo: null,
+    photoUpload: null,
+    audio: null,
+    audioUpload: null,
     createdAt: now,
     updatedAt: now,
-    version: 1
+    version: 2
   };
 }
 
@@ -74,6 +111,49 @@ export function attachLocalPhoto(
     ...draft,
     status: "photo_local",
     photo,
+    photoUpload: createLocalUploadState(),
+    audio: null,
+    audioUpload: null,
+    updatedAt: now
+  };
+}
+
+export function createLocalUploadState(): LocalUploadState {
+  return {
+    assetId: `asset_${crypto.randomUUID()}`,
+    idempotencyKey: `upload_${crypto.randomUUID()}`,
+    status: "local",
+    receipt: null,
+    lastError: null
+  };
+}
+
+export function updateLocalUpload(
+  upload: LocalUploadState,
+  update: Pick<LocalUploadState, "status"> &
+    Partial<Pick<LocalUploadState, "receipt" | "lastError">>
+): LocalUploadState {
+  return {
+    ...upload,
+    status: update.status,
+    receipt: update.receipt === undefined ? upload.receipt : update.receipt,
+    lastError: update.lastError === undefined ? upload.lastError : update.lastError
+  };
+}
+
+export function attachLocalAudio(
+  draft: LocalMemoryDraft,
+  audio: LocalAudio,
+  now = new Date().toISOString()
+): LocalMemoryDraft {
+  if (!draft.photoUpload?.receipt) {
+    throw new Error("The photograph must be durable before recording is accepted.");
+  }
+
+  return {
+    ...draft,
+    audio,
+    audioUpload: createLocalUploadState(),
     updatedAt: now
   };
 }
@@ -131,4 +211,3 @@ export function assessPhotoQuality(
 
   return null;
 }
-

@@ -8,6 +8,7 @@
     "dev": "vite --host 0.0.0.0",
     "build": "vite build && tsc -p tsconfig.worker.json --noEmit",
     "preview": "vite preview --host 0.0.0.0",
+    "dev:e2e": "npm run build && wrangler d1 migrations apply DB --local --persist-to .wrangler/e2e && wrangler dev --local --ip 127.0.0.1 --port 4173 --persist-to .wrangler/e2e --show-interactive-dev-session false",
     "typecheck": "tsc --noEmit && tsc -p tsconfig.worker.json --noEmit",
     "lint": "eslint .",
     "test": "vitest run",

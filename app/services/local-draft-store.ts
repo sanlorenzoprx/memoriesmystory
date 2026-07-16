@@ -8,6 +8,34 @@ const databaseName = "memoriesmystory-local";
 const databaseVersion = 1;
 const draftStoreName = "memory-story-drafts";
 
+export function makeDraftToken(): string {
+  const bytes = crypto.getRandomValues(new Uint8Array(32));
+  return [...bytes].map((byte) => byte.toString(16).padStart(2, "0")).join("");
+}
+
+function normalizeDraft(value: LocalMemoryDraft): LocalMemoryDraft {
+  if (value.version === 2 && value.draftToken) return value;
+
+  const legacy = value as LocalMemoryDraft & {
+    readonly version: number;
+    readonly draftToken?: string;
+  };
+  return {
+    ...legacy,
+    draftToken: legacy.draftToken ?? makeDraftToken(),
+    photoUpload: legacy.photo ? {
+      assetId: `asset_${crypto.randomUUID()}`,
+      idempotencyKey: `upload_${crypto.randomUUID()}`,
+      status: "local",
+      receipt: null,
+      lastError: null
+    } : null,
+    audio: null,
+    audioUpload: null,
+    version: 2
+  };
+}
+
 function requestResult<T>(request: IDBRequest<T>): Promise<T> {
   return new Promise((resolve, reject) => {
     request.addEventListener("success", () => resolve(request.result), {
@@ -74,7 +102,11 @@ export async function loadLocalDraft(
     const result = await requestResult(
       transaction.objectStore(draftStoreName).get(draftId)
     );
-    return (result as LocalMemoryDraft | undefined) ?? null;
+    const draft = (result as LocalMemoryDraft | undefined) ?? null;
+    if (!draft) return null;
+    const normalized = normalizeDraft(draft);
+    if (normalized !== draft) await saveLocalDraft(normalized);
+    return normalized;
   } finally {
     database.close();
   }
@@ -93,7 +125,7 @@ export async function saveLocalDraft(draft: LocalMemoryDraft): Promise<void> {
 }
 
 export function makeLocalDraftId(): string {
-  return `local-${crypto.randomUUID()}`;
+  return `local_${crypto.randomUUID()}`;
 }
 
 export async function beginLocalDraft(
@@ -103,10 +135,10 @@ export async function beginLocalDraft(
   const draft = createLocalDraft({
     id: makeLocalDraftId(),
     entryMode,
-    locale
+    locale,
+    draftToken: makeDraftToken()
   });
 
   await saveLocalDraft(draft);
   return draft;
 }
-
