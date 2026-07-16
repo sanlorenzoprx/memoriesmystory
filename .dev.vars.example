@@ -12,6 +12,8 @@ EMAIL_PROVIDER_API_KEY=
 GOOGLE_CLIENT_SECRET=
 FACEBOOK_APP_SECRET=
 
-# Conditional controls; leave blank until the related decision is approved
+# Required before protected public/auth endpoint staging acceptance
 TURNSTILE_SECRET_KEY=
+
+# Conditional; leave blank until accuracy evidence selects a fallback provider
 TRANSCRIPTION_FALLBACK_API_KEY=

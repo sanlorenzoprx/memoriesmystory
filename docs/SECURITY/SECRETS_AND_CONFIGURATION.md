@@ -18,7 +18,7 @@ Actual credentials never belong in Git, uploaded ZIPs, prompts, receipts, screen
 | `EMAIL_PROVIDER_API_KEY` | Runtime secret, provider name pending | Email verification/sign-in integration begins | `.dev.vars`; Cloudflare Worker secret |
 | `GOOGLE_CLIENT_SECRET` | Runtime secret | Google OAuth staging acceptance | `.dev.vars`; Cloudflare Worker secret |
 | `FACEBOOK_APP_SECRET` | Runtime secret | Facebook Login staging acceptance | `.dev.vars`; Cloudflare Worker secret |
-| `TURNSTILE_SECRET_KEY` | Conditional runtime secret | Abuse control is approved for public/auth routes | `.dev.vars`; Cloudflare Worker secret |
+| `TURNSTILE_SECRET_KEY` | Runtime secret | Public/auth endpoint staging acceptance | `.dev.vars`; Cloudflare Worker secret |
 | `TRANSCRIPTION_FALLBACK_API_KEY` | Conditional runtime secret | A non-Cloudflare fallback provider is selected | `.dev.vars`; Cloudflare Worker secret |
 | `CLOUDFLARE_API_TOKEN` | Deployment secret | Automated staging provisioning or deployment is approved | GitHub Actions secret or operator environment; never a Worker secret |
 
@@ -41,7 +41,7 @@ The Cloudflare runtime bindings are `DB`, `MEDIA_BUCKET`, `AI`, and `PROCESSING_
 
 ## Provisioning gate
 
-1. Select the email delivery/auth implementation and confirm Google/Facebook app ownership.
+1. Select the Cloudflare-compatible email delivery/auth implementation and confirm Google/Facebook app ownership.
 2. Create separate local, staging, and production configuration. Secrets do not inherit between Cloudflare environments.
 3. Generate distinct high-entropy `SESSION_SECRET` and `SHARE_TOKEN_PEPPER` values per environment.
 4. Load values privately with the provider, Cloudflare, and GitHub secret interfaces. Do not paste them into an agent prompt.
@@ -49,3 +49,11 @@ The Cloudflare runtime bindings are `DB`, `MEDIA_BUCKET`, `AI`, and `PROCESSING_
 6. Rotate any value that appears in Git history, output, logs, screenshots, or chat.
 
 Production secrets are deliberately **not** created during Packet 0.2. Their presence before the owning runtime exists would create risk without improving build evidence.
+
+## Approved direction
+
+- Email, Google, and Facebook account paths are acceptance requirements.
+- Turnstile protects authentication, draft-creation, and sharing boundaries.
+- Workers AI is the first transcription provider; the fallback interface remains narrow and no second provider is selected without evidence.
+- English and Spanish are both acceptance-blocking.
+- Staging credentials and resources are isolated from production.

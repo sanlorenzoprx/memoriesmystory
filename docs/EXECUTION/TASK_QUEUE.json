@@ -1,0 +1,18 @@
+{
+  "schema_version": "memoriesmystory_phase1_queue_v1",
+  "project": "memoriesmystory",
+  "campaign": "phase-1-production-ready-not-live",
+  "active_task_id": "packet-1",
+  "tasks": [
+    { "id": "packet-1", "status": "active", "depends_on": [], "title": "Domain, configuration, and persistence contracts" },
+    { "id": "packet-2", "status": "pending", "depends_on": ["packet-1"], "title": "Local-first capture and onboarding" },
+    { "id": "packet-3", "status": "pending", "depends_on": ["packet-2"], "title": "Original media durability" },
+    { "id": "packet-4", "status": "pending", "depends_on": ["packet-3"], "title": "Account binding and recovery" },
+    { "id": "packet-5", "status": "pending", "depends_on": ["packet-4"], "title": "Transcription and Muse" },
+    { "id": "packet-6", "status": "pending", "depends_on": ["packet-5"], "title": "Review and durable completion" },
+    { "id": "packet-7", "status": "pending", "depends_on": ["packet-6"], "title": "Minimum private share-to-unlock" },
+    { "id": "packet-8", "status": "pending", "depends_on": ["packet-7"], "title": "Full Phase 1 acceptance" }
+  ],
+  "completion_contract": "docs/EXECUTION/DEFINITION_OF_DONE_V1.md",
+  "packet_specification": "docs/IMPLEMENTATION/PHASE_1_SOLO_MEMORY_STORY_BUILD_SPEC.md"
+}

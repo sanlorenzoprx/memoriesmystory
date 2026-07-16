@@ -1,5 +1,21 @@
 # Foundation Package Changelog
 
+## Packet 0.3 scalable campaign handoff — 2026-07-16
+
+- Recorded the approved Phase 1 production-ready-not-live campaign boundary.
+- Made English/Spanish, email/Google/Facebook acceptance, isolated staging, Workers AI first, and Turnstile protection explicit.
+- Added scalable-architecture rules centered on stateless execution, immutable media, idempotency, durable queues, migrations, configuration, and observability.
+- Added campaign authority, stop rules, source manifest, phase gates, one-active-task queue, master build prompt, environment handoff, tests, and receipt.
+- Kept production deployment, public launch, billing, destructive data actions, and scope expansion separately authorized.
+
+## Packet 0.2 production-readiness guardrails — 2026-07-16
+
+- Added committed Playwright configuration and phone-first browser tests.
+- Added CI browser execution and Cloudflare deployment dry-run gates.
+- Reconciled the R2 binding as `MEDIA_BUCKET` and declared the Workers AI `AI` binding.
+- Added the secret/configuration contract and empty local template.
+- Established Definition of Done v1.0 as production ready, not live.
+
 ## Packet 0.1 first-screen direction — 2026-07-15
 
 - Replaced the generic centered placeholder with a full-viewport, mobile-first first experience.

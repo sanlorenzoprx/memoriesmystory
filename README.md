@@ -26,6 +26,8 @@ Start with [AGENTS.md](AGENTS.md), which routes each task to the exact governing
 - Phase 1 solo Memory Story build specification: included under `docs/IMPLEMENTATION/`.
 - Repository task routing: root and folder-level `AGENTS.md` guides are active.
 - Durable learning memory: observations and controlled change proposals live under `docs/LEARNING/`.
+- Packet 0.2 production-readiness guardrails: committed Playwright/CI gates, secret contract, and production-ready-not-live Definition of Done.
+- Packet 0.3 execution handoff: approved scalable Phase 1 campaign controls, phase gates, task queue, environment boundary, and master build prompt.
 
 ## Fresh-start rule
 

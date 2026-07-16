@@ -21,3 +21,13 @@ Observations preserve evidence separately from proposed solutions. Follow `READM
 - **Confidence and contrary evidence:** High. Existing README files offered useful folder summaries but did not form a complete pre-action route.
 - **Affected experience or invariant:** Foundation Rule #000; outcome-driven build order; I-11 technology stays in the background.
 - **Related proposal:** Implemented directly as non-behavioral repository governance in the root and nested `AGENTS.md` files.
+
+### L-2026-07-16-001 — Production readiness must preserve a scalable architecture path
+
+- **Status:** addressed
+- **Evidence source:** Product-owner approval in conversation on 2026-07-16.
+- **Observed fact:** The owner approved the Phase 1 production-ready-not-live boundary, staging/auth/language/Workers AI/Turnstile recommendations, and explicitly required the architecture always to be built to scale.
+- **Interpretation:** Scale should be a verified architectural property—statelessness, durable contracts, idempotency, immutable storage, migrations, queues, observability, and environment isolation—not permission for premature services or speculative frameworks.
+- **Confidence and contrary evidence:** High confidence from explicit owner direction. No evidence currently requires microservices, Durable Objects, Workflows, or a broad provider registry in the solo flow.
+- **Affected experience or invariant:** I-06 immutable originals, I-07 additive history, I-08 truthful durability, I-14 accessibility, I-15 language readiness, I-16 privacy, and I-24 share-to-unlock integrity.
+- **Related proposal:** P-2026-07-16-001.

@@ -55,6 +55,13 @@ Database schemas, APIs, prompts, UI components, growth mechanics, pricing, and i
 - `IMPLEMENTATION/PHASE_1_SOLO_MEMORY_STORY_BUILD_SPEC.md`
 - `IMPLEMENTATION/README.md`
 
+### Production-ready execution
+
+- `EXECUTION/README.md`
+- `EXECUTION/DEFINITION_OF_DONE_V1.md`
+- `SECURITY/SECRETS_AND_CONFIGURATION.md`
+- `OPERATIONS/ENVIRONMENTS_AND_HANDOFF.md`
+
 ### Learning memory
 
 - `LEARNING/README.md`
