@@ -2,6 +2,9 @@
 
 **Date:** 2026-07-16  
 **Branch:** `packet-4/account-binding-recovery`  
+**Implementation commit verified by CI:** `c3fce54165d1b87495b5b36b1a8e91aff4603947`  
+**CI run:** `29506865443`  
+**Draft pull request:** `https://github.com/sanlorenzoprx/memoriesmystory/pull/3`  
 **Application:** `memoriesmystory`  
 **Status:** blocked before live staging, as designed
 
@@ -42,6 +45,7 @@ The preflight does not pretend that configuration declarations are live-provider
 - Empty operator environment: rejected with 13 items reported missing.
 - Live provider calls: none.
 - Cloudflare resource calls or deployment: none.
+- GitHub Actions CI run `29506865443`: passed typecheck, lint, 46 tests, build, Cloudflare dry run, and all 8 phone-first browser paths.
 
 ## Current blocker
 
