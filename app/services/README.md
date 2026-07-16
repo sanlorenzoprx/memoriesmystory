@@ -4,4 +4,4 @@ Place real storage, transcription, image-processing, sharing, workflow, and noti
 
 Packet 1 includes the deterministic private R2 object-key boundary. Packet 2 adds the real browser-only IndexedDB draft store and local photo inspection boundary.
 
-R2 transport, upload validation, authorization, and streaming belong to Packet 3; their absence must not be disguised by an in-memory provider or a local-only “saved” claim.
+Packet 3 adds the browser media-durability client and audio-capture boundary. Worker-side R2 transport, validation, scoped authorization, idempotent receipts, and streaming live in `worker/media-routes.ts`; browser code never receives R2 credentials or a public bucket URL.

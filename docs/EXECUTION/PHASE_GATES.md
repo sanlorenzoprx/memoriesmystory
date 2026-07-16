@@ -7,7 +7,7 @@ Every packet inherits the root work loop, security contract, Definition of Done,
 | 1 | Domain, configuration, and persistence contracts | migrations, schema/immutability/idempotency/entitlement tests | ownership keys, indexes, versioned migrations, centralized limits |
 | 2 | Local-first photograph capture and recovery | phone capture/import, reload recovery, denied-camera fallback, accessibility | client state machine independent of process memory |
 | 3 | Immutable photo and voice durability | interrupted upload recovery, D1/R2 receipts, retrieval | private object policy, hashes, idempotent upload, no overwrite |
-| 4 | Account binding and recovery | email/Google/Facebook staging paths, CSRF, double-claim and resume tests | provider boundary, server-verified sessions, account isolation |
+| 4 | Account binding and recovery | email/Google/Facebook staging paths, CSRF, double-claim/resume tests, second-device continuation | provider boundary, server-verified sessions, account isolation |
 | 5 | Transcription and restrained Muse | queue retries, English and Spanish/mixed live receipts, partial failure | idempotent consumer, versioned model/prompt config, bounded fallback |
 | 6 | Review and durable completion | truth-state separation, one completion transaction, reopen proof | transaction boundary, additive revisions, durable receipt |
 | 7 | Private share-to-unlock | revocation, safe projection, concurrent duplicate share tests | opaque tokens, hashed lookup, idempotent entitlement event |

@@ -51,3 +51,13 @@ Observations preserve evidence separately from proposed solutions. Follow `READM
 - **Confidence and contrary evidence:** High. After explicitly awaiting the visible, focused route heading, the same keyboard and viewport path passed in CI run `29496575881` without changing product behavior.
 - **Affected experience or invariant:** I-13 recoverable guidance and I-14 accessibility.
 - **Related proposal:** Addressed in `tests/e2e/first-experience.spec.ts`; no Foundation change required.
+
+### L-2026-07-16-004 — Browser durability evidence must include the Worker bindings
+
+- **Status:** addressed
+- **Evidence source:** Packet 3 implementation and GitHub Actions CI run `29498641211` on 2026-07-16.
+- **Observed fact:** Vite preview could prove the client shell but could not exercise D1/R2 resource routes, interrupted uploads, server receipts, or protected playback.
+- **Interpretation:** Once a packet owns Worker behavior, the phone-browser gate must run through the local Cloudflare Worker with its migrations and private bindings rather than a static asset preview.
+- **Confidence and contrary evidence:** High. Unit/integration tests remained useful and fast, while the Wrangler-backed Playwright run independently proved the connected user outcome. Real staging remains a later gate and was not inferred from local evidence.
+- **Affected experience or invariant:** I-01 original voice, I-06 immutable originals, I-08 truthful durability, and reliable packet evidence.
+- **Related proposal:** Addressed by `npm run dev:e2e` and the Packet 3 browser suite; no Foundation change required.

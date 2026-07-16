@@ -1,5 +1,15 @@
 # Foundation Package Changelog
 
+## Packet 3 original media durability — 2026-07-16
+
+- Added scoped anonymous draft tokens with only SHA-256 hashes stored in D1.
+- Added private photograph/audio upload, status, and range-capable playback Worker routes.
+- Added MIME signature, size, checksum, duration, origin, ownership, immutability, and idempotency enforcement.
+- Added conditional private R2 originals and D1 durability/operation receipts with interrupted-write recovery.
+- Added contextual microphone recording, 30-second centralized allowance, local recovery/playback, safe retry, and preserved-original playback.
+- Moved Playwright through local Wrangler D1/R2 bindings and passed eight phone-first paths.
+- Activated Packet 4 after the complete Packet 3 gate passed.
+
 ## Packet 2 local-first capture and onboarding — 2026-07-16
 
 - Replaced the static introduction with a phone-first `/capture/:draftId` camera/import experience.
