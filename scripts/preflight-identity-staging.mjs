@@ -83,7 +83,8 @@ const checks = [
   {
     name: "CLERK_FACEBOOK_ENABLED",
     purpose: "Facebook acceptance path",
-    validate: (value) => value === "true"
+    validate: (value) => value === "true",
+    allowDeferred: true
   }
 ];
 
@@ -92,7 +93,11 @@ const results = checks.map((check) => {
   return {
     name: check.name,
     purpose: check.purpose,
-    status: value ? (check.validate(value) ? "present" : "invalid") : "missing"
+    status: value
+      ? (check.allowDeferred && value === "false"
+        ? "deferred"
+        : (check.validate(value) ? "present" : "invalid"))
+      : "missing"
   };
 });
 
@@ -105,10 +110,15 @@ for (const result of results) {
 const optionalJwtKey = process.env.CLERK_JWT_KEY;
 console.log(`CLERK_JWT_KEY: ${optionalJwtKey ? "present" : "optional"} — networkless JWT verification key`);
 
-const failures = results.filter((result) => result.status !== "present");
+const failures = results.filter((result) => !["present", "deferred"].includes(result.status));
+const deferred = results.filter((result) => result.status === "deferred");
 if (failures.length > 0) {
   console.error(`Preflight blocked: ${failures.length} required item(s) are missing or invalid.`);
   process.exitCode = 1;
+} else if (deferred.length > 0) {
+  console.log(
+    `Preflight ready for email and Google staging: ${deferred.length} explicitly deferred item(s) remain final acceptance blockers.`
+  );
 } else {
   console.log("Preflight ready: configuration shape is valid; live provider evidence is still required.");
 }

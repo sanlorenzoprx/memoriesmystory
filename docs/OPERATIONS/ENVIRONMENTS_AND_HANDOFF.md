@@ -37,7 +37,7 @@ For Packet 4, copy `.env.staging.example` to ignored `.env.staging.local`, load 
 npm run preflight:identity:staging
 ```
 
-The command requires the Clerk publishable/secret configuration, `SESSION_SECRET`, exact authorized HTTPS origin, Cloudflare account/deployment authorization, isolated staging Worker/D1/R2 identifiers, and operator confirmation that email, Google, and Facebook are enabled. It makes no provider call. A green result permits the separately logged live staging checks; it does not satisfy them.
+The command requires the Clerk publishable/secret configuration, `SESSION_SECRET`, exact authorized HTTPS origin, Cloudflare account/deployment authorization, isolated staging Worker/D1/R2 identifiers, and operator confirmation that email and Google are enabled. Facebook must be either `true` after a successful live path or explicitly `false` as an owner-approved interim deferral. A deferred result permits only the separately logged email-and-Google staging checks; it does not complete Packet 4 or final acceptance. The command makes no provider call, and a green result never substitutes for live evidence.
 
 ## Scale and operational evidence
 

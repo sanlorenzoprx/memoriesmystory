@@ -44,6 +44,26 @@ describe("identity staging preflight", () => {
     }
   });
 
+  it("permits an explicit Facebook deferral without calling it accepted", () => {
+    const result = run({
+      ...validEnvironment,
+      CLERK_FACEBOOK_ENABLED: "false"
+    });
+    expect(result.status).toBe(0);
+    expect(result.stdout).toContain("CLERK_FACEBOOK_ENABLED: deferred");
+    expect(result.stdout).toContain("Preflight ready for email and Google staging");
+    expect(result.stdout).toContain("remain final acceptance blockers");
+  });
+
+  it("rejects an undeclared Facebook state", () => {
+    const result = run({
+      ...validEnvironment,
+      CLERK_FACEBOOK_ENABLED: "later"
+    });
+    expect(result.status).toBe(1);
+    expect(result.stdout).toContain("CLERK_FACEBOOK_ENABLED: invalid");
+  });
+
   it("rejects an insecure origin and the non-deployable D1 placeholder", () => {
     const result = run({
       ...validEnvironment,

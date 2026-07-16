@@ -49,7 +49,7 @@ The Cloudflare runtime bindings are `DB`, `MEDIA_BUCKET`, `AI`, and `PROCESSING_
 
 Production secrets are deliberately **not** created during Packet 0.2. Their presence before the owning runtime exists would create risk without improving build evidence.
 
-Packet 4 identity staging uses `npm run preflight:identity:staging`. The command validates only configuration shape, prints no values, makes no network request, and exits nonzero until the Clerk paths, isolated Cloudflare resource identifiers, exact HTTPS origins, and required secrets are present in the operator environment. Passing this preflight authorizes no production action and is not live-provider evidence.
+Packet 4 identity staging uses `npm run preflight:identity:staging`. The command validates only configuration shape, prints no values, makes no network request, and exits nonzero until the Clerk paths, isolated Cloudflare resource identifiers, exact HTTPS origins, and required secrets are present in the operator environment. An explicit `CLERK_FACEBOOK_ENABLED=false` may report `deferred` for an owner-approved email-and-Google staging run, but it remains a Packet 4 and final-acceptance blocker. Passing this preflight authorizes no production action and is not live-provider evidence.
 
 ## Approved direction
 

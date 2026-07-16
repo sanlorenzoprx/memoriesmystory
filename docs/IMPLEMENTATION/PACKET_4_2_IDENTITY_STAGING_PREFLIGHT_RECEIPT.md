@@ -12,7 +12,7 @@
 
 ## Outcome
 
-The repository now has one deterministic, redacted gate before any Clerk or Cloudflare staging action. It validates the shape and isolation of required configuration, prints only `present`, `missing`, `invalid`, or `optional`, and makes no network request.
+The repository now has one deterministic, redacted gate before any Clerk or Cloudflare staging action. It validates the shape and isolation of required configuration, prints only `present`, `missing`, `invalid`, `deferred`, or `optional`, and makes no network request.
 
 The preflight does not pretend that configuration declarations are live-provider proof. Email, Google, Facebook, callback behavior, second-device continuation, staging D1 migration, and private R2 recovery still require real isolated-staging evidence.
 
@@ -32,7 +32,7 @@ The preflight does not pretend that configuration declarations are live-provider
 | `MEMORIES_STAGING_WORKER_NAME` | Select the isolated staging Worker. |
 | `CLERK_EMAIL_ENABLED` | Operator readiness declaration for email verification. |
 | `CLERK_GOOGLE_ENABLED` | Operator readiness declaration for Google. |
-| `CLERK_FACEBOOK_ENABLED` | Operator readiness declaration for Facebook. |
+| `CLERK_FACEBOOK_ENABLED` | Operator readiness declaration for Facebook; explicit `false` is an interim deferral, never acceptance. |
 
 `CLERK_JWT_KEY` is optional and supports networkless Clerk JWT verification. No actual value belongs in Git, receipts, screenshots, logs, prompts, or chat.
 
@@ -56,7 +56,7 @@ The documentation-only follow-up exposed a real pre-existing timing race in the 
 
 The client now merges only the settling asset's upload fields into the latest local draft. A response for an asset replaced while its request was in flight is ignored, as is a stale response after that asset is already durable. Two focused regression tests cover both the photo/voice interleaving and replacement cases. The existing offline phone-browser scenario was not weakened or rewritten and passed in hardening run `29523952562`.
 
-## Current blocker
+## Initial blocker (superseded by operator configuration)
 
 The real operator environment contains none of the 13 required Packet 4 staging items available to this workspace. The preflight exited nonzero and therefore no Clerk, D1, R2, Worker, callback, or second-device live check was attempted.
 
@@ -71,3 +71,9 @@ This is the required stop condition in `docs/EXECUTION/AUTHORITY_AND_STOP_RULES.
 5. Return only the redacted output or confirm that every line is `present` and the preflight is green.
 
 The next authorized action is the bounded live Packet 4 staging acceptance run. Production remains untouched.
+
+## 2026-07-16 Facebook staging deferral
+
+The isolated Clerk application enabled email, Google, and Facebook with shared development credentials. Email and Google were exercised successfully. The Facebook path returned an upstream “App not active” response. Preparing custom Meta credentials then exposed business verification, app review, privacy-policy, and user-data-deletion prerequisites that the owner explicitly deferred.
+
+The preflight now permits `CLERK_FACEBOOK_ENABLED=false` as the status `deferred`, while still failing for a missing or unrecognized value. This permits a bounded email-and-Google staging run without making a false Facebook claim. Facebook remains required by the accepted Phase 1 decision, Packet 4 phase gate, and final Definition of Done; Packet 4 cannot be marked complete while it is deferred.

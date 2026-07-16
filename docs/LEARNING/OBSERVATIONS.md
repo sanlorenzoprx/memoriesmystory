@@ -81,3 +81,13 @@ Observations preserve evidence separately from proposed solutions. Follow `READM
 - **Confidence and contrary evidence:** High. The failure reproduced in the existing offline phone-browser path; two focused tests cover the interleaving and replacement cases; the unchanged eight-path browser suite passed after the repair.
 - **Affected experience or invariant:** I-01 original voice, I-02 photograph + voice, I-07 additive history, I-08 truthful durability, and I-11 technology stays in the background.
 - **Related proposal:** Addressed in `media-background-sync.ts`; all future background synchronization of draft aggregates follows this role-scoped merge rule.
+
+### L-2026-07-16-007 — Facebook staging requires an explicit provider-readiness boundary
+
+- **Status:** addressed
+- **Evidence source:** Product-owner staging setup and supplied provider screenshots on 2026-07-16.
+- **Observed fact:** Email and Google succeeded in the isolated Clerk application. Clerk's shared Facebook connection was enabled but returned “App not active”; the custom Meta path introduced business verification, app review, privacy-policy, and deletion prerequisites before public submission.
+- **Interpretation:** Provider enablement, live-path evidence, and final launch approval are distinct states. Interim staging may continue through independently verified identity paths only when the deferred provider remains visible as a release blocker.
+- **Confidence and contrary evidence:** High for the observed staging paths. A custom Meta development app may later allow bounded tester evidence before public approval, but that path was not completed or claimed here.
+- **Affected experience or invariant:** I-04 continuity across time, I-13 recoverable guidance, I-16 privacy by default, and truthful acceptance evidence.
+- **Related proposal:** Addressed operationally by the Packet 4 preflight's explicit `deferred` state; Facebook remains required by final acceptance.
