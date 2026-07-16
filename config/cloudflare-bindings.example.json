@@ -7,8 +7,11 @@
     "database_id": "provision-in-packet-1"
   },
   "r2": {
-    "binding": "MEDIA",
+    "binding": "MEDIA_BUCKET",
     "bucket_name": "memoriesmystory-media"
+  },
+  "ai": {
+    "binding": "AI"
   },
   "queue": {
     "binding": "PROCESSING_QUEUE",

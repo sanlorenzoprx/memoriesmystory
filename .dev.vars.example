@@ -1,0 +1,17 @@
+# Copy to .dev.vars for local Worker integration. Never commit .dev.vars.
+# The current static app build and deterministic tests require no secret values.
+
+# Required before Phase 1 runtime acceptance
+SESSION_SECRET=
+SHARE_TOKEN_PEPPER=
+
+# Required after the email delivery provider is selected
+EMAIL_PROVIDER_API_KEY=
+
+# Required for the approved OAuth paths
+GOOGLE_CLIENT_SECRET=
+FACEBOOK_APP_SECRET=
+
+# Conditional controls; leave blank until the related decision is approved
+TURNSTILE_SECRET_KEY=
+TRANSCRIPTION_FALLBACK_API_KEY=

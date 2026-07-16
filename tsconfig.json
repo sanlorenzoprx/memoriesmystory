@@ -15,7 +15,14 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
-    "types": ["vite/client", "vitest/globals"]
+    "types": ["node", "vite/client", "vitest/globals"]
   },
-  "include": ["app", "config", "tests", "vite.config.ts", "eslint.config.js"]
+  "include": [
+    "app",
+    "config",
+    "tests",
+    "playwright.config.ts",
+    "vite.config.ts",
+    "eslint.config.js"
+  ]
 }

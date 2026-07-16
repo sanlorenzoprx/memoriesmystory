@@ -11,6 +11,9 @@
     "typecheck": "tsc --noEmit && tsc -p tsconfig.worker.json --noEmit",
     "lint": "eslint .",
     "test": "vitest run",
+    "test:e2e": "playwright test",
+    "verify:core": "npm run typecheck && npm run lint && npm test && npm run build && npm run deploy:dry-run",
+    "verify": "npm run verify:core && npm run test:e2e",
     "deploy:dry-run": "npm run build && wrangler deploy --dry-run",
     "deploy": "npm run build && wrangler deploy"
   },
@@ -22,6 +25,8 @@
   "devDependencies": {
     "@cloudflare/workers-types": "^5.20260715.1",
     "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.61.1",
+    "@types/node": "^26.1.1",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.3",
