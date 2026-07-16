@@ -163,11 +163,30 @@ test("a capability-qualified camera can capture and manually accept a photograph
   ).toBeVisible();
 });
 
-test("an interrupted photograph upload retries the same local original", async ({
+test("an offline photograph never blocks the voice and later backs up in order", async ({
   page
 }) => {
-  await page.route("**/resources/drafts/*/photo", (route) => route.abort("internetdisconnected"), {
-    times: 1
+  let connectionAvailable = false;
+  await page.route("**/resources/drafts/*/photo", (route) => {
+    if (connectionAvailable) return route.continue();
+    return route.abort("internetdisconnected");
+  });
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, "mediaDevices", {
+      configurable: true,
+      value: {
+        getUserMedia: async (constraints: MediaStreamConstraints) => {
+          if (!constraints.audio) throw new Error("Synthetic microphone expected");
+          const context = new AudioContext();
+          const oscillator = context.createOscillator();
+          const destination = context.createMediaStreamDestination();
+          oscillator.frequency.value = 220;
+          oscillator.connect(destination);
+          oscillator.start();
+          return destination.stream;
+        }
+      }
+    });
   });
   await page.goto("/");
   await page.getByRole("button", { name: "Import a photo" }).click();
@@ -179,16 +198,25 @@ test("an interrupted photograph upload retries the same local original", async (
   await page.getByRole("button", { name: "Use this photo anyway" }).click();
 
   await expect(
-    page.getByRole("heading", { name: "Your photograph is still here." })
-  ).toBeVisible();
-  await expect(
-    page.getByText("The original remains recoverable on this device.")
-  ).toBeVisible();
-
-  await page.getByRole("button", { name: "Try preserving again" }).click();
-  await expect(
     page.getByRole("heading", { name: "Tell the story you remember." })
   ).toBeVisible();
+  await page.getByRole("button", { name: "Start recording" }).click();
+  await page.waitForTimeout(650);
+  await page.getByRole("button", { name: "Stop recording" }).click();
+  await expect(
+    page.getByRole("heading", { name: "Does this sound like the story you meant to keep?" })
+  ).toBeVisible();
+  await page.getByRole("button", { name: "Keep this recording" }).click();
+
+  await expect(
+    page.getByRole("heading", { name: "Your story stays with you." })
+  ).toBeVisible();
+  await expect(page.getByText(/quietly finish preserving/i)).toBeVisible();
+
+  connectionAvailable = true;
+  await page.evaluate(() => window.dispatchEvent(new Event("online")));
+  await expect(page.getByRole("heading", { name: "We have your back." })).toBeVisible();
+  await expect(page.getByText("Your story is preserved in your family archive.")).toBeVisible();
 });
 
 test("the original voice is recorded, preserved, retrieved, and recovered", async ({
@@ -236,14 +264,14 @@ test("the original voice is recorded, preserved, retrieved, and recovered", asyn
 
   await page.getByRole("button", { name: "Keep this recording" }).click();
   await expect(
-    page.getByRole("heading", { name: "Your originals are safely backed up." })
+    page.getByRole("heading", { name: "We have your back." })
   ).toBeVisible();
   await expect(page.getByText("Playing the preserved original")).toBeVisible();
   await expect(page.getByText(/This memory is now part/i)).toHaveCount(0);
 
   await page.reload();
   await expect(
-    page.getByRole("heading", { name: "Your originals are safely backed up." })
+    page.getByRole("heading", { name: "We have your back." })
   ).toBeVisible();
   await expect(page.getByText("Private originals confirmed")).toBeVisible();
 });

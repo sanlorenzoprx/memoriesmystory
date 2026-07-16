@@ -2,39 +2,36 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 import { phase1Config } from "../../../config/phase-1";
 import {
+  acceptLocalAudio,
   attachLocalAudio,
-  updateLocalUpload,
   type LocalMemoryDraft
 } from "./local-draft";
 import { createLocalAudio, preferredAudioMimeType } from "../../services/audio-capture";
 import {
   MediaDurabilityError,
   retrieveOriginal,
-  uploadOriginalAudio,
-  uploadOriginalPhoto,
   verifyOriginalReceipts
 } from "../../services/media-durability";
+import {
+  needsOriginalSync,
+  syncAcceptedOriginalsInBackground
+} from "../../services/media-background-sync";
 import { saveLocalDraft } from "../../services/local-draft-store";
 
 type OriginalsPhase =
-  | "photo-uploading"
-  | "photo-needs-connection"
   | "voice-invitation"
   | "microphone-opening"
   | "microphone-denied"
   | "recording"
   | "audio-review"
-  | "audio-uploading"
-  | "audio-needs-connection"
+  | "story-local"
   | "originals-durable";
 
 function initialPhase(draft: LocalMemoryDraft): OriginalsPhase {
   if (draft.audioUpload?.status === "durable") return "originals-durable";
-  if (draft.audioUpload?.status === "needs_connection") return "audio-needs-connection";
+  if (draft.audio?.acceptedAt) return "story-local";
   if (draft.audio) return "audio-review";
-  if (draft.photoUpload?.status === "durable") return "voice-invitation";
-  if (draft.photoUpload?.status === "needs_connection") return "photo-needs-connection";
-  return "photo-uploading";
+  return "voice-invitation";
 }
 
 function stopTracks(stream: MediaStream | null): void {
@@ -60,7 +57,10 @@ export function OriginalsExperience({
   const [message, setMessage] = useState<string | null>(null);
   const [elapsedMs, setElapsedMs] = useState(0);
   const [preservedAudio, setPreservedAudio] = useState<Blob | null>(null);
-  const busyRef = useRef(false);
+  const [isBackingUp, setIsBackingUp] = useState(false);
+  const draftRef = useRef(draft);
+  const syncBusyRef = useRef(false);
+  const syncRequestedRef = useRef(false);
   const recorderRef = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const chunksRef = useRef<Blob[]>([]);
@@ -98,58 +98,9 @@ export function OriginalsExperience({
   }, []);
 
   async function commit(next: LocalMemoryDraft): Promise<void> {
+    draftRef.current = next;
     await saveLocalDraft(next);
     onDraftChange(next);
-  }
-
-  async function preservePhoto(current = draft): Promise<void> {
-    if (!current.photo || !current.photoUpload || busyRef.current) return;
-    busyRef.current = true;
-    setPhase("photo-uploading");
-    setMessage(null);
-
-    const uploading: LocalMemoryDraft = {
-      ...current,
-      photoUpload: updateLocalUpload(current.photoUpload, {
-        status: "uploading",
-        lastError: null
-      }),
-      updatedAt: new Date().toISOString()
-    };
-
-    try {
-      await commit(uploading);
-      const receipt = await uploadOriginalPhoto(uploading);
-      const durable: LocalMemoryDraft = {
-        ...uploading,
-        photoUpload: updateLocalUpload(uploading.photoUpload!, {
-          status: "durable",
-          receipt,
-          lastError: null
-        }),
-        updatedAt: new Date().toISOString()
-      };
-      await commit(durable);
-      setPhase("voice-invitation");
-    } catch (error) {
-      const reason =
-        error instanceof Error
-          ? error.message
-          : "The photograph is still on this device. Reconnect and try again.";
-      const failed: LocalMemoryDraft = {
-        ...uploading,
-        photoUpload: updateLocalUpload(uploading.photoUpload!, {
-          status: "needs_connection",
-          lastError: reason
-        }),
-        updatedAt: new Date().toISOString()
-      };
-      await commit(failed);
-      setMessage(reason);
-      setPhase("photo-needs-connection");
-    } finally {
-      busyRef.current = false;
-    }
   }
 
   async function loadPreservedAudio(current: LocalMemoryDraft): Promise<void> {
@@ -166,86 +117,53 @@ export function OriginalsExperience({
     setPreservedAudio(await retrieveOriginal(current, receipt.assetId));
   }
 
-  async function preserveAudio(current = draft): Promise<void> {
-    if (!current.audio || !current.audioUpload || busyRef.current) return;
-    busyRef.current = true;
-    setPhase("audio-uploading");
-    setMessage(null);
+  async function runBackgroundSync(): Promise<void> {
+    if (!needsOriginalSync(draftRef.current)) return;
+    if (syncBusyRef.current) {
+      syncRequestedRef.current = true;
+      return;
+    }
 
-    const uploading: LocalMemoryDraft = {
-      ...current,
-      audioUpload: updateLocalUpload(current.audioUpload, {
-        status: "uploading",
-        lastError: null
-      }),
-      updatedAt: new Date().toISOString()
-    };
-
+    syncBusyRef.current = true;
+    setIsBackingUp(true);
     try {
-      await commit(uploading);
-      const receipt = await uploadOriginalAudio(uploading);
-      const durable: LocalMemoryDraft = {
-        ...uploading,
-        audioUpload: updateLocalUpload(uploading.audioUpload!, {
-          status: "durable",
-          receipt,
-          lastError: null
-        }),
-        updatedAt: new Date().toISOString()
-      };
-      await commit(durable);
-      await loadPreservedAudio(durable);
-      setPhase("originals-durable");
-    } catch (error) {
-      const reason =
-        error instanceof Error
-          ? error.message
-          : "The recording is still on this device. Reconnect and try again.";
-      const failed: LocalMemoryDraft = {
-        ...uploading,
-        audioUpload: updateLocalUpload(uploading.audioUpload!, {
-          status: "needs_connection",
-          lastError: reason
-        }),
-        updatedAt: new Date().toISOString()
-      };
-      await commit(failed);
-      setMessage(reason);
-      setPhase("audio-needs-connection");
+      const synced = await syncAcceptedOriginalsInBackground({
+        getDraft: () => draftRef.current,
+        commit
+      });
+      if (synced.audioUpload?.status === "durable") {
+        setPhase("originals-durable");
+        void loadPreservedAudio(synced).catch(() => undefined);
+      }
+    } catch {
+      // The originals remain in IndexedDB. Reconnect, reload, or the next online
+      // event resumes the same immutable operations without interrupting the story.
     } finally {
-      busyRef.current = false;
+      syncBusyRef.current = false;
+      setIsBackingUp(false);
+      if (syncRequestedRef.current) {
+        syncRequestedRef.current = false;
+        void runBackgroundSync();
+      }
     }
   }
 
   useEffect(() => {
-    if (draft.photoUpload?.status === "local") {
-      void preservePhoto(draft);
-    } else if (draft.photoUpload?.status === "uploading") {
-      void preservePhoto({
-        ...draft,
-        photoUpload: updateLocalUpload(draft.photoUpload, { status: "needs_connection" })
-      });
-    } else if (draft.audioUpload?.status === "uploading") {
-      void preserveAudio({
-        ...draft,
-        audioUpload: updateLocalUpload(draft.audioUpload, { status: "needs_connection" })
-      });
-    } else if (draft.audioUpload?.status === "durable" && !preservedAudio) {
-      void loadPreservedAudio(draft).catch((error: unknown) => {
-        setMessage(error instanceof Error ? error.message : "Playback is temporarily unavailable.");
-      });
-    }
-    // A stable upload identity makes a repeated Strict Mode effect safe.
-  }, []);
+    draftRef.current = draft;
+    if (needsOriginalSync(draft)) void runBackgroundSync();
+  }, [draft.photo?.acceptedAt, draft.audio?.acceptedAt]);
 
   useEffect(() => {
-    const resume = () => {
-      if (draft.photoUpload?.status === "needs_connection") void preservePhoto(draft);
-      else if (draft.audioUpload?.status === "needs_connection") void preserveAudio(draft);
-    };
+    if (draft.audioUpload?.status === "durable" && !preservedAudio) {
+      void loadPreservedAudio(draft).catch(() => undefined);
+    }
+  }, [draft.audioUpload?.status]);
+
+  useEffect(() => {
+    const resume = () => void runBackgroundSync();
     window.addEventListener("online", resume);
     return () => window.removeEventListener("online", resume);
-  }, [draft]);
+  }, []);
 
   async function openMicrophone() {
     setPhase("microphone-opening");
@@ -278,7 +196,7 @@ export function OriginalsExperience({
         if (tickTimerRef.current) window.clearInterval(tickTimerRef.current);
 
         void createLocalAudio(chunksRef.current, recorder.mimeType, durationMs)
-          .then((audio) => attachLocalAudio(draft, audio))
+          .then((audio) => attachLocalAudio(draftRef.current, audio))
           .then(async (next) => {
             await commit(next);
             setElapsedMs(0);
@@ -306,8 +224,8 @@ export function OriginalsExperience({
       const denied = error instanceof DOMException && error.name === "NotAllowedError";
       setMessage(
         denied
-          ? "Microphone access was not allowed. Your photograph is already preserved."
-          : "The microphone is not available right now. Your photograph is already preserved."
+          ? "Microphone access was not allowed. Your photograph is safe on this device."
+          : "The microphone is not available right now. Your photograph is safe on this device."
       );
       setPhase("microphone-denied");
     }
@@ -319,7 +237,7 @@ export function OriginalsExperience({
 
   async function recordAgain() {
     const next: LocalMemoryDraft = {
-      ...draft,
+      ...draftRef.current,
       audio: null,
       audioUpload: null,
       updatedAt: new Date().toISOString()
@@ -329,6 +247,13 @@ export function OriginalsExperience({
     setPhase("voice-invitation");
   }
 
+  async function keepRecording() {
+    const next = acceptLocalAudio(draftRef.current);
+    await commit(next);
+    setPhase("story-local");
+    void runBackgroundSync();
+  }
+
   const remainingMs = Math.max(
     0,
     phase1Config.entitlements.freeVoiceSecondsPerStory * 1000 - elapsedMs
@@ -336,27 +261,6 @@ export function OriginalsExperience({
 
   return (
     <section className={`capture-state originals-state phase-${phase}`}>
-      {(phase === "photo-uploading" || phase === "photo-needs-connection") && (
-        <>
-          <p className="eyebrow">Your original photograph</p>
-          <h1 ref={headingRef} tabIndex={-1}>
-            {phase === "photo-uploading" ? "Preserving your photograph…" : "Your photograph is still here."}
-          </h1>
-          <div className="ready-photo-wrap"><img src={photoUrl} alt="Your photograph" /></div>
-          {phase === "photo-uploading" ? (
-            <p className="preservation-status" role="status">Keep this page open while the original is backed up.</p>
-          ) : (
-            <>
-              <p className="inline-error" role="status">{message ?? draft.photoUpload?.lastError}</p>
-              <button className="primary-action" type="button" onClick={() => void preservePhoto()}>
-                Try preserving again
-              </button>
-              <p className="local-only-note">The original remains recoverable on this device.</p>
-            </>
-          )}
-        </>
-      )}
-
       {phase === "voice-invitation" && (
         <>
           <p className="eyebrow">Now, the voice behind it</p>
@@ -399,7 +303,7 @@ export function OriginalsExperience({
 
       {phase === "microphone-denied" && (
         <>
-          <p className="eyebrow">Your photograph is preserved</p>
+          <p className="eyebrow">Your photograph is safe</p>
           <h1 ref={headingRef} tabIndex={-1}>The microphone stayed closed.</h1>
           <p className="capture-lede">{message}</p>
           <div className="capture-actions">
@@ -418,37 +322,29 @@ export function OriginalsExperience({
           <h1 ref={headingRef} tabIndex={-1}>Does this sound like the story you meant to keep?</h1>
           <div className="story-photo-focus compact-story-photo"><img src={photoUrl} alt="The photograph paired with your recording" /></div>
           <audio className="voice-player" controls src={localAudioUrl}>Your browser cannot play this recording.</audio>
-          <p className="local-only-note">This recording is still only on this device.</p>
+          <p className="local-only-note">Your recording is safe on this device while you decide.</p>
           <div className="capture-actions">
-            <button className="primary-action" type="button" onClick={() => void preserveAudio()}>Keep this recording</button>
+            <button className="primary-action" type="button" onClick={() => void keepRecording()}>Keep this recording</button>
             <button className="secondary-action" type="button" onClick={() => void recordAgain()}>Record again</button>
           </div>
         </>
       )}
 
-      {(phase === "audio-uploading" || phase === "audio-needs-connection") && (
+      {phase === "story-local" && draft.audio && localAudioUrl && (
         <>
-          <p className="eyebrow">Your original voice</p>
-          <h1 ref={headingRef} tabIndex={-1}>
-            {phase === "audio-uploading" ? "Preserving your recording…" : "Your recording is still here."}
-          </h1>
+          <p className="eyebrow">Your memory is safe</p>
+          <h1 ref={headingRef} tabIndex={-1}>Your story stays with you.</h1>
           <div className="story-photo-focus compact-story-photo"><img src={photoUrl} alt="The photograph paired with your recording" /></div>
-          {draft.audio && localAudioUrl && <audio className="voice-player" controls src={localAudioUrl} />}
-          {phase === "audio-uploading" ? (
-            <p className="preservation-status" role="status">The original stays on this device until its private backup is confirmed.</p>
-          ) : (
-            <>
-              <p className="inline-error" role="status">{message ?? draft.audioUpload?.lastError}</p>
-              <button className="primary-action" type="button" onClick={() => void preserveAudio()}>Try preserving again</button>
-            </>
-          )}
+          <audio className="voice-player" controls src={localAudioUrl} />
+          <p className="capture-lede">You can leave this page. We’ll quietly finish preserving your photograph and voice when a connection is available.</p>
         </>
       )}
 
       {phase === "originals-durable" && (
         <>
           <p className="eyebrow">Photograph and voice protected</p>
-          <h1 ref={headingRef} tabIndex={-1}>Your originals are safely backed up.</h1>
+          <h1 ref={headingRef} tabIndex={-1}>We have your back.</h1>
+          <p className="capture-lede">Your story is preserved in your family archive.</p>
           <div className="story-photo-focus"><img src={photoUrl} alt="Your privately preserved photograph" /></div>
           {preservedAudioUrl ? (
             <>
@@ -462,11 +358,22 @@ export function OriginalsExperience({
             <span aria-hidden="true">✓</span>
             <div>
               <strong>Private originals confirmed</strong>
-              <p>The photograph and real voice were independently found in your protected draft.</p>
+              <p>Your photograph and real voice are safely backed up.</p>
             </div>
           </div>
           <p className="cross-device-note">Next, sign in to carry this Memory Story securely to your other devices.</p>
         </>
+      )}
+
+      {phase !== "originals-durable" && draft.photo?.acceptedAt && (
+        <div className="background-backup" role="status" aria-live="polite">
+          <span className={isBackingUp ? "backup-pulse" : "backup-device"} aria-hidden="true" />
+          <p>
+            {isBackingUp
+              ? "Preserving quietly in the background…"
+              : "Safe on this device. Backup will continue when a connection is available."}
+          </p>
+        </div>
       )}
     </section>
   );

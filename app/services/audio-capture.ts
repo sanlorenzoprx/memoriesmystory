@@ -37,6 +37,7 @@ export async function createLocalAudio(
     byteSize: blob.size,
     sha256: await sha256(blob),
     durationMs,
-    capturedAt: new Date().toISOString()
+    capturedAt: new Date().toISOString(),
+    acceptedAt: null
   };
 }

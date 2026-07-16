@@ -72,7 +72,13 @@ async function uploadOriginal(input: {
 
   if (!response.ok) throw await responseError(response);
   const body = (await response.json()) as { receipt?: DurableMediaReceipt };
-  if (!body.receipt?.r2Etag || body.receipt.sha256 !== input.media.sha256) {
+  const expectedRole = input.role === "photo" ? "original_photo" : "original_audio";
+  if (
+    !body.receipt?.r2Etag ||
+    body.receipt.sha256 !== input.media.sha256 ||
+    body.receipt.assetId !== input.upload.assetId ||
+    body.receipt.role !== expectedRole
+  ) {
     throw new MediaDurabilityError(
       "The preservation receipt could not be verified. Retry safely.",
       true,
@@ -140,4 +146,3 @@ export async function retrieveOriginal(
   if (!response.ok) throw await responseError(response);
   return response.blob();
 }
-

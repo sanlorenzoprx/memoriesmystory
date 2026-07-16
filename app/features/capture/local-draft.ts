@@ -60,6 +60,7 @@ export type LocalAudio = {
   readonly sha256: string;
   readonly durationMs: number;
   readonly capturedAt: string;
+  readonly acceptedAt: string | null;
 };
 
 export type LocalMemoryDraft = {
@@ -74,7 +75,7 @@ export type LocalMemoryDraft = {
   readonly audioUpload: LocalUploadState | null;
   readonly createdAt: string;
   readonly updatedAt: string;
-  readonly version: 2;
+  readonly version: 3;
 };
 
 export function createLocalDraft(input: {
@@ -98,7 +99,7 @@ export function createLocalDraft(input: {
     audioUpload: null,
     createdAt: now,
     updatedAt: now,
-    version: 2
+    version: 3
   };
 }
 
@@ -146,14 +147,32 @@ export function attachLocalAudio(
   audio: LocalAudio,
   now = new Date().toISOString()
 ): LocalMemoryDraft {
-  if (!draft.photoUpload?.receipt) {
-    throw new Error("The photograph must be durable before recording is accepted.");
+  if (!draft.photo?.acceptedAt) {
+    throw new Error("The photograph must be accepted before its story is recorded.");
   }
 
   return {
     ...draft,
     audio,
     audioUpload: createLocalUploadState(),
+    updatedAt: now
+  };
+}
+
+export function acceptLocalAudio(
+  draft: LocalMemoryDraft,
+  now = new Date().toISOString()
+): LocalMemoryDraft {
+  if (!draft.audio || !draft.audioUpload) {
+    throw new Error("A recording must be present before it can be kept.");
+  }
+
+  return {
+    ...draft,
+    audio: {
+      ...draft.audio,
+      acceptedAt: now
+    },
     updatedAt: now
   };
 }

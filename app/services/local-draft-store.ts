@@ -14,12 +14,18 @@ export function makeDraftToken(): string {
 }
 
 function normalizeDraft(value: LocalMemoryDraft): LocalMemoryDraft {
-  if (value.version === 2 && value.draftToken) return value;
+  if (value.version === 3 && value.draftToken) return value;
 
   const legacy = value as LocalMemoryDraft & {
     readonly version: number;
     readonly draftToken?: string;
+    readonly audio?: LocalMemoryDraft["audio"] & {
+      readonly acceptedAt?: string | null;
+    };
   };
+  const legacyAudioAccepted = Boolean(
+    legacy.audioUpload && legacy.audioUpload.status !== "local"
+  );
   return {
     ...legacy,
     draftToken: legacy.draftToken ?? makeDraftToken(),
@@ -30,9 +36,16 @@ function normalizeDraft(value: LocalMemoryDraft): LocalMemoryDraft {
       receipt: null,
       lastError: null
     } : null,
-    audio: null,
-    audioUpload: null,
-    version: 2
+    audio: legacy.audio
+      ? {
+          ...legacy.audio,
+          acceptedAt:
+            legacy.audio.acceptedAt ??
+            (legacyAudioAccepted ? legacy.audio.capturedAt : null)
+        }
+      : null,
+    audioUpload: legacy.audioUpload ?? null,
+    version: 3
   };
 }
 

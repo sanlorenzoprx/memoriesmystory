@@ -122,8 +122,8 @@ describe("local-first photograph contract", () => {
     expect(assessPhotoQuality(healthyInspection)).toBeNull();
   });
 
-  it("creates a new immutable identity for voice only after the photo receipt", () => {
-    const withPhoto = attachLocalPhoto(
+  it("creates a new immutable voice identity after local photo acceptance", () => {
+    const withPhoto = acceptLocalPhoto(attachLocalPhoto(
       createLocalDraft({
         id: "local-draft-voice",
         entryMode: "import",
@@ -131,36 +131,42 @@ describe("local-first photograph contract", () => {
         draftToken: "d".repeat(64)
       }),
       localPhoto()
-    );
-    const durablePhoto = {
-      ...withPhoto,
-      photoUpload: {
-        ...withPhoto.photoUpload!,
-        status: "durable" as const,
-        receipt: {
-          assetId: withPhoto.photoUpload!.assetId,
-          role: "original_photo" as const,
-          byteSize: 15,
-          durationMs: null,
-          sha256: "abc123",
-          r2Etag: "etag-photo",
-          durableAt: "2026-07-16T12:04:00.000Z",
-          correlationId: "cor-photo"
-        }
-      }
-    };
-    const withAudio = attachLocalAudio(durablePhoto, {
+    ));
+    const withAudio = attachLocalAudio(withPhoto, {
       blob: new Blob(["synthetic-audio"], { type: "audio/webm" }),
       mimeType: "audio/webm",
       byteSize: 15,
       sha256: "def456",
       durationMs: 1200,
-      capturedAt: "2026-07-16T12:05:00.000Z"
+      capturedAt: "2026-07-16T12:05:00.000Z",
+      acceptedAt: null
     });
 
     expect(withAudio.audioUpload?.assetId).toMatch(/^asset_/);
     expect(withAudio.audioUpload?.idempotencyKey).toMatch(/^upload_/);
     expect(withAudio.audioUpload?.status).toBe("local");
-    expect(withAudio.photoUpload?.receipt?.r2Etag).toBe("etag-photo");
+    expect(withAudio.photoUpload?.receipt).toBeNull();
+  });
+
+  it("does not attach voice before the photograph is accepted locally", () => {
+    const withPhoto = attachLocalPhoto(
+      createLocalDraft({
+        id: "local-draft-unaccepted-photo",
+        entryMode: "import",
+        locale: "en-US",
+        draftToken: "e".repeat(64)
+      }),
+      localPhoto()
+    );
+
+    expect(() => attachLocalAudio(withPhoto, {
+      blob: new Blob(["synthetic-audio"], { type: "audio/webm" }),
+      mimeType: "audio/webm",
+      byteSize: 15,
+      sha256: "def456",
+      durationMs: 1200,
+      capturedAt: "2026-07-16T12:05:00.000Z",
+      acceptedAt: null
+    })).toThrow(/accepted/i);
   });
 });
