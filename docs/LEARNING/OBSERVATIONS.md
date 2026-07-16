@@ -71,3 +71,13 @@ Observations preserve evidence separately from proposed solutions. Follow `READM
 - **Confidence and contrary evidence:** High confidence from explicit owner direction and the connected offline/reconnect browser path. Device-local storage can still be evicted by the operating system, so pending state must never be described as backed up.
 - **Affected experience or invariant:** I-02 photograph + voice, I-08 truthful durability, I-11 technology stays in the background, and I-13 recoverable guidance.
 - **Related proposal:** Addressed by `media-background-sync.ts`, local audio acceptance, bounded retry configuration, and the Packet 3 offline continuity revision; no Foundation change required.
+
+### L-2026-07-16-006 — Background uploads must merge into the latest local draft
+
+- **Status:** addressed
+- **Evidence source:** Packet 4 follow-up CI failure `29507040605`, focused regression tests, and green hardening CI run `29523952562` on 2026-07-16.
+- **Observed fact:** An in-flight photograph upload held the draft snapshot from before recording. When that request settled, it could persist the stale snapshot and remove audio that had been accepted locally in the meantime.
+- **Interpretation:** An asynchronous operation may update only the fields it owns and must merge them into the latest persisted aggregate. Its response must be ignored if the asset identity changed or that asset already reached a newer durable state.
+- **Confidence and contrary evidence:** High. The failure reproduced in the existing offline phone-browser path; two focused tests cover the interleaving and replacement cases; the unchanged eight-path browser suite passed after the repair.
+- **Affected experience or invariant:** I-01 original voice, I-02 photograph + voice, I-07 additive history, I-08 truthful durability, and I-11 technology stays in the background.
+- **Related proposal:** Addressed in `media-background-sync.ts`; all future background synchronization of draft aggregates follows this role-scoped merge rule.
