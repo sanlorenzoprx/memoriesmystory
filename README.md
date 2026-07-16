@@ -15,6 +15,7 @@ Start with [docs/00_START_HERE.md](docs/00_START_HERE.md). Do not begin feature 
 
 ## Current state
 
+- Packet 0 bootstrap branch: React Router v8 + React + TypeScript + Vite application shell with Cloudflare Worker assets serving.
 - Founding Principles: completed and locked as Version 1.0.
 - Product Invariants: completed and locked as Version 1.0.
 - Product Vision: consolidated and completed as Version 1.0.
@@ -28,6 +29,19 @@ Start with [docs/00_START_HERE.md](docs/00_START_HERE.md). Do not begin feature 
 This repository begins from the approved Foundation and Phase 1 specification in this package. No application code, architecture, migration, provider, or business rule is inherited from another codebase. New implementation must be written and verified against the Foundation documents.
 
 All technical identifiers use `memoriesmystory`. The customer-facing brand remains **Memories: My Story**.
+
+## Developer start
+
+```bash
+npm install
+npm run typecheck
+npm run lint
+npm test
+npm run build
+npm run dev
+```
+
+The Cloudflare Worker entry is `worker/index.ts`; the browser app is served from the Vite build output through Wrangler assets.
 
 ## Canonical mission statement
 

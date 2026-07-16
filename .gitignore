@@ -3,6 +3,9 @@ build/
 dist/
 coverage/
 .wrangler/
+*.tsbuildinfo
+playwright-report/
+test-results/
 .dev.vars
 .env
 .env.*

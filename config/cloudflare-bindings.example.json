@@ -1,0 +1,17 @@
+{
+  "app": "memoriesmystory",
+  "worker": "memoriesmystory",
+  "d1": {
+    "binding": "DB",
+    "database_name": "memoriesmystory",
+    "database_id": "provision-in-packet-1"
+  },
+  "r2": {
+    "binding": "MEDIA",
+    "bucket_name": "memoriesmystory-media"
+  },
+  "queue": {
+    "binding": "PROCESSING_QUEUE",
+    "queue_name": "memoriesmystory-processing"
+  }
+}
