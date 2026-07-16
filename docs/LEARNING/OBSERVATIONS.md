@@ -41,3 +41,13 @@ Observations preserve evidence separately from proposed solutions. Follow `READM
 - **Confidence and contrary evidence:** High for this sandbox behavior. The migration output showed successful execution, but a hanging process is still a failed automated gate.
 - **Affected experience or invariant:** I-06 immutable originals, I-08 truthful durability, and reliable build receipts.
 - **Related proposal:** Addressed by `scripts/verify-d1-schema.mjs`; real Cloudflare D1 staging migration remains required before Phase 1 acceptance.
+
+### L-2026-07-16-003 — Keyboard acceptance must begin after route focus settles
+
+- **Status:** addressed
+- **Evidence source:** Packet 2 GitHub Actions phone-Chromium run `29496384379` on 2026-07-16.
+- **Observed fact:** Five browser outcomes passed, while the first keyboard test pressed Tab before the asynchronous IndexedDB recovery and route-heading focus handoff had completed. The test failed consistently even though the route correctly focused its heading after recovery.
+- **Interpretation:** Route accessibility tests must first prove the intended focus handoff, then begin keyboard traversal from that known state. Otherwise they measure test timing rather than keyboard reachability.
+- **Confidence and contrary evidence:** High. After explicitly awaiting the visible, focused route heading, the same keyboard and viewport path passed in CI run `29496575881` without changing product behavior.
+- **Affected experience or invariant:** I-13 recoverable guidance and I-14 accessibility.
+- **Related proposal:** Addressed in `tests/e2e/first-experience.spec.ts`; no Foundation change required.

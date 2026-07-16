@@ -1,5 +1,15 @@
 # Foundation Package Changelog
 
+## Packet 2 local-first capture and onboarding — 2026-07-16
+
+- Replaced the static introduction with a phone-first `/capture/:draftId` camera/import experience.
+- Added contextual camera permission, unsupported/denied-camera recovery, and a universal import fallback.
+- Added versioned IndexedDB draft/original-photo persistence with SHA-256 identity and reload recovery.
+- Added one-at-a-time resolution, glare, shadow, and focus guidance with a deliberate manual override.
+- Added honest local-only state language; no durable-save or completion claim appears.
+- Expanded CI to all packet branches and passed six phone-Chromium acceptance paths.
+- Activated Packet 3 only after the complete Packet 2 gate passed.
+
 ## Packet 1 domain and persistence contracts — 2026-07-16
 
 - Added framework-independent Memory Story, media, truth/provenance, entitlement, idempotency, and durable-receipt contracts.
