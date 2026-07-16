@@ -11,7 +11,7 @@ This folder is the organized starting point for the Memories: My Story applicati
 
 Memories: My Story exists to preserve a person through the memories they tell, the photographs that awaken those memories, and the sound of their real voice.
 
-Start with [docs/00_START_HERE.md](docs/00_START_HERE.md). Do not begin feature or architecture work without reading the Foundation documents in order.
+Start with [AGENTS.md](AGENTS.md), which routes each task to the exact governing documents and folders. Then follow [docs/00_START_HERE.md](docs/00_START_HERE.md) for document authority. Do not begin feature or architecture work without reading the applicable Foundation documents.
 
 ## Current state
 
@@ -23,6 +23,8 @@ Start with [docs/00_START_HERE.md](docs/00_START_HERE.md). Do not begin feature 
 - Product language, Muse behavior, decision framework, and build order: organized as implementation guides.
 - Application stack: React Router v8, React, TypeScript, and Vite on Cloudflare Workers.
 - Phase 1 solo Memory Story build specification: included under `docs/IMPLEMENTATION/`.
+- Repository task routing: root and folder-level `AGENTS.md` guides are active.
+- Durable learning memory: observations and controlled change proposals live under `docs/LEARNING/`.
 
 ## Fresh-start rule
 

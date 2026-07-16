@@ -1,5 +1,12 @@
 # Foundation Package Changelog
 
+## Repository guidance and learning memory — 2026-07-15
+
+- Added a root task router and nested application, documentation, runtime, and verification guides.
+- Added an explicit Phase 1 route review map.
+- Added a controlled learning loop that separates evidence, proposals, approval, document updates, and verification.
+- Recorded the Packet 0 first-screen review and the approved Packet 0.1 design proposal without modifying the UI yet.
+
 ## Fresh-start repository package Version 1.1 — 2026-07-15
 
 - Set the Windows working path to `C:\repos\memoriesmystory`.

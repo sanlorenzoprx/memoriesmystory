@@ -2,6 +2,8 @@
 
 This page is the navigation map for product, design, engineering, and AI-agent work on Memories: My Story.
 
+Before using this map, read the root `../AGENTS.md`. It routes the current task to the specific product sources, code folders, and verification evidence required before action. Folder-level `AGENTS.md` files refine those instructions near the work.
+
 ## Foundation Rule #000
 
 Everything that follows is subordinate to the Foundation documents.
@@ -52,6 +54,14 @@ Database schemas, APIs, prompts, UI components, growth mechanics, pricing, and i
 
 - `IMPLEMENTATION/PHASE_1_SOLO_MEMORY_STORY_BUILD_SPEC.md`
 - `IMPLEMENTATION/README.md`
+
+### Learning memory
+
+- `LEARNING/README.md`
+- `LEARNING/OBSERVATIONS.md`
+- `LEARNING/CHANGE_PROPOSALS.md`
+
+Learning records preserve evidence and proposals across sessions. They do not outrank the Foundation and cannot silently modify approved product behavior.
 
 ## What is settled
 
