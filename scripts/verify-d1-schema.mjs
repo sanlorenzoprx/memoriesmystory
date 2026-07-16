@@ -2,14 +2,19 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { DatabaseSync } from "node:sqlite";
 
-const migration = await readFile(
+const foundationMigration = await readFile(
   new URL("../migrations/0001_phase_1_foundation.sql", import.meta.url),
+  "utf8"
+);
+const accountBindingMigration = await readFile(
+  new URL("../migrations/0002_account_binding_recovery.sql", import.meta.url),
   "utf8"
 );
 const database = new DatabaseSync(":memory:");
 
 try {
-  database.exec(migration);
+  database.exec(foundationMigration);
+  database.exec(accountBindingMigration);
 
   const objects = database
     .prepare(
@@ -19,6 +24,10 @@ try {
   const names = new Set(objects.map((object) => object.name));
   const requiredObjects = [
     "users",
+    "auth_principals",
+    "user_sessions",
+    "draft_ownership_claims",
+    "billing_customer_links",
     "memory_story_drafts",
     "memory_stories",
     "media_assets",
@@ -32,7 +41,9 @@ try {
     "memory_stories_complete_requires_originals",
     "memory_stories_complete_insert_forbidden",
     "memory_stories_cannot_reopen_complete",
-    "transcript_revisions_append_only"
+    "transcript_revisions_append_only",
+    "draft_ownership_claim_requires_owner",
+    "draft_ownership_claims_immutable"
   ];
 
   for (const name of requiredObjects) {

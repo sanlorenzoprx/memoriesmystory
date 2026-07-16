@@ -159,6 +159,25 @@ button:focus-visible {
   font-style: italic;
 }
 
+.header-links {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.archive-entry {
+  border-bottom: 1px solid rgba(92, 68, 50, 0.3);
+  color: var(--ink-soft);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.archive-entry:hover,
+.archive-entry:focus-visible {
+  color: var(--terracotta-deep);
+}
+
 .first-experience {
   display: grid;
   align-items: center;
@@ -983,6 +1002,47 @@ h1 {
 .originals-state > .primary-action {
   width: 100%;
   margin-top: 1rem;
+}
+
+.identity-card,
+.archive-card {
+  width: min(100%, 40rem);
+}
+
+.identity-card > .primary-action,
+.identity-card > .secondary-action,
+.archive-card > .primary-action,
+.archive-card > .secondary-action {
+  width: 100%;
+  margin-top: 1rem;
+}
+
+.identity-card > div[data-clerk-component] {
+  margin: 1.5rem auto 0;
+}
+
+.archive-list {
+  display: grid;
+  gap: 0.8rem;
+  margin: 1.5rem 0;
+  padding: 0;
+  list-style: none;
+}
+
+.archive-list a {
+  display: grid;
+  gap: 0.25rem;
+  border: 1px solid rgba(92, 68, 50, 0.16);
+  border-radius: 1rem;
+  background: rgba(255, 252, 246, 0.78);
+  padding: 1rem 1.1rem;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.archive-list span {
+  color: var(--ink-soft);
+  font-size: 0.82rem;
 }
 
 .voice-player {

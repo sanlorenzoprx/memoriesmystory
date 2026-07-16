@@ -18,7 +18,7 @@ Staging and production use different Worker names/routes, D1 databases, R2 bucke
 - Workers AI binding `AI`.
 - producer/consumer Queue binding `PROCESSING_QUEUE`, with bounded retry and terminal-failure evidence.
 - Turnstile site/secret pair.
-- approved email delivery/auth configuration plus Google and Facebook staging applications by Packet 4.
+- isolated Clerk staging instance with email verification, Google, and Facebook enabled; exact staging origin in `CLERK_AUTHORIZED_PARTIES`.
 
 ## Preflight reports only
 

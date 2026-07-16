@@ -6,6 +6,12 @@ export const phase1Config = {
     initiallyUnlockedStories: 1,
     freeVoiceSecondsPerStory: 30
   },
+  auth: {
+    provider: "clerk",
+    supportedMethods: ["email", "google", "facebook"],
+    sessionLifetimeDays: 30,
+    accountOwnershipAgreementVersion: "account-ownership-v1"
+  },
   media: {
     maxImageBytes: 25 * mebibyte,
     maxAudioBytes: 25 * mebibyte,

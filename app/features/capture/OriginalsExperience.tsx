@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { Link } from "react-router";
 
 import { phase1Config } from "../../../config/phase-1";
 import {
@@ -361,7 +362,10 @@ export function OriginalsExperience({
               <p>Your photograph and real voice are safely backed up.</p>
             </div>
           </div>
-          <p className="cross-device-note">Next, sign in to carry this Memory Story securely to your other devices.</p>
+          <p className="cross-device-note">Carry this Memory Story securely to your phone, tablet and computer.</p>
+          <Link className="primary-action" to={`/auth/protect?draftId=${encodeURIComponent(draft.id)}`}>
+            Protect this Memory Story
+          </Link>
         </>
       )}
 

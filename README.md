@@ -31,7 +31,7 @@ Start with [AGENTS.md](AGENTS.md), which routes each task to the exact governing
 - Packet 1 domain and persistence foundation: complete on `packet-1/domain-persistence`.
 - Packet 2 local-first capture and onboarding: complete on `packet-2/local-first-capture`, with IndexedDB photo recovery, contextual camera permission, import fallback, manual quality override, and phone-Chromium evidence.
 - Packet 3 immutable photo and voice durability: complete and offline-continuity revised on `packet-3/original-media-durability`, with non-blocking local storytelling, ordered background synchronization, scoped draft authorization, private D1/R2 receipts, and protected playback.
-- Packet 4 account binding and recovery: active; it owns secure draft promotion and second-device continuation without changing original asset identities.
+- Packet 4.1 Clerk account binding and recovery: implemented locally on `packet-4/account-binding-recovery`; Clerk identity maps to stable D1 ownership, durable anonymous drafts promote exactly once, and a new signed-in session can recover the original photograph and voice. Live email/Google/Facebook staging acceptance remains pending.
 
 ## Fresh-start rule
 

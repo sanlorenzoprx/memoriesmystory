@@ -15,10 +15,8 @@ describe("production-readiness configuration contract", () => {
     const example = readFileSync(new URL("../../.dev.vars.example", import.meta.url), "utf8");
     const secretNames = [
       "SESSION_SECRET",
+      "CLERK_SECRET_KEY",
       "SHARE_TOKEN_PEPPER",
-      "EMAIL_PROVIDER_API_KEY",
-      "GOOGLE_CLIENT_SECRET",
-      "FACEBOOK_APP_SECRET",
       "TURNSTILE_SECRET_KEY",
       "TRANSCRIPTION_FALLBACK_API_KEY"
     ];
@@ -34,5 +32,6 @@ describe("production-readiness configuration contract", () => {
 
     expect(gitignore).toContain(".dev.vars.*");
     expect(gitignore).toContain("!.dev.vars.example");
+    expect(gitignore).toContain("!.env.example");
   });
 });

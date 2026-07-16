@@ -11,6 +11,8 @@ import {
 import { appIdentity } from "../config/app-identity";
 import { firstExperienceContent } from "./features/first-experience/content";
 import { CaptureExperience } from "./features/capture/CaptureExperience";
+import { IdentityExperience } from "./features/identity/IdentityExperience";
+import { ArchiveExperience } from "./features/archive/ArchiveExperience";
 import type { CaptureEntryMode } from "./features/capture/local-draft";
 import { beginLocalDraft } from "./services/local-draft-store";
 
@@ -32,6 +34,18 @@ export const routes: RouteObject[] = [
       {
         path: "capture/:draftId",
         element: <CaptureExperience />
+      },
+      {
+        path: "auth/protect",
+        element: <IdentityExperience />
+      },
+      {
+        path: "archive",
+        element: <ArchiveExperience />
+      },
+      {
+        path: "archive/:draftId",
+        element: <ArchiveExperience />
       }
     ]
   }
@@ -61,7 +75,10 @@ function HomeRoute() {
     <div className="home-page">
       <header className="site-header">
         <BrandLockup brandName={data.brandName} />
-        <p className="header-promise">Your stories. Your voice.</p>
+        <div className="header-links">
+          <p className="header-promise">Your stories. Your voice.</p>
+          <Link className="archive-entry" to="/auth/protect">My stories</Link>
+        </div>
       </header>
 
       <section
