@@ -14,9 +14,17 @@
   "vars": {
     "APP_NAME": "memoriesmystory",
     "PUBLIC_BRAND_NAME": "Memories: My Story"
-  }
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "memoriesmystory",
+      "database_id": "00000000-0000-0000-0000-000000000000",
+      "migrations_dir": "migrations"
+    }
+  ]
 
-  // Provisioned Cloudflare resources are intentionally not bound in Packet 0.
-  // Add D1, R2, Queue, and Durable Object bindings only after Packet 1 creates
-  // the first real persistence contracts and deployment receipts.
+  // The zero D1 ID is an explicit non-deployable placeholder for local Packet 1
+  // migration tests. Replace it only in an authorized staging environment.
+  // R2, Queue, and AI bindings remain unprovisioned until their owning packets.
 }

@@ -2,6 +2,7 @@ import { appIdentity } from "../config/app-identity";
 
 export interface Env {
   ASSETS: Fetcher;
+  DB: D1Database;
   APP_NAME?: string;
   PUBLIC_BRAND_NAME?: string;
 }

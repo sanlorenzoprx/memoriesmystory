@@ -12,5 +12,15 @@ export default tseslint.config(
     rules: {
       "@typescript-eslint/consistent-type-imports": "error"
     }
+  },
+  {
+    files: ["scripts/**/*.mjs"],
+    languageOptions: {
+      globals: {
+        console: "readonly",
+        process: "readonly",
+        URL: "readonly"
+      }
+    }
   }
 );

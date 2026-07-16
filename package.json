@@ -11,8 +11,9 @@
     "typecheck": "tsc --noEmit && tsc -p tsconfig.worker.json --noEmit",
     "lint": "eslint .",
     "test": "vitest run",
+    "test:schema": "node --disable-warning=ExperimentalWarning scripts/verify-d1-schema.mjs",
     "test:e2e": "playwright test",
-    "verify:core": "npm run typecheck && npm run lint && npm test && npm run build && npm run deploy:dry-run",
+    "verify:core": "npm run typecheck && npm run lint && npm test && npm run test:schema && npm run build && npm run deploy:dry-run",
     "verify": "npm run verify:core && npm run test:e2e",
     "deploy:dry-run": "npm run build && wrangler deploy --dry-run",
     "deploy": "npm run build && wrangler deploy"

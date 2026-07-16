@@ -4,7 +4,7 @@
   "d1": {
     "binding": "DB",
     "database_name": "memoriesmystory",
-    "database_id": "provision-in-packet-1"
+    "database_id": "replace-with-staging-d1-id"
   },
   "r2": {
     "binding": "MEDIA_BUCKET",

@@ -1,5 +1,15 @@
 # Foundation Package Changelog
 
+## Packet 1 domain and persistence contracts — 2026-07-16
+
+- Added framework-independent Memory Story, media, truth/provenance, entitlement, idempotency, and durable-receipt contracts.
+- Centralized five-story/30-second entitlements, media limits, MIME types, locales, and explicit unresolved privacy/provider configuration.
+- Added the initial indexed D1 schema for ownership, drafts, stories, immutable media, additive transcripts/facts/events, entitlements, private shares, agreements, and operation receipts.
+- Added database enforcement for immutable original identity, fail-closed completion, and append-only transcript revisions.
+- Added deterministic private R2 original/derivative key builders and the private object policy.
+- Added local schema integrity testing and invariant-focused unit tests.
+- Activated Packet 2 only after the complete Packet 1 core gate passed.
+
 ## Packet 0.3 scalable campaign handoff — 2026-07-16
 
 - Recorded the approved Phase 1 production-ready-not-live campaign boundary.

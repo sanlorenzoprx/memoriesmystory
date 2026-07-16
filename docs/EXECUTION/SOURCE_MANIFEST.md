@@ -3,7 +3,7 @@
 ## Include
 
 - Repository: `https://github.com/sanlorenzoprx/memoriesmystory`
-- Branch: `packet-0/bootstrap` until the campaign intentionally creates its implementation branch.
+- Packet 1 branch: `packet-1/domain-persistence`; each later packet branches intentionally from the accepted preceding packet head.
 - Starting revision: the commit containing this manifest.
 - All tracked source, Foundation, Product, Architecture, Execution, Security, Operations, tests, and packet receipts in that revision.
 - Synthetic photographs/audio created specifically for tests, with no family or production data.

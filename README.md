@@ -28,6 +28,7 @@ Start with [AGENTS.md](AGENTS.md), which routes each task to the exact governing
 - Durable learning memory: observations and controlled change proposals live under `docs/LEARNING/`.
 - Packet 0.2 production-readiness guardrails: committed Playwright/CI gates, secret contract, and production-ready-not-live Definition of Done.
 - Packet 0.3 execution handoff: approved scalable Phase 1 campaign controls, phase gates, task queue, environment boundary, and master build prompt.
+- Packet 1 domain and persistence foundation: complete on `packet-1/domain-persistence`, with Packet 2 activated after verification.
 
 ## Fresh-start rule
 

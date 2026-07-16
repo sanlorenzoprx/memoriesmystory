@@ -31,3 +31,13 @@ Observations preserve evidence separately from proposed solutions. Follow `READM
 - **Confidence and contrary evidence:** High confidence from explicit owner direction. No evidence currently requires microservices, Durable Objects, Workflows, or a broad provider registry in the solo flow.
 - **Affected experience or invariant:** I-06 immutable originals, I-07 additive history, I-08 truthful durability, I-14 accessibility, I-15 language readiness, I-16 privacy, and I-24 share-to-unlock integrity.
 - **Related proposal:** P-2026-07-16-001.
+
+### L-2026-07-16-002 — Schema verification must terminate deterministically
+
+- **Status:** addressed
+- **Evidence source:** Packet 1 local verification on 2026-07-16.
+- **Observed fact:** Wrangler successfully applied all D1 migration commands in the verification sandbox but its local CLI process did not terminate under the sandbox proxy, so command success could not be used as a deterministic CI gate.
+- **Interpretation:** The migration's SQL structure and database invariants should be tested directly with the same SQLite semantics during Packet 1, while Cloudflare-local and staging binding behavior remains a later integration gate.
+- **Confidence and contrary evidence:** High for this sandbox behavior. The migration output showed successful execution, but a hanging process is still a failed automated gate.
+- **Affected experience or invariant:** I-06 immutable originals, I-08 truthful durability, and reliable build receipts.
+- **Related proposal:** Addressed by `scripts/verify-d1-schema.mjs`; real Cloudflare D1 staging migration remains required before Phase 1 acceptance.
