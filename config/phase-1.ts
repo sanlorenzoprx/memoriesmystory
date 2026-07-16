@@ -24,6 +24,9 @@ export const phase1Config = {
       "audio/ogg"
     ]
   },
+  durability: {
+    backgroundRetryDelaysMs: [0, 1_000, 3_000]
+  },
   localization: {
     defaultLocale: "en-US",
     supportedLocales: ["en-US", "es-PR", "es-US"],

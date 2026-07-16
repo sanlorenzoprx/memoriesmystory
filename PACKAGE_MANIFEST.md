@@ -20,7 +20,8 @@
 - Packet 0.2 production-readiness and Packet 0.3 scalable campaign handoff controls.
 - Packet 1 domain, centralized configuration, D1 migration, R2 key policy, idempotency, and durable-receipt contracts.
 - Packet 2 local-first camera/import, IndexedDB photograph recovery, quality guidance, manual override, and phone-browser evidence.
-- Placeholder boundaries remain only where later packets own storage transport, voice durability, authentication, AI processing, review, and sharing behavior.
+- Packet 3 scoped draft authorization, private D1/R2 photograph and voice originals, retry receipts, recording, and protected playback.
+- Placeholder boundaries remain only where later packets own account providers, AI processing, review, and sharing behavior.
 
 ## Fresh-start guarantee
 

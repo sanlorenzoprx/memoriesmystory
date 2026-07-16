@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   acceptLocalPhoto,
   assessPhotoQuality,
+  attachLocalAudio,
   attachLocalPhoto,
   createLocalDraft,
   type LocalPhoto,
@@ -39,6 +40,7 @@ describe("local-first photograph contract", () => {
       id: "local-draft-1",
       entryMode: "import",
       locale: "en-US",
+      draftToken: "a".repeat(64),
       now: "2026-07-16T12:00:00.000Z"
     });
     const withPhoto = attachLocalPhoto(
@@ -64,7 +66,8 @@ describe("local-first photograph contract", () => {
       createLocalDraft({
         id: "local-draft-2",
         entryMode: "camera",
-        locale: "es-PR"
+        locale: "es-PR",
+        draftToken: "b".repeat(64)
       }),
       photo
     );
@@ -73,13 +76,15 @@ describe("local-first photograph contract", () => {
     expect(accepted.photo?.acceptedAt).toBe("2026-07-16T12:03:00.000Z");
     expect(accepted.photo?.blob).toBe(photo.blob);
     expect(accepted.photo?.warning?.kind).toBe("glare");
+    expect(accepted.photoUpload?.assetId).toBe(draft.photoUpload?.assetId);
   });
 
   it("rejects acceptance when no photograph exists", () => {
     const draft = createLocalDraft({
       id: "local-draft-3",
       entryMode: "camera",
-      locale: "en-US"
+      locale: "en-US",
+      draftToken: "c".repeat(64)
     });
 
     expect(() => acceptLocalPhoto(draft)).toThrow(/must be present/i);
@@ -116,5 +121,52 @@ describe("local-first photograph contract", () => {
   it("does not invent a warning when the lightweight checks are healthy", () => {
     expect(assessPhotoQuality(healthyInspection)).toBeNull();
   });
-});
 
+  it("creates a new immutable voice identity after local photo acceptance", () => {
+    const withPhoto = acceptLocalPhoto(attachLocalPhoto(
+      createLocalDraft({
+        id: "local-draft-voice",
+        entryMode: "import",
+        locale: "en-US",
+        draftToken: "d".repeat(64)
+      }),
+      localPhoto()
+    ));
+    const withAudio = attachLocalAudio(withPhoto, {
+      blob: new Blob(["synthetic-audio"], { type: "audio/webm" }),
+      mimeType: "audio/webm",
+      byteSize: 15,
+      sha256: "def456",
+      durationMs: 1200,
+      capturedAt: "2026-07-16T12:05:00.000Z",
+      acceptedAt: null
+    });
+
+    expect(withAudio.audioUpload?.assetId).toMatch(/^asset_/);
+    expect(withAudio.audioUpload?.idempotencyKey).toMatch(/^upload_/);
+    expect(withAudio.audioUpload?.status).toBe("local");
+    expect(withAudio.photoUpload?.receipt).toBeNull();
+  });
+
+  it("does not attach voice before the photograph is accepted locally", () => {
+    const withPhoto = attachLocalPhoto(
+      createLocalDraft({
+        id: "local-draft-unaccepted-photo",
+        entryMode: "import",
+        locale: "en-US",
+        draftToken: "e".repeat(64)
+      }),
+      localPhoto()
+    );
+
+    expect(() => attachLocalAudio(withPhoto, {
+      blob: new Blob(["synthetic-audio"], { type: "audio/webm" }),
+      mimeType: "audio/webm",
+      byteSize: 15,
+      sha256: "def456",
+      durationMs: 1200,
+      capturedAt: "2026-07-16T12:05:00.000Z",
+      acceptedAt: null
+    })).toThrow(/accepted/i);
+  });
+});

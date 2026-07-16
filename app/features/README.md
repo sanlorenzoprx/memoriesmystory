@@ -9,4 +9,4 @@ Create a feature folder only when the corresponding outcome enters the active bu
 - `first-experience/`: approved first-screen language.
 - `capture/`: versioned local draft/photo state and the phone-first camera/import outcome.
 
-Packet 2 ends at an accepted `photo_local` state. Voice and cloud durability enter through Packet 3 rather than being simulated here.
+Packet 2 ends at an accepted `photo_local` state. Packet 3 extends `capture/` through immutable photograph durability, contextual original-voice recording, retry, receipt verification, and protected playback. Account binding remains outside the feature until Packet 4.

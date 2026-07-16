@@ -30,7 +30,8 @@ Start with [AGENTS.md](AGENTS.md), which routes each task to the exact governing
 - Packet 0.3 execution handoff: approved scalable Phase 1 campaign controls, phase gates, task queue, environment boundary, and master build prompt.
 - Packet 1 domain and persistence foundation: complete on `packet-1/domain-persistence`.
 - Packet 2 local-first capture and onboarding: complete on `packet-2/local-first-capture`, with IndexedDB photo recovery, contextual camera permission, import fallback, manual quality override, and phone-Chromium evidence.
-- Packet 3 immutable photo and voice durability: active; no server-side save claim exists before its D1/R2 receipt gate.
+- Packet 3 immutable photo and voice durability: complete and offline-continuity revised on `packet-3/original-media-durability`, with non-blocking local storytelling, ordered background synchronization, scoped draft authorization, private D1/R2 receipts, and protected playback.
+- Packet 4 account binding and recovery: active; it owns secure draft promotion and second-device continuation without changing original asset identities.
 
 ## Fresh-start rule
 
