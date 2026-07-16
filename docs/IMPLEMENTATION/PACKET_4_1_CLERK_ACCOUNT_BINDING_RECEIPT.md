@@ -2,6 +2,8 @@
 
 **Date:** 2026-07-16  
 **Branch:** `packet-4/account-binding-recovery`  
+**Implementation commit verified by CI:** `1b55d668c034ae5ae366be04bf4bf3852393d036`  
+**Draft pull request:** `https://github.com/sanlorenzoprx/memoriesmystory/pull/3`  
 **Application:** `memoriesmystory`  
 **Status:** local implementation complete; live-provider staging evidence pending
 
@@ -80,7 +82,8 @@ Later-packet secrets such as `SHARE_TOKEN_PEPPER`, Turnstile, and transcription 
 - Vite/Worker build: passed without live credentials.
 - Wrangler deployment dry run: passed and recognized `DB`, private `MEDIA_BUCKET`, and static assets; no Cloudflare resource was contacted or deployed.
 - Playwright discovery: passed, 8 existing phone-Chromium paths found.
-- Full local browser startup in this sandbox remains subject to the already recorded Wrangler/proxy non-termination behavior; GitHub CI remains the authoritative connected-browser gate.
+- GitHub Actions CI run `29505242989`: passed every step, including local D1 migrations, private R2, Worker routes, and all 8 phone-first Playwright paths.
+- Full local browser startup in this sandbox remains subject to the already recorded Wrangler/proxy non-termination behavior; the successful GitHub CI run is the authoritative connected-browser evidence.
 
 ## Acceptance still required in authorized staging
 
