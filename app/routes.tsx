@@ -1,14 +1,18 @@
 import type { RouteObject } from "react-router";
+import { useState } from "react";
 import {
   Link,
+  useNavigate,
   Outlet,
   useLoaderData,
-  useRouteError,
-  useSearchParams
+  useRouteError
 } from "react-router";
 
 import { appIdentity } from "../config/app-identity";
 import { firstExperienceContent } from "./features/first-experience/content";
+import { CaptureExperience } from "./features/capture/CaptureExperience";
+import type { CaptureEntryMode } from "./features/capture/local-draft";
+import { beginLocalDraft } from "./services/local-draft-store";
 
 type HomeLoaderData = {
   brandName: typeof appIdentity.brandName;
@@ -26,8 +30,8 @@ export const routes: RouteObject[] = [
         element: <HomeRoute />
       },
       {
-        path: "first-memory",
-        element: <FirstMemoryRoute />
+        path: "capture/:draftId",
+        element: <CaptureExperience />
       }
     ]
   }
@@ -70,22 +74,7 @@ function HomeRoute() {
           <h1 id="page-title">{firstExperienceContent.headline}</h1>
           <p className="lede">{firstExperienceContent.supporting}</p>
 
-          <div className="hero-actions" aria-label="Begin your first Memory Story">
-            <Link
-              className="primary-action"
-              to="/first-memory?start=camera"
-            >
-              <CameraIcon />
-              {firstExperienceContent.primaryAction}
-            </Link>
-            <Link
-              className="secondary-action"
-              to="/first-memory?start=import"
-            >
-              <ImportIcon />
-              {firstExperienceContent.secondaryAction}
-            </Link>
-          </div>
+          <StartMemoryActions />
 
           <p className="privacy-promise">
             <LockIcon />
@@ -105,6 +94,53 @@ function HomeRoute() {
         ))}
       </ol>
     </div>
+  );
+}
+
+function StartMemoryActions() {
+  const navigate = useNavigate();
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [starting, setStarting] = useState<CaptureEntryMode | null>(null);
+
+  async function start(entryMode: CaptureEntryMode) {
+    setStarting(entryMode);
+    setErrorMessage(null);
+
+    try {
+      const draft = await beginLocalDraft(entryMode, navigator.language);
+      await navigate(`/capture/${encodeURIComponent(draft.id)}?start=${entryMode}`);
+    } catch {
+      setErrorMessage(
+        "This browser could not start a recoverable draft. Check storage settings and try again."
+      );
+      setStarting(null);
+    }
+  }
+
+  return (
+    <>
+      <div className="hero-actions" aria-label="Begin your first Memory Story">
+        <button
+          className="primary-action"
+          type="button"
+          disabled={starting !== null}
+          onClick={() => void start("camera")}
+        >
+          <CameraIcon />
+          {starting === "camera" ? "Opening…" : firstExperienceContent.primaryAction}
+        </button>
+        <button
+          className="secondary-action"
+          type="button"
+          disabled={starting !== null}
+          onClick={() => void start("import")}
+        >
+          <ImportIcon />
+          {starting === "import" ? "Opening…" : firstExperienceContent.secondaryAction}
+        </button>
+      </div>
+      {errorMessage && <p className="inline-error" role="alert">{errorMessage}</p>}
+    </>
   );
 }
 
@@ -156,45 +192,6 @@ function MemoryPhotoMoment() {
         </figcaption>
       </div>
     </figure>
-  );
-}
-
-function FirstMemoryRoute() {
-  const [searchParams] = useSearchParams();
-  const beginsWithImport = searchParams.get("start") === "import";
-
-  return (
-    <div className="quiet-page" id="main-content">
-      <header className="site-header compact-header">
-        <BrandLockup brandName={appIdentity.brandName} />
-      </header>
-      <section className="capture-introduction" aria-labelledby="first-memory-title">
-        <Link className="back-link" to="/">
-          <ArrowIcon /> Back
-        </Link>
-        <p className="eyebrow">First, the photograph</p>
-        <h1 id="first-memory-title">
-          {beginsWithImport
-            ? "Choose the photograph that brings the story back."
-            : "Bring the photograph into the light."}
-        </h1>
-        <p className="lede">
-          {beginsWithImport
-            ? "A favorite picture, a face you miss, or a moment your family should always remember."
-            : "Place it on a flat surface in soft, even light. Take your time—we’ll help with glare, focus, and framing."}
-        </p>
-        <div className="capture-preview" aria-label="Photograph capture preparation">
-          <PhotoIcon />
-          <p>
-            <strong>Your photograph comes first.</strong>
-            <span>Your voice will meet it in the next gentle step.</span>
-          </p>
-        </div>
-        <p className="privacy-promise centered-promise">
-          <LockIcon /> Nothing is shared unless you choose.
-        </p>
-      </section>
-    </div>
   );
 }
 
@@ -250,14 +247,6 @@ function LockIcon() {
     <svg viewBox="0 0 20 20" aria-hidden="true">
       <rect x="4" y="8.5" width="12" height="9" rx="3" />
       <path d="M6.75 8.5V6a3.25 3.25 0 0 1 6.5 0v2.5" />
-    </svg>
-  );
-}
-
-function ArrowIcon() {
-  return (
-    <svg viewBox="0 0 20 20" aria-hidden="true">
-      <path d="m12.5 4.5-5 5 5 5M8 9.5h8" />
     </svg>
   );
 }

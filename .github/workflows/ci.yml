@@ -5,7 +5,7 @@ on:
   push:
     branches:
       - main
-      - packet-0/bootstrap
+      - "packet-*/**"
 
 jobs:
   verify:
