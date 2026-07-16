@@ -35,5 +35,6 @@ An object is not described as durable until R2 accepts the full object and D1 re
 - `worker/media-routes.ts` enforces scoped draft authorization before upload, receipt status, or playback.
 - R2 creation is conditional and an existing object is accepted only when its immutable checksum and size match.
 - D1 operation receipts make lost responses and interrupted R2/D1 transitions safe to replay.
+- The browser queue keeps originals locally recoverable, uses bounded background retries, and submits photograph before accepted voice without blocking story capture.
 - Authorized reads are private, no-store, and range-capable.
 - Local Cloudflare-compatible D1/R2 and phone-Chromium evidence is recorded in `../IMPLEMENTATION/PACKET_3_ORIGINAL_MEDIA_DURABILITY_RECEIPT.md`.

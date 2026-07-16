@@ -1,5 +1,14 @@
 # Foundation Package Changelog
 
+## Packet 3 offline continuity revision — 2026-07-16
+
+- Removed cloud photograph durability as a gate to recording the memory story.
+- Added a bounded background synchronization queue that preserves immutable photo-before-voice upload order.
+- Added local voice acceptance, reload recovery, automatic reconnection resume, and calm device-safe pending language.
+- Added the family-archive confirmation only after both R2 objects and D1 receipts are independently verified.
+- Added unit coverage for ordered retries and a phone-first offline-record-reconnect acceptance path.
+- Kept Packet 4 active for identity, ownership, secure draft promotion, and second-device continuation.
+
 ## Packet 3 original media durability — 2026-07-16
 
 - Added scoped anonymous draft tokens with only SHA-256 hashes stored in D1.

@@ -61,3 +61,13 @@ Observations preserve evidence separately from proposed solutions. Follow `READM
 - **Confidence and contrary evidence:** High. Unit/integration tests remained useful and fast, while the Wrangler-backed Playwright run independently proved the connected user outcome. Real staging remains a later gate and was not inferred from local evidence.
 - **Affected experience or invariant:** I-01 original voice, I-06 immutable originals, I-08 truthful durability, and reliable packet evidence.
 - **Related proposal:** Addressed by `npm run dev:e2e` and the Packet 3 browser suite; no Foundation change required.
+
+### L-2026-07-16-005 — Cloud durability must not gate the act of storytelling
+
+- **Status:** addressed
+- **Evidence source:** Product-owner review of Packet 3 behavior on 2026-07-16 and revision CI run `29500804243`.
+- **Observed fact:** The first Packet 3 client required a durable photograph receipt before opening voice capture. Outside service range, the original photograph remained recoverable locally but the person could not continue telling the memory.
+- **Interpretation:** The experiential photo-before-voice rule means the photograph must be accepted and recoverable before recording. It does not mean cloud connectivity may block the story. Cloud photo-before-audio ordering remains a background durability invariant.
+- **Confidence and contrary evidence:** High confidence from explicit owner direction and the connected offline/reconnect browser path. Device-local storage can still be evicted by the operating system, so pending state must never be described as backed up.
+- **Affected experience or invariant:** I-02 photograph + voice, I-08 truthful durability, I-11 technology stays in the background, and I-13 recoverable guidance.
+- **Related proposal:** Addressed by `media-background-sync.ts`, local audio acceptance, bounded retry configuration, and the Packet 3 offline continuity revision; no Foundation change required.
