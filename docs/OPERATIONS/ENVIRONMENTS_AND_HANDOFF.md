@@ -31,6 +31,14 @@ Staging and production use different Worker names/routes, D1 databases, R2 bucke
 
 It never reports credential values, OAuth tokens, raw media, transcripts, or share tokens.
 
+For Packet 4, copy `.env.staging.example` to ignored `.env.staging.local`, load values through the operator's private shell, Cloudflare dashboard/secret interface, and Clerk dashboard—never through chat or Git—then run:
+
+```powershell
+npm run preflight:identity:staging
+```
+
+The command requires the Clerk publishable/secret configuration, `SESSION_SECRET`, exact authorized HTTPS origin, Cloudflare account/deployment authorization, isolated staging Worker/D1/R2 identifiers, and operator confirmation that email, Google, and Facebook are enabled. It makes no provider call. A green result permits the separately logged live staging checks; it does not satisfy them.
+
 ## Scale and operational evidence
 
 Before handoff, record request/error latency, upload failure rate, queue age/retries/dead letters, AI latency/failure/usage, D1 query/index evidence, R2 storage growth, entitlement/share idempotency, and durability-confirmation failures. Establish alerts and a bounded cost response before public launch.

@@ -33,5 +33,6 @@ describe("production-readiness configuration contract", () => {
     expect(gitignore).toContain(".dev.vars.*");
     expect(gitignore).toContain("!.dev.vars.example");
     expect(gitignore).toContain("!.env.example");
+    expect(gitignore).toContain("!.env.staging.example");
   });
 });
