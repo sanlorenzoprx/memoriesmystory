@@ -16,12 +16,13 @@
 - Cloudflare-native foundation stack and repository structure.
 - Phase 1 solo Memory Story build specification.
 - Fresh repository and first-five-minute decision records.
-- Placeholder directories for the app, configuration, migrations, Workers, public assets, and tests.
+- Packet 0 application shell and Packet 0.1 first-screen experience implemented as fresh source in this repository.
+- Placeholder directories remain only for later configuration, migrations, Worker boundaries, and test layers not yet required.
 
 ## Fresh-start guarantee
 
-- Only the approved documents and empty implementation placeholders in this package are included.
-- No application source code is included.
+- Only approved documents and application source written for this fresh repository are included.
+- No application source code is inherited or imported from another repository.
 - No external schema or migration is included.
 - No compatibility layer is implied.
 - No alternative application repository is referenced.

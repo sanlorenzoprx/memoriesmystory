@@ -16,6 +16,7 @@ Start with [AGENTS.md](AGENTS.md), which routes each task to the exact governing
 ## Current state
 
 - Packet 0 bootstrap branch: React Router v8 + React + TypeScript + Vite application shell with Cloudflare Worker assets serving.
+- Packet 0.1 first screen: implemented from the approved first-five-minute contract and awaiting product-owner visual acceptance.
 - Founding Principles: completed and locked as Version 1.0.
 - Product Invariants: completed and locked as Version 1.0.
 - Product Vision: consolidated and completed as Version 1.0.

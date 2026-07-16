@@ -1,5 +1,14 @@
 # Foundation Package Changelog
 
+## Packet 0.1 first-screen direction — 2026-07-15
+
+- Replaced the generic centered placeholder with a full-viewport, mobile-first first experience.
+- Added the approved loving-urgency copy, **Capture Your Memories**, **Import a photo**, and the quiet `Photo → Voice → Preserved → Shared` journey.
+- Added a warm paper-and-light visual system, keepsake photograph surface, responsive layout, reduced-motion behavior, forced-colors support, and keyboard skip navigation.
+- Removed entitlement, save-state, packet, and Muse language from the first screen.
+- Added tests locking the approved copy and first-screen language boundary.
+- Added the Packet 0.1 implementation receipt and linked it to the learning proposal.
+
 ## Repository guidance and learning memory — 2026-07-15
 
 - Added a root task router and nested application, documentation, runtime, and verification guides.
