@@ -164,6 +164,12 @@ test("capture entry remains keyboard reachable at a phone viewport", async ({ pa
   await page.goto("/");
   await page.getByRole("button", { name: "Capture Your Memories" }).click();
 
+  const heading = page.getByRole("heading", {
+    name: "Bring the photograph into the light."
+  });
+  await expect(heading).toBeVisible();
+  await expect(heading).toBeFocused();
+
   await page.keyboard.press("Tab");
   await expect(page.getByRole("button", { name: "Open camera" })).toBeFocused();
   await page.keyboard.press("Tab");
