@@ -11,6 +11,7 @@ import {
 } from "./media-durability";
 
 export type DraftCommit = (draft: LocalMemoryDraft) => Promise<void>;
+export type DraftRead = () => LocalMemoryDraft;
 
 function withUploadState(
   draft: LocalMemoryDraft,
@@ -26,16 +27,21 @@ function withUploadState(
 
 async function preservePhoto(
   draft: LocalMemoryDraft,
-  commit: DraftCommit
+  commit: DraftCommit,
+  getDraft: DraftRead
 ): Promise<LocalMemoryDraft> {
   if (!draft.photo || !draft.photoUpload || draft.photoUpload.status === "durable") {
     return draft;
   }
 
+  const latestBeforeUpload = getDraft();
+  if (latestBeforeUpload.photoUpload?.assetId !== draft.photoUpload.assetId) {
+    return latestBeforeUpload;
+  }
   const uploading = withUploadState(
-    draft,
+    latestBeforeUpload,
     "photo",
-    updateLocalUpload(draft.photoUpload, {
+    updateLocalUpload(latestBeforeUpload.photoUpload, {
       status: "uploading",
       lastError: null
     })
@@ -44,10 +50,19 @@ async function preservePhoto(
 
   try {
     const receipt = await uploadOriginalPhoto(uploading);
+    const latest = getDraft();
+    const latestUpload = latest.photoUpload;
+    if (
+      !latestUpload ||
+      latestUpload.assetId !== uploading.photoUpload?.assetId ||
+      latestUpload.status === "durable"
+    ) {
+      return latest;
+    }
     const durable = withUploadState(
-      uploading,
+      latest,
       "photo",
-      updateLocalUpload(uploading.photoUpload!, {
+      updateLocalUpload(latestUpload, {
         status: "durable",
         receipt,
         lastError: null
@@ -56,12 +71,21 @@ async function preservePhoto(
     await commit(durable);
     return durable;
   } catch (error) {
+    const latest = getDraft();
+    const latestUpload = latest.photoUpload;
+    if (
+      !latestUpload ||
+      latestUpload.assetId !== uploading.photoUpload?.assetId ||
+      latestUpload.status === "durable"
+    ) {
+      return latest;
+    }
     const message =
       error instanceof Error ? error.message : "Photograph backup is waiting for a connection.";
     const waiting = withUploadState(
-      uploading,
+      latest,
       "photo",
-      updateLocalUpload(uploading.photoUpload!, {
+      updateLocalUpload(latestUpload, {
         status: "needs_connection",
         lastError: message
       })
@@ -73,7 +97,8 @@ async function preservePhoto(
 
 async function preserveAudio(
   draft: LocalMemoryDraft,
-  commit: DraftCommit
+  commit: DraftCommit,
+  getDraft: DraftRead
 ): Promise<LocalMemoryDraft> {
   if (
     !draft.audio?.acceptedAt ||
@@ -91,10 +116,14 @@ async function preserveAudio(
     );
   }
 
+  const latestBeforeUpload = getDraft();
+  if (latestBeforeUpload.audioUpload?.assetId !== draft.audioUpload.assetId) {
+    return latestBeforeUpload;
+  }
   const uploading = withUploadState(
-    draft,
+    latestBeforeUpload,
     "audio",
-    updateLocalUpload(draft.audioUpload, {
+    updateLocalUpload(latestBeforeUpload.audioUpload, {
       status: "uploading",
       lastError: null
     })
@@ -103,10 +132,19 @@ async function preserveAudio(
 
   try {
     const receipt = await uploadOriginalAudio(uploading);
+    const latest = getDraft();
+    const latestUpload = latest.audioUpload;
+    if (
+      !latestUpload ||
+      latestUpload.assetId !== uploading.audioUpload?.assetId ||
+      latestUpload.status === "durable"
+    ) {
+      return latest;
+    }
     const durable = withUploadState(
-      uploading,
+      latest,
       "audio",
-      updateLocalUpload(uploading.audioUpload!, {
+      updateLocalUpload(latestUpload, {
         status: "durable",
         receipt,
         lastError: null
@@ -115,12 +153,21 @@ async function preserveAudio(
     await commit(durable);
     return durable;
   } catch (error) {
+    const latest = getDraft();
+    const latestUpload = latest.audioUpload;
+    if (
+      !latestUpload ||
+      latestUpload.assetId !== uploading.audioUpload?.assetId ||
+      latestUpload.status === "durable"
+    ) {
+      return latest;
+    }
     const message =
       error instanceof Error ? error.message : "Voice backup is waiting for a connection.";
     const waiting = withUploadState(
-      uploading,
+      latest,
       "audio",
-      updateLocalUpload(uploading.audioUpload!, {
+      updateLocalUpload(latestUpload, {
         status: "needs_connection",
         lastError: message
       })
@@ -142,10 +189,17 @@ export function needsOriginalSync(draft: LocalMemoryDraft): boolean {
 
 export async function syncAcceptedOriginalsOnce(
   draft: LocalMemoryDraft,
-  commit: DraftCommit
+  commit: DraftCommit,
+  getDraft?: DraftRead
 ): Promise<LocalMemoryDraft> {
-  const withPhoto = await preservePhoto(draft, commit);
-  return preserveAudio(withPhoto, commit);
+  let latestCommitted = draft;
+  const readLatest = getDraft ?? (() => latestCommitted);
+  const trackCommit: DraftCommit = async (next) => {
+    latestCommitted = next;
+    await commit(next);
+  };
+  const withPhoto = await preservePhoto(draft, trackCommit, readLatest);
+  return preserveAudio(withPhoto, trackCommit, readLatest);
 }
 
 function isRetryable(error: unknown): boolean {
@@ -171,7 +225,7 @@ export async function syncAcceptedOriginalsInBackground(input: {
     if (!needsOriginalSync(current)) return current;
 
     try {
-      return await syncAcceptedOriginalsOnce(current, input.commit);
+      return await syncAcceptedOriginalsOnce(current, input.commit, input.getDraft);
     } catch (error) {
       lastError = error;
       if (!isRetryable(error)) break;
