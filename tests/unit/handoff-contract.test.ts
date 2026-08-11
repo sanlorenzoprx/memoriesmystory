@@ -30,7 +30,7 @@ describe("Living Memory execution handoff", () => {
 
   it("uses a valid forward-only dependency graph", () => {
     const positions = new Map(queue.tasks.map((task, index) => [task.id, index]));
-    expect(new Set(queue.tasks.map((task) => task.id).size).toBe(queue.tasks.length);
+    expect(new Set(queue.tasks.map((task) => task.id)).size).toBe(queue.tasks.length);
 
     for (const [index, task] of queue.tasks.entries()) {
       expect(task.depends_on).not.toContain(task.id);
