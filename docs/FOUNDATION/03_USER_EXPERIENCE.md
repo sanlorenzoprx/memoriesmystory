@@ -1,12 +1,16 @@
 # User Experience
 
-**Version:** 1.1  
+**Version:** 2.0  
 **Status:** Approved experience baseline and first implementation contract  
-**Goal:** Define how Memories: My Story should feel, beginning with a first five-minute path that moves a mobile user from emotional understanding to one durably preserved Memory Story without making them learn the system.
+**Goal:** Move a mobile user from emotional understanding to one durably preserved **Living Memory** without making them learn the system.
 
 ## Experience promise
 
-The product should feel like a patient family companion making room for a story—not a scanner, database, media manager, or AI demonstration.
+The product should feel like a patient family companion making room for a story—not a scanner, database, media manager, social network, or AI demonstration.
+
+The visual and interaction north star is:
+
+**Apple Photos warmth + Airbnb trust + Calm pacing + Pinterest photo-first discovery.**
 
 Three experiences share this promise:
 
@@ -14,121 +18,170 @@ Three experiences share this promise:
 2. **Preserve Together** — family or friends remembering in person.
 3. **Remember Together** — family or friends remembering at a distance.
 
-The solo path is built first. Shared paths extend the same emotional and preservation rules.
+The solo path is built first. Shared paths extend the same authenticity, privacy, and preservation rules.
 
 ## The first five minutes
 
-The first five minutes are not an account tour. They are a complete emotional arc:
+The first five minutes are not an account tour. They demonstrate a transformation:
 
-**A photograph matters → my voice matters → I can do this → the memory is safe → my family can receive it.**
+**Photo → Voice → Muse → Preserved → Playback → Invite/Share**
 
-The time ranges below are design targets, not a countdown imposed on the storyteller. The product must never rush grief, laughter, silence, uncertainty, accessibility needs, or a person who simply needs more time.
+The user should feel that an ordinary photograph is now materially more valuable to their family because its authentic story and voice remain with it.
+
+The time ranges below are design targets, not a countdown imposed on the storyteller. The product never rushes grief, laughter, silence, uncertainty, accessibility needs, or a person who simply needs more time.
 
 ## Before the clock starts
 
-The user may arrive from the home page, a family invitation, or a shared Memory Story. The primary route must always make the next meaningful action obvious.
+The user may arrive from the future landing page, a family invitation, or a shared Living Memory. The next meaningful action must be obvious.
 
-Primary action: **Capture a Memory**
+Primary intent: **Give a photograph its story.**
 
-The user should not face a general permission wall, profile questionnaire, or account tour before understanding the value of the experience. Camera and microphone access are requested only when the related action begins, with one plain-language explanation of why each permission is needed.
+The user should not face a general permission wall, profile questionnaire, AI explanation, or account tour before understanding the value. Camera and microphone access are requested only when the related action begins.
 
-When identity is required for durable ownership, recovery, or sharing, ask at the latest safe moment and preserve all completed local progress. Supported account paths are email, Google, and Facebook. Declining or interrupting sign-in must not destroy the photograph or recording.
+When identity is required for durable ownership, recovery, or sharing, ask at the latest safe moment and preserve completed local progress. Supported account paths currently include email and Google; Facebook identity remains a separate staging acceptance item. Social **sharing to Facebook** does not depend on Facebook being the account identity provider.
 
-## 0:00-0:30 — Create loving urgency
+## 0:00–0:30 — Demonstrate the idea
 
-Show one clear idea:
+The experience communicates one belief:
 
-> Old photographs fade. The voices behind them should not.
+> **A photograph can outlive the story that gives it meaning.**
 
-Supporting thought:
-
-> Capture the photograph. Tell its story. Preserve your voice for the people you love.
+A future production surface should demonstrate, not merely explain, the difference between an unexplained photograph and the same photograph accompanied by the person's real voice.
 
 Do not lead with AI, features, pricing tiers, storage, or setup.
 
-## 0:30-1:30 — Capture the photograph
+## 0:30–1:30 — Choose the photograph
 
-The user photographs a physical picture or imports a digital image.
+Offer the simplest useful actions:
 
-Guidance is visual and spoken, brief and specific: position, glare, shadow, focus, edges, and stability. Automatic capture may occur when quality thresholds are met.
+- **Capture a photo**
+- **Choose a photo**
 
-The original image is preserved immediately. Any enhanced archival copy is a separate derivative.
+The photograph becomes the dominant visual surface.
 
-Muse guidance may say:
+For physical-photo capture, guidance is visual and spoken, brief and specific: position, glare, shadow, focus, edges, and stability. The original image is preserved. Any enhanced archival copy remains a separate derivative.
 
-> Place the photograph on a flat surface. I'll help you capture it clearly.
+The user may accept a usable photograph after an honest quality warning. Guidance helps; it does not hold a family photograph hostage to an ideal score.
 
-The phone may be handheld or propped vertically for stability. The product guides the user toward the best result without requiring camera knowledge.
+## 1:30–2:30 — Tell what you remember
 
-The user may override automatic capture and accept a usable image after seeing an honest quality warning. Guidance helps; it does not hold a family photograph hostage to an ideal score.
+Keep the photograph dominant and invite natural speech:
 
-## 1:30-2:30 — Hear the invitation to remember
+> **Tell us what you remember.**
 
-Keep the photograph as the dominant visual. Ask:
+The authentic voice is the source artifact. The current free voice allowance is centrally configured and may change without changing this experience contract.
+
+The UI may offer:
 
 > Would you like help remembering?
 
-Whether the answer is yes or no, begin with space, not interrogation.
+Help is optional.
 
-> Take your time. Tell the story you remember when you look at this picture.
+## 2:30–3:30 — Let Muse listen
 
-For the free first story, the initial voice allowance is up to 30 seconds unless the entitlement configuration changes. A clear, gentle countdown must not interrupt the emotional moment.
+Muse listens first. If useful, it asks one warm, context-aware question such as:
 
-## 2:30-3:30 — Let Muse listen
+- “Who is standing beside you?”
+- “Do you remember where this was?”
+- “About what year was this?”
+- “What happened just before this?”
+- “Who else would remember this?”
 
-Muse listens first. If the storyteller pauses and time or entitlement permits, it asks one warm, relevant question:
+Muse accepts silence, emotion, uncertainty, code-switching, interruption, and “I don't remember.” It never runs a who/what/when/where interrogation and never invents a missing memory.
 
-- “What do you remember most about this day?”
-- “Who is beside you?”
-- “What made this moment special?”
+## 3:30–4:30 — Preserve invisibly, reveal truthfully
 
-Muse accepts silence, emotion, uncertainty, code-switching, interruptions, and “I don't remember.” It does not ask who, what, when, and where as a rapid checklist.
+Behind the experience, the system can preserve and structure:
 
-## 3:30-4:30 — Show what was preserved
+- original photograph;
+- original voice;
+- transcript lineage;
+- narrator attribution;
+- people and relationships;
+- place;
+- date or approximate date;
+- story context;
+- truth states;
+- provenance and receipts.
 
-Present the completed Memory Story as one understandable object:
+The user should not have to understand this machinery.
 
-- photograph;
-- playable original voice;
-- transcript;
-- Muse Legacy Description;
-- suggested people, place, date, and tags;
-- truth-state controls for uncertain details.
+Derived transcription, enhancement, extraction, translation, or Muse processing may continue after originals are safe. Incomplete derivatives show truthful **Processing** or **Needs attention** states; they do not block preservation of the originals.
 
-The user may correct the transcript or metadata. The original voice remains unchanged. Muse-generated material is visibly separate from human testimony.
+## 4:30–5:00 — The Living Memory Magic Moment
 
-Transcription, enhancement, or Muse processing may continue after the original photograph and voice are safe. Those derived processes must display a truthful **Processing** or **Needs attention** state and must never prevent preservation of the originals.
-
-## 4:30-5:00 — Confirm safety and invite legacy
-
-Only after durable cloud confirmation, display the locked completion sentence:
+Only after durable confirmation, display:
 
 **This memory is now part of your family's history.**
 
-Offer two calm next actions:
+Then reveal the completed object as a **Living Memory**:
 
-1. **Share this Memory Story**
-2. **View my Memory Story**
+- photograph prominent;
+- authentic voice playable immediately;
+- transcript available but secondary;
+- source-grounded context visible as helpful detail;
+- generated material visibly derivative.
 
-Explain the free growth promise positively:
+The user should be able to feel the before/after difference.
 
-> Share a memory. Preserve another.
+Instrument the first successful completion as:
 
-A deliberate qualifying share action unlocks the next free Memory Story under the Good Karma Share Policy V1. The first five Memory Stories follow this sequence. Sharing may be private, family-directed, social, or public; public sharing is never assumed.
+`first_living_memory_completed`
 
-Sharing is invited after preservation, never used as a condition for keeping the Memory Story that was just created. A user may leave and return to the share decision later.
+Then ask the natural continuation:
+
+> **Who else remembers this?**
+
+Offer calm choices such as:
+
+- **Invite family**
+- **Share this Living Memory**
+- **Keep private**
+- **Preserve another** when the person's entitlement permits it
+
+Sharing is optional and never purchases another free Living Memory.
+
+## Sharing experience
+
+**Privacy-first means private by default and creator-controlled, not private-only.**
+
+Before external sharing, show that the canonical Living Memory remains in the private Family Archive and that the person is preparing a copy to share outside it.
+
+The user previews the bounded **Share Artifact**. A first production artifact should be able to contain:
+
+- selected photograph;
+- selected authentic voice segment;
+- captions when enabled;
+- selected narrator attribution;
+- selected story caption;
+- restrained Memories: My Story attribution;
+- a discovery action such as **Create your own Living Memory**.
+
+Private archive metadata does not leave by default.
+
+Initial destination priorities are:
+
+1. Facebook — public/social discovery.
+2. WhatsApp — family-to-family sharing.
+3. Native share/link/SMS/email.
+4. Instagram as later visual expansion.
+
+Once a copy is shared outside the private Family Archive, the product must truthfully explain that it cannot guarantee recall of every external copy.
 
 ## First-use success criteria
 
 The first experience succeeds only if the user can:
 
-- understand why the action matters;
+- understand why the action matters without a feature tour;
 - capture or import a usable photograph;
 - speak naturally without configuring technology;
-- hear the original recording play back;
-- distinguish their story from Muse-generated material;
-- trust that the required assets are durably saved;
-- understand how to share or return later;
+- receive at most one useful Muse prompt at a time;
+- hear the authentic recording play back;
+- distinguish human source from generated material;
+- trust that required originals are durably preserved;
+- recognize the result as a Living Memory;
+- understand that it remains private unless they deliberately share;
+- invite, share, keep private, or return later without pressure;
 - complete the path on a phone with minimal typing.
 
 ## Failure and recovery
@@ -137,27 +190,30 @@ The first experience succeeds only if the user can:
 - Interrupted audio remains recoverable until upload completes.
 - Poor transcription never discards the original recording.
 - Cloud-save failure says “Still saving” or “Needs connection,” never “Saved.”
+- Network loss never prevents a person from continuing with locally recoverable photo/voice capture when the device can safely do so.
 - Every guided step is skippable and replayable through **Muse Help**.
 
 ## First-few-use guidance
 
-The **Capture Your Memories** guidance repeats during the first few uses so a person does not have to remember the process after seeing it once. Guidance becomes lighter as confidence grows, remains skippable, and can always be replayed through **Muse Help**. The product should adapt from observed completion—not assume age, ability, or technical confidence.
+Capture guidance can repeat during the first few uses, become lighter as confidence grows, remain skippable, and stay replayable through Muse Help. The product adapts from observed completion rather than assuming age, ability, or technical confidence.
 
 ## First-five-minute acceptance contract
 
 The first implementation is not complete until all of the following are demonstrated on a representative phone-sized viewport:
 
-1. A new user understands the purpose without reading a feature tour.
+1. A new user understands the preservation idea without reading a feature tour.
 2. Camera and microphone permissions are requested in context, not in a batch.
-3. A physical photograph can be captured with glare, focus, edge, shadow, and stability guidance, or a digital photograph can be imported.
+3. A physical photograph can be captured with practical quality guidance, or a digital photograph can be imported.
 4. The immutable original photograph is retained separately from every enhancement.
-5. The storyteller can record up to the current free allowance, hear the original voice play back, and recover from an interrupted upload.
+5. The storyteller can record under the current entitlement, hear the authentic voice play back, and recover from interrupted upload.
 6. Muse listens first and offers no more than one warm, relevant question at a time.
-7. Human testimony, corrected transcript, metadata, and Muse-generated material remain visibly distinguishable.
-8. **This memory is now part of your family's history.** appears only after the required original assets and ownership metadata are durably confirmed.
-9. The user can open the completed Memory Story, leave safely, and return later.
-10. A deliberate qualifying private, family-directed, social, or public share unlocks the next free Memory Story, without assuming public consent.
-11. The path remains usable with minimal typing, assistive technology, mixed English and Spanish, and unreliable connectivity.
+7. Human testimony, corrected transcript, structured context, and generated artifacts remain distinguishable.
+8. **This memory is now part of your family's history.** appears only after required originals and ownership are durably confirmed.
+9. The completed object is presented as a Living Memory and the first valid completion emits `first_living_memory_completed` exactly once for activation semantics.
+10. The user can leave safely, return later, and continue across identity/device boundaries supported by the current phase.
+11. A new Living Memory is private by default.
+12. Sharing is deliberate, uses a previewable bounded Share Artifact, exports no private archive metadata by default, and grants no free-memory entitlement reward.
+13. The path remains usable with minimal typing, assistive technology, mixed English and Spanish, and unreliable connectivity.
 
 Internal screens, API responses, test counts, or successful AI calls do not satisfy this contract unless the user outcome above works end to end.
 
@@ -165,12 +221,12 @@ Internal screens, API responses, test counts, or successful AI calls do not sati
 
 - model names or AI configuration;
 - multi-page profile setup;
-- a feature tour unrelated to the first story;
-- forced public sharing;
+- a feature tour unrelated to the first Living Memory;
+- forced or rewarded public sharing;
 - dense metadata forms;
 - an unearned “saved” confirmation;
 - pressure that turns loving urgency into fear.
 
 ## Shared-experience extension
 
-In-person and remote Memory Circles keep the selected photograph fixed as the primary visual focus while people remember together. Participants remain visible in remote sessions. Contributions are attributed, disagreements remain intact, and the completed Memory Story is delivered to each participant's account after minimal signup.
+In-person and remote Memory Circles keep the selected photograph fixed as the primary visual focus while people remember together. Participants remain visible in remote sessions. Contributions are attributed, disagreements remain intact, and the Living Memory is enriched additively rather than rewritten into a synthetic consensus.

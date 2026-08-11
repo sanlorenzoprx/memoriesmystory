@@ -16,7 +16,11 @@ export const operationKinds = [
   "promote_draft",
   "queue_transcription",
   "finalize_story",
+  "record_living_memory_activation",
   "create_share",
+  "create_share_artifact",
+  "record_share_intent",
+  /** @deprecated historical share-to-unlock operation; must never grant a new reward. */
   "grant_share_unlock"
 ] as const;
 
