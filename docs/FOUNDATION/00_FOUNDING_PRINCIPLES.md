@@ -1,77 +1,93 @@
 # Memories: My Story — Founding Principles
 
-**Version:** 1.0  
+**Version:** 2.0  
 **Status:** Locked constitutional foundation  
 **Purpose:** Define who we are and the human responsibility behind the product.
 
 ## Preamble
 
-Memories: My Story exists because a life can disappear from family history one untold story at a time.
+Memories: My Story exists because a photograph can survive for generations while the story that gives it meaning can disappear in one.
 
-Photographs survive without context. Names remain without voices. Family trees record that people lived, but rarely preserve how they laughed, what they loved, what they endured, or how they understood their own lives.
+Photographs preserve appearances. They do not, by themselves, preserve why a moment mattered, who stood outside the frame, what happened next, how people were related, or how the storyteller sounded when remembering it.
 
-We believe ordinary lives matter. Every person has stories worth preserving. Every family deserves a way to hear and understand the people who came before them.
+We believe ordinary lives matter. Every person has stories worth preserving. Every family deserves a way to see, hear, understand, share, and carry forward the people and moments that shaped them.
 
 ## Mission
 
-**Memories: My Story exists to preserve a person through the memories they tell, the photographs that awaken those memories, and the sound of their real voice.**
+**Memories: My Story exists to preserve the human meaning behind family photographs by keeping the image, authentic voice, story, context, relationships, and family recollections together as a Living Memory.**
 
-Individual Memory Stories connect over time into a living family archive that can carry a family's legacy forward for generations.
+Living Memories connect over time into a private-first, intergenerational Living Memory Archive that can carry a family's living legacy forward.
+
+## The governing idea
+
+**A photograph can outlive the story that gives it meaning.**
+
+## The governing mechanism
+
+A **Living Memory** preserves a photograph or other source moment together with the authentic human voice, story, people, place, time, relationships, contributions, provenance, and future resurfacing that make it meaningful.
 
 ## Our principles
 
-### 1. Preserve the person, not merely the photograph
+### 1. Preserve the meaning, not merely the file
 
-The photograph is the doorway. The person’s real voice, memories, emotions, relationships, and chosen meaning are the living artifact.
+The photograph is the doorway. The authentic voice, memory, context, relationships, and chosen meaning are part of the artifact we are responsible for preserving.
 
 ### 2. The storyteller remains the authority
 
-The platform can listen, transcribe, organize, translate, and ask. It does not take ownership of a person’s memory or silently decide what the memory should have been.
+The platform can listen, transcribe, organize, translate, retrieve, connect, and ask. It does not take ownership of a person's memory or silently decide what the memory should have been.
 
-### 3. Voice comes before generated interpretation
+### 3. Original human sources outrank generated derivatives
 
-Transcripts, descriptions, translations, tags, and search tools make a story easier to find and understand. None replaces the original voice.
+Original photographs, recordings, testimony, and attributed human corrections remain canonical. Transcripts, descriptions, translations, tags, reels, and generated narratives are derivative artifacts with provenance.
 
 ### 4. Honest memory includes uncertainty and disagreement
 
 People remember differently. A humane archive preserves confirmed, approximate, unknown, disputed, and unconfirmed details without manufacturing a single artificial truth.
 
-### 5. Technology should create presence, not demand attention
+### 5. Muse helps people remember
 
-The product should feel like remembering with a patient family member. A person should not feel that they are operating a scanner, filling a database, or configuring artificial intelligence.
+Muse is a quiet memory companion, not the author of someone's life. Muse listens first, asks one useful question at a time, and stays out of the way when it is not needed.
 
-### 6. Individual memories become family legacy
+### 6. Technology should create presence, not demand attention
 
-One person’s Memory Story is valuable on its own. Over time, stories, albums, contributions, relationships, and family voices form a Living Family Archive greater than any single recording.
+The experience should feel like remembering with a patient family member. People should not need to understand AI models, media pipelines, metadata, databases, or storage architecture.
 
-### 7. Sharing is an act of preservation
+### 7. Privacy-first means creator control, not isolation
 
-Sharing can reconnect relatives, reveal an unheard story, and inspire another family to preserve a voice before it disappears. Growth mechanics must strengthen this purpose, not exploit grief or pressure people into unwanted publicity.
+Every Living Memory begins private by default. The creator decides whether it remains private, enters a family circle, is sent to a friend, or is shared publicly. Private archive metadata never leaves merely because a share action exists.
 
-### 8. Families retain ownership and continuity
+### 8. Sharing is part of how memory lives
 
-Archives must remain portable, recoverable, understandable, and capable of passing to trusted legacy custodians. A family’s history must not be trapped by a vendor, format, model, device, or subscription.
+Families have always shown photographs and told their stories. Social and direct sharing can extend oral history, reconnect relatives, invite another recollection, and help another person realize that their own photographs have stories worth preserving.
 
-### 9. Access is part of dignity
+Sharing must be valuable on its own. We do not bribe a person with another free Living Memory for publishing or handing off a memory.
 
-Age, language, disability, device quality, technical confidence, or unreliable connectivity must not exclude someone from preserving their story. Accessibility and global readiness begin with the first screen.
+### 9. Families retain ownership and continuity
 
-### 10. Build for generations
+Archives must remain portable, recoverable, understandable, and capable of passing to trusted legacy stewards. A family's history must not be trapped by a vendor, format, model, device, or subscription.
 
-Short-term product choices must not weaken long-term preservation. We are not building for the next release alone; we are building records a family may still open decades from now.
+### 10. Access is part of dignity
+
+Age, language, disability, device quality, technical confidence, or unreliable connectivity must not exclude someone from preserving a story. Accessibility, multilingual behavior, offline recovery, and cross-device continuity are foundational.
+
+### 11. Memories remain living
+
+A Living Memory may gain additional voices, context, corrections, related photographs, alternate recollections, and relationships over time. Enrichment is additive and attributable; it never erases the source history.
+
+### 12. Build for generations
+
+Short-term product choices must not weaken long-term preservation. Technology will change repeatedly. The photograph, voice, person, story, relationship, provenance, and family remain the durable center.
 
 ## North Star
 
 Every meaningful decision must answer:
 
-**Will this help preserve someone's story for future generations?**
+**Does this make a memory more alive, more complete, more connected, more durable, more trustworthy, or easier to rediscover?**
 
-If yes, continue. If no, simplify, redesign, or decline the work.
+If not, simplify, redesign, or decline the work.
 
 ## The promise
 
-We cannot stop time or keep the people we love forever. We can help ensure that their voices, stories, laughter, and memories remain with the generations that follow.
+We cannot stop time or keep the people we love forever. We can help ensure that their voices, stories, laughter, relationships, and memories remain understandable to the generations that follow.
 
-Old photographs fade.
-
-The voices behind them should not.
+**A photograph can preserve a moment. A Living Memory can carry it forward.**

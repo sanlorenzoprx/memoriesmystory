@@ -11,15 +11,20 @@ import { localeFallbackChain, phase1Config } from "../../config/phase-1";
 import { phase1Limits } from "../../config/phase-1-limits";
 
 describe("central Phase 1 configuration", () => {
-  it("owns the five-story and 30-second launch limits", () => {
-    expect(phase1Config.entitlements.freeStoryLimit).toBe(5);
+  it("owns the first-free-Living-Memory and 30-second launch limits", () => {
+    expect(phase1Config.entitlements.freeStoryLimit).toBe(1);
     expect(phase1Config.entitlements.freeVoiceSecondsPerStory).toBe(30);
-    expect(phase1Limits.freeMemoryStoryCount).toBe(
-      phase1Config.entitlements.freeStoryLimit
-    );
-    expect(phase1Limits.freeVoiceSecondsPerStory).toBe(
-      phase1Config.entitlements.freeVoiceSecondsPerStory
-    );
+    expect(phase1Config.entitlements.shareRewardEnabled).toBe(false);
+    expect(phase1Limits.freeMemoryStoryCount).toBe(phase1Config.entitlements.freeStoryLimit);
+  });
+
+  it("keeps sharing private-first and voluntary", () => {
+    expect(phase1Config.sharing.defaultStoryVisibility).toBe("private");
+    expect(phase1Config.sharing.rewardUnlocks).toBe(false);
+    expect(phase1Config.sharing.primaryPublicTarget).toBe("facebook");
+    expect(phase1Config.sharing.primaryFamilyTarget).toBe("whatsapp");
+    expect(phase1Config.sharing.requireShareArtifactPreview).toBe(true);
+    expect(phase1Config.sharing.includePrivateArchiveMetadataByDefault).toBe(false);
   });
 
   it("does not invent privacy-sensitive retention or provider values", () => {
@@ -35,11 +40,11 @@ describe("central Phase 1 configuration", () => {
   });
 });
 
-describe("free Memory Story entitlement", () => {
+describe("free Living Memory entitlement", () => {
   const userId = asId<UserId>("user-1");
-  const now = "2026-07-16T00:00:00.000Z";
+  const now = "2026-08-11T00:00:00.000Z";
 
-  it("starts with one available free Memory Story", () => {
+  it("starts with one available free Living Memory", () => {
     const entitlement = createInitialEntitlement(userId, now);
 
     expect(entitlement.freeStoriesUnlocked).toBe(1);
@@ -47,34 +52,18 @@ describe("free Memory Story entitlement", () => {
     expect(canCreateFreeStory({ ...entitlement, freeStoriesCompleted: 1 })).toBe(false);
   });
 
-  it("grants no more than one unlock for a story", () => {
+  it("never grants another free Living Memory for sharing", () => {
     const entitlement = createInitialEntitlement(userId, now);
-    const first = grantShareUnlock({
+    const result = grantShareUnlock({
       entitlement,
       storyAlreadyGrantedUnlock: false,
       now
     });
-    const duplicate = grantShareUnlock({
-      entitlement: first.entitlement,
-      storyAlreadyGrantedUnlock: true,
-      now
+
+    expect(result).toMatchObject({
+      granted: false,
+      reason: "voluntary_sharing_no_reward",
+      entitlement: { freeStoriesUnlocked: 1 }
     });
-
-    expect(first.granted).toBe(true);
-    expect(first.entitlement.freeStoriesUnlocked).toBe(2);
-    expect(duplicate.granted).toBe(false);
-    expect(duplicate.entitlement.freeStoriesUnlocked).toBe(2);
-  });
-
-  it("caps the free sequence at five stories", () => {
-    const entitlement = {
-      ...createInitialEntitlement(userId, now),
-      freeStoriesUnlocked: 5,
-      freeStoriesCompleted: 5
-    };
-
-    expect(
-      grantShareUnlock({ entitlement, storyAlreadyGrantedUnlock: false, now })
-    ).toMatchObject({ granted: false, reason: "free_limit_reached" });
   });
 });

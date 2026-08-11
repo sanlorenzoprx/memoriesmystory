@@ -1,123 +1,143 @@
 # Memories: My Story — Product Invariants
 
-**Version:** 1.0  
+**Version:** 2.0  
 **Status:** Locked constitutional foundation  
-**Purpose:** State what no feature, business model, prompt, or technical implementation may violate.
+**Purpose:** State what no feature, business model, prompt, growth loop, or technical implementation may violate.
 
 ## Interpretation
 
-“Must” means a release-blocking requirement. “Never” means the behavior is prohibited. When two implementation choices are possible, choose the one that better protects the storyteller, the original artifact, and future family access.
+“Must” means a release-blocking requirement. “Never” means the behavior is prohibited. When two implementation choices are possible, choose the one that better protects the storyteller, authentic source artifacts, family control, and future access.
 
-## Human-truth invariants
+## Living Memory invariants
 
-### I-01. The original voice is the primary artifact
+### I-01. Living Memory is the canonical product object
 
-Every completed Memory Story must retain the storyteller’s original recording. Text, cleaned audio, translations, and Muse-generated material never replace it.
+The customer-facing unit of value is a **Living Memory**. Existing `MemoryStory` database and code names may remain temporarily as compatibility infrastructure, but they must map beneath the Living Memory aggregate and must not redefine the product.
 
-### I-02. The photograph and voice remain bound as one Memory Story
+### I-02. The original voice is a primary artifact
 
-The completed record must keep the source photograph, preserved voice, transcript, descriptive and relational metadata, ownership, and contribution context together.
+Every completed Living Memory that includes narration must retain the storyteller's original recording. Text, cleaned audio, translations, summaries, reels, and generated material never replace it.
 
-### I-03. The platform never editorially corrects a memory
+### I-03. Source photograph and voice remain bound
+
+A completed Living Memory must keep its source photograph, preserved voice, transcript lineage, descriptive and relational context, ownership, and contribution provenance connected as one recoverable record.
+
+### I-04. Original human sources outrank generated derivatives
+
+The precedence is: original source → attributed human correction/contribution → structured extraction → generated summary/narrative/presentation. The system must never invert this hierarchy.
+
+### I-05. The platform never editorially corrects a memory
 
 The system must never silently rewrite, reconcile, sanitize, or replace what a person remembers.
 
-### I-04. The storyteller controls the truth state
+### I-06. Truth state remains explicit
 
-Extracted details must support at least: confirmed, approximate, unknown, disputed, and AI-suggested but unconfirmed. Suggestions remain suggestions until accepted by an authorized person.
+Extracted details must support at least confirmed, approximate, unknown, disputed, and AI-suggested-but-unconfirmed. Suggestions remain suggestions until accepted by an authorized person.
 
-### I-05. Different recollections remain visible
+### I-07. Different recollections remain visible
 
 When contributors disagree, the product preserves attribution and difference. AI must not collapse their contributions into a false consensus.
 
 ## Preservation invariants
 
-### I-06. Originals are immutable
+### I-08. Originals are immutable
 
 Original image and audio assets are never overwritten. Enhancements and cleaned versions are new derivatives with provenance.
 
-### I-07. History is additive and attributable
+### I-09. History is additive and attributable
 
-Transcript revisions, contribution changes, sharing events, agreement versions, entitlement events, and deletion history must be attributable and recoverable according to policy.
+Transcript revisions, contribution changes, sharing events, agreement versions, entitlement events, stewardship changes, and deletion history must be attributable and recoverable according to policy.
 
-### I-08. “Saved” means durably confirmed
+### I-10. “Saved” means durably confirmed
 
-A Memory Story must not be represented as permanently saved until required assets have been durably stored. Interrupted local work must recover and complete rather than disappear silently.
+A Living Memory must not be represented as permanently preserved until required source assets have been durably stored. Interrupted local work must recover and complete rather than disappear silently.
 
-### I-09. Archives are portable
+### I-11. Archives are portable
 
 Owners must be able to export human-readable records and original media in durable, documented formats. Portability cannot be reserved only for a future migration project.
 
-### I-10. Continuity outlives an individual account
+### I-12. Continuity outlives an individual account
 
-The product must support designated legacy custodians and a responsible transfer path so an archive can continue across generations.
+The product must support a responsible legacy-steward path so a Family Archive can continue across generations.
 
 ## Experience invariants
 
-### I-11. Technology stays in the background
+### I-13. The first-five-minute promise is transformation
 
-The user experience must focus on the photograph and storyteller. It must not require the user to understand AI models, media pipelines, or storage architecture.
+The first successful session must be designed around **Photo → Voice → Muse → Preserved → Playback → Invite/Share**, with the goal that an ordinary photograph feels materially more valuable after becoming a Living Memory.
 
-### I-12. Muse listens before asking
+### I-14. The activation event is canonical
 
-Muse asks one warm, context-aware question at a time and allows silence, emotion, uncertainty, mixed languages, and “I don’t remember.” It does not interrogate the user with a checklist.
+The product-level activation event is `first_living_memory_completed`. Lower-level upload, registration, or transcription events may support analytics but do not replace this activation definition.
 
-### I-13. Guidance is optional, accessible, and recoverable
+### I-15. Technology stays in the background
 
-Onboarding and Muse Help must be brief, skippable, replayable, localized, and available when a user needs it again.
+The experience focuses on the photograph, storyteller, and family. It must not require the user to understand AI models, media pipelines, metadata, or storage architecture.
 
-### I-14. Accessibility is foundational
+### I-16. Muse listens before asking
 
-Large touch targets, readable typography, high contrast, spoken guidance, limited typing, reasonable timing, error recovery, lower-powered phones, unreliable networks, and hearing or vision needs are not post-launch extras.
+Muse asks one warm, context-aware question at a time and allows silence, emotion, uncertainty, mixed languages, and “I don't remember.” It does not interrogate with a checklist.
 
-### I-15. The product adapts to language
+### I-17. Accessibility is foundational
 
-The original spoken language is preserved. Interface and spoken language may differ. Translation is optional and additive. Language detection uncertainty must be represented honestly.
+Large touch targets, readable typography, high contrast, spoken guidance, limited typing, error recovery, lower-powered phones, unreliable networks, and hearing or vision needs are not post-launch extras.
 
-## Ownership and trust invariants
+### I-18. The product adapts to language
 
-### I-16. The family controls visibility
+The original spoken language is preserved. Interface and spoken language may differ. Translation is optional and additive. Language-detection uncertainty must be represented honestly.
 
-Private and public sharing require deliberate user action. The product does not force a family archive into public distribution.
+## Ownership, privacy, and sharing invariants
 
-### I-17. Contributions retain attribution
+### I-19. Privacy-first is the default state
 
-Owners control the assembled archive; contributors retain attribution for their own recorded contributions.
+A new Living Memory begins private. Public exposure requires deliberate creator action.
 
-### I-18. Generated content is distinguishable
+### I-20. Privacy-first is not private-only
 
-A Muse Legacy Description, suggested tag, translated transcript, or other generated artifact must remain separate from the original recording and transcript and must never be presented as confirmed human testimony.
+The creator may deliberately share a bounded copy with family, friends, social platforms, or the public. The product must support this human behavior rather than treating all external sharing as product drift.
 
-### I-19. Deletion is deliberate and recoverable
+### I-21. External sharing uses a bounded Share Artifact
 
-Deleted content enters the configured recovery period before verified permanent deletion. The user must understand the consequence of irreversible actions.
+A social or external share must include only the content the creator selected for that share. Private archive metadata, unrelated family relationships, hidden transcript context, private comments, and other non-selected material must not travel by default.
 
-### I-20. Agreements are versioned
+### I-22. Voluntary sharing is never purchased with free-memory rewards
 
-Consent and participation agreements must record the applicable version, person, time, and context. Legal friction should not be scattered through ordinary remembering unless required.
+A user must never be required or bribed to share a Living Memory in exchange for another free Living Memory. Growth must come from the value of the memory and the recipient's desire to preserve one of their own.
 
-## Business and growth invariants
+### I-23. Sharing can carry tasteful product attribution
 
-### I-21. Growth serves preservation
+With clear preview and user control, a Share Artifact may include restrained Memories: My Story attribution and a discovery call to action such as creating one's own Living Memory.
 
-Sharing, invitations, public-feed mechanics, and entitlements must encourage more memories to be preserved without exploiting emotional vulnerability.
+### I-24. Facebook is the first public social target
 
-### I-22. Limits are centrally configurable
+For initial product sequencing, Facebook is the primary public social-sharing target and WhatsApp is the next direct-family priority. Platform order may evolve from evidence without weakening creator control or privacy.
 
-Voice duration, earned stories, albums, circles, contributors, exports, and retention limits must not be duplicated as hardcoded business rules throughout the product.
+### I-25. Contributions retain attribution
 
-### I-23. Monetization may limit convenience or scale, not rewrite ownership
+Owners control the assembled archive; contributors retain attribution for their recorded contributions. The archive must preserve who said what.
 
-Pricing can change access levels, but it cannot grant the company permission to alter memories or prevent people from receiving a viable export of their preserved originals.
+### I-26. Generated content is distinguishable
 
-### I-24. The first five free Memory Stories use share-to-unlock
+A Muse description, suggested tag, translated transcript, reel, or generated narrative remains separate from original testimony and must never be presented as confirmed human testimony.
 
-The first Memory Story is available immediately. A deliberate qualifying share action unlocks each next free Memory Story, up to five. Sharing may be private, family-directed, social, or public according to the user's choice. This launch rule is non-negotiable and must not be silently weakened or removed.
+## Business and architecture invariants
 
-### I-25. The completion promise is locked
+### I-27. Growth serves preservation
 
-After durable save confirmation, the product must display exactly: **“This memory is now part of your family's history.”** The wording must not change before production testing explicitly evaluates it.
+Sharing, invitations, discovery, and attribution must create more preserved memories without exploiting grief, vulnerability, or social pressure.
+
+### I-28. Product value is not expressed primarily as storage units
+
+Gigabytes, transcription minutes, model calls, and internal quotas may constrain operations but must not become the primary value story. The durable value ladder is **Moment → Chapter → Life → Family**.
+
+### I-29. Limits are centrally configurable
+
+Voice duration, free trials, albums, circles, contributors, exports, retention, and paid entitlements must not be duplicated as hardcoded business rules throughout the product.
+
+### I-30. Technology is replaceable; the doctrine is durable
+
+Cloud vendors, frameworks, AI models, transcription systems, databases, codecs, and devices may change. No technology choice may redefine Living Memory, source authenticity, privacy, family control, portability, or long-term continuity.
 
 ## Release gate
 
-Before a feature is accepted, its owner must identify the invariants it touches and provide evidence that none are weakened. A feature that violates an invariant is not “mostly complete”; it is not eligible for release.
+Before a feature is accepted, its owner must complete the Living Memory anti-drift checklist and provide evidence that relevant invariants are preserved. A feature that violates an invariant is not eligible for release.

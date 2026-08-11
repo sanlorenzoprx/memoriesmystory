@@ -2,9 +2,10 @@ const mebibyte = 1024 * 1024;
 
 export const phase1Config = {
   entitlements: {
-    freeStoryLimit: 5,
+    freeStoryLimit: 1,
     initiallyUnlockedStories: 1,
-    freeVoiceSecondsPerStory: 30
+    freeVoiceSecondsPerStory: 30,
+    shareRewardEnabled: false
   },
   auth: {
     provider: "clerk",
@@ -53,7 +54,12 @@ export const phase1Config = {
     defaultStoryVisibility: "private",
     tokenLifetimeDays: null,
     tokenPolicyStatus: "requires_security_review",
-    revocable: true
+    revocable: true,
+    rewardUnlocks: false,
+    primaryPublicTarget: "facebook",
+    primaryFamilyTarget: "whatsapp",
+    requireShareArtifactPreview: true,
+    includePrivateArchiveMetadataByDefault: false
   }
 } as const;
 
