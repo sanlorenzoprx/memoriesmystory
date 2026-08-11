@@ -1,18 +1,29 @@
 {
-  "schema_version": "memoriesmystory_phase1_queue_v1",
+  "schema_version": "memoriesmystory_living_memory_queue_v2",
   "project": "memoriesmystory",
-  "campaign": "phase-1-production-ready-not-live",
-  "active_task_id": "packet-4",
+  "campaign": "living-memory-production-ready-not-live",
+  "active_task_id": "living-memory-ratification",
   "tasks": [
-    { "id": "packet-1", "status": "completed", "depends_on": [], "title": "Domain, configuration, and persistence contracts" },
-    { "id": "packet-2", "status": "completed", "depends_on": ["packet-1"], "title": "Local-first capture and onboarding" },
-    { "id": "packet-3", "status": "completed", "depends_on": ["packet-2"], "title": "Original media durability" },
-    { "id": "packet-4", "status": "active", "depends_on": ["packet-3"], "title": "Account binding and recovery" },
-    { "id": "packet-5", "status": "pending", "depends_on": ["packet-4"], "title": "Transcription and Muse" },
-    { "id": "packet-6", "status": "pending", "depends_on": ["packet-5"], "title": "Review and durable completion" },
-    { "id": "packet-7", "status": "pending", "depends_on": ["packet-6"], "title": "Minimum private share-to-unlock" },
-    { "id": "packet-8", "status": "pending", "depends_on": ["packet-7"], "title": "Full Phase 1 acceptance" }
+    { "id": "packet-1", "status": "completed", "depends_on": [], "title": "Existing domain, configuration, and persistence contracts" },
+    { "id": "packet-2", "status": "completed", "depends_on": ["packet-1"], "title": "Existing local-first capture and recovery" },
+    { "id": "packet-3", "status": "completed", "depends_on": ["packet-2"], "title": "Existing original media durability" },
+    { "id": "packet-4", "status": "active", "depends_on": ["packet-3"], "title": "Account binding and recovery; Facebook identity staging remains deferred" },
+    { "id": "living-memory-ratification", "status": "active", "depends_on": ["packet-3"], "title": "Ratify Living Memory doctrine, voluntary sharing, domain overlay, and execution contracts" },
+    { "id": "landing-positioning", "status": "pending", "depends_on": ["living-memory-ratification"], "title": "Replace obsolete landing positioning with Photo → Voice → Living Memory" },
+    { "id": "living-memory-activation", "status": "pending", "depends_on": ["living-memory-ratification", "packet-4"], "title": "Wire durable completion to first_living_memory_completed and Magic Moment" },
+    { "id": "source-authenticity", "status": "pending", "depends_on": ["living-memory-activation"], "title": "Revalidate source authenticity and revision/provenance under Living Memory" },
+    { "id": "muse", "status": "pending", "depends_on": ["source-authenticity"], "title": "Source-grounded transcription and Muse elicitation" },
+    { "id": "family-archive", "status": "pending", "depends_on": ["muse"], "title": "People, relationships, Chapters, and Family Archive" },
+    { "id": "voluntary-share", "status": "pending", "depends_on": ["living-memory-activation"], "title": "Bounded Share Artifact, Facebook handoff, WhatsApp path, and referral telemetry without rewards" },
+    { "id": "family-contributions", "status": "pending", "depends_on": ["family-archive"], "title": "Attributed family contributions and alternate recollections" },
+    { "id": "retrieval-timeline", "status": "pending", "depends_on": ["family-archive", "family-contributions"], "title": "Privacy-scoped retrieval, timeline, people/place discovery" },
+    { "id": "memory-circle", "status": "pending", "depends_on": ["family-contributions"], "title": "Collaborative synchronous remembrance around a pinned Living Memory" },
+    { "id": "resurfacing", "status": "pending", "depends_on": ["retrieval-timeline"], "title": "Meaningful resurfacing by dates, people, places, and incomplete memories" },
+    { "id": "derivative-storytelling", "status": "pending", "depends_on": ["retrieval-timeline"], "title": "Source-grounded Reels, Chapters, and Life Stories" },
+    { "id": "legacy-infrastructure", "status": "pending", "depends_on": ["family-archive"], "title": "Export, stewardship, inheritance, migration, and archival durability" },
+    { "id": "growth-engine", "status": "pending", "depends_on": ["voluntary-share", "landing-positioning"], "title": "Measure and improve the Living Memory Loop" }
   ],
   "completion_contract": "docs/EXECUTION/DEFINITION_OF_DONE_V1.md",
-  "packet_specification": "docs/IMPLEMENTATION/PHASE_1_SOLO_MEMORY_STORY_BUILD_SPEC.md"
+  "implementation_map": "docs/IMPLEMENTATION/2026-08-11_LIVING_MEMORY_MIGRATION_PLAN.md",
+  "historical_packet_specification": "docs/IMPLEMENTATION/PHASE_1_SOLO_MEMORY_STORY_BUILD_SPEC.md"
 }
