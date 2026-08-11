@@ -7,7 +7,7 @@
     { "id": "packet-1", "status": "completed", "depends_on": [], "title": "Existing domain, configuration, and persistence contracts" },
     { "id": "packet-2", "status": "completed", "depends_on": ["packet-1"], "title": "Existing local-first capture and recovery" },
     { "id": "packet-3", "status": "completed", "depends_on": ["packet-2"], "title": "Existing original media durability" },
-    { "id": "packet-4", "status": "active", "depends_on": ["packet-3"], "title": "Account binding and recovery; Facebook identity staging remains deferred" },
+    { "id": "packet-4", "status": "paused", "depends_on": ["packet-3"], "title": "Account binding and recovery; Facebook identity staging remains deferred" },
     { "id": "living-memory-ratification", "status": "active", "depends_on": ["packet-3"], "title": "Ratify Living Memory doctrine, voluntary sharing, domain overlay, and execution contracts" },
     { "id": "landing-positioning", "status": "pending", "depends_on": ["living-memory-ratification"], "title": "Replace obsolete landing positioning with Photo → Voice → Living Memory" },
     { "id": "living-memory-activation", "status": "pending", "depends_on": ["living-memory-ratification", "packet-4"], "title": "Wire durable completion to first_living_memory_completed and Magic Moment" },

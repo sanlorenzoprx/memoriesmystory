@@ -1,9 +1,11 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
+type TaskStatus = "active" | "pending" | "completed" | "paused";
+
 type Task = {
   id: string;
-  status: "active" | "pending" | "completed";
+  status: TaskStatus;
   depends_on: string[];
 };
 
@@ -13,12 +15,12 @@ type Queue = {
   tasks: Task[];
 };
 
-describe("Phase 1 execution handoff", () => {
+describe("Living Memory execution handoff", () => {
   const queue = JSON.parse(
     readFileSync(new URL("../../docs/EXECUTION/TASK_QUEUE.json", import.meta.url), "utf8")
   ) as Queue;
 
-  it("has exactly one active bounded packet", () => {
+  it("has exactly one active bounded task", () => {
     const active = queue.tasks.filter((task) => task.status === "active");
 
     expect(queue.project).toBe("memoriesmystory");
@@ -26,13 +28,26 @@ describe("Phase 1 execution handoff", () => {
     expect(active[0]?.id).toBe(queue.active_task_id);
   });
 
-  it("orders every later packet behind its predecessor", () => {
-    expect(queue.tasks.map((task) => task.id)).toEqual(
-      Array.from({ length: 8 }, (_, index) => `packet-${index + 1}`)
-    );
+  it("uses a valid forward-only dependency graph", () => {
+    const positions = new Map(queue.tasks.map((task, index) => [task.id, index]));
+    expect(new Set(queue.tasks.map((task) => task.id).size).toBe(queue.tasks.length);
 
     for (const [index, task] of queue.tasks.entries()) {
-      expect(task.depends_on).toEqual(index === 0 ? [] : [`packet-${index}`]);
+      expect(task.depends_on).not.toContain(task.id);
+      for (const dependency of task.depends_on) {
+        expect(positions.has(dependency)).toBe(true);
+        expect(positions.get(dependency)).toBeLessThan(index);
+      }
     }
+  });
+
+  it("preserves completed Packet 1-3 evidence while pausing unfinished Packet 4", () => {
+    const statusById = new Map(queue.tasks.map((task) => [task.id, task.status]));
+
+    expect(statusById.get("packet-1")).toBe("completed");
+    expect(statusById.get("packet-2")).toBe("completed");
+    expect(statusById.get("packet-3")).toBe("completed");
+    expect(statusById.get("packet-4")).toBe("paused");
+    expect(statusById.get("living-memory-ratification")).toBe("active");
   });
 });
