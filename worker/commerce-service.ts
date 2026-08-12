@@ -6,6 +6,8 @@ import {
   type CommerceCatalogEnv,
   type CommerceOfferId
 } from "./commerce-catalog";
+import { fulfillCheckoutSession } from "./commerce-fulfillment";
+import { activeEntitlementsForAccount, entitlementForOrder } from "./entitlement-service";
 import {
   createEmbeddedCheckoutSession,
   retrieveCheckoutSession,
@@ -15,6 +17,7 @@ import {
 
 export type CommerceServiceEnv = AuthSessionEnv & CommerceCatalogEnv & StripeClientEnv & {
   readonly MEMORIES_PUBLIC_ORIGIN?: string;
+  readonly STRIPE_WEBHOOK_SECRET?: string;
 };
 
 export class CommerceServiceError extends Error {
@@ -43,6 +46,16 @@ type OrderRow = {
   readonly idempotency_key: string;
 };
 
+type CheckoutStatusRow = {
+  readonly id: string;
+  readonly account_id: string;
+  readonly offer_id: CommerceOfferId;
+  readonly stripe_checkout_session_id: string;
+  readonly status: "created" | "checkout_open" | "paid" | "fulfilled" | "expired" | "payment_failed" | "refunded";
+  readonly paid_at: string | null;
+  readonly fulfilled_at: string | null;
+};
+
 export type StripeCheckoutGateway = {
   create(env: StripeClientEnv, input: Parameters<typeof createEmbeddedCheckoutSession>[1]): Promise<StripeCheckoutSession>;
   retrieve(env: StripeClientEnv, sessionId: string): Promise<StripeCheckoutSession>;
@@ -54,6 +67,7 @@ const defaultStripeGateway: StripeCheckoutGateway = {
 };
 
 const attemptPattern = /^checkout_[A-Za-z0-9-]{16,120}$/;
+const checkoutSessionPattern = /^cs_[A-Za-z0-9_]+$/;
 
 function assertMutationRequest(request: Request): void {
   if (request.headers.get("X-Memories-Request") !== "commerce-v1") {
@@ -63,6 +77,14 @@ function assertMutationRequest(request: Request): void {
   if (origin && origin !== new URL(request.url).origin) {
     throw new CommerceServiceError(403, "The checkout origin is not allowed.", "origin");
   }
+}
+
+async function requireAccountSession(request: Request, env: CommerceServiceEnv) {
+  const session = await authenticateAppSession(request, env);
+  if (!session) {
+    throw new CommerceServiceError(401, "Sign in is required.", "session_required");
+  }
+  return session;
 }
 
 function publicOrigin(request: Request, env: CommerceServiceEnv): string {
@@ -105,10 +127,7 @@ export async function createCheckoutForRequest(
   readonly replayed: boolean;
 }> {
   assertMutationRequest(request);
-  const session = await authenticateAppSession(request, env);
-  if (!session) {
-    throw new CommerceServiceError(401, "Sign in is required before checkout.", "session_required");
-  }
+  const session = await requireAccountSession(request, env);
 
   const body = await request.json().catch(() => null) as CheckoutBody | null;
   if (!body || !isCommerceOfferId(body.offerId)) {
@@ -212,4 +231,65 @@ export async function createCheckoutForRequest(
     currency: offer.currency,
     replayed
   };
+}
+
+export async function checkoutStatusForRequest(
+  request: Request,
+  env: CommerceServiceEnv,
+  stripe: Pick<StripeCheckoutGateway, "retrieve"> = defaultStripeGateway
+) {
+  const session = await requireAccountSession(request, env);
+  const sessionId = new URL(request.url).searchParams.get("session_id");
+  if (!sessionId || !checkoutSessionPattern.test(sessionId)) {
+    throw new CommerceServiceError(400, "The checkout session is invalid.", "invalid_session");
+  }
+
+  let order = await env.DB.prepare(
+    `SELECT id, account_id, offer_id, stripe_checkout_session_id, status, paid_at, fulfilled_at
+     FROM commerce_orders WHERE stripe_checkout_session_id = ? AND account_id = ?`
+  ).bind(sessionId, session.userId).first<CheckoutStatusRow>();
+  if (!order) {
+    throw new CommerceServiceError(404, "That checkout was not found for this account.", "checkout_not_found");
+  }
+
+  if (order.status !== "fulfilled" && order.status !== "expired" &&
+      order.status !== "payment_failed" && order.status !== "refunded") {
+    try {
+      await fulfillCheckoutSession(env, sessionId, stripe);
+    } catch (error) {
+      throw new CommerceServiceError(
+        502,
+        error instanceof Error ? error.message : "Stripe payment status could not be verified.",
+        "stripe_status"
+      );
+    }
+    order = await env.DB.prepare(
+      `SELECT id, account_id, offer_id, stripe_checkout_session_id, status, paid_at, fulfilled_at
+       FROM commerce_orders WHERE id = ?`
+    ).bind(order.id).first<CheckoutStatusRow>();
+    if (!order) throw new CommerceServiceError(500, "The checkout order disappeared.", "order_missing");
+  }
+
+  const grant = await entitlementForOrder(env, order.id);
+  const state = order.status === "fulfilled" && grant
+    ? "completed"
+    : order.status === "expired" || order.status === "payment_failed" || order.status === "refunded"
+      ? "failed"
+      : "processing";
+
+  return {
+    sessionId,
+    orderId: order.id,
+    offerId: order.offer_id,
+    state,
+    orderStatus: order.status,
+    paidAt: order.paid_at,
+    fulfilledAt: order.fulfilled_at,
+    entitlement: grant
+  } as const;
+}
+
+export async function entitlementsForRequest(request: Request, env: CommerceServiceEnv) {
+  const session = await requireAccountSession(request, env);
+  return activeEntitlementsForAccount(env, session.userId);
 }
