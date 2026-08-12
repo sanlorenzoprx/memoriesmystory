@@ -1,13 +1,28 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 
 import type { CaptureEntryMode } from "../capture/local-draft";
+import { livingMemoryOffers } from "../commerce/offers";
+import { getAccountEntitlements, type EntitlementGrantResponse } from "../../services/commerce-api";
 import { beginLocalDraft } from "../../services/local-draft-store";
 
 export function LivingMemoryStartExperience() {
   const navigate = useNavigate();
   const [starting, setStarting] = useState<CaptureEntryMode | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [entitlement, setEntitlement] = useState<EntitlementGrantResponse | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    void getAccountEntitlements()
+      .then((result) => {
+        if (active) setEntitlement(result.effective);
+      })
+      .catch(() => {
+        // Free/local creation remains available when there is no signed-in paid entitlement.
+      });
+    return () => { active = false; };
+  }, []);
 
   async function start(entryMode: CaptureEntryMode) {
     setStarting(entryMode);
@@ -24,14 +39,20 @@ export function LivingMemoryStartExperience() {
     }
   }
 
+  const paidOffer = entitlement ? livingMemoryOffers[entitlement.offerId] : null;
+
   return (
     <main className="journey-page" id="main-content">
       <section className="journey-hero" aria-labelledby="create-title">
         <div className="journey-copy">
-          <p className="lm-eyebrow">Your first Living Memory is free</p>
-          <h1 id="create-title">Start with one photograph.</h1>
+          <p className="lm-eyebrow">
+            {paidOffer ? `Your ${paidOffer.name} is ready` : "Your first Living Memory is free"}
+          </p>
+          <h1 id="create-title">{paidOffer ? "Start the next Living Memory." : "Start with one photograph."}</h1>
           <p className="journey-lede">
-            Choose a photograph that brings something back. Then tell the story in your own words. No script. No writing assignment.
+            {paidOffer
+              ? `Choose the photograph you want to preserve next. Your ${paidOffer.name} stays connected to the same private Family Archive.`
+              : "Choose a photograph that brings something back. Then tell the story in your own words. No script. No writing assignment."}
           </p>
           <div className="journey-choice-grid" aria-label="Choose how to add a photograph">
             <button
