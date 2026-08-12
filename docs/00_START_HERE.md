@@ -52,11 +52,18 @@ Approved dated decision records explain intentional amendments to locked documen
 
 These documents define current commercial hypotheses and the public page implementation beneath the Foundation. They may evolve through evidence without changing the core product doctrine.
 
+Read the current versions in this order:
+
 - `PRODUCT/LIVING_MEMORY_OFFER_V1.md`
+- `PRODUCT/LIVING_MEMORY_LANDING_PAGE_BUILD_CONTRACT_V2.md`
+- `PRODUCT/LIVING_MEMORY_PROOF_LEDGER_V1.md`
+- `PRODUCT/LIVING_MEMORY_LANDING_VISUAL_DIRECTION_V2.md`
+
+The following remain historical inputs superseded where V2 conflicts:
+
 - `PRODUCT/LIVING_MEMORY_LANDING_PAGE_BUILD_CONTRACT_V1.md`
 - `PRODUCT/LIVING_MEMORY_LANDING_VISUAL_DIRECTION_V1.md`
-
-`PRODUCT/GOOD_KARMA_SHARE_POLICY_V1.md` is retained only as a superseded historical policy.
+- `PRODUCT/GOOD_KARMA_SHARE_POLICY_V1.md`
 
 ## What is settled
 
@@ -75,10 +82,13 @@ These documents define current commercial hypotheses and the public page impleme
 - The first-five-minute activation event is `first_living_memory_completed`.
 - The first-five-minute product sequence is **Photo → Voice → Muse → Preserved → Playback → Invite/Share**.
 - One complete first Living Memory is the free Magic Moment; paid scope begins with Chapter.
+- The free Magic Moment is intentionally repeated as the primary landing conversion at contextually appropriate points rather than shown only in the hero.
 - The initial commercial test ladder is **Chapter $247 → Life $747 → Family $1,497**, subordinate to evidence and cost validation.
 - Target paid source voice entitlement is up to 10 minutes per Living Memory; the free first Living Memory targets the same complete experience unless cost evidence requires a change that still preserves the Magic Moment.
 - Live **Memory Circle** is included in Life and Family.
 - Memory Circle means remembering around one photograph from anywhere: same room, remote live, hybrid, or later attributed contribution. It preserves the telling moment, not merely a final AI summary.
+- Before direct customer proof exists, landing proof must clearly distinguish mechanism demonstration, premise research, and technical product evidence. Customer proof may never be fabricated.
+- Landing-page pacing favors one dominant idea per section, large readable type, generous negative space, and progressive disclosure over compressed information density.
 - The long-term value ladder is **Moment → Chapter → Life → Family**.
 - Accessibility, multilingual use, portability, offline recovery, cross-device continuity, and legacy stewardship are foundational.
 - The completion message remains: **“This memory is now part of your family's history.”**
@@ -87,6 +97,8 @@ These documents define current commercial hypotheses and the public page impleme
 ## Current sequencing
 
 The Living Memory doctrine/domain slice is ratified on the stacked development line. The active task is the landing-positioning slice: define and then replace the public surface around **Idea → Photo → Voice → Living Memory → Magic Moment → Chapter / Life / Family** without disturbing the existing capture/recovery runtime.
+
+The next visual/code work must follow the V2 landing, proof, and visual-direction contracts rather than the denser V1 rendering assumptions.
 
 ## What remains open
 
