@@ -195,6 +195,7 @@ function VerifiedThankYou({ offerId }: { readonly offerId: OfferId }) {
 
   useEffect(() => {
     if (!sessionId) return;
+    const verifiedSessionId = sessionId;
     let active = true;
     let retryTimer: number | null = null;
     let attempts = 0;
@@ -202,7 +203,7 @@ function VerifiedThankYou({ offerId }: { readonly offerId: OfferId }) {
     async function check() {
       attempts += 1;
       try {
-        const next = await getCheckoutStatus(sessionId);
+        const next = await getCheckoutStatus(verifiedSessionId);
         if (!active) return;
         setStatus(next);
         setMessage(null);
