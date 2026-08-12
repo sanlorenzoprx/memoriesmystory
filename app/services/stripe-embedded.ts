@@ -42,7 +42,7 @@ function loadStripeScript(): Promise<void> {
     script.async = true;
     script.addEventListener("load", () => resolve(), { once: true });
     script.addEventListener("error", () => reject(new Error("Stripe.js could not be loaded.")), { once: true });
-    document.head.append(script);
+    document.head.appendChild(script);
   }).then(() => {
     if (!window.Stripe) throw new Error("Stripe.js loaded without exposing Stripe.");
   });
