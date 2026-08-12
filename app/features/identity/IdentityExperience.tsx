@@ -2,7 +2,7 @@ import { SignIn, SignedIn, SignedOut, useAuth } from "@clerk/clerk-react";
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router";
 
-import { isOfferId, livingMemoryOffers } from "../commerce/offers";
+import { isOfferId, livingMemoryOffers, type OfferId } from "../commerce/offers";
 import { claimLocalDraft, openAccountSession } from "../../services/identity-api";
 import { loadLocalDraft } from "../../services/local-draft-store";
 
@@ -19,7 +19,8 @@ export function IdentityExperience() {
   const [searchParams] = useSearchParams();
   const draftId = searchParams.get("draftId");
   const intent = intentFrom(searchParams.get("intent"));
-  const offerId = isOfferId(searchParams.get("offer")) ? searchParams.get("offer") : null;
+  const offerParam = searchParams.get("offer");
+  const offerId: OfferId | null = isOfferId(offerParam) ? offerParam : null;
   const copy = useMemo(() => identityCopy(intent, offerId), [intent, offerId]);
 
   if (!clerkConfigured) {
@@ -97,7 +98,7 @@ function BindIdentity({
 }: {
   readonly draftId: string | null;
   readonly intent: IdentityIntent;
-  readonly offerId: keyof typeof livingMemoryOffers | null;
+  readonly offerId: OfferId | null;
 }) {
   const { getToken } = useAuth();
   const navigate = useNavigate();
@@ -162,7 +163,7 @@ function IdentityStoryPanel({ title, body }: { readonly title: string; readonly 
   );
 }
 
-function identityCopy(intent: IdentityIntent, offerId: keyof typeof livingMemoryOffers | null) {
+function identityCopy(intent: IdentityIntent, offerId: OfferId | null) {
   if (intent === "free") {
     return {
       title: "One sign-in keeps the story connected to you.",
