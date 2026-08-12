@@ -1,6 +1,6 @@
+import { ClerkProvider, useAuth } from "@clerk/clerk-react";
 import { useEffect, useRef, useState } from "react";
 import { Navigate, Link, useParams, useSearchParams } from "react-router";
-import { useAuth } from "@clerk/clerk-react";
 
 import {
   createCheckoutSession,
@@ -10,7 +10,8 @@ import {
 import { mountEmbeddedCheckout } from "../../services/stripe-embedded";
 import { isOfferId, livingMemoryOffers, type OfferId } from "./offers";
 
-const clerkConfigured = Boolean(import.meta.env.VITE_CLERK_PUBLISHABLE_KEY);
+const clerkPublishableKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY?.trim() ?? "";
+const clerkConfigured = Boolean(clerkPublishableKey);
 const stripePublishableKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY?.trim() ?? "";
 const stripeConfigured = /^pk_(test|live)_/.test(stripePublishableKey);
 
@@ -25,7 +26,11 @@ export function CheckoutExperience() {
     return <CheckoutFrame offerId={offerId} paymentReady={false} />;
   }
 
-  return <ProtectedCheckout offerId={offerId} />;
+  return (
+    <ClerkProvider publishableKey={clerkPublishableKey}>
+      <ProtectedCheckout offerId={offerId} />
+    </ClerkProvider>
+  );
 }
 
 function ProtectedCheckout({ offerId }: { readonly offerId: OfferId }) {
@@ -158,7 +163,12 @@ export function ThankYouExperience() {
 
   if (!offer) return <Navigate to="/" replace />;
   if (!clerkConfigured) return <UnverifiedThankYou offerId={offer.id} />;
-  return <ProtectedThankYou offerId={offer.id} />;
+
+  return (
+    <ClerkProvider publishableKey={clerkPublishableKey}>
+      <ProtectedThankYou offerId={offer.id} />
+    </ClerkProvider>
+  );
 }
 
 function ProtectedThankYou({ offerId }: { readonly offerId: OfferId }) {
