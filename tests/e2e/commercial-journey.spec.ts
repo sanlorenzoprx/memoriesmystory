@@ -22,7 +22,9 @@ test("brand identity stays present across landing, creation, checkout, and thank
 }) => {
   for (const route of ["/", "/create", "/checkout/life", "/thank-you/life"]) {
     await page.goto(route);
-    await expect(page.getByRole("link", { name: "MemoriesMyStory home" })).toBeVisible();
+    await expect(
+      page.getByRole("banner", { name: "MemoriesMyStory" }).getByRole("link", { name: "MemoriesMyStory home" })
+    ).toBeVisible();
     await expect(page.locator('link[rel="icon"][href="/favicon.svg"]')).toHaveCount(1);
   }
 
