@@ -36,6 +36,25 @@ No share is required to keep the first Living Memory. No share earns another fre
 
 The 10-minute free target is a product/offer entitlement and must be cost-validated before public launch. If cost evidence requires adjustment, the experience must still provide enough time to create a genuine Magic Moment rather than a crippled demo.
 
+### Landing-page role of the free offer
+
+The first free Living Memory is not merely an above-the-fold CTA. It is the primary product-led conversion throughout the landing experience.
+
+The page may repeat the free invitation at multiple belief/objection transitions, provided every placement points to the same entitlement and does not create fake urgency or imply multiple free memories.
+
+Approved contextual moments include:
+
+- hero — for visitors ready immediately;
+- directly after the Living Memory demonstration — **Try it with one photograph**;
+- after premise proof — for visitors who needed belief/trust;
+- after Muse/ease — for visitors who needed effort/technology reassurance;
+- before paid pricing — to reinforce that no purchase is required to prove the mechanism;
+- final CTA — emotional close around the photograph the visitor already has in mind.
+
+The conversion rule is:
+
+> **Repeat the opportunity, not the pressure.**
+
 ## 3. Offer ladder
 
 The initial test ladder is **Moment → Chapter → Life → Family**.
