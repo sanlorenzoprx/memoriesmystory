@@ -2,15 +2,13 @@
 
 **Status:** current visual direction for Rendering 3 and subsequent landing-page implementation  
 **Date:** 2026-08-12  
-**Supersedes:** `LIVING_MEMORY_LANDING_VISUAL_DIRECTION_V2.md` where readability, copy density, section pacing, and Rendering 3 acceptance differ  
+**Primary structure source:** `LIVING_MEMORY_LANDING_PAGE_BLUEPRINT_V1.md`  
 **Copy source:** `LIVING_MEMORY_PUBLIC_COPY_STANDARD_V1.md`  
-**Structure source:** `LIVING_MEMORY_LANDING_PAGE_BUILD_CONTRACT_V2.md`
+**Proof source:** `LIVING_MEMORY_PROOF_LEDGER_V1.md`
 
 ## 1. Rendering 3 objective
 
-Rendering 1 proved the information architecture.
-
-Rendering 2 improved readability but still moved too quickly.
+Rendering 1 proved the information architecture. Rendering 2 improved readability but still moved too quickly and carried too much information in each screen.
 
 Rendering 3 must prove three things:
 
@@ -22,140 +20,122 @@ The page may become much longer to achieve those goals.
 
 > **Long is acceptable. Dense is not.**
 
-## 2. Public copy standard
+## 2. Hero
 
-All visible copy follows `LIVING_MEMORY_PUBLIC_COPY_STANDARD_V1.md`.
+Primary headline:
 
-Target normal reading level: **grade 6–7**.  
-Maximum normal marketing/product reading level: **grade 8**, except for necessary named, legal, research, or technical terms that are immediately explained.
+> **Your Voice Creates a Living Memory.**
 
-Do not chase grade 5 if it makes the writing sound childish or strips away meaning.
+Supporting headline:
 
-The visual design must never solve a copy-density problem by shrinking the type.
+> **A photograph shows the moment. Your voice tells the story behind it.**
 
-## 3. Plain-language rule
-
-Customer-facing language must explain the human action and outcome.
-
-Prefer:
-
-> Pick one photograph. Tell the story in your own words.
-
-Over:
-
-> Experience the source-grounded memory capture mechanism.
-
-Prefer:
-
-> Your Living Memory starts private. You choose when to share it.
-
-Over:
-
-> Privacy-scoped sharing produces a bounded Share Artifact.
-
-Prefer:
-
-> Family members can remember the same day differently. We keep each person's memory with their name.
-
-Over:
-
-> Alternate attributed recollections preserve uncertainty.
-
-Branded terms—Living Memory, Muse, Memory Circle, Chapter, Life, Family Archive—remain, but each is shown in plain language when first introduced.
-
-## 4. Density reduction
-
-Rendering 3 should contain roughly **40–50% less visible information per viewport** than Rendering 2.
-
-This does not mean deleting the offer logic. It means spreading it out.
-
-Rules:
-
-- one dominant thought per section;
-- no more than one short paragraph plus 3–4 visible supporting points beside a major image;
-- secondary details may sit behind an expandable control;
-- no tiny multi-column grids of explanatory text;
-- no six-point lists beside small images;
-- no section should require the reader to understand the next section at the same time.
-
-## 5. Type and spacing
-
-### Desktop
-
-- body: target 20 px; 18 px only for secondary copy;
-- H1: 64–76 px where viewport permits;
-- H2: 42–56 px;
-- H3: 28–34 px;
-- supporting labels: generally at least 16–17 px;
-- buttons: 18–20 px labels where practical;
-- body line-height: about 1.6;
-- text measure: roughly 45–65 characters per line;
-- major sections: generally 128–192 px vertical padding;
-- important editorial sections may approach full viewport height.
-
-### Mobile
-
-- body: target 18–19 px;
-- H1: 42–48 px;
-- H2: 32–40 px;
-- controls: at least 48 px tall;
-- one clear column;
-- enough section separation that the next idea does not visually crowd the current one.
-
-## 6. Page rhythm
-
-Rendering 3 should read more like a magazine feature or guided family story than a conversion infographic.
-
-Suggested rhythm:
-
-1. **Hero** — one photograph, one idea, one free action.
-2. **Magic Moment** — photograph becomes a Living Memory.
-3. **Free invitation** — Try it with one photograph.
-4. **The missing-story problem** — one photo and a few questions.
-5. **Why this makes sense** — substantial proof section.
-6. **Free invitation** — Give one photo its voice.
-7. **How it works** — Photo → Voice → Muse → Living Memory.
-8. **Muse makes it easy** — one calm phone/product scene.
-9. **Free invitation** — Pick a photo and talk.
-10. **Memory Circle** — a large family remembrance scene from anywhere.
-11. **Private first** — simple choices, no permissions matrix.
-12. **Moment → Chapter → Life → Family** — spacious visual progression.
-13. **Remembering a life** — memorial belief section.
-14. **Free-before-price bridge** — Experience one Living Memory first.
-15. **Chapter / Life / Family pricing** — large, readable, progressive detail.
-16. **Trust + FAQ** — only remaining objections.
-17. **Final photograph** — Give it its voice.
-
-The page should feel intentionally paced, not merely stretched.
-
-## 7. Hero
-
-The hero should be simple enough to understand in seconds.
-
-Headline:
-
-> **A photograph preserves the moment.**  
-> **Give it its voice.**
-
-Support:
-
-> Turn one family photograph into a Living Memory with the real voice and story behind it.
+Supporting copy should explain in one short paragraph that MemoriesMyStory keeps the photograph together with the person's real voice and the details that give the moment meaning.
 
 Primary CTA:
 
 **Create Your First Living Memory**
 
-Support under CTA:
+Support:
 
-**Your first one is free. No credit card required.**
+**Your first complete Living Memory is free. No credit card required.**
 
 Secondary CTA:
 
-**Hear a Living Memory**
+**See a Living Memory**
 
-One large, believable family photograph. No product pipeline diagram in the hero.
+Use one large, believable family photograph. Do not show the entire product pipeline in the hero.
 
-## 8. Magic Moment
+## 3. Public copy standard
+
+All visible copy follows `LIVING_MEMORY_PUBLIC_COPY_STANDARD_V1.md` and the Landing Page Blueprint.
+
+- target normal reading level: **grade 6–7**;
+- normal ceiling: **grade 8**;
+- do not force grade 5 when it makes the copy childish, vague, or incomplete;
+- one main idea per sentence;
+- short paragraphs;
+- familiar words before specialist terms;
+- enough context to preserve meaning.
+
+The visual design must never solve a copy-density problem by shrinking type or cutting away the explanation that makes the sentence understandable.
+
+## 4. Density target
+
+Rendering 3 should show roughly **40–50% less visible information per viewport than Rendering 2**.
+
+Keep the full persuasion content by spreading it across more sections.
+
+Rules:
+
+- one dominant thought per major section;
+- no more than 3–4 first-level points beside a major image;
+- secondary detail may expand on request;
+- no tiny multi-column grids of explanatory copy;
+- no section should make the visitor understand three different ideas at once.
+
+## 5. Type and spacing
+
+### Desktop
+
+- body: about 20 px;
+- H1: about 60–76 px;
+- H2: about 40–56 px;
+- H3: about 28–34 px;
+- supporting labels: generally 16–18 px or larger;
+- buttons: 17–20 px labels where practical;
+- body line-height: about 1.55–1.7;
+- text measure: about 45–65 characters per line;
+- major section vertical padding: generally 120–190 px;
+- important emotional sections may approach full viewport height.
+
+### Mobile
+
+- body: 18–19 px;
+- H1: about 40–48 px;
+- H2: about 32–40 px;
+- controls: at least 48 px tall;
+- one clear column;
+- no horizontal scrolling;
+- no hover-only information;
+- generous section separation.
+
+## 6. Page rhythm
+
+Rendering 3 follows the full Blueprint rather than compressing the argument into a few feature bands.
+
+Visual cadence:
+
+1. Hero — new belief.
+2. Magic Moment — photograph becomes a Living Memory.
+3. Free invitation — try one photograph.
+4. Problem — photographs can outlast their stories.
+5. Stakes — names, places, meaning, and voice can be lost.
+6. Desired future — family can hear and understand the story later.
+7. Proof — why the idea makes sense.
+8. Free invitation — try it yourself.
+9. How it works — Photo → Voice → Muse → Living Memory.
+10. Ease — four simple steps.
+11. Muse — AI helps without inventing.
+12. Free invitation — no memoir writing required.
+13. Memory Circle — remember together anywhere.
+14. Privacy — private first.
+15. Sharing — share one story by choice.
+16. Moment → Chapter → Life → Family.
+17. What a Living Memory can hold.
+18. Difference — not merely photo storage, transcription, or AI biography.
+19. Memorial belief — preserve more of the life between the dates.
+20. Free bridge before price.
+21. Pricing — Chapter / Life / Family.
+22. Value stack — objections translated into solved problems.
+23. Future customer-proof area.
+24. Trust / guarantee.
+25. FAQ.
+26. Final photograph + free CTA.
+
+The visitor should feel like she is moving through a calm conversation, not scanning an infographic.
+
+## 7. Magic Moment
 
 Use one large photograph and one large audio experience.
 
@@ -163,260 +143,246 @@ Before playback:
 
 **The photograph**
 
-After playback, reveal only:
+After playback reveal only:
 
-- authentic voice waveform;
+- voice waveform;
 - one short transcript excerpt;
-- 2–3 plain context details such as a person, place, or year;
+- 2–3 plain context details;
 - **Living Memory**.
 
 Core line:
 
-> **The photograph shows the moment. Their voice tells you what it meant.**
+> **The photograph shows what happened. The voice tells you what it meant.**
 
-Do not show research, pricing, Muse feature lists, or Memory Circle here.
+No research, pricing, feature grid, or Memory Circle content in this section.
 
-## 9. Free offer after the demo
+## 8. Free-offer rhythm
 
-Give this its own generous section.
+The same free Living Memory appears at six natural readiness points:
 
-Headline:
+1. hero;
+2. immediately after the Magic Moment;
+3. after proof;
+4. after Muse/ease;
+5. before pricing;
+6. final emotional close.
 
-> **Try it with one photograph.**
+Treatments must vary visually and match the concern just resolved.
 
-Copy:
+> **Repeat the opportunity, not the pressure.**
 
-> Pick a photograph that means something to you. Tell the story in your own words. We will help keep the photo, voice, and story together.
+## 9. Problem, stakes, and future
 
-CTA:
+These are separate sections.
 
-**Create One Living Memory Free**
+### Problem
 
-Support:
-
-**One photo. Up to 10 minutes to tell the story. No credit card required.**
-
-## 10. Missing-story problem
-
-Use one large family photograph and no more than four visible questions:
+One large family photograph with only 3–4 questions such as:
 
 - Who are they?
 - Where was this?
 - What happened next?
 - Why did this day matter?
 
-Headline:
+### Stakes
 
-> **Some photographs keep the moment. Only a person can tell you what it meant.**
+A quieter editorial section about details disappearing while the photograph remains. No death countdowns or fear tactics.
 
-## 11. Proof section
+### Desired future
 
-This must be a substantial, readable section—not a thin trust strip.
+Show a daughter, grandchild, or family member hearing the real voice and understanding the story later. Do not turn this into a feature list.
 
-Headline:
+## 10. Proof
 
-> **Why this makes sense.**
+Proof is a full editorial section.
 
-Use three large proof stories, one at a time or stacked with generous spacing.
+### Direct demonstration
 
-### Pictures can help bring personal memories back.
+Large split visual:
 
-> Research has found that pictures and visual cues can affect how people remember events from their own lives.
+**Photo alone** | **Photo + real voice + story details**
 
-Quiet link: **See the research**
+### Research-supported ideas
 
-### A voice carries more than words.
+Three spacious blocks in plain language:
 
-> A person's voice can carry identity and emotion, not just the words being spoken.
+1. **Pictures can help bring personal memories back.**
+2. **A voice carries more than words.**
+3. **Families often remember by talking together.**
 
-Quiet link: **See the research**
+Each receives a visible source affordance and enough space to read easily.
 
-### Families often remember by talking together.
+Do not style research as customer testimonials.
 
-> People can remember different parts of the same event. Talking together can bring out details one person may not remember alone.
+Reserve a separate future area for real permissioned customer proof.
 
-Quiet link: **See the research**
+## 11. How it works and Muse
 
-Do not use research vocabulary such as autobiographical, affective, collaborative remembering, or premise proof in the visible main copy.
-
-Follow with a quiet invitation:
-
-> **You can try the idea for yourself.**
-
-CTA: **Give One Photo Its Voice — Free**
-
-## 12. How it works
-
-Headline:
-
-> **From photograph to Living Memory.**
-
-Use four large steps only:
+Keep the public system simple:
 
 **Photo → Voice → Muse → Living Memory**
 
-Plain explanations:
+Then a separate ease beat:
 
-1. **Pick a photo.**
-2. **Tell the story.**
-3. **Muse helps.**
-4. **Hear it again.**
+1. Pick a photograph.
+2. Tell the story.
+3. Muse helps.
+4. Hear your Living Memory.
 
-Do not force the visitor to learn internal concepts such as provenance, retrieval, or derivatives.
-
-## 13. Muse
-
-Headline:
+Muse section headline:
 
 > **You remember. Muse helps.**
 
-Visible support:
-
-- turns your voice into readable words;
-- helps fill in who, where, and when;
-- asks a useful question when it may help;
-- keeps the story organized around the original photo and voice.
-
-Trust statement in its own large callout:
+Trust callout:
 
 > **Muse never invents your memory.**
 
-Follow with CTA:
+Use a realistic phone/product scene, not generic AI graphics.
 
-**Start With One Photo**
+## 12. Memory Circle
 
-Support:
-
-**Pick a photo and talk. Muse can help with the rest.**
-
-## 14. Memory Circle
-
-This should be one of the largest and most emotional sections on the page.
+Memory Circle should be one of the largest emotional sections on the page.
 
 Headline:
 
 > **Some stories are better remembered together.**
 
-Copy:
+Core visual:
 
-> Sit together at the kitchen table—or join from across the country. Put one photograph in the middle and share the moment of telling its story.
+- photograph or Living Memory stays in the middle;
+- family physically gathered around it;
+- optional remote family integrated naturally;
+- one active storyteller;
+- subtle recording/consent state;
+- new details appear without covering the people.
 
-Large central photograph or Living Memory. Family members appear around it in a natural same-room, remote, or hybrid gathering.
+Simple anywhere line:
 
-Show only four first-level ideas:
+> **At the kitchen table. Across the country. Across generations.**
 
-- hear the story together;
-- add what someone else remembers;
-- help identify people, places, or dates;
-- keep each person's memory with their name.
+Show that the telling moment can include questions, recognition, different memories, pauses, laughter, and emotion when everyone consents.
 
-Secondary line:
+Do not make it look like a business video call.
 
-> **The story is not only the final words. Sometimes the laughter, questions, pauses, and reactions are part of the memory too.**
+## 13. Privacy and sharing
 
-Offer note:
-
-**Live Memory Circle is included with Life and Family.**
-
-## 15. Privacy
-
-Headline:
+Privacy is a quiet trust section:
 
 > **Private first. Shared when you choose.**
 
-Copy:
-
-> Your Living Memory starts private. You decide if it stays with you, goes to family or a friend, or is shared somewhere like Facebook.
-
-Simple choices only:
+Four large choices:
 
 **Private / Family / Friend / Facebook**
 
-No technical sharing vocabulary.
+Sharing follows in its own section so the reader understands that sharing one selected story does not expose the whole private archive.
 
-## 16. Moment → Chapter → Life → Family
+## 14. Moment → Chapter → Life → Family
 
-Use large image-led stages rather than a small icon strip.
+Give each stage enough visual room to feel meaningful.
 
-### Moment
-One photograph. One story.
+Do not reduce the progression to four tiny icons.
 
-### Chapter
-A meaningful part of someone's life.
+No price here.
 
-### Life
-The stories that made a person who they were.
+## 15. What a Living Memory can hold
 
-### Family
-A collection your family can keep adding to over time.
+Present human value rather than a software-feature matrix.
 
-No pricing here.
+First visible items:
 
-## 17. Memorial belief
+- original photograph;
+- real voice;
+- transcript;
+- names, places, and dates;
+- family contributions;
+- a private place to find it again.
 
-Quiet editorial section.
+Additional capabilities expand on request.
 
-Headline:
+## 16. Difference and memorial belief
+
+Difference section explains calmly:
+
+- photo libraries keep pictures;
+- transcription tools turn speech into text;
+- books turn stories into pages;
+- MemoriesMyStory keeps the photo, voice, story, and family context together as a Living Memory.
+
+Memorial section is quiet and editorial:
 
 > **We have always found ways to remember the people we love.**
 
-Copy:
+Then:
 
-> A photograph can keep a face. A monument can keep a name and dates. A Living Memory can keep more of the life between them—the voice, the story, and the way the family remembers.
+> A traditional memorial can preserve a name and dates. A Living Memory can preserve more of the life between them.
 
-Key line:
+Give this line substantial space:
 
 > **Preserve more of the life between the dates.**
 
-No gravestone imagery is needed.
+No gravestone imagery is required.
 
-## 18. Free-before-price bridge
+## 17. Pre-pricing free bridge
 
-Give the visitor one more chance to experience the product before seeing paid options.
+Before price:
 
-Headline:
-
-> **You do not have to choose a plan yet.**
-
-Copy:
-
-> Create one Living Memory first. Hear what it feels like when a photograph has its voice and story back.
+> **Experience one Living Memory first.**
 
 Primary CTA:
 
-**Try One Living Memory Free**
+**Create Your First Living Memory Free**
 
 Secondary:
 
-**Compare Chapter, Life & Family**
+**Compare Ways to Preserve More**
 
-## 19. Pricing
+This prevents price from becoming the first test of belief.
 
-Pricing must be easy to read without studying a matrix.
+## 18. Pricing
 
-### Chapter — $247 one-time
+Desktop may use three large cards only if type stays comfortably readable. Mobile stacks them.
 
-> **Preserve a meaningful chapter.**
+Each card shows first:
 
-Show at most five first-level benefits.
+- outcome;
+- price;
+- 4–5 strongest benefits;
+- CTA;
+- expandable **See everything included**.
 
-### Life — $747 one-time
+Chapter: **Preserve a meaningful chapter.**  
+Life: **Preserve the stories that made a life.**  
+Family: **Build your family's Living Memory Archive.**
 
-> **Preserve the stories that made a life.**
+Memory Circle should be prominent in Life and Family.
 
-Memory Circle is one of the first visible benefits.
+No fake popularity badges.
 
-### Family — $1,497 one-time
+## 19. Value stack, trust, and FAQ
 
-> **Build your family's Living Memory Archive.**
+Value stack uses customer thoughts such as:
 
-Show at most five first-level benefits.
+- “I don't know what to say.”
+- “I don't want to write all this.”
+- “I don't remember the exact date.”
+- “My sister remembers more than I do.”
+- “We remember it differently.”
+- “I want this private.”
+- “I'm not good with technology.”
 
-Use **See everything included** to reveal secondary entitlement details.
+Each receives a short plain answer tied to a real product capability.
+
+Trust statement:
+
+> **Your original photo and voice stay yours.**
+
+Do not publish refund timing until the guarantee can be operationally fulfilled.
+
+FAQ uses large readable accordion controls and fuller answers for visitors who ask for detail.
 
 ## 20. Final CTA
 
-Return to one photograph.
+Return to one photograph and one human action.
 
 Headline:
 
@@ -424,7 +390,7 @@ Headline:
 
 Closing line:
 
-> **Give it its voice.**
+> **Your Voice Creates a Living Memory.**
 
 CTA:
 
@@ -432,23 +398,20 @@ CTA:
 
 Support:
 
-**Your first one is free. No credit card required.**
+**One complete Living Memory free. No credit card required. Preserve more only when you are ready.**
 
-## 21. Rendering 3 acceptance test
+## 21. Rendering 3 acceptance
 
-Rendering 3 passes only if all answers are yes:
+Rendering 3 passes only if:
 
-- Can the main customer copy be understood at roughly grade 6–7, and no harder than grade 8 without a good reason?
-- Can an older reader comfortably read body copy without zooming?
-- Does the page preserve meaning rather than becoming clipped or childish?
-- Are internal words translated into normal customer language?
-- Does each viewport-scale section have one main job?
-- Is there about 40–50% less visible information per viewport than Rendering 2?
-- Is the free Living Memory easy to find at several natural moments without feeling repetitive or pushy?
-- Is proof large enough to matter?
-- Does proof explain the idea in ordinary language?
-- Does Memory Circle feel like sharing the moment of telling a photograph's story from anywhere?
-- Does the page feel premium to both an older woman and her adult daughter?
-- Does the memorial idea feel meaningful rather than morbid?
-- Does pricing arrive only after the visitor understands the idea and has been invited to try it free?
-- Does the whole page remain human-memory-first and software-first rather than AI-first?
+- an older reader can comfortably read it without zooming;
+- an adult daughter still sees a premium contemporary product;
+- each section has one main job;
+- copy keeps enough context to persuade instead of becoming slogan fragments;
+- visible density is roughly 40–50% lower per viewport than Rendering 2;
+- the free Living Memory is easy to find at several natural points without feeling pushy;
+- proof is substantial and honest;
+- Memory Circle feels like family remembering around a photograph from anywhere;
+- privacy and sharing both feel easy to understand;
+- pricing arrives late;
+- the page is human-memory-first and software-first, with AI in a supporting role.
