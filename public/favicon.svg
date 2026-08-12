@@ -1,7 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Memories: My Story">
-  <rect width="64" height="64" rx="16" fill="#8a4f2a" />
-  <path d="M18 20.5c0-3 2.4-5.5 5.5-5.5h17c3 0 5.5 2.4 5.5 5.5v23c0 3-2.4 5.5-5.5 5.5h-17c-3 0-5.5-2.4-5.5-5.5v-23Z" fill="#fff8ef"/>
-  <circle cx="27" cy="28" r="5" fill="#8a4f2a"/>
-  <path d="M21 43.5 31 34l5.5 5 3-2.7L44 43.5H21Z" fill="#8a4f2a"/>
-  <path d="M47.5 18.5c4.5 4.7 4.5 22.3 0 27" stroke="#fff8ef" stroke-width="3" stroke-linecap="round" fill="none"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="MemoriesMyStory">
+  <rect width="64" height="64" rx="15" fill="#0b2438"/>
+  <path d="M32 53S10 40.5 10 24c0-7.4 5.4-12.6 12.3-12.6 4.2 0 7.5 2 9.7 5.2 2.2-3.2 5.5-5.2 9.7-5.2C48.6 11.4 54 16.6 54 24c0 16.5-22 29-22 29Z" fill="none" stroke="#d69a49" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M18 31h5l2.5-7 4.3 14 4.1-11 3.2 8 2.2-4H46" fill="none" stroke="#d69a49" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>

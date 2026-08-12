@@ -5,7 +5,7 @@ const syntheticPng = Buffer.from(
   "base64"
 );
 
-test("the first screen expresses the approved memory-preservation promise", async ({
+test("the landing page expresses the Living Memory promise and free first step", async ({
   page
 }) => {
   await page.goto("/");
@@ -13,29 +13,42 @@ test("the first screen expresses the approved memory-preservation promise", asyn
   await expect(
     page.getByRole("heading", {
       level: 1,
-      name: "Old photographs fade. The voices behind them should not."
+      name: "Your voice turns a photograph into a Living Memory."
     })
   ).toBeVisible();
   await expect(
-    page.getByText(
-      "Capture a photo. Tell its story. Preserve your voice for the people you love."
-    )
+    page.getByText("A photograph shows the moment. Your voice tells the story behind it.")
   ).toBeVisible();
-  await expect(page.getByRole("button", { name: "Capture Your Memories" })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Import a photo" })).toBeVisible();
-  await expect(page.getByRole("link", { name: "My stories" })).toHaveAttribute("href", "/auth/protect");
-  await expect(page.getByText(/Muse|truthful save status/i)).toHaveCount(0);
+  await expect(
+    page.locator("#main-content").getByRole("link", { name: "Create Your First Living Memory" }).first()
+  ).toHaveAttribute("href", /\/auth\/protect\?intent=free/);
+  await expect(page.getByRole("link", { name: "Sign In" }).first()).toHaveAttribute("href", "/auth/protect");
+  await expect(page.getByText("Your first complete Living Memory is free. No credit card required.")).toBeVisible();
 });
 
-test("both first-screen actions preserve their intended capture path", async ({ page }) => {
+test("the free landing CTA preserves intent through sign-in and reaches creation locally", async ({
+  page
+}) => {
   await page.goto("/");
+  await page.locator("#main-content").getByRole("link", { name: "Create Your First Living Memory" }).first().click();
+
+  await expect(page).toHaveURL(/\/auth\/protect\?intent=free/);
+  await expect(page.getByRole("heading", { name: "Let's begin with one photograph." })).toBeVisible();
+  await page.getByRole("link", { name: "Continue in this local environment" }).click();
+  await expect(page).toHaveURL(/\/create$/);
+  await expect(page.getByRole("button", { name: "Capture Your Memories" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Import a photo" })).toBeVisible();
+});
+
+test("both creation actions preserve their intended capture path", async ({ page }) => {
+  await page.goto("/create");
   await page.getByRole("button", { name: "Capture Your Memories" }).click();
   await expect(page).toHaveURL(/\/capture\/local_[^?]+\?start=camera$/);
   await expect(
     page.getByRole("heading", { name: "Bring the photograph into the light." })
   ).toBeVisible();
 
-  await page.goto("/");
+  await page.goto("/create");
   await page.getByRole("button", { name: "Import a photo" }).click();
   await expect(page).toHaveURL(/\/capture\/local_[^?]+\?start=import$/);
   await expect(
@@ -48,7 +61,7 @@ test("both first-screen actions preserve their intended capture path", async ({ 
 test("an imported photograph survives reload without a false saved claim", async ({
   page
 }) => {
-  await page.goto("/");
+  await page.goto("/create");
   await page.getByRole("button", { name: "Import a photo" }).click();
 
   await page
@@ -103,7 +116,7 @@ test("camera permission is contextual and denial keeps an import fallback", asyn
     });
   });
 
-  await page.goto("/");
+  await page.goto("/create");
   await page.getByRole("button", { name: "Capture Your Memories" }).click();
   expect(
     await page.evaluate(
@@ -149,7 +162,7 @@ test("a capability-qualified camera can capture and manually accept a photograph
     });
   });
 
-  await page.goto("/");
+  await page.goto("/create");
   await page.getByRole("button", { name: "Capture Your Memories" }).click();
   await page.getByRole("button", { name: "Open camera" }).click();
   await expect(page.getByLabel("Live camera preview")).toBeVisible();
@@ -189,7 +202,7 @@ test("an offline photograph never blocks the voice and later backs up in order",
       }
     });
   });
-  await page.goto("/");
+  await page.goto("/create");
   await page.getByRole("button", { name: "Import a photo" }).click();
   await page.getByLabel("Choose a photograph from this device").setInputFiles({
     name: "synthetic-family-photo.png",
@@ -241,7 +254,7 @@ test("the original voice is recorded, preserved, retrieved, and recovered", asyn
     });
   });
 
-  await page.goto("/");
+  await page.goto("/create");
   await page.getByRole("button", { name: "Import a photo" }).click();
   await page.getByLabel("Choose a photograph from this device").setInputFiles({
     name: "synthetic-family-photo.png",
@@ -278,7 +291,7 @@ test("the original voice is recorded, preserved, retrieved, and recovered", asyn
 });
 
 test("capture entry remains keyboard reachable at a phone viewport", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/create");
   await page.getByRole("button", { name: "Capture Your Memories" }).click();
 
   const heading = page.getByRole("heading", {
