@@ -33,6 +33,9 @@ jobs:
       - name: Test
         run: npm test
 
+      - name: Verify D1 schema
+        run: npm run test:schema
+
       - name: Build
         run: npm run build
 
