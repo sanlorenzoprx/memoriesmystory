@@ -41,13 +41,15 @@ describe("Living Memory execution handoff", () => {
     }
   });
 
-  it("preserves completed Packet 1-3 evidence while pausing unfinished Packet 4", () => {
+  it("preserves prior packet evidence and advances from ratification to landing positioning", () => {
     const statusById = new Map(queue.tasks.map((task) => [task.id, task.status]));
 
     expect(statusById.get("packet-1")).toBe("completed");
     expect(statusById.get("packet-2")).toBe("completed");
     expect(statusById.get("packet-3")).toBe("completed");
     expect(statusById.get("packet-4")).toBe("paused");
-    expect(statusById.get("living-memory-ratification")).toBe("active");
+    expect(statusById.get("living-memory-ratification")).toBe("completed");
+    expect(statusById.get("landing-positioning")).toBe("active");
+    expect(queue.active_task_id).toBe("landing-positioning");
   });
 });
