@@ -1,3 +1,5 @@
+import "../styles/commerce.css";
+
 type EmbeddedCheckout = {
   mount(location: HTMLElement | string): void;
   unmount(): void;
