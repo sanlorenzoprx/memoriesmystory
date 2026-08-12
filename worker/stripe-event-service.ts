@@ -12,6 +12,12 @@ type EventRow = {
   readonly processing_status: "received" | "processed" | "ignored" | "failed";
 };
 
+function checkoutSessionId(event: StripeEvent): string {
+  const sessionId = event.data?.object?.id;
+  if (!sessionId) throw new Error("Stripe checkout event is missing the Checkout Session ID.");
+  return sessionId;
+}
+
 export async function processStripeEvent(
   env: CommerceServiceEnv,
   event: StripeEvent,
@@ -34,11 +40,8 @@ export async function processStripeEvent(
   }
 
   try {
-    const sessionId = event.data?.object?.id;
-    if (!sessionId) throw new Error("Stripe checkout event is missing the Checkout Session ID.");
-
     if (event.type === "checkout.session.completed" || event.type === "checkout.session.async_payment_succeeded") {
-      await fulfillCheckoutSession(env, sessionId, stripe, now);
+      await fulfillCheckoutSession(env, checkoutSessionId(event), stripe, now);
       await env.DB.prepare(
         `UPDATE stripe_events
          SET processing_status = 'processed', processed_at = ?, error = NULL
@@ -48,7 +51,7 @@ export async function processStripeEvent(
     }
 
     if (event.type === "checkout.session.async_payment_failed") {
-      await markCheckoutTerminalState(env, sessionId, "payment_failed", now);
+      await markCheckoutTerminalState(env, checkoutSessionId(event), "payment_failed", now);
       await env.DB.prepare(
         `UPDATE stripe_events
          SET processing_status = 'processed', processed_at = ?, error = NULL
@@ -58,7 +61,7 @@ export async function processStripeEvent(
     }
 
     if (event.type === "checkout.session.expired") {
-      await markCheckoutTerminalState(env, sessionId, "expired", now);
+      await markCheckoutTerminalState(env, checkoutSessionId(event), "expired", now);
       await env.DB.prepare(
         `UPDATE stripe_events
          SET processing_status = 'processed', processed_at = ?, error = NULL
