@@ -1,5 +1,6 @@
 import { appIdentity } from "../config/app-identity";
 import { handleAuthRoute } from "./auth-routes";
+import { handleCommerceRoute } from "./commerce-routes";
 import { handleMediaRoute } from "./media-routes";
 
 export interface Env {
@@ -12,6 +13,12 @@ export interface Env {
   CLERK_SECRET_KEY?: string;
   CLERK_JWT_KEY?: string;
   CLERK_AUTHORIZED_PARTIES?: string;
+  STRIPE_SECRET_KEY?: string;
+  STRIPE_WEBHOOK_SECRET?: string;
+  STRIPE_CHAPTER_PRICE_ID?: string;
+  STRIPE_LIFE_PRICE_ID?: string;
+  STRIPE_FAMILY_PRICE_ID?: string;
+  MEMORIES_PUBLIC_ORIGIN?: string;
 }
 
 const handler: ExportedHandler<Env> = {
@@ -28,6 +35,9 @@ const handler: ExportedHandler<Env> = {
 
     const authResponse = await handleAuthRoute(request, env);
     if (authResponse) return authResponse;
+
+    const commerceResponse = await handleCommerceRoute(request, env);
+    if (commerceResponse) return commerceResponse;
 
     const mediaResponse = await handleMediaRoute(request, env);
     if (mediaResponse) return mediaResponse;
