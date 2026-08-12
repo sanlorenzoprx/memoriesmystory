@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useClerk } from "@clerk/clerk-react";
+import { ClerkProvider, useClerk } from "@clerk/clerk-react";
 import { Link, useNavigate, useParams } from "react-router";
 
 import {
@@ -9,10 +9,22 @@ import {
   type ArchiveAsset,
   type ArchiveDraft
 } from "../../services/identity-api";
+import "../../styles/living-memory-runtime.css";
 
-const clerkConfigured = Boolean(import.meta.env.VITE_CLERK_PUBLISHABLE_KEY);
+const clerkPublishableKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
+const clerkConfigured = Boolean(clerkPublishableKey);
 
 export function ArchiveExperience() {
+  if (!clerkPublishableKey) return <ArchiveContent />;
+
+  return (
+    <ClerkProvider publishableKey={clerkPublishableKey}>
+      <ArchiveContent />
+    </ClerkProvider>
+  );
+}
+
+function ArchiveContent() {
   const { draftId } = useParams();
   return draftId ? <ArchiveMemory draftId={draftId} /> : <ArchiveIndex />;
 }
@@ -28,13 +40,17 @@ function ArchiveIndex() {
   }, []);
 
   return (
-    <div className="quiet-page archive-page" id="main-content">
-      <section className="capture-introduction archive-card">
+    <main className="archive-page" id="main-content">
+      <section className="archive-card">
         <p className="eyebrow">Your private Family Archive</p>
         <h1>Your Living Memories</h1>
         {error && <ArchiveSignInMessage message={error} />}
-        {drafts === null && !error && <p className="preservation-status" role="status">Gathering your Living Memories…</p>}
-        {drafts?.length === 0 && <p className="capture-lede">Your first protected Living Memory will appear here.</p>}
+        {drafts === null && !error && (
+          <p className="preservation-status" role="status">Gathering your Living Memories…</p>
+        )}
+        {drafts?.length === 0 && (
+          <p className="capture-lede">Your first protected Living Memory will appear here.</p>
+        )}
         {drafts && drafts.length > 0 && (
           <ul className="archive-list">
             {drafts.map((draft) => (
@@ -50,7 +66,7 @@ function ArchiveIndex() {
         <Link className="secondary-action" to="/create">Create another Living Memory</Link>
         <AccountExit />
       </section>
-    </div>
+    </main>
   );
 }
 
@@ -65,21 +81,23 @@ function ArchiveMemory({ draftId }: { readonly draftId: string }) {
         setDraft(result.draft);
         setAssets(result.assets);
       })
-      .catch((reason: unknown) =>
-        setError(reason instanceof Error ? reason.message : "This Living Memory could not be opened.")
-      );
+      .catch((reason: unknown) => {
+        setError(reason instanceof Error ? reason.message : "This Living Memory could not be opened.");
+      });
   }, [draftId]);
 
   const photo = assets.find((asset) => asset.role === "original_photo");
   const audio = assets.find((asset) => asset.role === "original_audio");
 
   return (
-    <div className="quiet-page archive-page" id="main-content">
-      <section className="capture-introduction archive-card">
+    <main className="archive-page" id="main-content">
+      <section className="archive-card">
         <p className="eyebrow">Safe in your Family Archive</p>
-        <h1>We have your back.</h1>
+        <h1>Your Living Memory is here.</h1>
         {error && <ArchiveSignInMessage message={error} draftId={draftId} />}
-        {!draft && !error && <p className="preservation-status" role="status">Opening your preserved Living Memory…</p>}
+        {!draft && !error && (
+          <p className="preservation-status" role="status">Opening your preserved Living Memory…</p>
+        )}
         {draft && (
           <>
             {photo && (
@@ -104,7 +122,7 @@ function ArchiveMemory({ draftId }: { readonly draftId: string }) {
         <Link className="secondary-action" to="/archive">All Living Memories</Link>
         <AccountExit />
       </section>
-    </div>
+    </main>
   );
 }
 
@@ -135,12 +153,21 @@ function ConfiguredAccountExit() {
   );
 }
 
-function ArchiveSignInMessage({ message, draftId }: { readonly message: string; readonly draftId?: string }) {
-  const target = draftId ? `/auth/protect?draftId=${encodeURIComponent(draftId)}` : "/auth/protect";
+function ArchiveSignInMessage({
+  message,
+  draftId
+}: {
+  readonly message: string;
+  readonly draftId?: string;
+}) {
+  const target = draftId
+    ? `/auth/protect?intent=archive&draftId=${encodeURIComponent(draftId)}`
+    : "/auth/protect?intent=archive";
+
   return (
     <>
       <p className="inline-error" role="alert">{message}</p>
-      <Link className="primary-action" to={target}>Sign in to your archive</Link>
+      <Link className="primary-action" to={target}>Sign in to your Family Archive</Link>
     </>
   );
 }

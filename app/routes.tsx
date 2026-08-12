@@ -1,13 +1,8 @@
 import type { RouteObject } from "react-router";
 import { Link, Outlet, useRouteError } from "react-router";
 
-import { ArchiveExperience } from "./features/archive/ArchiveExperience";
 import { BrandShell } from "./features/brand/BrandShell";
-import { CaptureExperience } from "./features/capture/CaptureExperience";
-import { CheckoutExperience, ThankYouExperience } from "./features/commerce/CommerceExperience";
-import { IdentityExperience } from "./features/identity/IdentityExperience";
 import { LandingExperience } from "./features/marketing/LandingExperience";
-import { LivingMemoryStartExperience } from "./features/marketing/LivingMemoryStartExperience";
 
 export const routes: RouteObject[] = [
   {
@@ -21,31 +16,52 @@ export const routes: RouteObject[] = [
       },
       {
         path: "create",
-        element: <LivingMemoryStartExperience />
+        lazy: async () => {
+          const module = await import("./features/marketing/LivingMemoryStartExperience");
+          return { Component: module.LivingMemoryStartExperience };
+        }
       },
       {
         path: "capture/:draftId",
-        element: <CaptureExperience />
+        lazy: async () => {
+          const module = await import("./features/capture/CaptureExperience");
+          return { Component: module.CaptureExperience };
+        }
       },
       {
         path: "auth/protect",
-        element: <IdentityExperience />
+        lazy: async () => {
+          const module = await import("./features/identity/IdentityExperience");
+          return { Component: module.IdentityExperience };
+        }
       },
       {
         path: "checkout/:offerId",
-        element: <CheckoutExperience />
+        lazy: async () => {
+          const module = await import("./features/commerce/CommerceExperience");
+          return { Component: module.CheckoutExperience };
+        }
       },
       {
         path: "thank-you/:offerId",
-        element: <ThankYouExperience />
+        lazy: async () => {
+          const module = await import("./features/commerce/CommerceExperience");
+          return { Component: module.ThankYouExperience };
+        }
       },
       {
         path: "archive",
-        element: <ArchiveExperience />
+        lazy: async () => {
+          const module = await import("./features/archive/ArchiveExperience");
+          return { Component: module.ArchiveExperience };
+        }
       },
       {
         path: "archive/:draftId",
-        element: <ArchiveExperience />
+        lazy: async () => {
+          const module = await import("./features/archive/ArchiveExperience");
+          return { Component: module.ArchiveExperience };
+        }
       }
     ]
   }

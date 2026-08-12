@@ -1,4 +1,4 @@
-import { SignIn, SignedIn, SignedOut, useAuth } from "@clerk/clerk-react";
+import { ClerkProvider, SignIn, SignedIn, SignedOut, useAuth } from "@clerk/clerk-react";
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router";
 
@@ -6,7 +6,8 @@ import { isOfferId, livingMemoryOffers, type OfferId } from "../commerce/offers"
 import { claimLocalDraft, openAccountSession } from "../../services/identity-api";
 import { loadLocalDraft } from "../../services/local-draft-store";
 
-const clerkConfigured = Boolean(import.meta.env.VITE_CLERK_PUBLISHABLE_KEY);
+const clerkPublishableKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
+const clerkConfigured = Boolean(clerkPublishableKey);
 
 type IdentityIntent = "free" | "checkout" | "archive";
 
@@ -16,6 +17,16 @@ function intentFrom(value: string | null): IdentityIntent {
 }
 
 export function IdentityExperience() {
+  if (!clerkPublishableKey) return <IdentityContent />;
+
+  return (
+    <ClerkProvider publishableKey={clerkPublishableKey}>
+      <IdentityContent />
+    </ClerkProvider>
+  );
+}
+
+function IdentityContent() {
   const [searchParams] = useSearchParams();
   const draftId = searchParams.get("draftId");
   const intent = intentFrom(searchParams.get("intent"));

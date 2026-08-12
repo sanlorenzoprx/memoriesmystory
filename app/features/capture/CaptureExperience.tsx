@@ -23,6 +23,7 @@ import {
 } from "../../services/local-draft-store";
 import { inspectLocalPhoto } from "../../services/photo-inspection";
 import { OriginalsExperience } from "./OriginalsExperience";
+import "../../styles/living-memory-runtime.css";
 
 type CaptureStep =
   | "loading"
@@ -99,9 +100,7 @@ export function CaptureExperience() {
 
   useEffect(() => {
     return () => {
-      if (photoUrl) {
-        URL.revokeObjectURL(photoUrl);
-      }
+      if (photoUrl) URL.revokeObjectURL(photoUrl);
     };
   }, [photoUrl]);
 
@@ -121,7 +120,7 @@ export function CaptureExperience() {
 
     async function recoverDraft() {
       if (!draftId) {
-        setErrorMessage("This local Memory Story does not have a draft address.");
+        setErrorMessage("This local Living Memory does not have a draft address.");
         setStep("error");
         return;
       }
@@ -139,9 +138,7 @@ export function CaptureExperience() {
             draftToken: makeDraftToken()
           });
 
-        if (!storedDraft) {
-          await saveLocalDraft(nextDraft);
-        }
+        if (!storedDraft) await saveLocalDraft(nextDraft);
         if (!active) return;
 
         setDraft(nextDraft);
@@ -174,9 +171,7 @@ export function CaptureExperience() {
       void videoRef.current.play().catch(() => undefined);
     }
 
-    if (step !== "loading") {
-      headingRef.current?.focus();
-    }
+    if (step !== "loading") headingRef.current?.focus();
   }, [step]);
 
   useEffect(() => () => stopStream(streamRef.current), []);
@@ -303,13 +298,10 @@ export function CaptureExperience() {
   }
 
   return (
-    <div className="capture-page" id="main-content">
-      <header className="capture-header">
-        <Link className="capture-brand" to="/" aria-label="Memories: My Story, home">
-          Memories: <em>My Story</em>
-        </Link>
+    <main className="capture-page" id="main-content">
+      <div className="capture-progress" aria-label="Living Memory progress">
         <span className="capture-step-label">Photo</span>
-      </header>
+      </div>
 
       <input
         ref={fileInputRef}
@@ -341,9 +333,7 @@ export function CaptureExperience() {
 
       {step === "intro" && (
         <section className="capture-state capture-intro-state">
-          <Link className="back-link" to="/">
-            ← Back
-          </Link>
+          <Link className="back-link" to="/create">← Back</Link>
           <p className="eyebrow">First, the photograph</p>
           <h1 ref={headingRef} tabIndex={-1}>
             {entryMode === "import"
@@ -357,9 +347,7 @@ export function CaptureExperience() {
           </p>
 
           <div className="capture-guide" aria-label="Photograph guidance">
-            <div className="guide-frame" aria-hidden="true">
-              <span />
-            </div>
+            <div className="guide-frame" aria-hidden="true"><span /></div>
             <div>
               <strong>
                 {tipsVisible
@@ -378,21 +366,13 @@ export function CaptureExperience() {
                 <button className="primary-action" type="button" onClick={() => void openCamera()}>
                   Open camera
                 </button>
-                <button
-                  className="secondary-action"
-                  type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                >
+                <button className="secondary-action" type="button" onClick={() => fileInputRef.current?.click()}>
                   Import a photo instead
                 </button>
               </>
             ) : (
               <>
-                <button
-                  className="primary-action"
-                  type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                >
+                <button className="primary-action" type="button" onClick={() => fileInputRef.current?.click()}>
                   Choose a photo
                 </button>
                 <button className="secondary-action" type="button" onClick={() => void openCamera()}>
@@ -402,11 +382,7 @@ export function CaptureExperience() {
             )}
           </div>
 
-          <button
-            className="text-action"
-            type="button"
-            onClick={() => setTipsVisible((visible) => !visible)}
-          >
+          <button className="text-action" type="button" onClick={() => setTipsVisible((visible) => !visible)}>
             {tipsVisible ? "Skip photo tips" : "Show photo tips"}
           </button>
           {errorMessage && <p className="inline-error" role="alert">{errorMessage}</p>}
@@ -422,15 +398,11 @@ export function CaptureExperience() {
 
       {step === "camera-live" && (
         <section className="capture-state camera-state">
-          <h1 ref={headingRef} className="visually-hidden" tabIndex={-1}>
-            Photograph camera
-          </h1>
+          <h1 ref={headingRef} className="visually-hidden" tabIndex={-1}>Photograph camera</h1>
           <div className="camera-viewport">
             <video ref={videoRef} playsInline muted aria-label="Live camera preview" />
             <div className="camera-edge-guide" aria-hidden="true" />
-            <p className="camera-instruction" aria-live="polite">
-              Keep all four edges inside the frame.
-            </p>
+            <p className="camera-instruction" aria-live="polite">Keep all four edges inside the frame.</p>
           </div>
           {errorMessage && <p className="inline-error" role="alert">{errorMessage}</p>}
           <div className="camera-actions">
@@ -480,13 +452,8 @@ export function CaptureExperience() {
           <div className="review-photo-wrap">
             <img src={photoUrl} alt="Your selected photograph" />
           </div>
-          <div
-            className={draft.photo.warning ? "quality-result has-warning" : "quality-result"}
-            role="status"
-          >
-            <strong>
-              {draft.photo.warning ? "One thing may help" : "This photograph looks ready"}
-            </strong>
+          <div className={draft.photo.warning ? "quality-result has-warning" : "quality-result"} role="status">
+            <strong>{draft.photo.warning ? "One thing may help" : "This photograph looks ready"}</strong>
             <p>
               {draft.photo.warning?.message ??
                 "The light and detail look usable. Check that the people and all four edges you want are visible."}
@@ -499,9 +466,7 @@ export function CaptureExperience() {
             <button className="primary-action" type="button" onClick={() => void acceptPhoto()}>
               {draft.photo.warning ? "Use this photo anyway" : "Use this photo"}
             </button>
-            <button className="secondary-action" type="button" onClick={tryAnother}>
-              Try another photo
-            </button>
+            <button className="secondary-action" type="button" onClick={tryAnother}>Try another photo</button>
           </div>
           {errorMessage && <p className="inline-error" role="alert">{errorMessage}</p>}
         </section>
@@ -521,9 +486,9 @@ export function CaptureExperience() {
           <p className="eyebrow">Nothing was lost or shared</p>
           <h1 ref={headingRef} tabIndex={-1}>This browser needs a moment.</h1>
           <p className="capture-lede">{errorMessage}</p>
-          <Link className="secondary-action" to="/">Return to the beginning</Link>
+          <Link className="secondary-action" to="/create">Return to Living Memory creation</Link>
         </section>
       )}
-    </div>
+    </main>
   );
 }
