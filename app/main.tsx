@@ -5,6 +5,7 @@ import { ClerkProvider } from "@clerk/clerk-react";
 
 import { routes } from "./routes";
 import "./styles/global.css";
+import "./styles/brand-experience.css";
 
 const rootElement = document.getElementById("root");
 
