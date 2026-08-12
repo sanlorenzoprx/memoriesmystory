@@ -1,6 +1,6 @@
 # Start Here
 
-This page is the navigation map for product, design, engineering, and AI-agent work on Memories: My Story.
+This page is the navigation map for product, design, engineering, commercial offer, and AI-agent work on Memories: My Story.
 
 Before using this map, read the root `../AGENTS.md`. Folder-level `AGENTS.md` files refine instructions near the work.
 
@@ -40,12 +40,21 @@ Approved dated decision records explain intentional amendments to locked documen
 ### Product control documents
 
 - `PRODUCT/LIVING_MEMORY_DEFINITION.md`
+- `PRODUCT/MEMORY_CIRCLE_DEFINITION.md`
 - `PRODUCT/LIVING_MEMORY_SHARE_POLICY_V2.md`
 - `PRODUCT/LIVING_MEMORY_ANTI_DRIFT_CHECKLIST.md`
 - `PRODUCT/CORE_EXPERIENCES.md`
 - `PRODUCT/CANONICAL_SCOPE.md`
 - `PRODUCT/OPEN_DECISIONS.md`
 - `PRODUCT/FOUNDATION_TRACEABILITY.md`
+
+### Commercial / landing implementation contracts
+
+These documents define current commercial hypotheses and the public page implementation beneath the Foundation. They may evolve through evidence without changing the core product doctrine.
+
+- `PRODUCT/LIVING_MEMORY_OFFER_V1.md`
+- `PRODUCT/LIVING_MEMORY_LANDING_PAGE_BUILD_CONTRACT_V1.md`
+- `PRODUCT/LIVING_MEMORY_LANDING_VISUAL_DIRECTION_V1.md`
 
 `PRODUCT/GOOD_KARMA_SHARE_POLICY_V1.md` is retained only as a superseded historical policy.
 
@@ -65,6 +74,11 @@ Approved dated decision records explain intentional amendments to locked documen
 - Facebook is the first public social-sharing priority; WhatsApp follows for family-to-family distribution.
 - The first-five-minute activation event is `first_living_memory_completed`.
 - The first-five-minute product sequence is **Photo → Voice → Muse → Preserved → Playback → Invite/Share**.
+- One complete first Living Memory is the free Magic Moment; paid scope begins with Chapter.
+- The initial commercial test ladder is **Chapter $247 → Life $747 → Family $1,497**, subordinate to evidence and cost validation.
+- Target paid source voice entitlement is up to 10 minutes per Living Memory; the free first Living Memory targets the same complete experience unless cost evidence requires a change that still preserves the Magic Moment.
+- Live **Memory Circle** is included in Life and Family.
+- Memory Circle means remembering around one photograph from anywhere: same room, remote live, hybrid, or later attributed contribution. It preserves the telling moment, not merely a final AI summary.
 - The long-term value ladder is **Moment → Chapter → Life → Family**.
 - Accessibility, multilingual use, portability, offline recovery, cross-device continuity, and legacy stewardship are foundational.
 - The completion message remains: **“This memory is now part of your family's history.”**
@@ -72,7 +86,7 @@ Approved dated decision records explain intentional amendments to locked documen
 
 ## Current sequencing
 
-The doctrine/domain branch intentionally does not replace the landing page. The final landing surface is a dedicated Phase 1 product-positioning slice built after the Living Memory contracts are ratified.
+The Living Memory doctrine/domain slice is ratified on the stacked development line. The active task is the landing-positioning slice: define and then replace the public surface around **Idea → Photo → Voice → Living Memory → Magic Moment → Chapter / Life / Family** without disturbing the existing capture/recovery runtime.
 
 ## What remains open
 

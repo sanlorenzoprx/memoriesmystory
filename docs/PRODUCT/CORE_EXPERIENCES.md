@@ -10,17 +10,38 @@ The first complete path is:
 
 The product-level activation event is `first_living_memory_completed`.
 
+Every new customer may experience one complete Living Memory free as the Magic Moment before the paid Chapter / Life / Family offer is the primary next commercial action.
+
 This is the first build target and the prerequisite for every shared or generative experience.
 
-## 2. Preserve Together — In Person
+## 2. Memory Circle — Remember Together Anywhere
 
-Two or more people sit together around a photograph or Living Memory. The product records the natural conversation, attributes contributions when reliable, preserves differing recollections, and enriches the same Living Memory without erasing prior source history.
+A **Memory Circle** is the shared act of remembering around one photograph or Living Memory.
 
-## 3. Remember Together — At a Distance
+Participants may be:
 
-A host invites family or friends to a remote **Memory Circle**. The photograph stays central while participants see one another, remember together, review their contributions, and receive appropriate access to the enriched Living Memory.
+- sitting together in the same room;
+- joining live from different homes, cities, or countries;
+- participating in a hybrid gathering;
+- adding an attributed recollection later when they could not attend live.
 
-## 4. Rediscover — Across time
+The photograph remains the visual anchor while people see and hear one another when remote, tell the story, react naturally, ask questions, identify people, clarify places and dates, laugh, remember differently, and contribute related memories.
+
+The product should preserve **the moment of telling the photograph's story**, not merely produce a cleaned-up final summary. With clear consent, the source conversation can preserve authentic voices, attribution, questions, corrections, pauses, emotion, differing recollections, and newly surfaced context.
+
+Muse stays quiet unless useful. It may surface a thoughtful question or help organize the source after the gathering, but it must not dominate the conversation or manufacture consensus.
+
+Live Memory Circle is included in the **Life** and **Family** commercial levels. Chapter may support simpler asynchronous contribution invitations without becoming a live collaboration tier.
+
+See `MEMORY_CIRCLE_DEFINITION.md` for the canonical experience contract.
+
+## 3. Family Contributions — Enrich Without Overwriting
+
+A family member or friend can contribute to an existing Living Memory according to permission and consent. Contributions remain attributable and additive.
+
+One recollection does not overwrite another. A family may preserve, for example, that one person remembers 1974 while another remembers 1975 and an inscription suggests June 1975.
+
+## 4. Rediscover — Across Time
 
 A person returns through people, places, dates, Chapters, relationships, related memories, anniversaries, and respectful resurfacing. The goal is not manufactured engagement; it is helping meaningful memories participate in family life again.
 
@@ -34,8 +55,9 @@ flowchart TD
     D --> E["Family Archive"]
     F["Family and contributors"] --> B
     G["Muse: source-grounded help"] --> B
-    B --> H["Share Artifact"]
-    H --> I["Family / Facebook / WhatsApp / other chosen destination"]
+    H["Memory Circle: remember together anywhere"] --> B
+    B --> I["Share Artifact"]
+    I --> J["Family / Facebook / WhatsApp / other chosen destination"]
 ```
 
 ## Sharing experience
