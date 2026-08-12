@@ -56,13 +56,22 @@ Read the current versions in this order:
 
 - `PRODUCT/LIVING_MEMORY_OFFER_V1.md`
 - `PRODUCT/LIVING_MEMORY_LANDING_PAGE_BUILD_CONTRACT_V2.md`
+- `PRODUCT/LIVING_MEMORY_PUBLIC_COPY_STANDARD_V1.md`
 - `PRODUCT/LIVING_MEMORY_PROOF_LEDGER_V1.md`
-- `PRODUCT/LIVING_MEMORY_LANDING_VISUAL_DIRECTION_V2.md`
+- `PRODUCT/LIVING_MEMORY_LANDING_VISUAL_DIRECTION_V3.md`
 
-The following remain historical inputs superseded where V2 conflicts:
+Current precedence for landing work:
+
+- Build Contract V2 governs section/order/conversion structure.
+- Public Copy Standard V1 governs visible customer language.
+- Proof Ledger V1 governs what may be claimed and how proof is labeled.
+- Visual Direction V3 governs Rendering 3 density, type scale, pacing, and visible copy treatment.
+
+The following remain historical inputs superseded where current contracts conflict:
 
 - `PRODUCT/LIVING_MEMORY_LANDING_PAGE_BUILD_CONTRACT_V1.md`
 - `PRODUCT/LIVING_MEMORY_LANDING_VISUAL_DIRECTION_V1.md`
+- `PRODUCT/LIVING_MEMORY_LANDING_VISUAL_DIRECTION_V2.md`
 - `PRODUCT/GOOD_KARMA_SHARE_POLICY_V1.md`
 
 ## What is settled
@@ -76,19 +85,22 @@ The following remain historical inputs superseded where V2 conflicts:
 - Different recollections are preserved, not reconciled by AI into false certainty.
 - Originals are never overwritten.
 - Privacy-first means private by default and creator-controlled, not private-only.
-- External sharing uses a bounded Share Artifact.
+- External sharing uses a bounded Share Artifact internally; public copy translates this into plain language such as “a copy you choose to share.”
 - Sharing is voluntary and does **not** unlock another free Living Memory.
 - Facebook is the first public social-sharing priority; WhatsApp follows for family-to-family distribution.
 - The first-five-minute activation event is `first_living_memory_completed`.
 - The first-five-minute product sequence is **Photo → Voice → Muse → Preserved → Playback → Invite/Share**.
 - One complete first Living Memory is the free Magic Moment; paid scope begins with Chapter.
 - The free Magic Moment is intentionally repeated as the primary landing conversion at contextually appropriate points rather than shown only in the hero.
+- Customer-facing copy targets approximately **grade 6–7 readability** with **grade 8 as the normal maximum**, while preserving adult tone and enough context to keep meaning clear.
+- Internal terms such as mechanism, source-grounded, provenance, attributed recollections, affect, retrieval, and bounded Share Artifact should not appear in ordinary customer copy when familiar words can carry the meaning.
 - The initial commercial test ladder is **Chapter $247 → Life $747 → Family $1,497**, subordinate to evidence and cost validation.
 - Target paid source voice entitlement is up to 10 minutes per Living Memory; the free first Living Memory targets the same complete experience unless cost evidence requires a change that still preserves the Magic Moment.
 - Live **Memory Circle** is included in Life and Family.
-- Memory Circle means remembering around one photograph from anywhere: same room, remote live, hybrid, or later attributed contribution. It preserves the telling moment, not merely a final AI summary.
+- Memory Circle means remembering around one photograph from anywhere: same room, remote live, hybrid, or later attributed contribution. Public copy should explain this simply as sharing the moment of telling a photograph's story together.
 - Before direct customer proof exists, landing proof must clearly distinguish mechanism demonstration, premise research, and technical product evidence. Customer proof may never be fabricated.
 - Landing-page pacing favors one dominant idea per section, large readable type, generous negative space, and progressive disclosure over compressed information density.
+- Rendering 3 specifically targets roughly **40–50% less visible information per viewport than Rendering 2** while retaining the full persuasion sequence over a longer page.
 - The long-term value ladder is **Moment → Chapter → Life → Family**.
 - Accessibility, multilingual use, portability, offline recovery, cross-device continuity, and legacy stewardship are foundational.
 - The completion message remains: **“This memory is now part of your family's history.”**
@@ -98,7 +110,13 @@ The following remain historical inputs superseded where V2 conflicts:
 
 The Living Memory doctrine/domain slice is ratified on the stacked development line. The active task is the landing-positioning slice: define and then replace the public surface around **Idea → Photo → Voice → Living Memory → Magic Moment → Chapter / Life / Family** without disturbing the existing capture/recovery runtime.
 
-The next visual/code work must follow the V2 landing, proof, and visual-direction contracts rather than the denser V1 rendering assumptions.
+The next visual/code work must follow Build Contract V2 + Public Copy Standard V1 + Proof Ledger V1 + Visual Direction V3.
+
+Rendering 3 should test only three primary questions:
+
+1. Can she comfortably read it?
+2. Does she understand and believe how a Living Memory works?
+3. Does she keep finding a natural invitation to try one photograph herself?
 
 ## What remains open
 
