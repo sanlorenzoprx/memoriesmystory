@@ -13,7 +13,10 @@
   },
   "vars": {
     "APP_NAME": "memoriesmystory",
-    "PUBLIC_BRAND_NAME": "Memories: My Story"
+    "PUBLIC_BRAND_NAME": "Memories: My Story",
+    "STRIPE_CHAPTER_PRICE_ID": "price_1U3cMABTT872MnyPDenlV4Ae",
+    "STRIPE_LIFE_PRICE_ID": "price_1U3cMBBTT872MnyPnnnvXXNh",
+    "STRIPE_FAMILY_PRICE_ID": "price_1U3cMBBTT872MnyPgcq4FgXd"
   },
   "d1_databases": [
     {
@@ -32,6 +35,8 @@
 
   // The zero D1 ID is an explicit non-deployable placeholder for local Packet 1
   // migration tests. Replace it only in an authorized staging environment.
+  // Stripe price IDs are non-secret catalog identifiers; STRIPE_SECRET_KEY and
+  // STRIPE_WEBHOOK_SECRET must be configured only as environment secrets.
   // The R2 name declares Packet 3's binding contract. Provision and replace
   // environment-specific resources only through the authorized staging gate.
   // Queue and AI bindings remain unprovisioned until Packet 5.

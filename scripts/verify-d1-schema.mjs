@@ -10,11 +10,16 @@ const accountBindingMigration = await readFile(
   new URL("../migrations/0002_account_binding_recovery.sql", import.meta.url),
   "utf8"
 );
+const commerceMigration = await readFile(
+  new URL("../migrations/0003_commerce_entitlements.sql", import.meta.url),
+  "utf8"
+);
 const database = new DatabaseSync(":memory:");
 
 try {
   database.exec(foundationMigration);
   database.exec(accountBindingMigration);
+  database.exec(commerceMigration);
 
   const objects = database
     .prepare(
@@ -37,6 +42,9 @@ try {
     "share_events",
     "operation_receipts",
     "memory_story_events",
+    "commerce_orders",
+    "entitlement_grants",
+    "stripe_events",
     "media_assets_immutable_original_identity",
     "memory_stories_complete_requires_originals",
     "memory_stories_complete_insert_forbidden",
@@ -87,7 +95,35 @@ try {
       'story-1', 'user-1', 'draft', 'private', '2026-07-16T00:00:00Z',
       '2026-07-16T00:00:00Z', 1
     );
+    INSERT INTO commerce_orders (
+      id, account_id, offer_id, amount_total, currency, status,
+      idempotency_key, created_at, updated_at
+    ) VALUES (
+      'order-1', 'user-1', 'chapter', 24700, 'usd', 'created',
+      'checkout_schema_001', '2026-07-16T00:00:00Z', '2026-07-16T00:00:00Z'
+    );
+    INSERT INTO entitlement_grants (
+      id, account_id, source_order_id, offer_id, living_memory_limit,
+      voice_seconds_per_memory, memory_circle_enabled, family_archive_level, granted_at
+    ) VALUES (
+      'grant-1', 'user-1', 'order-1', 'chapter', 25, 600, 0, 'chapter',
+      '2026-07-16T00:00:01Z'
+    );
   `);
+
+  assert.throws(
+    () =>
+      database.exec(`
+        INSERT INTO entitlement_grants (
+          id, account_id, source_order_id, offer_id, living_memory_limit,
+          voice_seconds_per_memory, memory_circle_enabled, family_archive_level, granted_at
+        ) VALUES (
+          'grant-duplicate', 'user-1', 'order-1', 'chapter', 25, 600, 0, 'chapter',
+          '2026-07-16T00:00:02Z'
+        );
+      `),
+    /UNIQUE/
+  );
 
   assert.throws(
     () =>
@@ -143,7 +179,7 @@ try {
   assert.equal(integrity.integrity_check, "ok");
   assert.deepEqual(foreignKeyFailures, []);
   console.log(
-    `D1 schema verified: ${requiredObjects.length} required objects, integrity, foreign keys, immutable originals, and fail-closed completion.`
+    `D1 schema verified: ${requiredObjects.length} required objects, commerce entitlement uniqueness, integrity, foreign keys, immutable originals, and fail-closed completion.`
   );
 } finally {
   database.close();
