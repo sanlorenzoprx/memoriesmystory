@@ -1,0 +1,49 @@
+.stripe-embedded-checkout {
+  min-height: 28rem;
+  margin-top: 1rem;
+  overflow: hidden;
+  border-radius: 0.8rem;
+  background: #fff;
+}
+
+.checkout-configuration-note,
+.checkout-payment-error {
+  display: grid;
+  gap: 0.55rem;
+  border: 1px solid var(--brand-line);
+  border-radius: 0.8rem;
+  background: #f5eadb;
+  color: #526778;
+  padding: 1rem;
+  line-height: 1.55;
+}
+
+.checkout-configuration-note strong {
+  color: var(--brand-ink);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.08rem;
+  font-weight: 600;
+}
+
+.checkout-configuration-note p,
+.checkout-payment-error p {
+  margin: 0;
+}
+
+.checkout-payment-error {
+  border-color: rgba(148, 65, 52, 0.22);
+  background: #fff0e8;
+  color: #793f35;
+}
+
+.checkout-payment-error .lm-secondary-button {
+  width: fit-content;
+  margin-top: 0.3rem;
+}
+
+@media (max-width: 700px) {
+  .stripe-embedded-checkout {
+    min-height: 31rem;
+    margin-inline: -0.35rem;
+  }
+}
