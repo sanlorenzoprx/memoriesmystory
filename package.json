@@ -15,6 +15,7 @@
     "test:schema": "node --disable-warning=ExperimentalWarning scripts/verify-d1-schema.mjs",
     "test:e2e": "playwright test",
     "preflight:identity:staging": "node --env-file-if-exists=.env.staging.local scripts/preflight-identity-staging.mjs",
+    "preflight:stripe:staging": "node --env-file-if-exists=.env.staging.local scripts/preflight-stripe-staging.mjs",
     "verify:core": "npm run typecheck && npm run lint && npm test && npm run test:schema && npm run build && npm run deploy:dry-run",
     "verify": "npm run verify:core && npm run test:e2e",
     "deploy:dry-run": "npm run build && wrangler deploy --dry-run",
