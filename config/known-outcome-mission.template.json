@@ -1,0 +1,25 @@
+{
+  "mission_id": "replace-me",
+  "required_outcome": "Describe the measurable user/preservation outcome.",
+  "governing_sources": [
+    "List authoritative Foundation/Product/Implementation sources."
+  ],
+  "known_sources_checked": {
+    "verified_internal_capabilities": [],
+    "proven_repository_implementations": [],
+    "platform_or_vendor_native": [],
+    "open_source_or_official_references": [],
+    "standards_or_protocols": []
+  },
+  "candidate_composition": [
+    "List reusable/adaptable/composable building blocks."
+  ],
+  "unresolved_surface": "State the smallest genuinely missing layer.",
+  "novelty_class": "COMPOSE",
+  "test_layer": "PRODUCTION_ENTRYPOINT_INTEGRATION",
+  "preservation_recovery_implications": "State durability, ownership, original-media, offline/retry, and recovery implications.",
+  "stop_condition": "State a measurable finite stop condition.",
+  "evidence": [
+    "Record receipts, tests, hashes/IDs, or other proof without private family media."
+  ]
+}
