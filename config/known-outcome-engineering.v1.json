@@ -1,0 +1,85 @@
+{
+  "schema_version": "known-outcome-engineering-v1",
+  "project": "memoriesmystory",
+  "permanent_rule": "Reuse the known. Verify the adaptation. Isolate the novelty. Measure the outcome. Preserve what works.",
+  "resolution_ladder": [
+    "verified_internal_capability",
+    "proven_repository_implementation",
+    "platform_or_vendor_native",
+    "proven_open_source_or_official_reference",
+    "standard_or_protocol",
+    "adapt_or_compose",
+    "declare_unresolved_surface",
+    "build_smallest_missing_layer",
+    "verify_against_behavior_owner",
+    "preserve_verified_outcome"
+  ],
+  "novelty_classes": [
+    "REUSE",
+    "ADAPT",
+    "COMPOSE",
+    "ADAPTER",
+    "NOVEL",
+    "WORKAROUND",
+    "TEST_FAULT"
+  ],
+  "restricted_novelty_classes": [
+    "NOVEL",
+    "WORKAROUND",
+    "TEST_FAULT"
+  ],
+  "test_layers": [
+    "PURE_DETERMINISTIC",
+    "PLATFORM_NATIVE_LOCAL_RUNTIME",
+    "PRODUCTION_ENTRYPOINT_INTEGRATION",
+    "EXTERNAL_PROVIDER_CONTRACT",
+    "PHONE_FIRST_E2E_ACCEPTANCE",
+    "LIVE_ACCEPTANCE"
+  ],
+  "canonical_scenario_lineage": [
+    "anonymous_draft_id",
+    "capture_session_id",
+    "owner_id",
+    "memory_id",
+    "original_photo_asset_id",
+    "original_voice_asset_id",
+    "preservation_receipt",
+    "share_or_recovery_identity"
+  ],
+  "stage_results": [
+    "PASS",
+    "KNOWN_REPAIR",
+    "BLOCKED_UNKNOWN",
+    "EXTERNAL_ACCEPTANCE_REQUIRED"
+  ],
+  "platform_native_first": true,
+  "unknown_requires_evidence": true,
+  "large_rewrite_default_authorized": false,
+  "live_external_actions_require_explicit_authorization": true,
+  "no_cross_repository_product_inheritance": true,
+  "original_media_immutable": true,
+  "human_ai_truth_boundary_required": true,
+  "commercial_stop": {
+    "trigger": "photo plus authentic voice can be preserved, recovered, owned, and revisited truthfully across the first-five-minute path",
+    "return_to": [
+      "real_user_magic_moment",
+      "preservation_quality",
+      "sharing_and_retelling",
+      "retention",
+      "willingness_to_pay"
+    ]
+  },
+  "required_mission_fields": [
+    "mission_id",
+    "required_outcome",
+    "governing_sources",
+    "known_sources_checked",
+    "candidate_composition",
+    "unresolved_surface",
+    "novelty_class",
+    "test_layer",
+    "preservation_recovery_implications",
+    "stop_condition",
+    "evidence"
+  ]
+}
