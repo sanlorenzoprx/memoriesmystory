@@ -1,4 +1,5 @@
 import { appIdentity } from "../config/app-identity";
+import { handleAgentRoute } from "./agent-routes";
 import { handleAuthRoute } from "./auth-routes";
 import { handleMediaRoute } from "./media-routes";
 
@@ -25,6 +26,11 @@ const handler: ExportedHandler<Env> = {
         brand: env.PUBLIC_BRAND_NAME ?? appIdentity.brandName
       });
     }
+
+    // ASC-01 is a public, privacy-bounded acquisition surface. It is evaluated
+    // before authenticated archive/media routing and has no path into either.
+    const agentResponse = await handleAgentRoute(request, env);
+    if (agentResponse) return agentResponse;
 
     const authResponse = await handleAuthRoute(request, env);
     if (authResponse) return authResponse;
