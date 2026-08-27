@@ -89,6 +89,27 @@ function acceptedStory(): LocalMemoryDraft {
   return acceptLocalAudio(withAudio, "2026-07-16T12:06:00.000Z");
 }
 
+function acceptedPhotoOnly(): LocalMemoryDraft {
+  const story = acceptedStory();
+  return {
+    ...story,
+    audio: null,
+    audioUpload: null
+  };
+}
+
+function recordedAudio() {
+  return {
+    blob: new Blob(["newly-recorded-audio"], { type: "audio/webm" }),
+    mimeType: "audio/webm",
+    byteSize: 20,
+    sha256: "newly-recorded-audio-sha",
+    durationMs: 900,
+    capturedAt: "2026-07-16T12:07:00.000Z",
+    acceptedAt: null
+  };
+}
+
 describe("ordered background original sync", () => {
   beforeEach(() => {
     uploads.photo.mockReset();
@@ -147,5 +168,59 @@ describe("ordered background original sync", () => {
     expect(result.photoUpload?.assetId).toBe(originalPhotoAsset);
     expect(result.audioUpload?.assetId).toBe(originalAudioAsset);
     expect(result.audioUpload?.status).toBe("durable");
+  });
+
+  it("does not erase a recording completed while an offline photo request is settling", async () => {
+    let current = acceptedPhotoOnly();
+    let rejectPhoto: ((reason: unknown) => void) | undefined;
+    uploads.photo.mockImplementationOnce(
+      () => new Promise<never>((_resolve, reject) => { rejectPhoto = reject; })
+    );
+
+    const syncing = syncAcceptedOriginalsOnce(
+      current,
+      async (next) => { current = next; },
+      () => current
+    );
+    await vi.waitFor(() => expect(rejectPhoto).toBeTypeOf("function"));
+
+    current = attachLocalAudio(current, recordedAudio());
+    rejectPhoto!(new TypeError("offline"));
+
+    await expect(syncing).rejects.toThrow("offline");
+    expect(current.photoUpload?.status).toBe("needs_connection");
+    expect(current.audio?.sha256).toBe("newly-recorded-audio-sha");
+    expect(current.audioUpload?.assetId).toBeTruthy();
+  });
+
+  it("ignores a response for a photograph replaced during an in-flight upload", async () => {
+    let current = acceptedPhotoOnly();
+    const originalAssetId = current.photoUpload?.assetId;
+    let resolvePhoto: ((receipt: DurableMediaReceipt) => void) | undefined;
+    uploads.photo.mockImplementationOnce(
+      () => new Promise<DurableMediaReceipt>((resolve) => { resolvePhoto = resolve; })
+    );
+
+    const syncing = syncAcceptedOriginalsOnce(
+      current,
+      async (next) => { current = next; },
+      () => current
+    );
+    await vi.waitFor(() => expect(resolvePhoto).toBeTypeOf("function"));
+
+    const replacement = {
+      ...current.photo!,
+      sha256: "replacement-photo-sha",
+      capturedAt: "2026-07-16T12:08:00.000Z",
+      acceptedAt: null
+    };
+    current = acceptLocalPhoto(attachLocalPhoto(current, replacement));
+    const replacementAssetId = current.photoUpload?.assetId;
+    resolvePhoto!({ ...photoReceipt, assetId: originalAssetId! });
+
+    await syncing;
+    expect(current.photoUpload?.assetId).toBe(replacementAssetId);
+    expect(current.photoUpload?.status).toBe("local");
+    expect(current.photo?.sha256).toBe("replacement-photo-sha");
   });
 });

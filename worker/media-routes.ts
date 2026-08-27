@@ -1,6 +1,7 @@
 import { phase1Config } from "../config/phase-1";
+import { authenticateAppSession, type AuthSessionEnv } from "./auth-session";
 
-export type MediaRouteEnv = {
+export type MediaRouteEnv = AuthSessionEnv & {
   readonly DB: D1Database;
   readonly MEDIA_BUCKET: R2Bucket;
 };
@@ -33,6 +34,7 @@ type OperationRow = {
 
 type DraftRow = {
   id: string;
+  owner_user_id: string | null;
   anonymous_identity_hash: string | null;
   status: string;
 };
@@ -198,7 +200,7 @@ async function ensureDraft(
   }
   const tokenHash = await sha256(token);
   let draft = await env.DB.prepare(
-    "SELECT id, anonymous_identity_hash, status FROM memory_story_drafts WHERE id = ?"
+    "SELECT id, owner_user_id, anonymous_identity_hash, status FROM memory_story_drafts WHERE id = ?"
   )
     .bind(draftId)
     .first<DraftRow>();
@@ -214,7 +216,7 @@ async function ensureDraft(
       .bind(draftId, tokenHash, locale || phase1Config.localization.defaultLocale, now, now, noAutomaticExpiry)
       .run();
     draft = await env.DB.prepare(
-      "SELECT id, anonymous_identity_hash, status FROM memory_story_drafts WHERE id = ?"
+      "SELECT id, owner_user_id, anonymous_identity_hash, status FROM memory_story_drafts WHERE id = ?"
     )
       .bind(draftId)
       .first<DraftRow>();
@@ -231,18 +233,24 @@ async function authorizeDraft(
   env: MediaRouteEnv,
   draftId: string
 ): Promise<DraftRow> {
-  const token = requiredHeader(request, "X-Draft-Token");
-  const tokenHash = await sha256(token);
   const draft = await env.DB.prepare(
-    "SELECT id, anonymous_identity_hash, status FROM memory_story_drafts WHERE id = ?"
+    "SELECT id, owner_user_id, anonymous_identity_hash, status FROM memory_story_drafts WHERE id = ?"
   )
     .bind(draftId)
     .first<DraftRow>();
 
-  if (!draft || !draft.anonymous_identity_hash || !safeEqual(draft.anonymous_identity_hash, tokenHash)) {
-    throw new MediaRouteError(403, "The local draft could not be verified.", "draft_scope");
+  if (!draft) {
+    throw new MediaRouteError(404, "That preserved draft was not found.", "not_found");
   }
-  return draft;
+  const token = request.headers.get("X-Draft-Token")?.trim();
+  if (token && draft.anonymous_identity_hash) {
+    const tokenHash = await sha256(token);
+    if (safeEqual(draft.anonymous_identity_hash, tokenHash)) return draft;
+  }
+  const session = await authenticateAppSession(request, env);
+  if (session && draft.owner_user_id === session.userId) return draft;
+
+  throw new MediaRouteError(403, "That preserved original belongs to another archive.", "draft_scope");
 }
 
 function receipt(row: MediaRow, operation: OperationRow) {

@@ -18,7 +18,7 @@ Staging and production use different Worker names/routes, D1 databases, R2 bucke
 - Workers AI binding `AI`.
 - producer/consumer Queue binding `PROCESSING_QUEUE`, with bounded retry and terminal-failure evidence.
 - Turnstile site/secret pair.
-- approved email delivery/auth configuration plus Google and Facebook staging applications by Packet 4.
+- isolated Clerk staging instance with email verification, Google, and Facebook enabled; exact staging origin in `CLERK_AUTHORIZED_PARTIES`.
 
 ## Preflight reports only
 
@@ -30,6 +30,14 @@ Staging and production use different Worker names/routes, D1 databases, R2 bucke
 - cost/usage guard within/outside limit.
 
 It never reports credential values, OAuth tokens, raw media, transcripts, or share tokens.
+
+For Packet 4, copy `.env.staging.example` to ignored `.env.staging.local`, load values through the operator's private shell, Cloudflare dashboard/secret interface, and Clerk dashboard—never through chat or Git—then run:
+
+```powershell
+npm run preflight:identity:staging
+```
+
+The command requires the Clerk publishable/secret configuration, `SESSION_SECRET`, exact authorized HTTPS origin, Cloudflare account/deployment authorization, isolated staging Worker/D1/R2 identifiers, and operator confirmation that email and Google are enabled. Facebook must be either `true` after a successful live path or explicitly `false` as an owner-approved interim deferral. A deferred result permits only the separately logged email-and-Google staging checks; it does not complete Packet 4 or final acceptance. The command makes no provider call, and a green result never substitutes for live evidence.
 
 ## Scale and operational evidence
 
