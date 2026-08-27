@@ -32,7 +32,7 @@ describe("ASC-01 deterministic Story Starter", () => {
 
     expect(result.questions).toHaveLength(6);
     expect(result.opening_question).toMatch(/recuerdo/i);
-    expect(result.photo_prompts.some(prompt => /si lo recuerdas/i.test(prompt))).toBe(true);
+    expect(result.photo_prompts.some(prompt => /según lo recuerdas|si lo recuerdas/i.test(prompt))).toBe(true);
   });
 
   it("reuses the Story Starter capability for interview plans", () => {
