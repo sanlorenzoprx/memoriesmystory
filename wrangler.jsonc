@@ -1,0 +1,38 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "memoriesmystory",
+  "main": "worker/index.ts",
+  "compatibility_date": "2026-07-15",
+  "assets": {
+    "binding": "ASSETS",
+    "directory": "./dist",
+    "not_found_handling": "single-page-application"
+  },
+  "observability": {
+    "enabled": true
+  },
+  "vars": {
+    "APP_NAME": "memoriesmystory",
+    "PUBLIC_BRAND_NAME": "Memories: My Story"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "memoriesmystory",
+      "database_id": "00000000-0000-0000-0000-000000000000",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "MEDIA_BUCKET",
+      "bucket_name": "memoriesmystory-media"
+    }
+  ]
+
+  // The zero D1 ID is an explicit non-deployable placeholder for local Packet 1
+  // migration tests. Replace it only in an authorized staging environment.
+  // The R2 name declares Packet 3's binding contract. Provision and replace
+  // environment-specific resources only through the authorized staging gate.
+  // Queue and AI bindings remain unprovisioned until Packet 5.
+}

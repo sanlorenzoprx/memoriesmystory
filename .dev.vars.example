@@ -1,0 +1,22 @@
+# Copy to .dev.vars for local Worker integration. Never commit .dev.vars.
+# The current static app build and deterministic tests require no secret values.
+
+# Required for Packet 4.1 local/staging identity runtime
+SESSION_SECRET=
+CLERK_SECRET_KEY=
+
+# Optional: use Clerk's networkless JWT verification key instead of a JWKS fetch.
+# This is a public verification key but belongs in environment-specific config.
+CLERK_JWT_KEY=
+
+# Comma-separated exact application origins accepted in Clerk session tokens.
+CLERK_AUTHORIZED_PARTIES=http://127.0.0.1:4173
+
+# Required by later sharing work
+SHARE_TOKEN_PEPPER=
+
+# Required before protected public/auth endpoint staging acceptance
+TURNSTILE_SECRET_KEY=
+
+# Conditional; leave blank until accuracy evidence selects a fallback provider
+TRANSCRIPTION_FALLBACK_API_KEY=

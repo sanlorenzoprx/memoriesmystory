@@ -1,0 +1,20 @@
+{
+  "name": "Memories: My Story",
+  "short_name": "memoriesmystory",
+  "description": "Preserve photographs, real voices, and family stories.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#fff8ef",
+  "theme_color": "#8a4f2a",
+  "lang": "en",
+  "dir": "ltr",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

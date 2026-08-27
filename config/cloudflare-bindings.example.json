@@ -1,0 +1,20 @@
+{
+  "app": "memoriesmystory",
+  "worker": "memoriesmystory",
+  "d1": {
+    "binding": "DB",
+    "database_name": "memoriesmystory",
+    "database_id": "replace-with-staging-d1-id"
+  },
+  "r2": {
+    "binding": "MEDIA_BUCKET",
+    "bucket_name": "memoriesmystory-media"
+  },
+  "ai": {
+    "binding": "AI"
+  },
+  "queue": {
+    "binding": "PROCESSING_QUEUE",
+    "queue_name": "memoriesmystory-processing"
+  }
+}
