@@ -1,6 +1,7 @@
 import { appIdentity } from "../config/app-identity";
 import { handleAgentRoute } from "./agent-routes";
 import { handleAuthRoute } from "./auth-routes";
+import { handleDiscoveryRoute } from "./discovery-routes";
 import { handleMediaRoute } from "./media-routes";
 
 export interface Env {
@@ -26,6 +27,11 @@ const handler: ExportedHandler<Env> = {
         brand: env.PUBLIC_BRAND_NAME ?? appIdentity.brandName
       });
     }
+
+    // Discovery is host-neutral because production is not yet authorized or
+    // assigned a canonical public origin. The active request origin is used.
+    const discoveryResponse = handleDiscoveryRoute(request);
+    if (discoveryResponse) return discoveryResponse;
 
     // ASC-01 is a public, privacy-bounded acquisition surface. It is evaluated
     // before authenticated archive/media routing and has no path into either.
