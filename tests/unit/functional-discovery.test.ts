@@ -17,6 +17,8 @@ const root = process.cwd();
 const intents = JSON.parse(fs.readFileSync(path.join(root, "config", "functional-discovery-intents.json"), "utf8")) as Intent[];
 const generator = fs.readFileSync(path.join(root, "scripts", "generate-functional-discovery-pages.mjs"), "utf8");
 const discoveryRoutes = fs.readFileSync(path.join(root, "worker", "discovery-routes.ts"), "utf8");
+const channels = fs.readFileSync(path.join(root, "public", "distribution-channels.json"), "utf8");
+const registryGenerator = fs.readFileSync(path.join(root, "scripts", "generate-mcp-registry-server.mjs"), "utf8");
 
 const expectedSlugs = [
   "questions-to-ask-your-mother",
@@ -64,10 +66,20 @@ describe("Functional Discovery Surface 01", () => {
     expect(discoveryRoutes).toContain("ChatGPT-User");
   });
 
-  it("emits Story Studio route templates instead of generic homepage links", () => {
-    expect(generator).toContain("storyStudioPathTemplate");
-    expect(generator).toContain("source=story-studio");
-    expect(generator).toContain("campaign=functional-discovery-01");
-    expect(generator).toContain("creative_id={creative_id}");
+  it("supports Story Studio, partner, directory, newsletter, community and social distribution", () => {
+    for (const channel of ["storyStudio", "partner", "directory", "newsletter", "community", "social"]) {
+      expect(channels).toContain(`\"${channel}\"`);
+    }
+    expect(channels).toContain("source=story-studio");
+    expect(channels).toContain("creative_id={creative_id}");
+    expect(channels).not.toMatch(/family[_-]?name|transcript|share_token/i);
+  });
+
+  it("prepares MCP Registry metadata only from an authorized public origin", () => {
+    expect(registryGenerator).toContain("MEMORIES_PUBLIC_ORIGIN");
+    expect(registryGenerator).toContain("https:");
+    expect(registryGenerator).toContain("io.github.sanlorenzoprx/memories-my-story");
+    expect(registryGenerator).toContain("streamable-http");
+    expect(registryGenerator).toContain("/mcp");
   });
 });
