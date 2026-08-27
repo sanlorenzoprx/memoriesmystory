@@ -13,11 +13,17 @@ interface Intent {
   sampleQuestions: string[];
 }
 
+interface DistributionChannels {
+  parameters: string[];
+  channels: Record<string, string>;
+  privacy: string;
+}
+
 const root = process.cwd();
 const intents = JSON.parse(fs.readFileSync(path.join(root, "config", "functional-discovery-intents.json"), "utf8")) as Intent[];
 const generator = fs.readFileSync(path.join(root, "scripts", "generate-functional-discovery-pages.mjs"), "utf8");
 const discoveryRoutes = fs.readFileSync(path.join(root, "worker", "discovery-routes.ts"), "utf8");
-const channels = fs.readFileSync(path.join(root, "public", "distribution-channels.json"), "utf8");
+const channels = JSON.parse(fs.readFileSync(path.join(root, "public", "distribution-channels.json"), "utf8")) as DistributionChannels;
 const registryGenerator = fs.readFileSync(path.join(root, "scripts", "generate-mcp-registry-server.mjs"), "utf8");
 
 const expectedSlugs = [
@@ -68,11 +74,13 @@ describe("Functional Discovery Surface 01", () => {
 
   it("supports Story Studio, partner, directory, newsletter, community and social distribution", () => {
     for (const channel of ["storyStudio", "partner", "directory", "newsletter", "community", "social"]) {
-      expect(channels).toContain(`"${channel}"`);
+      expect(channels.channels[channel]).toBeTruthy();
     }
-    expect(channels).toContain("source=story-studio");
-    expect(channels).toContain("creative_id={creative_id}");
-    expect(channels).not.toMatch(/family[_-]?name|transcript|share_token/i);
+    expect(channels.channels.storyStudio).toContain("source=story-studio");
+    expect(channels.channels.storyStudio).toContain("creative_id={creative_id}");
+    expect(channels.parameters).toEqual(["source", "campaign", "platform", "creative_id", "publication_id"]);
+    expect(JSON.stringify(channels.channels)).not.toMatch(/family[_-]?name|transcript|share_token/i);
+    expect(channels.privacy).toMatch(/Do not put family names|transcript data|share tokens/i);
   });
 
   it("prepares MCP Registry metadata only from an authorized public origin", () => {
