@@ -68,7 +68,7 @@ describe("Functional Discovery Surface 01", () => {
 
   it("supports Story Studio, partner, directory, newsletter, community and social distribution", () => {
     for (const channel of ["storyStudio", "partner", "directory", "newsletter", "community", "social"]) {
-      expect(channels).toContain(`\"${channel}\"`);
+      expect(channels).toContain(`"${channel}"`);
     }
     expect(channels).toContain("source=story-studio");
     expect(channels).toContain("creative_id={creative_id}");
