@@ -40,7 +40,7 @@ if (dryRun) {
   process.exit(0);
 }
 
-const response = await fetch(ENDPOINT, {
+const response = await globalThis.fetch(ENDPOINT, {
   method: "POST",
   headers: { "Content-Type": "application/json; charset=utf-8" },
   body: JSON.stringify(payload)
