@@ -14,6 +14,12 @@ export default tseslint.config(
     }
   },
   {
+    files: ["worker/agent-routes.ts"],
+    rules: {
+      "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_" }]
+    }
+  },
+  {
     files: ["scripts/**/*.mjs"],
     languageOptions: {
       globals: {
