@@ -1,3 +1,16 @@
+const FUNCTIONAL_DISCOVERY_PATHS = [
+  "/questions-to-ask-your-mother",
+  "/questions-to-ask-your-father",
+  "/questions-to-ask-your-grandmother",
+  "/questions-to-ask-your-grandfather",
+  "/questions-to-ask-aging-parents",
+  "/family-oral-history",
+  "/preserving-a-parents-voice",
+  "/stories-behind-old-photographs",
+  "/family-recipe-stories",
+  "/family-reunion-questions"
+] as const;
+
 function text(body: string, contentType: string): Response {
   return new Response(body, {
     headers: {
@@ -14,7 +27,7 @@ export function handleDiscoveryRoute(request: Request): Response | null {
 
   if (url.pathname === "/robots.txt") {
     return text(
-      `User-agent: *\nAllow: /\n\nSitemap: ${origin}/sitemap.xml\n`,
+      `User-agent: *\nAllow: /\n\nUser-agent: OAI-SearchBot\nAllow: /\n\nUser-agent: ChatGPT-User\nAllow: /\n\nSitemap: ${origin}/sitemap.xml\n`,
       "text/plain; charset=utf-8"
     );
   }
@@ -28,7 +41,9 @@ export function handleDiscoveryRoute(request: Request): Response | null {
       "/agent/capabilities.md",
       "/agent/privacy.md",
       "/agent/evidence.md",
-      "/agent/examples.md"
+      "/agent/examples.md",
+      "/discovery-manifest.json",
+      ...FUNCTIONAL_DISCOVERY_PATHS
     ];
     const urls = paths
       .map(path => `  <url><loc>${escapeXml(`${origin}${path}`)}</loc></url>`)
