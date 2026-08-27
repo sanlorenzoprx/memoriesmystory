@@ -12,7 +12,7 @@ Muse creates space for remembering. Muse may provide a gentle prompt, but it doe
 
 ## Public agent capability
 
-The ASC-01 public surface helps a person begin. It is intentionally separate from the private archive.
+The public surface helps a person begin. It is intentionally separate from the private archive.
 
 REST:
 
@@ -40,9 +40,28 @@ Tools:
 
 All prompt-generation tools reuse the same deterministic curated prompt library. No model or private archive lookup is required.
 
+## Functional discovery utilities
+
+Ten crawlable utilities are built from a single intent catalog. Each utility immediately calls the same public Legacy Story Starter, so these are multiple discovery doors into one capability rather than separate applications.
+
+- `/questions-to-ask-your-mother`
+- `/questions-to-ask-your-father`
+- `/questions-to-ask-your-grandmother`
+- `/questions-to-ask-your-grandfather`
+- `/questions-to-ask-aging-parents`
+- `/family-oral-history`
+- `/preserving-a-parents-voice`
+- `/stories-behind-old-photographs`
+- `/family-recipe-stories`
+- `/family-reunion-questions`
+
+Every production build emits a Markdown twin at `<utility-path>.md` plus `/discovery-manifest.json`. The manifest contains Story Studio URL templates with `source`, `campaign`, `platform`, and `creative_id` parameters so distributed creatives can land on the matching functional utility instead of a generic homepage.
+
+The utilities accept only coarse prompt-selection settings such as language, relationship category, theme, and time available. They do not request family names or private archive identifiers.
+
 ## Privacy boundary
 
-Public agent tools have no code path to authenticated archive/media handlers. They never retrieve or list:
+Public agent tools and functional utilities have no code path to authenticated archive/media handlers. They never retrieve or list:
 
 - photographs;
 - voice recordings;
@@ -54,11 +73,11 @@ Public agent tools have no code path to authenticated archive/media handlers. Th
 - archive identifiers;
 - private share tokens.
 
-Public telemetry records only coarse channel metadata such as tool name, generated starter ID, agent client when supplied, protocol, and success. Request bodies and family-story content are not logged by ASC instrumentation.
+Public telemetry records only coarse channel metadata such as tool name, generated starter ID, agent client when supplied, protocol, and success. Request bodies and family-story content are not logged by the public discovery instrumentation.
 
 ## Human handoff
 
-A public tool may return a same-origin start URL with non-private `source=agent` and `starter_id` parameters. That URL only opens the ordinary Memories: My Story product. It does not create a private Memory Story, upload media, bind an account, or share anything automatically.
+A public tool may return a same-origin start URL with non-private source and starter parameters. That URL only opens the ordinary Memories: My Story product. It does not create a private Memory Story, upload media, bind an account, or share anything automatically.
 
 ## Languages
 
@@ -76,5 +95,6 @@ The initial deterministic prompt capability supports English and Spanish. It acc
 - `/agent/examples.md`
 - `/robots.txt`
 - `/sitemap.xml`
+- `/discovery-manifest.json`
 
-`robots.txt` and `sitemap.xml` are generated from the current request origin because the repository intentionally has no authorized production origin yet.
+`robots.txt` and `sitemap.xml` are generated from the current request origin because the repository intentionally has no authorized production origin yet. The robots response explicitly allows normal crawlers, `OAI-SearchBot`, and `ChatGPT-User`.

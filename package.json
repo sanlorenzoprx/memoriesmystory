@@ -6,7 +6,7 @@
   "description": "Memories: My Story Cloudflare-native web application.",
   "scripts": {
     "dev": "vite --host 0.0.0.0",
-    "build": "vite build && tsc -p tsconfig.worker.json --noEmit",
+    "build": "vite build && node scripts/generate-functional-discovery-pages.mjs && tsc -p tsconfig.worker.json --noEmit",
     "preview": "vite preview --host 0.0.0.0",
     "dev:e2e": "npm run build && wrangler d1 migrations apply DB --local --persist-to .wrangler/e2e && wrangler dev --local --ip 127.0.0.1 --port 4173 --persist-to .wrangler/e2e --show-interactive-dev-session false",
     "typecheck": "tsc --noEmit && tsc -p tsconfig.worker.json --noEmit",
@@ -14,6 +14,9 @@
     "test": "vitest run",
     "test:schema": "node --disable-warning=ExperimentalWarning scripts/verify-d1-schema.mjs",
     "test:e2e": "playwright test",
+    "indexnow:submit": "node scripts/submit-indexnow.mjs",
+    "indexnow:dry-run": "node scripts/submit-indexnow.mjs --dry-run",
+    "mcp-registry:generate": "node scripts/generate-mcp-registry-server.mjs",
     "preflight:identity:staging": "node --env-file-if-exists=.env.staging.local scripts/preflight-identity-staging.mjs",
     "verify:core": "npm run typecheck && npm run lint && npm test && npm run test:schema && npm run build && npm run deploy:dry-run",
     "verify": "npm run verify:core && npm run test:e2e",
