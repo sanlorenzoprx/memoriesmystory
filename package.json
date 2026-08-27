@@ -14,6 +14,8 @@
     "test": "vitest run",
     "test:schema": "node --disable-warning=ExperimentalWarning scripts/verify-d1-schema.mjs",
     "test:e2e": "playwright test",
+    "indexnow:submit": "node scripts/submit-indexnow.mjs",
+    "indexnow:dry-run": "node scripts/submit-indexnow.mjs --dry-run",
     "preflight:identity:staging": "node --env-file-if-exists=.env.staging.local scripts/preflight-identity-staging.mjs",
     "verify:core": "npm run typecheck && npm run lint && npm test && npm run test:schema && npm run build && npm run deploy:dry-run",
     "verify": "npm run verify:core && npm run test:e2e",
