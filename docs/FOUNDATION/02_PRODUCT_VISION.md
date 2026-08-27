@@ -1,113 +1,164 @@
-# Memories: My Story — Product Vision
+# Memories: My Story — Twenty-Year Product Vision
 
-**Version:** 1.0  
+**Version:** 2.0  
 **Status:** Approved foundation document
 
-## Our vision
+## Preserve the story behind the photograph
 
-We envision a world where no family's stories are lost to time.
+Families have always tried to preserve their memories. We save photographs, keep boxes in closets, write names on the backs of pictures, make albums, and tell stories at dinner tables, reunions, weddings, and funerals.
 
-Every day, photographs fade. Voices become distant memories. The people who shaped our lives slowly become names on a family tree, with no stories left to explain who they truly were.
+But photographs and stories do not age in the same way.
 
-We believe technology can change that—not by replacing people or memories, but by preserving them with honesty, warmth, and respect.
+A photograph can survive for a hundred years. The person who knows what it means may not.
 
-Memories: My Story exists so future generations can know the people who came before them through their photographs, their own voices, their own stories, and the memories they chose to share.
+The image can show a face without a name, a house without its significance, or a celebration without explaining who was there, why everyone was laughing, what happened next, or how the storyteller sounded while remembering it.
 
-We are building the world's first **Living Family Archive**.
+The image remains. The meaning can disappear.
 
-## What we believe
+Memories: My Story exists to prevent that separation.
 
-Every person has stories worth preserving. Every family has memories worth sharing. Every voice deserves to be heard long after it has fallen silent.
+## Our foundational idea
 
-Ordinary lives matter. The greatest treasures many families possess are not objects. They are memories.
+**A photograph can outlive the story that gives it meaning.**
 
-## Our purpose
+The voices, stories, people, relationships, places, dates, uncertainty, and context surrounding a family photograph are not incidental metadata. They are part of the memory's real value.
 
-We are not building another photo application, cloud-storage service, or genealogy database.
+## The Living Memory
 
-We are building a place where families preserve themselves—a place where a granddaughter, decades from now, can press Play and hear her grandfather laugh while telling the story behind an old photograph.
+The fundamental unit of Memories: My Story is the **Living Memory**.
 
-That moment is why this company exists.
+A Living Memory preserves a photograph or other source moment together with the authentic human voice, story, context, people, place, time, relationships, contributions, provenance, and future resurfacing that give it meaning.
 
-## From individual memory to living family legacy
+It is living because it can be remembered again, enriched by another person, connected to related memories, revisited in a new life stage, and carried forward to a generation that was not present when it began.
 
-A person begins with one photograph and one story in their own voice. That completed Memory Story can stand alone as a truthful record of how that person remembers a moment.
+## The product
 
-Memory Stories gather into Memory Albums. Albums reveal the shape of a life. Contributions connect people and preserve different points of view. Family Circles connect the storytellers, listeners, and caretakers of the archive.
+**Memories: My Story is a private-first Living Memory Archive for families.**
 
-Across time, these individual memories become a Living Family Archive: not a frozen family tree, but an intergenerational place where people can still be seen, heard, understood, and remembered.
+Its purpose is to make Living Memories easy to create, enrich, organize, preserve, rediscover, share by choice, and pass down across generations.
 
-## The human promise
+The technology should disappear behind the human act of remembering. A person should need only a photograph and something they remember, not an understanding of AI, transcription, metadata, databases, or cloud storage.
 
-Technology changes. Families remain.
+## The first promise
 
-Every technical decision must strengthen the connection between generations. Technology should disappear into the background so people can focus on remembering, listening, laughing, and sharing.
+Within the first few minutes, a person should experience one ordinary photograph becoming materially more valuable to their family.
 
-When someone completes a Memory Story, we want them to feel:
+They choose a photograph. They tell its story in their own voice. Muse may ask one gentle, useful question. Memories: My Story quietly preserves the source media, transcript lineage, people, place, time, relationships, truth state, and provenance. The person then sees and hears the result.
 
-**This memory is now part of your family's history.**
+Before, they had a photograph.
 
-## The emotional experience
+Now, they have a Living Memory.
 
-People should leave feeling gratitude, joy, connection, peace, and legacy.
+The canonical activation event is `first_living_memory_completed`.
 
-Most importantly, the storyteller should know:
+## The human voice is irreplaceable
 
-**I will not fade away. They will know me.**
+Artificial intelligence will become dramatically more capable during the life of this company. It will transcribe, organize, retrieve, connect, translate, and help present large family archives.
 
-Not because technology made them immortal, but because someone chose to preserve their story.
+But it must never confuse generation with remembrance.
+
+**The human memory is the source.**
+
+AI helps preserve it. AI helps structure it. AI helps retrieve it. AI helps connect it. AI may help present it. AI does not become the person who lived it.
+
+A parent's imperfect sentence spoken in their real voice can be more valuable than a perfectly written paragraph generated by a machine.
 
 ## Muse
 
-Muse is never the center of the experience. The storyteller is.
+Muse exists to help people remember.
 
-Muse listens, encourages, gently asks thoughtful questions, organizes, and preserves. Muse never replaces the storyteller. The greatest compliment we can receive is that people forget they are using technology.
+Muse listens first. Muse notices what might be missing. Muse can ask who was there, where a photograph was taken, what happened next, what a person was called, or who else might remember.
 
-## Voice before text
+Muse never silently fills gaps with invention. A missing memory may remain missing. An uncertain date may remain uncertain. Two conflicting recollections may both remain.
 
-The original voice is the heart of every Memory Story. A transcript helps people search. A Muse Legacy Description helps people discover. Translations help people understand. None replaces the original voice.
+Truth is more important than narrative neatness.
 
-When future generations discover a Memory Story, they should be able to hear the storyteller before they read an interpretation.
+## Families remember together
 
-## Sharing creates legacy
+Memory has never belonged only to individuals. One photograph may contain many different stories.
 
-Memories become more valuable when they are shared. Sharing is not merely marketing; it can be preservation.
+A Living Memory can grow as other people contribute. A **Memory Circle** allows family and friends to gather around a photograph and remember together, in person or remotely. The photograph remains central. Each person's contribution remains attributable to them.
 
-Every shared Memory Story can reconnect families, inspire conversations, and encourage another person to preserve memories before they disappear. Any share-to-unlock experience must express this as generosity, never coercion.
+Memories: My Story should preserve the richness of how people actually remember rather than flattening a family into one artificial version of events.
 
-## Global by design
+## The Living Memory Archive
 
-Every family deserves this experience regardless of language or location. The application begins with multilingual conversation, localized experiences, culturally respectful interaction, right-to-left readiness, and global access in mind.
+Living Memories accumulate into something larger:
 
-Families should not have to adapt themselves to the technology. The technology adapts to them.
+**Moment → Chapter → Life → Family**
 
-## Built for generations
+A moment becomes a Living Memory. Related Living Memories form a Chapter. Chapters reveal the shape of a life. Lives and relationships connect into a Family Archive.
 
-We are not building only for the next release. Every Memory Story should remain portable and understandable. Every archive should remain accessible. Every generation should be able to hear the generations that came before it.
+Over time, a family should be able to find every memory involving a grandmother, every story from one town, every recollection about the family business, or every memory connected to one house.
 
-## Success
+## Preserve first. Share by choice.
 
-We will not measure success only by downloads or subscriptions. Our real measures sound like:
+Memories: My Story is privacy-first, not private-only.
 
-- “I never knew this story before.”
-- “I'm so glad we recorded that while she was still here.”
-- “My children will know my father because they can hear him tell these stories.”
-- “It helped my dad tell stories I'd never heard before.”
+A Living Memory begins private. Its creator decides whether it remains private, enters a family circle, is sent to a friend, or is shared publicly.
 
-## North Star
+Families have always shown photographs and told stories. Social sharing is a digital continuation of oral history and can also be a powerful bootstrap growth engine when the product itself creates a moment worth passing on.
 
-Everything we build must answer:
+External sharing therefore uses a bounded **Share Artifact**: only the photo, voice segment, caption, attribution, and other material the creator explicitly selected. Private archive context does not leave by default.
 
-**Will this help preserve someone's story for future generations?**
+Sharing is never exchanged for another free Living Memory. The memory itself should be valuable enough to share.
 
-If yes, continue. If no, rethink the solution.
+A Share Artifact may carry tasteful attribution so a recipient can understand what they just experienced and choose to create a Living Memory of their own.
 
-## Our promise
+The resulting growth loop is:
 
-We cannot stop time. We cannot prevent memories from fading. We cannot keep the people we love forever.
+**Photo → Voice → Living Memory → Magic Moment → Share → Someone Else Remembers → Another Living Memory**
 
-But we can help ensure that their voices, stories, laughter, and memories continue to live with the generations that follow.
+Facebook is the first public social target for the initial demographic; WhatsApp follows as a family-to-family priority. Platform order may evolve from evidence.
 
-Every life matters. Every story matters. Every family matters. No family's history should disappear simply because nobody preserved it.
+## Ownership and privacy
 
-**Old photographs fade. The voices behind them should not.**
+The enduring customer promise is simple:
+
+**Your photograph. Your voice. Your story. Your family.**
+
+Families must remain able to export their memories. Original source material must remain distinguishable from generated derivatives. Provenance must survive. A private memory must not become available merely because an algorithm found it semantically relevant.
+
+## Permanence and continuity
+
+Some content entrusted to the archive will eventually become impossible to recreate. The person who recorded it may no longer be alive. The physical photograph may be damaged. The house may no longer exist.
+
+Originals, checksums, backups, exportability, format migration, provenance, restoration, and archive stewardship therefore matter more over time, not less.
+
+A Living Memory Archive should outlive devices and individual accounts. Someone may capture on a phone, continue on a tablet, organize on a computer, and eventually transfer stewardship to another generation.
+
+## Resurfacing
+
+Preservation is incomplete if memories disappear into storage.
+
+Memories should return when they can matter: on a birthday, an anniversary, when a related photograph appears, when someone asks a question, or when a child becomes old enough to understand the story.
+
+The purpose of resurfacing is not to manufacture engagement. It is to allow memory to continue participating in family life.
+
+## Technology must remain subordinate
+
+Models will change. Cloud providers will change. Frameworks, devices, interfaces, databases, and codecs will change.
+
+The durable center is the photograph, voice, person, story, relationship, source, family, and memory.
+
+Technology exists to serve them.
+
+## Our product test
+
+Every major capability must answer:
+
+**Does this make a family's memory more alive, more complete, more connected, more durable, more trustworthy, or easier to rediscover?**
+
+If not, we should have a compelling reason to build it.
+
+## Our measure of success
+
+Success is a photograph whose story would otherwise have disappeared but did not.
+
+Success is a parent's voice heard decades later. It is a grandchild learning who was standing in an old photograph. It is two sisters remembering together. It is a family archive that becomes more meaningful with time.
+
+We are not preserving files.
+
+We are preserving the human meaning attached to them.
+
+**A photograph can preserve a moment. A Living Memory can carry it forward.**

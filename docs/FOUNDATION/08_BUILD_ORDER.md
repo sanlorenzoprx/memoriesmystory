@@ -1,61 +1,78 @@
 # Build Order
 
-**Version:** 0.2  
-**Status:** Outcome-driven implementation sequence
+**Version:** 1.0  
+**Status:** Governing long-horizon implementation sequence
 
-These phases are dependency order inside the product build, not separate promises about commercial release versions. Direct social sharing and the explicitly public global feed remain included in the first release; they are sequenced after the core preservation path so the launch feature does not outrun the Memory Story it distributes.
+These phases are dependency order, not promises about release dates. Existing validated work is preserved and mapped into the sequence rather than rewritten for naming purity.
 
-## Phase 0 — Foundation
+## Phase 0 — Ratify the doctrine
 
-**Status:** Complete in Foundation v1.1.
+Create or update the authoritative Product Vision, Founding Principles, Product Invariants, Living Memory definition, customer vocabulary, voluntary sharing policy, and anti-drift checklist.
 
-Complete when the founding principles, invariants, product vision, first five-minute experience, language, Muse behavior, decision framework, technical foundation, and open decisions are organized and readable.
+**Acceptance:** Idea → Mechanism → Product is explicit; Living Memory is canonical; privacy-first/creator-controlled sharing is explicit; share-to-unlock is superseded.
 
-## Phase 1 — One complete solo Memory Story
+## Phase 1 — Correct product positioning
 
-Deliver the first five-minute experience end to end:
+Remove mail-in digitization or other non-software-primary positioning from the main product surface. Rebuild the future landing page around **Photo → Voice → Living Memory**, the one belief, the Magic Moment, trust, family, and creator-controlled sharing.
 
-1. mobile entry;
-2. photograph capture or import;
-3. immutable original preservation;
-4. voice recording;
-5. transcription;
-6. one useful Muse prompt;
-7. Muse Legacy Description;
-8. truth-state review;
-9. durable cloud confirmation;
-10. story playback and return path;
-11. minimum private share or native share handoff;
-12. one qualifying share-event receipt that unlocks Memory Story 2 exactly once.
+**Sequencing note:** landing-page replacement is intentionally held out of the doctrine/domain ratification branch so the final surface can be designed against stable contracts.
 
-This is the first product proof. Do not begin broad feature expansion until this path passes on real phones and unreliable connections.
+## Phase 2 — Make Living Memory a first-class object
 
-The binding product acceptance contract is in `03_USER_EXPERIENCE.md`. Phase 1 is not complete when isolated components work; it is complete when the entire first-five-minute outcome passes that contract.
+Reconcile current schemas and domain code with the Living Memory concept. Preserve existing Memory Story persistence, original-media, truth-state, receipt, and recovery architecture beneath the aggregate until a safe migration is justified.
 
-## Phase 2 — Trust, continuity, and export
+**Acceptance:** code exports a first-class Living Memory aggregate and compatibility mapping.
 
-Add recovery, transcript revisions, media provenance, portable export, deletion recovery, versioned agreements, and legacy-custodian foundations.
+## Phase 3 — First-five-minute experience
 
-## Phase 3 — Albums and expanded sharing
+Implement **Photo → Voice → Muse → Preserved → Playback → Invite/Share**. Instrument `first_living_memory_completed` and supporting funnel events.
 
-Add Memory Albums, richer private and social sharing choices, direct-publishing coverage, share asset improvements, safe return from shared stories, and scaled Good Karma operations. The minimum qualifying share and first unlock already exist in Phase 1.
+## Phase 4 — Source authenticity
 
-## Phase 4 — Preserve Together
+Verify original audio, original image, transcript lineage, attribution, provenance, truth state, and revision history. Generated derivatives remain separate from originals.
 
-Add in-person multi-speaker Memory Circles, participant attribution, contribution review, and preservation of disputed recollections.
+## Phase 5 — Muse
 
-## Phase 5 — Remember Together at a Distance
+Implement memory elicitation with strict source-grounded behavior. Muse asks one useful question at a time and never manufactures testimony.
 
-Add invitation-to-minimal-signup flow, live remote room state, photo-pinned WebRTC conversation, participant delivery, recovery, and final assembly.
+## Phase 6 — Family Archive
 
-## Phase 6 — Living Family Archive
+Add people, Living Memories, Chapters, relationships, archive navigation, and durable family ownership boundaries.
 
-Add Family Circles, relationship navigation, connected stories across albums, archive-wide search, custodian workflows, and intergenerational continuity views.
+## Phase 7 — Family contributions
 
-## Phase 7 — Complete first-release public discovery and scaled operations
+Invite a person into an existing Living Memory and attribute their voice, text, photo, correction, or alternate recollection without flattening disagreement.
 
-Add the explicitly public feed, reporting, moderation, removal operations, global delivery, cost controls, and evidence-based entitlement refinement.
+## Phase 8 — Retrieval and timeline
+
+Wire **cards → index → retrieval → source-grounded outputs** into customer-facing discovery, timeline, people/place exploration, and related-memory retrieval.
+
+## Phase 9 — Memory Circle
+
+Build collaborative synchronous remembrance around a pinned photograph/Living Memory with participant attribution, recording boundaries, recovery, and additive assembly.
+
+## Phase 10 — Resurfacing
+
+Use dates, people, places, incomplete memories, anniversaries, related memories, and unanswered prompts to bring meaningful memories back without engagement manipulation.
+
+## Phase 11 — Derivative storytelling
+
+Create Reels, Chapters, and Life Stories from source-grounded Living Memories. Derivatives never become the canonical source.
+
+## Phase 12 — Legacy infrastructure
+
+Add exports, stewardship, inheritance/continuity, schema and format migration, archival durability, restoration, and long-term portability.
+
+## Phase 13 — Growth engine
+
+Teach the Idea. Demonstrate the Mechanism. Offer the Product.
+
+Build the voluntary **Living Memory Loop**:
+
+**Photo → Voice → Living Memory → Magic Moment → Share → Someone Else Remembers → Another Living Memory**
+
+Initial public social priority: Facebook. Initial direct-family priority: WhatsApp. Sharing remains optional and creator-controlled, and no free Living Memory is granted as a reward for sharing.
 
 ## Rule for every phase
 
-A phase is complete when the user outcome works and its preservation, truth, accessibility, recovery, and durability obligations are verified. Internal code activity alone is not completion.
+A phase is complete only when the intended human outcome works and its authenticity, privacy, accessibility, recovery, durability, provenance, and anti-drift obligations are verified. Internal code activity alone is not completion.

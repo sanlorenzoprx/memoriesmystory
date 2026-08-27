@@ -2,7 +2,7 @@
 
 This page is the navigation map for product, design, engineering, and AI-agent work on Memories: My Story.
 
-Before using this map, read the root `../AGENTS.md`. It routes the current task to the specific product sources, code folders, and verification evidence required before action. Folder-level `AGENTS.md` files refine those instructions near the work.
+Before using this map, read the root `../AGENTS.md`. Folder-level `AGENTS.md` files refine instructions near the work.
 
 ## Foundation Rule #000
 
@@ -10,14 +10,14 @@ Everything that follows is subordinate to the Foundation documents.
 
 When documents conflict, use this priority order:
 
-1. `00_FOUNDING_PRINCIPLES.md` — who we are.
-2. `01_PRODUCT_INVARIANTS.md` — what must never change.
-3. `99_THE_SOUL_OF_memoriesmystory.md` — why we protect it.
-4. `02_PRODUCT_VISION.md` — where we are going.
-5. `03_USER_EXPERIENCE.md` — how the experience, beginning with the first five minutes, should feel.
-6. `04_TECHNICAL_PRINCIPLES.md` — how we build it.
+1. `FOUNDATION/00_FOUNDING_PRINCIPLES.md` — who we are.
+2. `FOUNDATION/01_PRODUCT_INVARIANTS.md` — what must never change.
+3. `FOUNDATION/99_THE_SOUL_OF_memoriesmystory.md` — why we protect it.
+4. `FOUNDATION/02_PRODUCT_VISION.md` — where we are going.
+5. `FOUNDATION/03_USER_EXPERIENCE.md` — how the experience should feel.
+6. `FOUNDATION/04_TECHNICAL_PRINCIPLES.md` — how we build it.
 
-Database schemas, APIs, prompts, UI components, growth mechanics, pricing, and implementation details must conform to these documents.
+Approved dated decision records explain intentional amendments to locked documents. Database schemas, APIs, prompts, UI components, growth mechanics, pricing, and implementation details must conform to the current Foundation.
 
 ## Read in this order
 
@@ -39,56 +39,41 @@ Database schemas, APIs, prompts, UI components, growth mechanics, pricing, and i
 
 ### Product control documents
 
+- `PRODUCT/LIVING_MEMORY_DEFINITION.md`
+- `PRODUCT/LIVING_MEMORY_SHARE_POLICY_V2.md`
+- `PRODUCT/LIVING_MEMORY_ANTI_DRIFT_CHECKLIST.md`
 - `PRODUCT/CORE_EXPERIENCES.md`
-- `PRODUCT/GOOD_KARMA_SHARE_POLICY_V1.md`
+- `PRODUCT/CANONICAL_SCOPE.md`
 - `PRODUCT/OPEN_DECISIONS.md`
 - `PRODUCT/FOUNDATION_TRACEABILITY.md`
 
-### Architecture
-
-- `ARCHITECTURE/FOUNDATION_STACK.md`
-- `ARCHITECTURE/REPOSITORY_STRUCTURE.md`
-- `ARCHITECTURE/APP_IDENTITY.md`
-
-### Implementation
-
-- `IMPLEMENTATION/PHASE_1_SOLO_MEMORY_STORY_BUILD_SPEC.md`
-- `IMPLEMENTATION/README.md`
-
-### Production-ready execution
-
-- `EXECUTION/README.md`
-- `EXECUTION/DEFINITION_OF_DONE_V1.md`
-- `SECURITY/SECRETS_AND_CONFIGURATION.md`
-- `OPERATIONS/ENVIRONMENTS_AND_HANDOFF.md`
-
-### Learning memory
-
-- `LEARNING/README.md`
-- `LEARNING/OBSERVATIONS.md`
-- `LEARNING/CHANGE_PROPOSALS.md`
-
-Learning records preserve evidence and proposals across sessions. They do not outrank the Foundation and cannot silently modify approved product behavior.
+`PRODUCT/GOOD_KARMA_SHARE_POLICY_V1.md` is retained only as a superseded historical policy.
 
 ## What is settled
 
-- The real voice is the primary artifact.
-- A photograph and its story belong together.
-- The platform never silently corrects a memory.
-- Different recollections are preserved, not reconciled by AI.
+- The governing idea is: **A photograph can outlive the story that gives it meaning.**
+- The canonical product mechanism and customer object is the **Living Memory**.
+- Memories: My Story is a private-first **Living Memory Archive**, not a generic photo app, storage service, social network, genealogy database, journal, or AI biography generator.
+- Existing `MemoryStory` code/database names are compatibility infrastructure beneath the Living Memory aggregate until a migration has real product value.
+- Original photographs, recordings, and attributed human testimony remain canonical.
+- Muse helps people remember and never silently manufactures testimony.
+- Different recollections are preserved, not reconciled by AI into false certainty.
 - Originals are never overwritten.
-- Technology and AI remain in the background.
-- Accessibility, multilingual use, portability, and continuity are foundational.
-- A completed Memory Story is durably cloud-preserved and can be exported.
-- The first build target is one complete, emotionally successful solo Memory Story.
-- The first five Memory Stories are free under the Good Karma share-to-unlock sequence; this is a non-negotiable launch rule.
-- The completion message is locked exactly: **“This memory is now part of your family's history.”**
-- Memories: My Story is a Cloudflare-first web application, not an Android application.
-- The first-five-minute experience is approved as the binding first implementation contract in `FOUNDATION/03_USER_EXPERIENCE.md`.
-- Camera and microphone permissions are requested only in context; first-use guidance repeats for the first few uses, becomes lighter with confidence, and remains replayable.
-- `sanlorenzoprx/memoriesmystory` is the only canonical application repository and begins as a fresh implementation.
-- The local repository path is `C:\repos\memoriesmystory`; every technical application identifier uses exactly `memoriesmystory`.
+- Privacy-first means private by default and creator-controlled, not private-only.
+- External sharing uses a bounded Share Artifact.
+- Sharing is voluntary and does **not** unlock another free Living Memory.
+- Facebook is the first public social-sharing priority; WhatsApp follows for family-to-family distribution.
+- The first-five-minute activation event is `first_living_memory_completed`.
+- The first-five-minute product sequence is **Photo → Voice → Muse → Preserved → Playback → Invite/Share**.
+- The long-term value ladder is **Moment → Chapter → Life → Family**.
+- Accessibility, multilingual use, portability, offline recovery, cross-device continuity, and legacy stewardship are foundational.
+- The completion message remains: **“This memory is now part of your family's history.”**
+- `sanlorenzoprx/memoriesmystory` is the only canonical application repository.
+
+## Current sequencing
+
+The doctrine/domain branch intentionally does not replace the landing page. The final landing surface is a dedicated Phase 1 product-positioning slice built after the Living Memory contracts are ratified.
 
 ## What remains open
 
-Open product and business questions live only in `PRODUCT/OPEN_DECISIONS.md`. An undecided implementation detail must not be allowed to reopen a settled foundation principle.
+Open product and business questions live in `PRODUCT/OPEN_DECISIONS.md`. An undecided implementation detail must not reopen a settled foundation principle.

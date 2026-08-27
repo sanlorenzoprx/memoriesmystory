@@ -5,6 +5,7 @@ export type StoryEntitlement = {
   readonly userId: UserId;
   readonly plan: "free";
   readonly freeStoryLimit: number;
+  /** Compatibility field retained while prior share-to-unlock runtime code is retired. */
   readonly freeStoriesUnlocked: number;
   readonly freeStoriesCompleted: number;
   readonly updatedAt: string;
@@ -12,8 +13,8 @@ export type StoryEntitlement = {
 
 export type ShareUnlockResult = {
   readonly entitlement: StoryEntitlement;
-  readonly granted: boolean;
-  readonly reason: "granted" | "already_granted_for_story" | "free_limit_reached";
+  readonly granted: false;
+  readonly reason: "voluntary_sharing_no_reward" | "free_limit_reached";
 };
 
 export function createInitialEntitlement(userId: UserId, now: string): StoryEntitlement {
@@ -31,34 +32,25 @@ export function canCreateFreeStory(entitlement: StoryEntitlement): boolean {
   return entitlement.freeStoriesCompleted < entitlement.freeStoriesUnlocked;
 }
 
+/**
+ * @deprecated Sharing is voluntary and no longer grants a free Living Memory.
+ * Retained temporarily so existing callers fail closed without receiving a reward
+ * while the share runtime is migrated to product-event tracking.
+ */
 export function grantShareUnlock(input: {
   readonly entitlement: StoryEntitlement;
   readonly storyAlreadyGrantedUnlock: boolean;
   readonly now: string;
 }): ShareUnlockResult {
-  if (input.storyAlreadyGrantedUnlock) {
-    return {
-      entitlement: input.entitlement,
-      granted: false,
-      reason: "already_granted_for_story"
-    };
-  }
-
-  if (input.entitlement.freeStoriesUnlocked >= input.entitlement.freeStoryLimit) {
-    return {
-      entitlement: input.entitlement,
-      granted: false,
-      reason: "free_limit_reached"
-    };
-  }
+  void input.storyAlreadyGrantedUnlock;
+  void input.now;
 
   return {
-    entitlement: {
-      ...input.entitlement,
-      freeStoriesUnlocked: input.entitlement.freeStoriesUnlocked + 1,
-      updatedAt: input.now
-    },
-    granted: true,
-    reason: "granted"
+    entitlement: input.entitlement,
+    granted: false,
+    reason:
+      input.entitlement.freeStoriesCompleted >= input.entitlement.freeStoryLimit
+        ? "free_limit_reached"
+        : "voluntary_sharing_no_reward"
   };
 }

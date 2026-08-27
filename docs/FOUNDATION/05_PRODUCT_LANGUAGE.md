@@ -1,44 +1,72 @@
 # Product Language
 
-**Version:** 0.1  
-**Status:** Approved terms consolidated from Product Review v0.2 amendments
+**Version:** 1.0  
+**Status:** Binding customer vocabulary
+
+## Canonical terms
 
 | Term | Meaning |
 | --- | --- |
 | Memories: My Story | The product and company experience. |
-| Capture Your Memories | The primary capture experience. |
-| Memory Story | A photograph, original voice, transcript, Muse Legacy Description, metadata, ownership, and contribution record. |
-| Memory Album | A collection of Memory Stories. |
-| Memory Vault | A person's or family's complete archive. |
-| Living Family Archive | The intergenerational whole formed by stories, albums, people, relationships, voices, and contributions. |
-| Memory Circle | An in-person or remote shared conversation about a photograph; working brand name. |
-| Family Circle | Connected family members, storytellers, contributors, and caretakers. |
-| Muse | The quiet, voice-first memory companion. |
-| Muse Prompt | One helpful follow-up question. |
+| Living Memory | The canonical customer unit of value: a source photograph or moment preserved with authentic voice, story, context, people, place, time, relationships, family contributions, provenance, and resurfacing potential. |
+| Living Memory Archive | The product category: a private-first archive built around Living Memories rather than generic files. |
+| Family Archive | A family's durable container of Living Memories, people, Chapters, relationships, Memory Circles, reels, and stewardship. |
+| Chapter | A meaningful collection of related Living Memories, such as childhood, a home, a business, a migration, or a family tradition. |
+| Memory Circle | An in-person or remote conversation centered on a photograph or Living Memory, with participant attribution. |
+| Muse | The quiet, voice-first memory companion that helps a person remember without becoming the storyteller. |
+| Muse Prompt | One helpful, context-aware follow-up question. |
 | Muse Help | Replayable audiovisual guidance. |
-| Muse Legacy Description | A generated introduction to a completed Memory Story, separate from original testimony. |
-| Legacy custodian | A trusted person designated to help preserve and continue an archive. |
+| Share Artifact | A bounded copy prepared for deliberate external sharing. It contains only material selected for that share and is distinct from the private canonical Living Memory. |
+| Reel | A source-grounded presentation derived from one or more Living Memories. A Reel is never the canonical memory. |
+| Legacy steward | A trusted person designated to help preserve and continue a Family Archive. |
+
+## Compatibility terms
+
+| Term | Rule |
+| --- | --- |
+| Memory Story | Superseded customer term. It may remain temporarily in database, migration, API, or code identifiers as compatibility infrastructure. New customer-facing copy and new domain concepts use **Living Memory**. |
+| Memory Vault | Superseded by **Family Archive** or **Living Memory Archive** according to context. |
+| Family Circle | May describe a group of participating people, but not the canonical archive object. |
 
 ## Preferred language
 
-- “Tell the story you remember.”
+- “Tell us what you remember.”
 - “Take your time.”
+- “You created a Living Memory.”
 - “This memory is now part of your family's history.”
-- “Share a memory. Preserve another.”
-- “Saved to your Memory Vault.”
+- “Who else remembers this?”
+- “Preserve first. Share by choice.”
+- “Your photograph. Your voice. Your story. Your family.”
+- “A photograph can preserve a moment. A Living Memory can carry it forward.”
 
-## Avoid
+## Sharing language
 
-- “AI-generated truth,” “AI-corrected memory,” or language implying that Muse owns the story.
-- Clinical terms such as “data ingestion” in the user interface.
-- Morbid pressure or claims of immortality.
-- “Story Guide” where the approved name is Muse.
-- “AI Legacy Summary” or “Legacy Summary”; use Muse Legacy Description.
+Sharing is framed as a natural continuation of remembering, not a transaction for product credits.
 
-## Locked copy
+Preferred concepts:
 
-After durable completion, use exactly:
+- “Share this Living Memory.”
+- “Send a copy to family.”
+- “Share to Facebook.”
+- “Keep private.”
+- “You're sharing a copy outside your private Family Archive.”
+- Tasteful attribution: “A Living Memory preserved with Memories: My Story.”
+- Discovery CTA: “Create your own Living Memory.”
+
+Avoid:
+
+- “Share to unlock another free memory.”
+- “Earn stories by sharing.”
+- Language that makes a family story referral currency.
+
+## AI language
+
+Avoid “AI-generated truth,” “AI-corrected memory,” or language implying that Muse owns the story. Generated material must be clearly derivative and source-grounded.
+
+## Locked completion copy
+
+After durable completion, continue to use:
 
 **This memory is now part of your family's history.**
 
-Do not change this sentence before production testing explicitly evaluates it.
+The experience may also label the completed object **Living Memory** and instrument `first_living_memory_completed` when the first one is durably complete.
