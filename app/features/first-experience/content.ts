@@ -8,6 +8,10 @@ export const firstExperienceContent = {
   photoPrompt: "Hold a photograph here",
   photoGuidance: "We’ll help you get a clear image. The story matters more than perfection.",
   privacyPromise: "Nothing is shared unless you choose.",
+  preservationThesis:
+    "A photograph preserves what they looked like. Their voice preserves who they were in the moment.",
+  preservationPrompt:
+    "You do not have to preserve a lifetime today. Preserve one story before it becomes only a photograph.",
   journey: ["Photo", "Voice", "Preserved", "Shared"]
 } as const;
 
