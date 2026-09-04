@@ -32,7 +32,7 @@ function ArchiveIndex() {
         <h1>Your Memory Stories</h1>
         {error && <ArchiveSignInMessage message={error} />}
         {drafts === null && !error && <p className="preservation-status" role="status">Gathering your stories…</p>}
-        {drafts?.length === 0 && <p className="capture-lede">Your first protected Memory Story will appear here.</p>}
+        {drafts?.length === 0 && <p className="capture-lede">Your archive begins with one story. Capture the photograph whose story you most want your family to know.</p>}
         {drafts && drafts.length > 0 && (
           <ul className="archive-list">
             {drafts.map((draft) => (
@@ -74,7 +74,7 @@ function ArchiveMemory({ draftId }: { readonly draftId: string }) {
           <>
             {photo && <div className="story-photo-focus"><img src={photo.mediaUrl} alt="Your privately preserved photograph" /></div>}
             {audio && <audio className="voice-player" controls src={audio.mediaUrl}>Your browser cannot play the preserved recording.</audio>}
-            <div className="durable-status" role="status"><span aria-hidden="true">✓</span><div><strong>Available across your devices</strong><p>Your signed-in archive keeps the original photograph and voice together.</p></div></div>
+            <div className="durable-status" role="status"><span aria-hidden="true">✓</span><div><strong>Available across your devices</strong><p>Your signed-in archive keeps the original photograph and voice together, so the story stays with the image instead of becoming a mystery later.</p></div></div>
           </>
         )}
         <Link className="secondary-action" to="/archive">All Memory Stories</Link>
