@@ -18,7 +18,7 @@ test("the first screen expresses the approved memory-preservation promise", asyn
   ).toBeVisible();
   await expect(
     page.getByText(
-      "Capture a photo. Tell its story. Preserve your voice for the people you love."
+      "You do not have to organize a lifetime. Start with one photograph, tell the story it brings back, and keep your real voice with it—so the people you love can receive more than an image."
     )
   ).toBeVisible();
   await expect(page.getByRole("button", { name: "Capture Your Memories" })).toBeVisible();
@@ -212,12 +212,12 @@ test("an offline photograph never blocks the voice and later backs up in order",
   await expect(
     page.getByRole("heading", { name: "Your story stays with you." })
   ).toBeVisible();
-  await expect(page.getByText(/quietly finish preserving/i)).toBeVisible();
+  await expect(page.getByText(/finish protecting both when a connection is available/i)).toBeVisible();
 
   connectionAvailable = true;
   await page.evaluate(() => window.dispatchEvent(new Event("online")));
   await expect(page.getByRole("heading", { name: "We have your back." })).toBeVisible();
-  await expect(page.getByText("Your story is preserved in your family archive.")).toBeVisible();
+  await expect(page.getByText(/photograph and real voice are preserved together in your family archive/i)).toBeVisible();
 });
 
 test("the original voice is recorded, preserved, retrieved, and recovered", async ({
