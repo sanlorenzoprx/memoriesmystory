@@ -267,7 +267,7 @@ export function OriginalsExperience({
           <p className="eyebrow">Now, the voice behind it</p>
           <h1 ref={headingRef} tabIndex={-1}>Tell the story you remember.</h1>
           <div className="story-photo-focus"><img src={photoUrl} alt="The photograph you are remembering" /></div>
-          <p className="capture-lede">Take your time. Speak naturally for up to {phase1Config.entitlements.freeVoiceSecondsPerStory} seconds.</p>
+          <p className="capture-lede">Take your time. Speak naturally for up to {phase1Config.entitlements.freeVoiceSecondsPerStory} seconds. Say the names, places, jokes, and details the photograph cannot carry by itself.</p>
           <div className="capture-actions">
             <button className="primary-action" type="button" onClick={() => void openMicrophone()}>
               Start recording
@@ -337,7 +337,7 @@ export function OriginalsExperience({
           <h1 ref={headingRef} tabIndex={-1}>Your story stays with you.</h1>
           <div className="story-photo-focus compact-story-photo"><img src={photoUrl} alt="The photograph paired with your recording" /></div>
           <audio className="voice-player" controls src={localAudioUrl} />
-          <p className="capture-lede">You can leave this page. We’ll quietly finish preserving your photograph and voice when a connection is available.</p>
+          <p className="capture-lede">Your photograph and voice are together on this device. You can leave this page; we’ll finish protecting both when a connection is available.</p>
         </>
       )}
 
@@ -345,7 +345,7 @@ export function OriginalsExperience({
         <>
           <p className="eyebrow">Photograph and voice protected</p>
           <h1 ref={headingRef} tabIndex={-1}>We have your back.</h1>
-          <p className="capture-lede">Your story is preserved in your family archive.</p>
+          <p className="capture-lede">Your photograph and real voice are preserved together in your family archive, so the story does not have to live in someone’s memory alone.</p>
           <div className="story-photo-focus"><img src={photoUrl} alt="Your privately preserved photograph" /></div>
           {preservedAudioUrl ? (
             <>
@@ -362,7 +362,7 @@ export function OriginalsExperience({
               <p>Your photograph and real voice are safely backed up.</p>
             </div>
           </div>
-          <p className="cross-device-note">Carry this Memory Story securely to your phone, tablet and computer.</p>
+          <p className="cross-device-note">Come back to this Memory Story from your phone, tablet, or computer without starting over.</p>
           <Link className="primary-action" to={`/auth/protect?draftId=${encodeURIComponent(draft.id)}`}>
             Protect this Memory Story
           </Link>
