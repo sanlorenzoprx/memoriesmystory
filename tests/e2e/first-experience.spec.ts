@@ -23,6 +23,16 @@ test("the first screen expresses the approved memory-preservation promise", asyn
   ).toBeVisible();
   await expect(page.getByRole("button", { name: "Capture Your Memories" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Import a photo" })).toBeVisible();
+  await expect(
+    page.getByText(
+      "A photograph preserves what they looked like. Their voice preserves who they were in the moment."
+    )
+  ).toBeVisible();
+  await expect(
+    page.getByText(
+      "You do not have to preserve a lifetime today. Preserve one story before it becomes only a photograph."
+    )
+  ).toBeVisible();
   await expect(page.getByRole("link", { name: "My stories" })).toHaveAttribute("href", "/auth/protect");
   await expect(page.getByText(/Muse|truthful save status/i)).toHaveCount(0);
 });
