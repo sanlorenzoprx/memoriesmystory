@@ -1,5 +1,15 @@
 # Foundation Package Changelog
 
+## Preservation thesis + first-share message — 2026-09-04
+
+- Kept the approved headline **“Old photographs fade. The voices behind them should not.”**
+- Added the landing thesis **“A photograph preserves what they looked like. Their voice preserves who they were in the moment.”**
+- Added the small-action invitation **“You do not have to preserve a lifetime today. Preserve one story before it becomes only a photograph.”**
+- Defined the optional first social-share caption **“A photograph keeps the image. A voice keeps the person in the moment.”**
+- Defined **#MemoriesMyStory** as an optional brand tag, never an unlock requirement.
+- Prohibited automatic insertion of names, family facts, story excerpts, transcript text, Muse output, or other private content into default share text.
+- Preserved private sharing, deliberate audience choice, locked completion copy, durability truth, and Good Karma share-to-unlock behavior.
+
 ## Packet 3 offline continuity revision — 2026-07-16
 
 - Removed cloud photograph durability as a gate to recording the memory story.
