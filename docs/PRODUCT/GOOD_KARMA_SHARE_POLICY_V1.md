@@ -17,6 +17,25 @@
 - Proof that an external platform completed publication is not required in V1.
 - Public sharing is never required; the user may share privately, with family, through social destinations, or publicly.
 
+## First Memory Story share message
+
+After the first Memory Story is durably preserved and the user deliberately chooses a social or native-share destination, the product may offer this default editable caption:
+
+> **A photograph keeps the image. A voice keeps the person in the moment.**
+
+Default optional brand tag:
+
+> **#MemoriesMyStory**
+
+Rules:
+
+- The caption and tag are optional and editable before handoff.
+- Removing or changing either does not affect the qualifying share or unlock.
+- Private/family link sharing may omit the social caption entirely.
+- The application must not automatically insert a person's name, relationship, family facts, story excerpts, photograph description, transcript, Muse-generated material, or other private content into the share text.
+- The deliberate story link/audience choice remains separate from this default copy.
+- The hashtag is a brand/discovery aid, not proof that a share occurred.
+
 ## Qualifying intent events
 
 - native share destination selected, where detectable;
