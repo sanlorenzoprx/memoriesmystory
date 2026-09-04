@@ -29,7 +29,7 @@ export function IdentityExperience() {
       <p className="eyebrow">Protected family archive</p>
       <h1>Your story, wherever you are.</h1>
       <p className="capture-lede">
-        Sign in to protect this Memory Story and continue on your phone, tablet or computer.
+        Sign in to carry this Memory Story beyond this browser and keep the photograph and voice together on your phone, tablet, or computer.
       </p>
       <SignedOut>
         <SignIn routing="hash" />
