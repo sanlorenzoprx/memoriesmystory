@@ -102,6 +102,11 @@ function HomeRoute() {
         <MemoryPhotoMoment />
       </section>
 
+      <section className="preservation-thesis" aria-label="Why the voice matters">
+        <p className="preservation-thesis-line">{firstExperienceContent.preservationThesis}</p>
+        <p className="preservation-thesis-prompt">{firstExperienceContent.preservationPrompt}</p>
+      </section>
+
       <ol className="memory-journey" aria-label="Your Memory Story journey">
         {firstExperienceContent.journey.map((stage, index) => (
           <li className={index === 0 ? "is-current" : undefined} key={stage}>
