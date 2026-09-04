@@ -91,3 +91,14 @@ Observations preserve evidence separately from proposed solutions. Follow `READM
 - **Confidence and contrary evidence:** High for the observed staging paths. A custom Meta development app may later allow bounded tester evidence before public approval, but that path was not completed or claimed here.
 - **Affected experience or invariant:** I-04 continuity across time, I-13 recoverable guidance, I-16 privacy by default, and truthful acceptance evidence.
 - **Related proposal:** Addressed operationally by the Packet 4 preflight's explicit `deferred` state; Facebook remains required by final acceptance.
+
+
+### L-2026-09-04-001 — Image preservation alone does not express the full family value
+
+- **Status:** addressed
+- **Evidence source:** Explicit product-owner direction in conversation on 2026-09-04 during the four-part persuasion review.
+- **Observed fact:** The strongest product sentiment distinguishes what a photograph preserves from what the storyteller's real voice preserves, and the owner wants that distinction to travel from the landing page into the first Memory Story share.
+- **Interpretation:** The product's emotional value becomes clearer when the photograph is framed as the image and the voice as the person's presence in the remembered moment. The action should remain small: preserve one story, not organize a lifetime.
+- **Confidence and contrary evidence:** High confidence from direct owner approval and alignment with the existing Soul and real-voice invariants. The copy must not become morbid pressure or force branded social sharing.
+- **Affected experience or invariant:** First-five-minute loving urgency; I-01 original voice, I-02 photograph + story, I-11 technology in the background, I-16 privacy, I-21 deliberate sharing, I-24 share-to-unlock.
+- **Related proposal:** P-2026-09-04-001.
