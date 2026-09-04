@@ -12,6 +12,12 @@ describe("first experience contract", () => {
     );
     expect(firstExperienceContent.primaryAction).toBe("Capture Your Memories");
     expect(firstExperienceContent.secondaryAction).toBe("Import a photo");
+    expect(firstExperienceContent.preservationThesis).toBe(
+      "A photograph preserves what they looked like. Their voice preserves who they were in the moment."
+    );
+    expect(firstExperienceContent.preservationPrompt).toBe(
+      "You do not have to preserve a lifetime today. Preserve one story before it becomes only a photograph."
+    );
   });
 
   it("keeps the first-screen journey emotional and free of Muse language", () => {
