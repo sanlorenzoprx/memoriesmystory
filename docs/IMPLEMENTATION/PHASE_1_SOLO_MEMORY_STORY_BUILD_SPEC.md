@@ -149,6 +149,9 @@ Required content:
 - Primary action: **Capture a Memory**.
 - Secondary path to sign in for a returning user.
 - Language control that does not block automatic language behavior.
+- A quiet secondary preservation thesis may follow the hero without competing with the first action:
+  - **A photograph preserves what they looked like. Their voice preserves who they were in the moment.**
+  - **You do not have to preserve a lifetime today. Preserve one story before it becomes only a photograph.**
 
 Do not lead with AI, storage architecture, feature lists, pricing, or a multi-step registration form.
 
@@ -196,6 +199,16 @@ Then offer:
 Supporting Good Karma message:
 
 **Share a memory. Preserve another.**
+
+For a deliberate social/native share, offer an editable default caption:
+
+**A photograph keeps the image. A voice keeps the person in the moment.**
+
+Optional brand tag:
+
+**#MemoriesMyStory**
+
+The caption and tag may be edited or removed and never determine unlock eligibility. Do not prefill names, family facts, story excerpts, transcript text, Muse output, or other private content. Private/family sharing may use only the chosen story link.
 
 The story just completed remains preserved even if the user does not share. Sharing unlocks the next free story and may be completed later.
 

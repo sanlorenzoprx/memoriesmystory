@@ -8,10 +8,16 @@ describe("first experience contract", () => {
       "Old photographs fade. The voices behind them should not."
     );
     expect(firstExperienceContent.supporting).toBe(
-      "Capture a photo. Tell its story. Preserve your voice for the people you love."
+      "You do not have to organize a lifetime. Start with one photograph, tell the story it brings back, and keep your real voice with it—so the people you love can receive more than an image."
     );
     expect(firstExperienceContent.primaryAction).toBe("Capture Your Memories");
     expect(firstExperienceContent.secondaryAction).toBe("Import a photo");
+    expect(firstExperienceContent.preservationThesis).toBe(
+      "A photograph preserves what they looked like. Their voice preserves who they were in the moment."
+    );
+    expect(firstExperienceContent.preservationPrompt).toBe(
+      "You do not have to preserve a lifetime today. Preserve one story before it becomes only a photograph."
+    );
   });
 
   it("keeps the first-screen journey emotional and free of Muse language", () => {

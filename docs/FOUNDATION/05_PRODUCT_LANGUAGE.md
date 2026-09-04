@@ -26,6 +26,9 @@
 - “This memory is now part of your family's history.”
 - “Share a memory. Preserve another.”
 - “Saved to your Memory Vault.”
+- “A photograph preserves what they looked like. Their voice preserves who they were in the moment.”
+- “A photograph keeps the image. A voice keeps the person in the moment.”
+- “#MemoriesMyStory” may accompany an optional, editable social-share caption; it is never required for sharing or unlock.
 
 ## Avoid
 

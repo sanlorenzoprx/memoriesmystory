@@ -42,7 +42,17 @@ Show one clear idea:
 
 Supporting thought:
 
-> Capture the photograph. Tell its story. Preserve your voice for the people you love.
+> You do not have to organize a lifetime. Start with one photograph, tell the story it brings back, and keep your real voice with it—so the people you love can receive more than an image.
+
+Secondary landing-page thesis:
+
+> A photograph preserves what they looked like. Their voice preserves who they were in the moment.
+
+Supporting invitation:
+
+> You do not have to preserve a lifetime today. Preserve one story before it becomes only a photograph.
+
+The headline and first action remain primary. The secondary thesis may sit immediately below the hero rather than competing with the first 30-second decision.
 
 Do not lead with AI, features, pricing tiers, storage, or setup.
 
@@ -115,6 +125,16 @@ Explain the free growth promise positively:
 > Share a memory. Preserve another.
 
 A deliberate qualifying share action unlocks the next free Memory Story under the Good Karma Share Policy V1. The first five Memory Stories follow this sequence. Sharing may be private, family-directed, social, or public; public sharing is never assumed.
+
+When the user deliberately chooses a social or native-share destination, the product may offer this editable default caption:
+
+> A photograph keeps the image. A voice keeps the person in the moment.
+
+And this optional brand tag:
+
+> #MemoriesMyStory
+
+The caption and tag are never required for the unlock, may be edited or removed entirely, and must not automatically insert names, family facts, story excerpts, Muse-generated text, or other private content.
 
 Sharing is invited after preservation, never used as a condition for keeping the Memory Story that was just created. A user may leave and return to the share decision later.
 

@@ -352,8 +352,8 @@ export function CaptureExperience() {
           </h1>
           <p className="capture-lede">
             {entryMode === "import"
-              ? "A favorite picture, a face you miss, or a moment your family should always remember."
-              : "Place the photograph on a flat surface in soft, even light. We’ll ask for camera access only when you open it."}
+              ? "Choose the photograph that still brings something back. You do not need perfect dates or the whole family history—one picture is enough to begin."
+              : "Place the photograph on a flat surface in soft, even light. We’ll help with the details, and we’ll ask for camera access only when you open it."}
           </p>
 
           <div className="capture-guide" aria-label="Photograph guidance">
@@ -493,7 +493,7 @@ export function CaptureExperience() {
             </p>
           </div>
           <p className="manual-choice">
-            You know what matters in this photograph. You can keep it even if our check is unsure.
+            A technically imperfect photograph can still hold an irreplaceable story. You decide what is worth keeping.
           </p>
           <div className="capture-actions">
             <button className="primary-action" type="button" onClick={() => void acceptPhoto()}>
