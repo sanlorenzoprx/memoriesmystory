@@ -36,3 +36,28 @@ FROM story_entitlements;
 
 DROP TABLE story_entitlements;
 ALTER TABLE story_entitlements_next RENAME TO story_entitlements;
+
+-- Completion capacity is a persistence invariant, not a UI promise. The BEFORE
+-- trigger blocks a draft->complete transition without available entitlement.
+CREATE TRIGGER memory_stories_complete_requires_entitlement
+BEFORE UPDATE OF status ON memory_stories
+WHEN OLD.status = 'draft' AND NEW.status = 'complete'
+BEGIN
+  SELECT CASE WHEN NOT EXISTS (
+    SELECT 1
+    FROM story_entitlements
+    WHERE user_id = NEW.owner_user_id
+      AND free_stories_completed < free_stories_unlocked
+  ) THEN RAISE(ABORT, 'completion requires an available story entitlement') END;
+END;
+
+-- Consume exactly once because this runs only on the draft->complete transition.
+CREATE TRIGGER memory_stories_complete_consumes_entitlement
+AFTER UPDATE OF status ON memory_stories
+WHEN OLD.status = 'draft' AND NEW.status = 'complete'
+BEGIN
+  UPDATE story_entitlements
+  SET free_stories_completed = free_stories_completed + 1,
+      updated_at = NEW.updated_at
+  WHERE user_id = NEW.owner_user_id;
+END;

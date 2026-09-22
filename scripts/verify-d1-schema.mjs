@@ -47,6 +47,8 @@ try {
     "memory_stories_complete_requires_originals",
     "memory_stories_complete_insert_forbidden",
     "memory_stories_cannot_reopen_complete",
+    "memory_stories_complete_requires_entitlement",
+    "memory_stories_complete_consumes_entitlement",
     "transcript_revisions_append_only",
     "draft_ownership_claim_requires_owner",
     "draft_ownership_claims_immutable"
@@ -152,6 +154,15 @@ try {
         updated_at = '2026-07-16T00:00:01Z', version = 2
     WHERE id = 'story-1';
   `);
+
+  assert.deepEqual(
+    {
+      ...database.prepare(
+        "SELECT free_stories_completed FROM story_entitlements WHERE user_id = 'user-1'"
+      ).get()
+    },
+    { free_stories_completed: 1 }
+  );
 
   assert.throws(
     () => database.exec("UPDATE memory_stories SET status = 'draft' WHERE id = 'story-1';"),
