@@ -3,6 +3,7 @@ import { handleAgentRoute } from "./agent-routes";
 import { handleAuthRoute } from "./auth-routes";
 import { handleDiscoveryRoute } from "./discovery-routes";
 import { handleMediaRoute } from "./media-routes";
+import { handleMuseRoute } from "./muse";
 import {
   handleTranscriptionRoute,
   processTranscriptionBatch
@@ -49,6 +50,9 @@ const handler: ExportedHandler<Env, TranscriptionQueueMessage> = {
 
     const transcriptionResponse = await handleTranscriptionRoute(request, env);
     if (transcriptionResponse) return transcriptionResponse;
+
+    const museResponse = await handleMuseRoute(request, env);
+    if (museResponse) return museResponse;
 
     return env.ASSETS.fetch(request);
   },
