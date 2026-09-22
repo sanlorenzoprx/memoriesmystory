@@ -28,11 +28,29 @@
       "binding": "MEDIA_BUCKET",
       "bucket_name": "memoriesmystory-media"
     }
-  ]
+  ],
+  "ai": {
+    "binding": "AI"
+  },
+  "queues": {
+    "producers": [
+      {
+        "binding": "PROCESSING_QUEUE",
+        "queue": "memoriesmystory-processing"
+      }
+    ],
+    "consumers": [
+      {
+        "queue": "memoriesmystory-processing",
+        "max_batch_size": 1,
+        "max_batch_timeout": 5,
+        "max_retries": 3
+      }
+    ]
+  }
 
-  // The zero D1 ID is an explicit non-deployable placeholder for local Packet 1
-  // migration tests. Replace it only in an authorized staging environment.
-  // The R2 name declares Packet 3's binding contract. Provision and replace
-  // environment-specific resources only through the authorized staging gate.
-  // Queue and AI bindings remain unprovisioned until Packet 5.
+  // The zero D1 ID is an explicit non-deployable placeholder for local migration
+  // tests. Replace it only in an authorized staging environment.
+  // D1/R2/Queue resources are provisioned separately per environment.
+  // AI and Queue binding names are frozen for the Living Memory proof.
 }

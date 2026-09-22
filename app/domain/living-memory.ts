@@ -1,6 +1,7 @@
 import { isDurableOriginal, type MediaAsset } from "./media-asset";
 import type { LivingMemoryId } from "./ids";
 import type { MemoryStory } from "./memory-story";
+import type { StoryContextEntry } from "./living-memory-proof";
 import type { GeneratedArtifact, MemoryStoryFact, TranscriptRevision } from "./truth";
 
 /**
@@ -17,6 +18,8 @@ export type LivingMemory = {
   readonly originalPhoto: MediaAsset;
   readonly originalAudio: MediaAsset;
   readonly currentTranscript: TranscriptRevision | null;
+  readonly storytellerContext: readonly StoryContextEntry[];
+  /** @deprecated Compatibility data only. New product behavior uses storytellerContext. */
   readonly facts: readonly MemoryStoryFact[];
   readonly generatedArtifacts: readonly GeneratedArtifact[];
 };
@@ -40,6 +43,7 @@ export function assembleLivingMemory(input: {
   readonly originalPhoto: MediaAsset;
   readonly originalAudio: MediaAsset;
   readonly currentTranscript?: TranscriptRevision | null;
+  readonly storytellerContext?: readonly StoryContextEntry[];
   readonly facts?: readonly MemoryStoryFact[];
   readonly generatedArtifacts?: readonly GeneratedArtifact[];
 }): LivingMemory {
@@ -61,9 +65,14 @@ export function assembleLivingMemory(input: {
     assertSameLivingMemory(id, currentTranscript.memoryStoryId, "Current transcript");
   }
 
+  const storytellerContext = input.storytellerContext ?? [];
+  for (const context of storytellerContext) {
+    assertSameLivingMemory(id, context.livingMemoryId, "Story context");
+  }
+
   const facts = input.facts ?? [];
   for (const fact of facts) {
-    assertSameLivingMemory(id, fact.memoryStoryId, "Fact");
+    assertSameLivingMemory(id, fact.memoryStoryId, "Legacy fact");
   }
 
   const generatedArtifacts = input.generatedArtifacts ?? [];
@@ -78,6 +87,7 @@ export function assembleLivingMemory(input: {
     originalPhoto: input.originalPhoto,
     originalAudio: input.originalAudio,
     currentTranscript,
+    storytellerContext,
     facts,
     generatedArtifacts
   };

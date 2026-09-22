@@ -45,10 +45,11 @@ export const phase1Config = {
     completedStoryRecoveryDays: null
   },
   ai: {
-    modelConfigVersion: "phase1-unselected-v1",
-    transcriptionModelId: null,
-    museModelId: null,
-    musePromptVersion: "pending-packet-5"
+    modelConfigVersion: "living-memory-proof-v1",
+    transcriptionModelId: "@cf/openai/whisper-large-v3-turbo",
+    museModelId: "@cf/meta/llama-3.1-8b-instruct-fast",
+    musePromptVersion: "remembering-companion-v1",
+    maxMuseQuestionsPerProof: 1
   },
   sharing: {
     defaultStoryVisibility: "private",

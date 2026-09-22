@@ -17,6 +17,7 @@ export type LivingMemoryId = MemoryStoryId;
 export type MediaAssetId = Brand<string, "MediaAssetId">;
 export type TranscriptRevisionId = Brand<string, "TranscriptRevisionId">;
 export type GeneratedArtifactId = Brand<string, "GeneratedArtifactId">;
+export type StoryContextId = Brand<string, "StoryContextId">;
 export type FactId = Brand<string, "FactId">;
 export type ShareId = Brand<string, "ShareId">;
 export type ShareArtifactId = Brand<string, "ShareArtifactId">;
