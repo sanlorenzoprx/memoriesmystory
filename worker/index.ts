@@ -3,11 +3,18 @@ import { handleAgentRoute } from "./agent-routes";
 import { handleAuthRoute } from "./auth-routes";
 import { handleDiscoveryRoute } from "./discovery-routes";
 import { handleMediaRoute } from "./media-routes";
+import {
+  handleTranscriptionRoute,
+  processTranscriptionBatch
+} from "./transcription";
+import type { TranscriptionQueueMessage } from "../app/domain";
 
 export interface Env {
   ASSETS: Fetcher;
   DB: D1Database;
   MEDIA_BUCKET: R2Bucket;
+  AI: Ai;
+  PROCESSING_QUEUE: Queue<TranscriptionQueueMessage>;
   APP_NAME?: string;
   PUBLIC_BRAND_NAME?: string;
   SESSION_SECRET?: string;
@@ -16,7 +23,7 @@ export interface Env {
   CLERK_AUTHORIZED_PARTIES?: string;
 }
 
-const handler: ExportedHandler<Env> = {
+const handler: ExportedHandler<Env, TranscriptionQueueMessage> = {
   async fetch(request, env) {
     const url = new URL(request.url);
 
@@ -40,7 +47,14 @@ const handler: ExportedHandler<Env> = {
     const mediaResponse = await handleMediaRoute(request, env);
     if (mediaResponse) return mediaResponse;
 
+    const transcriptionResponse = await handleTranscriptionRoute(request, env);
+    if (transcriptionResponse) return transcriptionResponse;
+
     return env.ASSETS.fetch(request);
+  },
+
+  async queue(batch, env) {
+    await processTranscriptionBatch(batch, env);
   }
 };
 
