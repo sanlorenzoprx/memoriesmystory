@@ -7,7 +7,7 @@
 
 1. Build a complete vertical slice before broad feature expansion.
 2. Preserve immutable originals; store enhancements as derived assets with provenance.
-3. Model uncertain and disputed human facts explicitly.
+3. Preserve source, attribution, and the storyteller's own uncertainty explicitly; never turn the data model into a truth-adjudication system.
 4. Make durable-storage confirmation observable and testable.
 5. Design every workflow for interruption, retry, and unreliable connectivity.
 6. Keep entitlement values in centralized configuration.

@@ -30,13 +30,13 @@ The precedence is: original source → attributed human correction/contribution 
 
 The system must never silently rewrite, reconcile, sanitize, or replace what a person remembers.
 
-### I-06. Truth state remains explicit
+### I-06. The storyteller owns the meaning of the memory
 
-Extracted details must support at least confirmed, approximate, unknown, disputed, and AI-suggested-but-unconfirmed. Suggestions remain suggestions until accepted by an authorized person.
+Memories: My Story preserves personal recollection; it does not adjudicate historical truth. Muse and the platform must never label a storyteller's memory true, false, credible, unreliable, corrected, or disputed. Who, what, when, and where are storyteller-provided context, not system verdicts. The storyteller may state, edit, approximate, leave unknown, or omit that context. A system suggestion remains only a prompt until the storyteller chooses what belongs with their story.
 
-### I-07. Different recollections remain visible
+### I-07. Different recollections remain separately attributed
 
-When contributors disagree, the product preserves attribution and difference. AI must not collapse their contributions into a false consensus.
+If another person later remembers the same photograph or event differently, their recollection is preserved as their own contribution. The product must not merge, rank, reconcile, or choose between personal recollections. Difference is part of the family story, not an error for AI to resolve.
 
 ## Preservation invariants
 

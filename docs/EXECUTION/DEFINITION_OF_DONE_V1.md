@@ -34,7 +34,7 @@
 ### AI and source grounding
 
 - Muse and generated artifacts are traceable to authorized Living Memory sources.
-- AI-suggested facts remain unconfirmed until a person accepts them.
+- Muse suggestions remain prompts until the storyteller adopts, edits, or dismisses them. Acceptance means “this belongs with my story,” not that the platform verified historical truth.
 - No generated output is presented as original testimony.
 - Failure of transcription or Muse never destroys or invalidates durable original media.
 

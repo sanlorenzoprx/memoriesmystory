@@ -20,7 +20,7 @@ If another person later remembers the same photograph differently, their recolle
 Muse may help organize what was actually said and may ask for missing context, but it must never invent testimony or silently reconcile people.
 
 For the first solo Living Memory proof, who / what / when / where are **story context fields**, not a mechanism for judging competing family accounts.
-A storyteller may confirm, edit, approximate, leave unknown, or skip context.
+A storyteller may confirm, edit, approximate, leave unknown, or skip context. Here, **confirm** means “this is what I want attached to my story,” never “the system verified this as historical fact.”
 
 ## Week-one non-goals
 

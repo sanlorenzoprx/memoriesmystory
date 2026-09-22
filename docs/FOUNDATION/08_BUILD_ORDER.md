@@ -19,7 +19,7 @@ Remove mail-in digitization or other non-software-primary positioning from the m
 
 ## Phase 2 — Make Living Memory a first-class object
 
-Reconcile current schemas and domain code with the Living Memory concept. Preserve existing Memory Story persistence, original-media, truth-state, receipt, and recovery architecture beneath the aggregate until a safe migration is justified.
+Reconcile current schemas and domain code with the Living Memory concept. Preserve existing Memory Story persistence, original-media, context/provenance, receipt, and recovery architecture beneath the aggregate until a safe migration is justified. Legacy truth-state fields are compatibility storage only and must not surface as judgments of a storyteller's memory.
 
 **Acceptance:** code exports a first-class Living Memory aggregate and compatibility mapping.
 
@@ -29,7 +29,7 @@ Implement **Photo → Voice → Muse → Preserved → Playback → Invite/Share
 
 ## Phase 4 — Source authenticity
 
-Verify original audio, original image, transcript lineage, attribution, provenance, truth state, and revision history. Generated derivatives remain separate from originals.
+Verify original audio, original image, transcript lineage, storyteller-owned context, attribution, provenance, and revision history. Generated derivatives remain separate from originals; no product layer adjudicates the truth of a personal recollection.
 
 ## Phase 5 — Muse
 

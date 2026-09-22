@@ -101,7 +101,7 @@ Behind the experience, the system can preserve and structure:
 - place;
 - date or approximate date;
 - story context;
-- truth states;
+- storyteller-owned context, uncertainty, attribution, and provenance;
 - provenance and receipts.
 
 The user should not have to understand this machinery.

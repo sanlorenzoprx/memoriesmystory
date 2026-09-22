@@ -43,7 +43,7 @@ The technology should disappear behind the human act of remembering. A person sh
 
 Within the first few minutes, a person should experience one ordinary photograph becoming materially more valuable to their family.
 
-They choose a photograph. They tell its story in their own voice. Muse may ask one gentle, useful question. Memories: My Story quietly preserves the source media, transcript lineage, people, place, time, relationships, truth state, and provenance. The person then sees and hears the result.
+They choose a photograph. They tell its story in their own voice. Muse may ask one gentle, useful question to help more of their own memory surface. Memories: My Story quietly preserves the source media, transcript lineage, storyteller-provided people, place, time, relationships, attribution, and provenance. The person then sees and hears the result.
 
 Before, they had a photograph.
 

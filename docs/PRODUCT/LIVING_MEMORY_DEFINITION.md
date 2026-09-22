@@ -7,7 +7,7 @@
 
 A **Living Memory** is the canonical unit of value in Memories: My Story.
 
-It is a source photograph or other captured moment preserved together with the authentic human voice, story, context, people, place, time, relationships, family contributions, provenance, truth state, and resurfacing potential that give the source meaning.
+It is a source photograph or other captured moment preserved together with the authentic human voice, story, storyteller-provided context, people, place, time, relationships, family contributions, provenance, and resurfacing potential that give the source meaning.
 
 A Living Memory is not merely a media bundle. It is an attributable, durable, enrichable record of how people remember a moment.
 
@@ -23,7 +23,7 @@ A Living Memory may contain:
 - place;
 - date or approximate date;
 - event and themes;
-- confirmed, approximate, unknown, disputed, and suggested truth states;
+- storyteller-stated, approximate, unknown, or omitted context, with different people's recollections preserved separately and attributed;
 - family contributions and alternate recollections;
 - related Living Memories;
 - Chapter membership;

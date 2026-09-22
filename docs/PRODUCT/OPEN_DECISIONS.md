@@ -8,7 +8,7 @@ This is the only place where unresolved product direction should be treated as o
 | Final “Memory Circle” brand name | Approved working term, not final brand decision. | User comprehension and emotional-language testing. |
 | Paid and premium limits | Capability model exists; exact limits are configurable. | Cost per story/circle/export and customer interviews. |
 | Cloud transcription fallback provider | Provider boundary is appropriate; specific fallback is not fixed here. | English/Spanish accuracy, accents, latency, cost, and privacy review. |
-| Public-feed launch depth | The explicitly public global feed is included in the first release; its depth and ranking are open, but explicit publication, reporting, moderation, and removal are not. | Moderation capacity, reporting/removal tests, privacy review. |
+| Public-feed launch depth | Outside the one-week Living Memory proof. If pursued later, explicit publication, reporting, moderation, and removal remain required. | Moderation capacity, reporting/removal tests, privacy review, and evidence that a public feed serves preservation. |
 | Direct social publishing coverage | Supported handoff is acceptable where direct publishing is unavailable. | Current platform capabilities and account-type limitations. |
 | Legal language | Versioned agreement system is required; final wording is not written here. | Legal review after concrete flows exist. |
 | Video retention for remote circles | Configurable by entitlement. | Storage cost, family value, consent, and operational reliability. |
@@ -16,4 +16,4 @@ This is the only place where unresolved product direction should be treated as o
 
 ## Not open
 
-Original voice primacy, immutable originals, attribution, truth states, preservation of disagreement, deliberate sharing, the first-five share-to-unlock sequence, locked completion copy, archive portability, accessibility, Invisible AI, and the Cloudflare-first web-app direction are not experiment variables.
+Original voice primacy, immutable originals, attribution, Storyteller Sovereignty, separately attributed recollections, deliberate voluntary sharing, no share-to-unlock reward, locked completion copy, archive portability, accessibility, Invisible AI, and the Cloudflare-first web-app direction are not experiment variables.

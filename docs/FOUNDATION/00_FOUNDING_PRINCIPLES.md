@@ -42,7 +42,7 @@ Original photographs, recordings, testimony, and attributed human corrections re
 
 ### 4. Honest memory includes uncertainty and disagreement
 
-People remember differently. A humane archive preserves confirmed, approximate, unknown, disputed, and unconfirmed details without manufacturing a single artificial truth.
+People remember differently. A humane archive preserves each person's recollection, including uncertainty, approximation, omission, and difference, without grading memories or manufacturing a single authoritative version.
 
 ### 5. Muse helps people remember
 
