@@ -1,6 +1,7 @@
 import { appIdentity } from "../config/app-identity";
 import { handleAgentRoute } from "./agent-routes";
 import { handleAuthRoute } from "./auth-routes";
+import { handleCompletionRoute } from "./completion";
 import { handleDiscoveryRoute } from "./discovery-routes";
 import { handleMediaRoute } from "./media-routes";
 import { handleMuseRoute } from "./muse";
@@ -54,6 +55,9 @@ const handler: ExportedHandler<Env, TranscriptionQueueMessage> = {
 
     const museResponse = await handleMuseRoute(request, env);
     if (museResponse) return museResponse;
+
+    const completionResponse = await handleCompletionRoute(request, env);
+    if (completionResponse) return completionResponse;
 
     return env.ASSETS.fetch(request);
   },
