@@ -103,7 +103,7 @@ Legacy truth-state storage may remain but must not leak into user-facing judgmen
 
 **Owns:** isolated staging readiness, synthetic fixtures, live-provider receipts, device/browser evidence, rollback proof, final human comprehension session.
 
-**Day 1:** verify D1, R2, AI, Queue, auth, staging origin, and redacted logging. Report blockers immediately.
+**Day 1:** verify D1, R2, AI, Queue, ElevenLabs transcription secret/configuration, auth, staging origin, and redacted logging. Report blockers immediately.
 
 **Day 2:** capture English + Spanish/mixed transcription/Muse receipts using non-sensitive fixtures.
 

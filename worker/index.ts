@@ -16,6 +16,7 @@ export interface Env {
   MEDIA_BUCKET: R2Bucket;
   AI: Ai;
   PROCESSING_QUEUE: Queue<TranscriptionQueueMessage>;
+  ELEVENLABS_API_KEY?: string;
   APP_NAME?: string;
   PUBLIC_BRAND_NAME?: string;
   SESSION_SECRET?: string;

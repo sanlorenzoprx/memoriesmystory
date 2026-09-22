@@ -57,6 +57,7 @@ Approved dated decision records explain intentional amendments to locked documen
 - Existing `MemoryStory` code/database names are compatibility infrastructure beneath the Living Memory aggregate until a migration has real product value.
 - Original photographs, recordings, and attributed human testimony remain canonical.
 - Muse helps people remember and never silently manufactures testimony.
+- ElevenLabs Scribe v2 is the first transcription provider, behind a narrow replaceable provider boundary; Muse model invocation is likewise isolated from product behavior.
 - Different recollections are preserved, not reconciled by AI into false certainty.
 - Originals are never overwritten.
 - Privacy-first means private by default and creator-controlled, not private-only.

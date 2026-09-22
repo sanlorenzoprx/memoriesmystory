@@ -6,7 +6,7 @@ import {
   type SQLInputValue,
   type StatementSync
 } from "node:sqlite";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { TranscriptionQueueMessage } from "../../app/domain";
 import { createAppSession } from "../../worker/auth-session";
@@ -155,7 +155,7 @@ function processRequest(cookie: string): Request {
 describe("Living Memory transcription processing", () => {
   let d1: TestD1;
   let queue: TestQueue;
-  let aiCalls: number;
+  let transcriptionCalls: number;
   let env: TranscriptionEnv;
   let cookie: string;
 
@@ -163,24 +163,30 @@ describe("Living Memory transcription processing", () => {
     d1 = new TestD1();
     seed(d1);
     queue = new TestQueue();
-    aiCalls = 0;
+    transcriptionCalls = 0;
+    vi.stubGlobal("fetch", vi.fn(async () => {
+      transcriptionCalls += 1;
+      return Response.json({
+        text: "Abuela made arroz con gandules every Sunday.",
+        language_code: "en",
+        language_probability: 0.99
+      });
+    }));
     env = {
       DB: d1 as unknown as D1Database,
       MEDIA_BUCKET: new TestR2(Uint8Array.from([0x1a, 0x45, 0xdf, 0xa3])) as unknown as R2Bucket,
       PROCESSING_QUEUE: queue as unknown as Queue<TranscriptionQueueMessage>,
-      AI: {
-        run: async () => {
-          aiCalls += 1;
-          return {
-            text: "Abuela made arroz con gandules every Sunday.",
-            transcription_info: { language: "en" }
-          };
-        }
-      } as unknown as Ai,
+      ELEVENLABS_API_KEY: "test-elevenlabs-key",
       SESSION_SECRET: sessionSecret
     };
     cookie = cookieHeader((await createAppSession(env, userId)).cookie);
   });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
+  });
+
   it("enqueues once and duplicate delivery converges to one transcript", async () => {
     const first = await handleTranscriptionRoute(processRequest(cookie), env);
     expect(first?.status).toBe(202);
@@ -196,7 +202,7 @@ describe("Living Memory transcription processing", () => {
     const replayTranscriptId = await processTranscriptionMessage(env, message);
 
     expect(replayTranscriptId).toBe(firstTranscriptId);
-    expect(aiCalls).toBe(1);
+    expect(transcriptionCalls).toBe(1);
     expect(
       d1.database.prepare("SELECT count(*) AS count FROM transcript_revisions").get()
     ).toEqual({ count: 1 });
@@ -217,13 +223,12 @@ describe("Living Memory transcription processing", () => {
     expect(body.transcript.sourceAudioAssetId).toBe("asset_audio_transcription");
   });
 
-  it("keeps durable originals intact when Workers AI fails and marks the job retryable", async () => {
+  it("keeps durable originals intact when ElevenLabs fails and marks the job retryable", async () => {
     await handleTranscriptionRoute(processRequest(cookie), env);
     const body = queue.bodies[0]!;
-    env = {
-      ...env,
-      AI: { run: async () => { throw new Error("synthetic Workers AI outage"); } } as unknown as Ai
-    };
+    vi.stubGlobal("fetch", vi.fn(async () => {
+      throw new Error("synthetic ElevenLabs outage");
+    }));
 
     const retry = vi.fn();
     const ack = vi.fn();

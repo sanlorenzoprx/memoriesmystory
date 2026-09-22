@@ -45,8 +45,10 @@ export const phase1Config = {
     completedStoryRecoveryDays: null
   },
   ai: {
-    modelConfigVersion: "living-memory-proof-v1",
-    transcriptionModelId: "@cf/openai/whisper-large-v3-turbo",
+    modelConfigVersion: "living-memory-proof-v2",
+    transcriptionProvider: "elevenlabs",
+    transcriptionModelId: "scribe_v2",
+    transcriptionEndpoint: "https://api.elevenlabs.io/v1/speech-to-text",
     museModelId: "@cf/meta/llama-3.1-8b-instruct-fast",
     musePromptVersion: "remembering-companion-v1",
     maxMuseQuestionsPerProof: 1

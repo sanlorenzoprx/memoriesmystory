@@ -27,10 +27,11 @@ describe("central Phase 1 configuration", () => {
     expect(phase1Config.sharing.includePrivateArchiveMetadataByDefault).toBe(false);
   });
 
-  it("does not invent privacy-sensitive retention or provider values", () => {
+  it("keeps retention unresolved while pinning the approved launch transcription provider", () => {
     expect(phase1Config.retention.policyStatus).toBe("requires_legal_approval");
     expect(phase1Config.retention.guestDraftRetentionDays).toBeNull();
-    expect(phase1Config.ai.transcriptionModelId).toBeNull();
+    expect(phase1Config.ai.transcriptionProvider).toBe("elevenlabs");
+    expect(phase1Config.ai.transcriptionModelId).toBe("scribe_v2");
     expect(phase1Config.sharing.tokenLifetimeDays).toBeNull();
   });
 

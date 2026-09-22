@@ -14,11 +14,14 @@ import {
   LivingMemoryPersistenceError,
   type LivingMemoryPersistenceEnv
 } from "./living-memory-persistence";
+import {
+  createMuseTextProvider,
+  type MuseProviderEnv
+} from "./providers/muse-provider";
 
 export type MuseEnv = AuthSessionEnv &
-  LivingMemoryPersistenceEnv & {
-    readonly AI: Ai;
-  };
+  LivingMemoryPersistenceEnv &
+  MuseProviderEnv;
 
 type TranscriptRow = {
   id: string;
@@ -119,11 +122,6 @@ function normalizeQuestion(candidate: string, locale: string): string {
   return sentence;
 }
 
-function aiResponseText(result: unknown): string {
-  if (!result || typeof result !== "object") return "";
-  const response = (result as Record<string, unknown>).response;
-  return typeof response === "string" ? response : "";
-}
 async function transcriptFor(
   env: MuseEnv,
   livingMemoryId: string
@@ -197,22 +195,15 @@ async function generateMuseQuestion(
 
   if (transcript.text.trim()) {
     try {
-      const result = await env.AI.run(phase1Config.ai.museModelId, {
-        messages: [
-          {
-            role: "system",
-            content:
-              "You are Muse, a quiet remembering companion. Ask exactly one warm question that may help the storyteller remember more of their own experience. Use only what the storyteller said below as context. Never fact-check, correct, challenge, verify, judge, rank, diagnose, or introduce facts. Do not say the memory is true, false, accurate, disputed, or unreliable. Ask in the storyteller's language. Output only the question, with no preamble."
-          },
-          {
-            role: "user",
-            content: `Storyteller transcript:\n${transcript.text}`
-          }
-        ],
-        max_tokens: 80,
+      const provider = createMuseTextProvider(env);
+      const result = await provider.generate({
+        system:
+          "You are Muse, a quiet remembering companion. Ask exactly one warm question that may help the storyteller remember more of their own experience. Use only what the storyteller said below as context. Never fact-check, correct, challenge, verify, judge, rank, diagnose, or introduce facts. Do not say the memory is true, false, accurate, disputed, or unreliable. Ask in the storyteller's language. Output only the question, with no preamble.",
+        user: `Storyteller transcript:\n${transcript.text}`,
+        maxTokens: 80,
         temperature: 0.4
       });
-      question = normalizeQuestion(aiResponseText(result), transcript.locale);
+      question = normalizeQuestion(result, transcript.locale);
     } catch {
       modelConfigVersion = "deterministic-fallback-v1";
     }

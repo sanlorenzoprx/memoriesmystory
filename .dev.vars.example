@@ -18,5 +18,5 @@ SHARE_TOKEN_PEPPER=
 # Required before protected public/auth endpoint staging acceptance
 TURNSTILE_SECRET_KEY=
 
-# Conditional; leave blank until accuracy evidence selects a fallback provider
-TRANSCRIPTION_FALLBACK_API_KEY=
+# Required for the selected launch transcription provider (ElevenLabs Scribe v2)
+ELEVENLABS_API_KEY=

@@ -43,7 +43,7 @@ Rejects broad refactors unless required by the product proof.
 
 ### Agent A1 — Transcription Pipeline
 
-Owns Queue + Workers AI transcription, retries/idempotency, transcript persistence, language handling, and provider-failure behavior.
+Owns Queue + ElevenLabs Scribe v2 transcription behind the provider boundary, retries/idempotency, transcript persistence, language handling, and provider-failure behavior.
 Must preserve the original audio regardless of AI success.
 Delivers English plus Spanish/mixed-language staging evidence.
 ### Agent A2 — Muse + Story Context
@@ -121,7 +121,7 @@ Do not build an analytics platform this week.
 ### Day 1 — Reconcile, freeze, unblock
 
 A0 rebases the execution branch on current origin/main, freezes interfaces, and maps existing Packet 1–4 code to the proof loop.
-A5 provisions/verifies isolated staging D1, R2, AI, and Queue bindings and documents missing secrets/configuration.
+A5 provisions/verifies isolated staging D1, R2, AI, Queue, and ElevenLabs transcription configuration and documents missing secrets/configuration.
 A1 builds the queue/STT adapter behind the frozen transcript contract.
 A2 builds Muse/story-context logic against fixtures and source references.
 A3 builds the review/finalization UI shell against contract-valid derivative fixtures.

@@ -14,11 +14,15 @@ import {
   LivingMemoryPersistenceError,
   type LivingMemoryPersistenceEnv
 } from "./living-memory-persistence";
+import {
+  createTranscriptionProvider,
+  type TranscriptionProviderEnv
+} from "./providers/transcription-provider";
 
 export type TranscriptionEnv = AuthSessionEnv &
-  LivingMemoryPersistenceEnv & {
+  LivingMemoryPersistenceEnv &
+  TranscriptionProviderEnv & {
     readonly MEDIA_BUCKET: R2Bucket;
-    readonly AI: Ai;
     readonly PROCESSING_QUEUE: Queue<TranscriptionQueueMessage>;
   };
 
@@ -89,27 +93,19 @@ async function sha256(value: string): Promise<string> {
   return [...digest].map((byte) => byte.toString(16).padStart(2, "0")).join("");
 }
 
-function bytesToBase64(bytes: Uint8Array): string {
-  let binary = "";
-  const chunkSize = 0x8000;
-  for (let offset = 0; offset < bytes.length; offset += chunkSize) {
-    binary += String.fromCharCode(...bytes.subarray(offset, offset + chunkSize));
-  }
-  return btoa(binary);
-}
-
-function aiText(result: unknown): { text: string; locale: string | null } {
-  if (!result || typeof result !== "object") {
-    throw new Error("Workers AI returned no transcription result.");
-  }
-  const record = result as Record<string, unknown>;
-  const text = typeof record.text === "string" ? record.text.trim() : "";
-  const info = record.transcription_info;
-  const locale =
-    info && typeof info === "object" && typeof (info as Record<string, unknown>).language === "string"
-      ? String((info as Record<string, unknown>).language)
-      : null;
-  return { text, locale };
+function audioFileName(contentType: string): string {
+  const extension = contentType.includes("webm")
+    ? "webm"
+    : contentType.includes("mp4")
+      ? "mp4"
+      : contentType.includes("mpeg")
+        ? "mp3"
+        : contentType.includes("wav")
+          ? "wav"
+          : contentType.includes("ogg")
+            ? "ogg"
+            : "bin";
+  return `memory-audio.${extension}`;
 }
 async function latestOperation(
   env: TranscriptionEnv,
@@ -344,13 +340,12 @@ export async function processTranscriptionMessage(
   if (!audio) throw new Error("The durable original audio object is temporarily unavailable.");
   const bytes = new Uint8Array(await audio.arrayBuffer());
 
-  const result = await env.AI.run(phase1Config.ai.transcriptionModelId, {
-    audio: bytesToBase64(bytes),
-    task: "transcribe",
-    vad_filter: true,
-    condition_on_previous_text: false
+  const provider = createTranscriptionProvider(env);
+  const transcription = await provider.transcribe({
+    audio: bytes,
+    contentType: foundation.audioContentType,
+    fileName: audioFileName(foundation.audioContentType)
   });
-  const transcription = aiText(result);
   const now = new Date().toISOString();
   const transcriptHash = await sha256(String(message.idempotencyKey));
   const transcriptId = `transcript_${transcriptHash.slice(0, 48)}`;
