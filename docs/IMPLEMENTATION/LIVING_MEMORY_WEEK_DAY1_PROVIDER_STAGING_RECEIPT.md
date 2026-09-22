@@ -81,3 +81,21 @@ Continue product implementation without waiting on external credentials:
 - set `MEMORIES_STAGING_QUEUE_NAME=memoriesmystory-processing-staging`;
 - rerun `npm run preflight:living-memory:staging`;
 - only then run live English and Spanish/mixed transcription evidence.
+
+
+## Updated acceptance status after customer-journey integration
+
+Local staging configuration now contains, without committing values:
+- a cryptographically random `SHARE_TOKEN_PEPPER`;
+- `MEMORIES_STAGING_QUEUE_NAME=memoriesmystory-processing-staging`.
+
+The redacted Living Memory preflight now reports exactly one missing configuration value:
+- `ELEVENLABS_API_KEY`.
+
+Important distinction:
+- the Queue **name is configured**, but the Queue is **not yet proven provisioned**;
+- the existing Cloudflare staging API token previously returned authentication error 10000 / invalid access token 9109;
+- therefore live Queue provisioning/deployment remains blocked until that Cloudflare token is refreshed;
+- the preflight is configuration-shape evidence only and does not replace live provider/Queue receipts.
+
+The current integration checkpoint also includes the human journey through processing, Muse, storyteller-owned context, durable completion/playback, keep-private, share preview, and bounded family sharing.

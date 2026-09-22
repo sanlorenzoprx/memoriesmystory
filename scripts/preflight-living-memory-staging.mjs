@@ -10,6 +10,11 @@ const checks = [
     validate: (value) => value.length >= 20
   },
   {
+    name: "SHARE_TOKEN_PEPPER",
+    purpose: "private family-share token protection",
+    validate: (value) => value.length >= 32
+  },
+  {
     name: "MEMORIES_STAGING_QUEUE_NAME",
     purpose: "isolated staging processing queue",
     validate: (value) => /^memoriesmystory[-a-z0-9]*staging[-a-z0-9]*$/.test(value)
