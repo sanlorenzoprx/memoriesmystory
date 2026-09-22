@@ -1,27 +1,133 @@
-{
-  "schema_version": "memoriesmystory_living_memory_queue_v3",
-  "project": "memoriesmystory",
-  "campaign": "one-week-living-memory-product-proof",
-  "active_task_id": "week-one-living-memory-proof",
-  "tasks": [
-    { "id": "packet-1", "status": "completed", "depends_on": [], "title": "Existing domain, configuration, and persistence contracts" },
-    { "id": "packet-2", "status": "completed", "depends_on": ["packet-1"], "title": "Existing local-first capture and recovery" },
-    { "id": "packet-3", "status": "completed", "depends_on": ["packet-2"], "title": "Existing original media durability" },
-    { "id": "packet-4", "status": "paused", "depends_on": ["packet-3"], "title": "Account binding/recovery; email + Google are sufficient for week-one proof, Facebook remains deferred" },
-    { "id": "living-memory-ratification", "status": "completed", "depends_on": ["packet-3"], "title": "Living Memory doctrine, voluntary sharing, storyteller sovereignty, domain overlay, and execution contracts" },
-    { "id": "week-one-living-memory-proof", "status": "active", "depends_on": ["packet-3", "living-memory-ratification"], "title": "Photo → Voice → Muse → Story Context → Preserve → Playback → Optional Family Share" },
-    { "id": "landing-positioning", "status": "paused", "depends_on": ["living-memory-ratification"], "title": "Landing positioning deferred until core product proof is complete" },
-    { "id": "family-archive", "status": "pending", "depends_on": ["week-one-living-memory-proof"], "title": "People, relationships, Chapters, and Family Archive" },
-    { "id": "family-contributions", "status": "pending", "depends_on": ["family-archive"], "title": "Separately attributed family recollections and contributions" },
-    { "id": "retrieval-timeline", "status": "pending", "depends_on": ["family-archive", "family-contributions"], "title": "Privacy-scoped retrieval, timeline, people/place discovery" },
-    { "id": "memory-circle", "status": "pending", "depends_on": ["family-contributions"], "title": "Collaborative remembrance around a pinned Living Memory" },
-    { "id": "derivative-storytelling", "status": "pending", "depends_on": ["retrieval-timeline"], "title": "Source-grounded Reels, Chapters, Life Stories, and books" },
-    { "id": "legacy-infrastructure", "status": "pending", "depends_on": ["family-archive"], "title": "Export, stewardship, inheritance, migration, and archival durability" },
-    { "id": "growth-engine", "status": "pending", "depends_on": ["week-one-living-memory-proof"], "title": "Measure and improve the voluntary Living Memory Loop" }
-  ],
-  "completion_contract": "docs/EXECUTION/DEFINITION_OF_DONE_V1.md",
-  "week_one_roadmap": "docs/EXECUTION/ONE_WEEK_LIVING_MEMORY_PROOF_ROADMAP.md",
-  "week_one_task_graph": "docs/EXECUTION/ONE_WEEK_LIVING_MEMORY_TASK_GRAPH.json",
-  "storyteller_sovereignty": "docs/PRODUCT/STORYTELLER_SOVEREIGNTY.md",
-  "historical_packet_specification": "docs/IMPLEMENTATION/PHASE_1_SOLO_MEMORY_STORY_BUILD_SPEC.md"
+﻿{
+    "schema_version":  "memoriesmystory_living_memory_queue_v3",
+    "project":  "memoriesmystory",
+    "campaign":  "one-week-living-memory-product-proof",
+    "active_task_id":  "week-one-living-memory-proof",
+    "tasks":  [
+                  {
+                      "id":  "packet-1",
+                      "status":  "completed",
+                      "depends_on":  [
+
+                                     ],
+                      "title":  "Existing domain, configuration, and persistence contracts"
+                  },
+                  {
+                      "id":  "packet-2",
+                      "status":  "completed",
+                      "depends_on":  [
+                                         "packet-1"
+                                     ],
+                      "title":  "Existing local-first capture and recovery"
+                  },
+                  {
+                      "id":  "packet-3",
+                      "status":  "completed",
+                      "depends_on":  [
+                                         "packet-2"
+                                     ],
+                      "title":  "Existing original media durability"
+                  },
+                  {
+                      "id":  "packet-4",
+                      "status":  "paused",
+                      "depends_on":  [
+                                         "packet-3"
+                                     ],
+                      "title":  "Account binding/recovery; email + Google are sufficient for week-one proof, Facebook remains deferred"
+                  },
+                  {
+                      "id":  "living-memory-ratification",
+                      "status":  "completed",
+                      "depends_on":  [
+                                         "packet-3"
+                                     ],
+                      "title":  "Living Memory doctrine, voluntary sharing, storyteller sovereignty, domain overlay, and execution contracts"
+                  },
+                  {
+                      "id":  "week-one-living-memory-proof",
+                      "status":  "active",
+                      "depends_on":  [
+                                         "packet-3",
+                                         "living-memory-ratification"
+                                     ],
+                      "title":  "Photo â†’ Voice â†’ Muse â†’ Story Context â†’ Preserve â†’ Playback â†’ Optional Family Share"
+                  },
+                  {
+                      "id":  "landing-positioning",
+                      "status":  "paused",
+                      "depends_on":  [
+                                         "living-memory-ratification"
+                                     ],
+                      "title":  "Landing positioning deferred until core product proof is complete"
+                  },
+                  {
+                      "id":  "family-archive",
+                      "status":  "pending",
+                      "depends_on":  [
+                                         "week-one-living-memory-proof"
+                                     ],
+                      "title":  "People, relationships, Chapters, and Family Archive"
+                  },
+                  {
+                      "id":  "family-contributions",
+                      "status":  "pending",
+                      "depends_on":  [
+                                         "family-archive"
+                                     ],
+                      "title":  "Separately attributed family recollections and contributions"
+                  },
+                  {
+                      "id":  "retrieval-timeline",
+                      "status":  "pending",
+                      "depends_on":  [
+                                         "family-archive",
+                                         "family-contributions"
+                                     ],
+                      "title":  "Privacy-scoped retrieval, timeline, people/place discovery"
+                  },
+                  {
+                      "id":  "memory-circle",
+                      "status":  "pending",
+                      "depends_on":  [
+                                         "family-contributions"
+                                     ],
+                      "title":  "Collaborative remembrance around a pinned Living Memory"
+                  },
+                  {
+                      "id":  "derivative-storytelling",
+                      "status":  "pending",
+                      "depends_on":  [
+                                         "retrieval-timeline"
+                                     ],
+                      "title":  "Source-grounded Reels, Chapters, Life Stories, and books"
+                  },
+                  {
+                      "id":  "legacy-infrastructure",
+                      "status":  "pending",
+                      "depends_on":  [
+                                         "family-archive"
+                                     ],
+                      "title":  "Export, stewardship, inheritance, migration, and archival durability"
+                  },
+                  {
+                      "id":  "growth-engine",
+                      "status":  "pending",
+                      "depends_on":  [
+                                         "week-one-living-memory-proof"
+                                     ],
+                      "title":  "Measure and improve the voluntary Living Memory Loop"
+                  }
+              ],
+    "completion_contract":  "docs/EXECUTION/DEFINITION_OF_DONE_V1.md",
+    "week_one_roadmap":  "docs/EXECUTION/ONE_WEEK_LIVING_MEMORY_PROOF_ROADMAP.md",
+    "week_one_task_graph":  "docs/EXECUTION/ONE_WEEK_LIVING_MEMORY_TASK_GRAPH.json",
+    "storyteller_sovereignty":  "docs/PRODUCT/STORYTELLER_SOVEREIGNTY.md",
+    "historical_packet_specification":  "docs/IMPLEMENTATION/PHASE_1_SOLO_MEMORY_STORY_BUILD_SPEC.md",
+    "current_checkpoint_sha":  "9e4de663da58eb1d50b220c08eb3eb24a4f6201e",
+    "current_stage":  "local-product-loop-converged-live-staging-blocked",
+    "current_blockers":  [
+                             "ELEVENLABS_API_KEY missing from Memories staging",
+                             "Cloudflare staging API token invalid; processing Queue not yet proven provisioned"
+                         ]
 }

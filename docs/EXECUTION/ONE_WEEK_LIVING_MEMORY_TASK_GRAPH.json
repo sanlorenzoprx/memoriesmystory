@@ -1,213 +1,272 @@
-{
-  "schema_version": "memoriesmystory_one_week_living_memory_proof_v1",
-  "sprint_id": "living-memory-proof-2026-09-22",
-  "duration_days": 7,
-  "objective": "Create one production-ready Living Memory loop: photo, real voice, remembering help from Muse, storyteller-owned context, durable completion, playback, optional bounded family share.",
-  "integration_owner": "A0",
-  "governing_docs": [
-    "docs/FOUNDATION/01_PRODUCT_INVARIANTS.md",
-    "docs/FOUNDATION/06_AI_BEHAVIOR_GUIDE.md",
-    "docs/PRODUCT/STORYTELLER_SOVEREIGNTY.md",
-    "docs/EXECUTION/DEFINITION_OF_DONE_V1.md",
-    "docs/EXECUTION/ONE_WEEK_LIVING_MEMORY_PROOF_ROADMAP.md"
-  ],
-  "rules": {
-    "single_integration_owner": true,
-    "parallel_agents_use_isolated_branches": true,
-    "real_family_media_forbidden": true,
-    "facebook_auth_nonblocking": true,
-    "share_to_unlock_forbidden": true,
-    "storyteller_memory_is_not_fact_checked": true,
-    "different_recollections_are_separately_attributed": true,
-    "unknown_or_omitted_context_is_valid": true,
-    "full_suite_each_edit": false
-  },
-  "agents": {
-    "A0": "Integration / Release Captain",
-    "A1": "Transcription Pipeline",
-    "A2": "Muse / Remembering Companion",
-    "A3": "Review / Completion / Playback",
-    "A4": "Safe Family Sharing",
-    "A5": "Staging / Reliability / Acceptance"
-  },
-  "gates": {
-    "G0_BASELINE": "Clean install, compile/typecheck, build, existing critical preservation tests.",
-    "G1_SOURCE_PRESERVATION": "Photo and voice durable, immutable, recoverable, and never falsely reported saved.",
-    "G2_MUSE_NO_INVENTION": "Real transcription works; Muse helps remembering without judging or inventing; storyteller may edit, approximate, omit, or say unknown.",
-    "G3_DURABLE_COMPLETION": "Finalize is idempotent; completed Living Memory reopens; original voice plays; activation emits once.",
-    "G4_PRIVACY_BOUNDARY": "Share Artifact is allowlist-only; failed/revoked sharing cannot expose private archive material.",
-    "G5_FULL_JOURNEY_RC": "Staging full journey passes on current Android Chrome and iPhone Safari, including rollback evidence."
-  },
-  "tasks": [
-    {
-      "id": "D1-A0-CONTRACT-FREEZE",
-      "day": 1,
-      "owner": "A0",
-      "depends_on": [],
-      "status": "ready",
-      "deliverable": "Freeze transcript, Muse, story-context, completion, activation, share, and failure contracts. Legacy truth-state fields are compatibility-only.",
-      "gate": "G0_BASELINE"
-    },
-    {
-      "id": "D1-A5-STAGING-READY",
-      "day": 1,
-      "owner": "A5",
-      "depends_on": [],
-      "status": "ready",
-      "deliverable": "Verify isolated staging D1/R2/AI/Queue configuration and list only genuine blockers.",
-      "gate": "none"
-    },
-    {
-      "id": "D1-A1-TRANSCRIPTION-SKELETON",
-      "day": 1,
-      "owner": "A1",
-      "depends_on": ["D1-A0-CONTRACT-FREEZE"],
-      "status": "blocked",
-      "deliverable": "Queue/STT adapter compiling behind frozen transcript contract.",
-      "gate": "targeted"
-    },
-    {
-      "id": "D1-A2-MUSE-SKELETON",
-      "day": 1,
-      "owner": "A2",
-      "depends_on": ["D1-A0-CONTRACT-FREEZE"],
-      "status": "blocked",
-      "deliverable": "One-question remembering companion and storyteller-context contract. No credibility, truth, reliability, or dispute labels.",
-      "gate": "targeted"
-    },
-    {
-      "id": "D1-A3-REVIEW-SHELL",
-      "day": 1,
-      "owner": "A3",
-      "depends_on": ["D1-A0-CONTRACT-FREEZE"],
-      "status": "blocked",
-      "deliverable": "Review/finalization UI shell against contract-valid fixtures.",
-      "gate": "targeted"
-    },
-    {
-      "id": "D1-A4-SHARE-CONTRACT",
-      "day": 1,
-      "owner": "A4",
-      "depends_on": ["D1-A0-CONTRACT-FREEZE"],
-      "status": "blocked",
-      "deliverable": "Allowlist-only bounded Share Artifact contract and preview model.",
-      "gate": "targeted"
-    },
-    {
-      "id": "D2-A1-TRANSCRIPTION-RUNTIME",
-      "day": 2,
-      "owner": "A1",
-      "depends_on": ["D1-A1-TRANSCRIPTION-SKELETON", "D1-A5-STAGING-READY"],
-      "status": "blocked",
-      "deliverable": "Idempotent queued transcription, persistence, retries, provider-failure state, and language metadata.",
-      "gate": "G2_MUSE_NO_INVENTION"
-    },
-    {
-      "id": "D2-A2-MUSE-RUNTIME",
-      "day": 2,
-      "owner": "A2",
-      "depends_on": ["D1-A2-MUSE-SKELETON", "D2-A1-TRANSCRIPTION-RUNTIME"],
-      "status": "blocked",
-      "deliverable": "Muse listens to storyteller material, asks one useful remembering question, and offers optional context without inventing or judging.",
-      "gate": "G2_MUSE_NO_INVENTION"
-    },
-    {
-      "id": "D2-A5-AI-RECEIPTS",
-      "day": 2,
-      "owner": "A5",
-      "depends_on": ["D2-A1-TRANSCRIPTION-RUNTIME", "D2-A2-MUSE-RUNTIME"],
-      "status": "blocked",
-      "deliverable": "Redacted English and Spanish/mixed staging evidence plus no-invention fixtures with missing/ambiguous context.",
-      "gate": "G2_MUSE_NO_INVENTION"
-    },
-    {
-      "id": "D3-A3-COMPLETE-AND-PLAY",
-      "day": 3,
-      "owner": "A3",
-      "depends_on": ["D1-A3-REVIEW-SHELL", "D2-A2-MUSE-RUNTIME"],
-      "status": "blocked",
-      "deliverable": "Idempotent finalization, completion moment, reopen, and original-audio playback beside the photograph.",
-      "gate": "G3_DURABLE_COMPLETION"
-    },
-    {
-      "id": "D3-A0-ACTIVATION",
-      "day": 3,
-      "owner": "A0",
-      "depends_on": ["D3-A3-COMPLETE-AND-PLAY"],
-      "status": "blocked",
-      "deliverable": "Emit first_living_memory_completed exactly once at durable completion.",
-      "gate": "G3_DURABLE_COMPLETION"
-    },
-    {
-      "id": "D4-A4-FAMILY-SHARE",
-      "day": 4,
-      "owner": "A4",
-      "depends_on": ["D1-A4-SHARE-CONTRACT", "D3-A3-COMPLETE-AND-PLAY"],
-      "status": "blocked",
-      "deliverable": "Preview plus bounded family link/native handoff; failure leaves the Living Memory private and intact.",
-      "gate": "G4_PRIVACY_BOUNDARY"
-    },
-    {
-      "id": "D5-A0-CONVERGENCE",
-      "day": 5,
-      "owner": "A0",
-      "depends_on": ["D2-A5-AI-RECEIPTS", "D3-A0-ACTIVATION", "D4-A4-FAMILY-SHARE"],
-      "status": "blocked",
-      "deliverable": "One coherent release candidate with interrupted upload, re-login, duplicate queue/finalize, AI failure, and share failure handled.",
-      "gate": "G1_SOURCE_PRESERVATION"
-    },
-    {
-      "id": "D6-A5-STAGING-JOURNEY",
-      "day": 6,
-      "owner": "A5",
-      "depends_on": ["D5-A0-CONVERGENCE"],
-      "status": "blocked",
-      "deliverable": "Full English and Spanish/mixed staging journeys on Android Chrome and iPhone Safari, one unreliable-network pass, rollback evidence.",
-      "gate": "G5_FULL_JOURNEY_RC"
-    },
-    {
-      "id": "D7-A5-HUMAN-PROOF",
-      "day": 7,
-      "owner": "A5",
-      "depends_on": ["D6-A5-STAGING-JOURNEY"],
-      "status": "blocked",
-      "deliverable": "At least three uncoached people create, replay, and understand optional sharing and the difference between their story and Muse assistance.",
-      "gate": "human"
-    },
-    {
-      "id": "D7-A0-RC-LOCK",
-      "day": 7,
-      "owner": "A0",
-      "depends_on": ["D7-A5-HUMAN-PROOF"],
-      "status": "blocked",
-      "deliverable": "Exact RC SHA, clean worktree, green crucial gates, current receipts/runbook, and honest known limitations.",
-      "gate": "G5_FULL_JOURNEY_RC"
-    }
-  ],
-  "scope_kill_order": [
-    "landing_page_polish",
-    "social_platform_api_publishing",
-    "elaborate_share_templates",
-    "translation_ui_beyond_acceptance",
-    "fancy_transcript_editing",
-    "multiple_muse_questions",
-    "albums",
-    "people_graph",
-    "search_timeline",
-    "notifications",
-    "commerce",
-    "public_discovery"
-  ],
-  "never_cut": [
-    "original_photo_durability",
-    "original_voice_durability",
-    "local_recovery",
-    "muse_no_invention_or_judgment",
-    "storyteller_control_of_context",
-    "idempotent_completion",
-    "original_voice_playback",
-    "privacy_boundary",
-    "safe_failure_behavior"
-  ],
-  "stop_rule": "When G5 passes and human proof has no severe trust/comprehension defect, stop feature work and lock the release candidate."
+﻿{
+    "schema_version":  "memoriesmystory_one_week_living_memory_proof_v1",
+    "sprint_id":  "living-memory-proof-2026-09-22",
+    "duration_days":  7,
+    "objective":  "Create one production-ready Living Memory loop: photo, real voice, remembering help from Muse, storyteller-owned context, durable completion, playback, optional bounded family share.",
+    "integration_owner":  "A0",
+    "governing_docs":  [
+                           "docs/FOUNDATION/01_PRODUCT_INVARIANTS.md",
+                           "docs/FOUNDATION/06_AI_BEHAVIOR_GUIDE.md",
+                           "docs/PRODUCT/STORYTELLER_SOVEREIGNTY.md",
+                           "docs/EXECUTION/DEFINITION_OF_DONE_V1.md",
+                           "docs/EXECUTION/ONE_WEEK_LIVING_MEMORY_PROOF_ROADMAP.md"
+                       ],
+    "rules":  {
+                  "single_integration_owner":  true,
+                  "parallel_agents_use_isolated_branches":  true,
+                  "real_family_media_forbidden":  true,
+                  "facebook_auth_nonblocking":  true,
+                  "share_to_unlock_forbidden":  true,
+                  "storyteller_memory_is_not_fact_checked":  true,
+                  "different_recollections_are_separately_attributed":  true,
+                  "unknown_or_omitted_context_is_valid":  true,
+                  "full_suite_each_edit":  false
+              },
+    "agents":  {
+                   "A0":  "Integration / Release Captain",
+                   "A1":  "Transcription Pipeline",
+                   "A2":  "Muse / Remembering Companion",
+                   "A3":  "Review / Completion / Playback",
+                   "A4":  "Safe Family Sharing",
+                   "A5":  "Staging / Reliability / Acceptance"
+               },
+    "gates":  {
+                  "G0_BASELINE":  "Clean install, compile/typecheck, build, existing critical preservation tests.",
+                  "G1_SOURCE_PRESERVATION":  "Photo and voice durable, immutable, recoverable, and never falsely reported saved.",
+                  "G2_MUSE_NO_INVENTION":  "Real transcription works; Muse helps remembering without judging or inventing; storyteller may edit, approximate, omit, or say unknown.",
+                  "G3_DURABLE_COMPLETION":  "Finalize is idempotent; completed Living Memory reopens; original voice plays; activation emits once.",
+                  "G4_PRIVACY_BOUNDARY":  "Share Artifact is allowlist-only; failed/revoked sharing cannot expose private archive material.",
+                  "G5_FULL_JOURNEY_RC":  "Staging full journey passes on current Android Chrome and iPhone Safari, including rollback evidence."
+              },
+    "tasks":  [
+                  {
+                      "id":  "D1-A0-CONTRACT-FREEZE",
+                      "day":  1,
+                      "owner":  "A0",
+                      "depends_on":  [
+
+                                     ],
+                      "status":  "completed",
+                      "deliverable":  "Freeze transcript, Muse, story-context, completion, activation, share, and failure contracts. Legacy truth-state fields are compatibility-only.",
+                      "gate":  "G0_BASELINE"
+                  },
+                  {
+                      "id":  "D1-A5-STAGING-READY",
+                      "day":  1,
+                      "owner":  "A5",
+                      "depends_on":  [
+
+                                     ],
+                      "status":  "blocked_external",
+                      "deliverable":  "Verify isolated staging D1/R2/AI/Queue configuration and list only genuine blockers.",
+                      "gate":  "none"
+                  },
+                  {
+                      "id":  "D1-A1-TRANSCRIPTION-SKELETON",
+                      "day":  1,
+                      "owner":  "A1",
+                      "depends_on":  [
+                                         "D1-A0-CONTRACT-FREEZE"
+                                     ],
+                      "status":  "completed",
+                      "deliverable":  "Queue/STT adapter compiling behind frozen transcript contract.",
+                      "gate":  "targeted"
+                  },
+                  {
+                      "id":  "D1-A2-MUSE-SKELETON",
+                      "day":  1,
+                      "owner":  "A2",
+                      "depends_on":  [
+                                         "D1-A0-CONTRACT-FREEZE"
+                                     ],
+                      "status":  "completed",
+                      "deliverable":  "One-question remembering companion and storyteller-context contract. No credibility, truth, reliability, or dispute labels.",
+                      "gate":  "targeted"
+                  },
+                  {
+                      "id":  "D1-A3-REVIEW-SHELL",
+                      "day":  1,
+                      "owner":  "A3",
+                      "depends_on":  [
+                                         "D1-A0-CONTRACT-FREEZE"
+                                     ],
+                      "status":  "completed",
+                      "deliverable":  "Review/finalization UI shell against contract-valid fixtures.",
+                      "gate":  "targeted"
+                  },
+                  {
+                      "id":  "D1-A4-SHARE-CONTRACT",
+                      "day":  1,
+                      "owner":  "A4",
+                      "depends_on":  [
+                                         "D1-A0-CONTRACT-FREEZE"
+                                     ],
+                      "status":  "completed",
+                      "deliverable":  "Allowlist-only bounded Share Artifact contract and preview model.",
+                      "gate":  "targeted"
+                  },
+                  {
+                      "id":  "D2-A1-TRANSCRIPTION-RUNTIME",
+                      "day":  2,
+                      "owner":  "A1",
+                      "depends_on":  [
+                                         "D1-A1-TRANSCRIPTION-SKELETON",
+                                         "D1-A5-STAGING-READY"
+                                     ],
+                      "status":  "completed_local",
+                      "deliverable":  "Idempotent queued transcription, persistence, retries, provider-failure state, and language metadata.",
+                      "gate":  "G2_MUSE_NO_INVENTION"
+                  },
+                  {
+                      "id":  "D2-A2-MUSE-RUNTIME",
+                      "day":  2,
+                      "owner":  "A2",
+                      "depends_on":  [
+                                         "D1-A2-MUSE-SKELETON",
+                                         "D2-A1-TRANSCRIPTION-RUNTIME"
+                                     ],
+                      "status":  "completed_local",
+                      "deliverable":  "Muse listens to storyteller material, asks one useful remembering question, and offers optional context without inventing or judging.",
+                      "gate":  "G2_MUSE_NO_INVENTION"
+                  },
+                  {
+                      "id":  "D2-A5-AI-RECEIPTS",
+                      "day":  2,
+                      "owner":  "A5",
+                      "depends_on":  [
+                                         "D2-A1-TRANSCRIPTION-RUNTIME",
+                                         "D2-A2-MUSE-RUNTIME"
+                                     ],
+                      "status":  "blocked_external",
+                      "deliverable":  "Redacted English and Spanish/mixed staging evidence plus no-invention fixtures with missing/ambiguous context.",
+                      "gate":  "G2_MUSE_NO_INVENTION"
+                  },
+                  {
+                      "id":  "D3-A3-COMPLETE-AND-PLAY",
+                      "day":  3,
+                      "owner":  "A3",
+                      "depends_on":  [
+                                         "D1-A3-REVIEW-SHELL",
+                                         "D2-A2-MUSE-RUNTIME"
+                                     ],
+                      "status":  "completed_local",
+                      "deliverable":  "Idempotent finalization, completion moment, reopen, and original-audio playback beside the photograph.",
+                      "gate":  "G3_DURABLE_COMPLETION"
+                  },
+                  {
+                      "id":  "D3-A0-ACTIVATION",
+                      "day":  3,
+                      "owner":  "A0",
+                      "depends_on":  [
+                                         "D3-A3-COMPLETE-AND-PLAY"
+                                     ],
+                      "status":  "completed_local",
+                      "deliverable":  "Emit first_living_memory_completed exactly once at durable completion.",
+                      "gate":  "G3_DURABLE_COMPLETION"
+                  },
+                  {
+                      "id":  "D4-A4-FAMILY-SHARE",
+                      "day":  4,
+                      "owner":  "A4",
+                      "depends_on":  [
+                                         "D1-A4-SHARE-CONTRACT",
+                                         "D3-A3-COMPLETE-AND-PLAY"
+                                     ],
+                      "status":  "completed_local",
+                      "deliverable":  "Preview plus bounded family link/native handoff; failure leaves the Living Memory private and intact.",
+                      "gate":  "G4_PRIVACY_BOUNDARY"
+                  },
+                  {
+                      "id":  "D5-A0-CONVERGENCE",
+                      "day":  5,
+                      "owner":  "A0",
+                      "depends_on":  [
+                                         "D2-A5-AI-RECEIPTS",
+                                         "D3-A0-ACTIVATION",
+                                         "D4-A4-FAMILY-SHARE"
+                                     ],
+                      "status":  "completed_local_waiting_live_receipts",
+                      "deliverable":  "One coherent release candidate with interrupted upload, re-login, duplicate queue/finalize, AI failure, and share failure handled.",
+                      "gate":  "G1_SOURCE_PRESERVATION"
+                  },
+                  {
+                      "id":  "D6-A5-STAGING-JOURNEY",
+                      "day":  6,
+                      "owner":  "A5",
+                      "depends_on":  [
+                                         "D5-A0-CONVERGENCE"
+                                     ],
+                      "status":  "blocked_external",
+                      "deliverable":  "Full English and Spanish/mixed staging journeys on Android Chrome and iPhone Safari, one unreliable-network pass, rollback evidence.",
+                      "gate":  "G5_FULL_JOURNEY_RC"
+                  },
+                  {
+                      "id":  "D7-A5-HUMAN-PROOF",
+                      "day":  7,
+                      "owner":  "A5",
+                      "depends_on":  [
+                                         "D6-A5-STAGING-JOURNEY"
+                                     ],
+                      "status":  "blocked",
+                      "deliverable":  "At least three uncoached people create, replay, and understand optional sharing and the difference between their story and Muse assistance.",
+                      "gate":  "human"
+                  },
+                  {
+                      "id":  "D7-A0-RC-LOCK",
+                      "day":  7,
+                      "owner":  "A0",
+                      "depends_on":  [
+                                         "D7-A5-HUMAN-PROOF"
+                                     ],
+                      "status":  "blocked",
+                      "deliverable":  "Exact RC SHA, clean worktree, green crucial gates, current receipts/runbook, and honest known limitations.",
+                      "gate":  "G5_FULL_JOURNEY_RC"
+                  }
+              ],
+    "scope_kill_order":  [
+                             "landing_page_polish",
+                             "social_platform_api_publishing",
+                             "elaborate_share_templates",
+                             "translation_ui_beyond_acceptance",
+                             "fancy_transcript_editing",
+                             "multiple_muse_questions",
+                             "albums",
+                             "people_graph",
+                             "search_timeline",
+                             "notifications",
+                             "commerce",
+                             "public_discovery"
+                         ],
+    "never_cut":  [
+                      "original_photo_durability",
+                      "original_voice_durability",
+                      "local_recovery",
+                      "muse_no_invention_or_judgment",
+                      "storyteller_control_of_context",
+                      "idempotent_completion",
+                      "original_voice_playback",
+                      "privacy_boundary",
+                      "safe_failure_behavior"
+                  ],
+    "stop_rule":  "When G5 passes and human proof has no severe trust/comprehension defect, stop feature work and lock the release candidate.",
+    "current_checkpoint":  {
+                               "sha":  "9e4de663da58eb1d50b220c08eb3eb24a4f6201e",
+                               "branch":  "integration/lm-week-one",
+                               "local_product_loop":  "implemented_and_focused_gates_green",
+                               "remote_pushed":  true,
+                               "staging_blockers":  [
+                                                        "ELEVENLABS_API_KEY missing from Memories staging",
+                                                        "Cloudflare staging API token invalid; Queue not yet proven provisioned"
+                                                    ],
+                               "configured_queue_name":  "memoriesmystory-processing-staging",
+                               "next_gate":  "live English plus Spanish/mixed ElevenLabs + Muse staging receipts"
+                           },
+    "gate_status":  {
+                        "G0_BASELINE":  "pass_local",
+                        "G1_SOURCE_PRESERVATION":  "pass_local",
+                        "G2_MUSE_NO_INVENTION":  "pass_local_synthetic_live_provider_pending",
+                        "G3_DURABLE_COMPLETION":  "pass_local",
+                        "G4_PRIVACY_BOUNDARY":  "pass_local",
+                        "G5_FULL_JOURNEY_RC":  "blocked_external"
+                    }
 }
