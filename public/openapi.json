@@ -1,0 +1,112 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Memories: My Story Public Agent API",
+    "version": "1.0.0",
+    "description": "Public guidance interface for beginning a Living Memory. These capabilities are deterministic, require no private archive access, and never create or mutate a private Memory Story without human action in the application."
+  },
+  "servers": [{ "url": "/" }],
+  "paths": {
+    "/api/v1/product": {
+      "get": {
+        "operationId": "getMemoriesProduct",
+        "summary": "Get Memories: My Story public product metadata",
+        "responses": { "200": { "description": "Living Memory product identity and public capability boundary" } }
+      }
+    },
+    "/api/v1/legacy-story-starter": {
+      "post": {
+        "operationId": "createLegacyStoryStarter",
+        "summary": "Create gentle family-story prompts",
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/StoryStarterInput" } } }
+        },
+        "responses": {
+          "200": { "description": "Deterministic story starter", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/StoryStarter" } } } },
+          "413": { "description": "Request too large" }
+        }
+      }
+    },
+    "/api/v1/interview-plan": {
+      "post": {
+        "operationId": "createInterviewPlan",
+        "summary": "Create a gentle interview sequence",
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/StoryStarterInput" } } }
+        },
+        "responses": { "200": { "description": "Interview plan guidance" } }
+      }
+    },
+    "/api/v1/photo-story-prompts": {
+      "post": {
+        "operationId": "createPhotoStoryPrompts",
+        "summary": "Create prompts for the story behind a photograph",
+        "description": "Accepts only caller-supplied general text context. The public capability never receives or inspects private photograph bytes.",
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PhotoPromptInput" } } }
+        },
+        "responses": { "200": { "description": "Photo-story prompts and human start URL" } }
+      }
+    },
+    "/mcp": {
+      "post": {
+        "operationId": "memoriesMcp",
+        "summary": "Stateless MCP endpoint",
+        "description": "Implements the MCP 2026-07-28 stateless HTTP core for server/discover, tools/list, and tools/call.",
+        "responses": { "200": { "description": "JSON-RPC result" }, "400": { "description": "Invalid JSON-RPC or MCP header mismatch" } }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AgentContext": {
+        "type": "object",
+        "properties": {
+          "client": { "type": "string", "maxLength": 80 },
+          "protocol": { "enum": ["api", "mcp", "search", "webmcp", "a2a"] }
+        },
+        "additionalProperties": false
+      },
+      "StoryStarterInput": {
+        "type": "object",
+        "properties": {
+          "relationship": { "type": "string", "maxLength": 80 },
+          "occasion": { "type": "string", "maxLength": 120 },
+          "themes": { "type": "array", "items": { "type": "string" }, "maxItems": 6 },
+          "language": { "type": "string" },
+          "time_available_minutes": { "type": "number", "minimum": 1, "maximum": 180 },
+          "prompt_count": { "type": "number", "minimum": 3, "maximum": 12 },
+          "agent": { "$ref": "#/components/schemas/AgentContext" }
+        },
+        "additionalProperties": false
+      },
+      "PhotoPromptInput": {
+        "type": "object",
+        "properties": {
+          "photo_context": { "type": "string", "maxLength": 280 },
+          "relationship": { "type": "string", "maxLength": 80 },
+          "language": { "type": "string" },
+          "prompt_count": { "type": "number", "minimum": 2, "maximum": 8 },
+          "agent": { "$ref": "#/components/schemas/AgentContext" }
+        },
+        "additionalProperties": false
+      },
+      "StoryStarter": {
+        "type": "object",
+        "required": ["starter_id", "opening_question", "questions", "photo_prompts", "follow_up_prompts", "capture_tip", "start_living_memory_url"],
+        "properties": {
+          "starter_id": { "type": "string" },
+          "opening_question": { "type": "string" },
+          "questions": { "type": "array", "items": { "type": "string" } },
+          "photo_prompts": { "type": "array", "items": { "type": "string" } },
+          "follow_up_prompts": { "type": "array", "items": { "type": "string" } },
+          "capture_tip": { "type": "string" },
+          "start_living_memory_url": { "type": "string", "format": "uri" }
+        }
+      }
+    }
+  }
+}

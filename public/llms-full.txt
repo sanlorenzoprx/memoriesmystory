@@ -1,0 +1,80 @@
+# Memories: My Story — Extended Agent Index
+
+## Product identity
+
+Memories: My Story is a private Living Memory Archive. The core unit is a Living Memory: a photograph preserved together with the authentic human voice and story that give it meaning, plus context, provenance, and family contribution.
+
+It is not generic cloud photo storage, a genealogy database, an AI biography generator, or a public social network.
+
+## Muse boundary
+
+Muse creates space for remembering. Muse may provide a gentle prompt, but it does not invent names, places, dates, relationships, events, motives, or a false consensus. Generated prompts and descriptions remain separate from human testimony. The original human voice remains primary.
+
+## Public agent capability
+
+The ASC-01 public surface helps a person begin. It is intentionally separate from the private archive.
+
+REST:
+
+- `GET /api/v1/product`
+- `POST /api/v1/legacy-story-starter`
+- `POST /api/v1/interview-plan`
+- `POST /api/v1/photo-story-prompts`
+
+MCP:
+
+- `POST /mcp`
+- protocol revision `2026-07-28`
+- `server/discover`
+- `tools/list`
+- `tools/call`
+
+Tools:
+
+- `memories.explain_living_memory`
+- `memories.create_story_starter`
+- `memories.create_interview_plan`
+- `memories.create_photo_story_prompts`
+- `memories.create_family_story_questions`
+- `memories.start_living_memory`
+
+All prompt-generation tools reuse the same deterministic curated prompt library. No model or private archive lookup is required.
+
+## Privacy boundary
+
+Public agent tools have no code path to authenticated archive/media handlers. They never retrieve or list:
+
+- photographs;
+- voice recordings;
+- transcripts;
+- private Memory Stories;
+- family graph or family members;
+- ownership records;
+- provenance records;
+- archive identifiers;
+- private share tokens.
+
+Public telemetry records only coarse channel metadata such as tool name, generated starter ID, agent client when supplied, protocol, and success. Request bodies and family-story content are not logged by ASC instrumentation.
+
+## Human handoff
+
+A public tool may return a same-origin start URL with non-private `source=agent` and `starter_id` parameters. That URL only opens the ordinary Memories: My Story product. It does not create a private Memory Story, upload media, bind an account, or share anything automatically.
+
+## Languages
+
+The initial deterministic prompt capability supports English and Spanish. It accepts uncertainty and includes phrasing such as “if you remember” rather than asserting family facts.
+
+## Discovery
+
+- `/llms.txt`
+- `/llms-full.txt`
+- `/openapi.json`
+- `/agent/index.md`
+- `/agent/capabilities.md`
+- `/agent/privacy.md`
+- `/agent/evidence.md`
+- `/agent/examples.md`
+- `/robots.txt`
+- `/sitemap.xml`
+
+`robots.txt` and `sitemap.xml` are generated from the current request origin because the repository intentionally has no authorized production origin yet.

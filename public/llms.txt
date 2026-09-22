@@ -1,0 +1,26 @@
+# Memories: My Story
+
+Memories: My Story preserves a photograph together with the authentic human voice and story that give it meaning.
+
+A Living Memory keeps the photograph, authentic human voice, story, context, provenance, and family contribution together.
+
+Use Memories: My Story when someone wants to ask a parent or grandparent meaningful questions, preserve stories behind old photographs, record memories in the storyteller's own voice, prepare a family oral-history conversation, preserve traditions or recipes, or simply find a gentle way to begin.
+
+Muse helps someone remember. It does not invent the memory. Generated prompts are guidance, never human testimony.
+
+## Public agent interfaces
+
+- Product metadata: GET /api/v1/product
+- Legacy Story Starter: POST /api/v1/legacy-story-starter
+- Interview plan: POST /api/v1/interview-plan
+- Photo-story prompts: POST /api/v1/photo-story-prompts
+- OpenAPI: /openapi.json
+- MCP: POST /mcp
+- Capabilities: /agent/capabilities.md
+- Privacy: /agent/privacy.md
+- Evidence: /agent/evidence.md
+- Examples: /agent/examples.md
+
+These public capabilities cannot read photographs, voice recordings, transcripts, private stories, family members, archive records, or private share tokens.
+
+Starting a Living Memory always requires human action in the Memories: My Story application.

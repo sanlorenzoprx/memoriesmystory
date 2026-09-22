@@ -1,5 +1,7 @@
 import { appIdentity } from "../config/app-identity";
+import { handleAgentRoute } from "./agent-routes";
 import { handleAuthRoute } from "./auth-routes";
+import { handleDiscoveryRoute } from "./discovery-routes";
 import { handleMediaRoute } from "./media-routes";
 
 export interface Env {
@@ -25,6 +27,12 @@ const handler: ExportedHandler<Env> = {
         brand: env.PUBLIC_BRAND_NAME ?? appIdentity.brandName
       });
     }
+
+    const discoveryResponse = handleDiscoveryRoute(request);
+    if (discoveryResponse) return discoveryResponse;
+
+    const agentResponse = await handleAgentRoute(request, env);
+    if (agentResponse) return agentResponse;
 
     const authResponse = await handleAuthRoute(request, env);
     if (authResponse) return authResponse;
