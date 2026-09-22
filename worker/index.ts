@@ -5,6 +5,7 @@ import { handleCompletionRoute } from "./completion";
 import { handleDiscoveryRoute } from "./discovery-routes";
 import { handleMediaRoute } from "./media-routes";
 import { handleMuseRoute } from "./muse";
+import { handleSharingRoute } from "./sharing";
 import {
   handleTranscriptionRoute,
   processTranscriptionBatch
@@ -18,6 +19,7 @@ export interface Env {
   AI: Ai;
   PROCESSING_QUEUE: Queue<TranscriptionQueueMessage>;
   ELEVENLABS_API_KEY?: string;
+  SHARE_TOKEN_PEPPER?: string;
   APP_NAME?: string;
   PUBLIC_BRAND_NAME?: string;
   SESSION_SECRET?: string;
@@ -58,6 +60,9 @@ const handler: ExportedHandler<Env, TranscriptionQueueMessage> = {
 
     const completionResponse = await handleCompletionRoute(request, env);
     if (completionResponse) return completionResponse;
+
+    const sharingResponse = await handleSharingRoute(request, env);
+    if (sharingResponse) return sharingResponse;
 
     return env.ASSETS.fetch(request);
   },
