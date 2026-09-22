@@ -344,8 +344,8 @@ export function OriginalsExperience({
       {phase === "originals-durable" && (
         <>
           <p className="eyebrow">Photograph and voice protected</p>
-          <h1 ref={headingRef} tabIndex={-1}>We have your back.</h1>
-          <p className="capture-lede">Your story is preserved in your family archive.</p>
+          <h1 ref={headingRef} tabIndex={-1}>Your originals are backed up.</h1>
+          <p className="capture-lede">Protect them with your account to continue building this Living Memory.</p>
           <div className="story-photo-focus"><img src={photoUrl} alt="Your privately preserved photograph" /></div>
           {preservedAudioUrl ? (
             <>
@@ -364,7 +364,7 @@ export function OriginalsExperience({
           </div>
           <p className="cross-device-note">Carry this Memory Story securely to your phone, tablet and computer.</p>
           <Link className="primary-action" to={`/auth/protect?draftId=${encodeURIComponent(draft.id)}`}>
-            Protect this Memory Story
+            Protect and continue
           </Link>
         </>
       )}

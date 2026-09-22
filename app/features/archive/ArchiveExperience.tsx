@@ -37,8 +37,14 @@ function ArchiveIndex() {
           <ul className="archive-list">
             {drafts.map((draft) => (
               <li key={draft.id}>
-                <Link to={`/archive/${encodeURIComponent(draft.id)}`}>
-                  <strong>Photograph and voice</strong>
+                <Link
+                  to={
+                    draft.status === "complete"
+                      ? `/memory/${encodeURIComponent(draft.id)}`
+                      : `/archive/${encodeURIComponent(draft.id)}`
+                  }
+                >
+                  <strong>{draft.status === "complete" ? "Living Memory" : "Photograph and voice"}</strong>
                   <span>Protected {new Date(draft.updated_at).toLocaleDateString()}</span>
                 </Link>
               </li>

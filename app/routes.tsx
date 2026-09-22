@@ -13,6 +13,7 @@ import { firstExperienceContent } from "./features/first-experience/content";
 import { CaptureExperience } from "./features/capture/CaptureExperience";
 import { IdentityExperience } from "./features/identity/IdentityExperience";
 import { ArchiveExperience } from "./features/archive/ArchiveExperience";
+import { LivingMemoryExperience } from "./features/living-memory/LivingMemoryExperience";
 import type { CaptureEntryMode } from "./features/capture/local-draft";
 import { beginLocalDraft } from "./services/local-draft-store";
 
@@ -38,6 +39,10 @@ export const routes: RouteObject[] = [
       {
         path: "auth/protect",
         element: <IdentityExperience />
+      },
+      {
+        path: "memory/:draftId",
+        element: <LivingMemoryExperience />
       },
       {
         path: "archive",

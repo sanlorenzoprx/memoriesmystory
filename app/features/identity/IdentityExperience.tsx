@@ -58,7 +58,7 @@ function BindIdentity({ draftId }: { readonly draftId: string | null }) {
           if (!draft) throw new Error("This device no longer has the local claim key.");
           setMessage("Protecting your photograph and voice…");
           await claimLocalDraft(draft);
-          if (active) await navigate(`/archive/${encodeURIComponent(draftId)}`, { replace: true });
+          if (active) await navigate(`/memory/${encodeURIComponent(draftId)}`, { replace: true });
         } else if (active) {
           await navigate("/archive", { replace: true });
         }
