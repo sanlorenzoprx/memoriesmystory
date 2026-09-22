@@ -155,7 +155,7 @@ async function currentContext(
             created_by_user_id, source_ref, created_at, updated_at
      FROM living_memory_context_entries
      WHERE memory_story_id = ?
-     ORDER BY created_at DESC`
+     ORDER BY created_at DESC, rowid DESC`
   ).bind(livingMemoryId).all<ContextRow>();
 
   const seen = new Set<string>();

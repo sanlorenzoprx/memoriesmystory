@@ -101,7 +101,7 @@ async function latestContext(env: CompletionEnv, livingMemoryId: string): Promis
     `SELECT id, kind, value, context_state, source_ref, created_at
      FROM living_memory_context_entries
      WHERE memory_story_id = ?
-     ORDER BY created_at DESC, id DESC`
+     ORDER BY created_at DESC, rowid DESC`
   ).bind(livingMemoryId).all<ContextRow>();
   const seen = new Set<string>();
   const latest: ContextRow[] = [];
