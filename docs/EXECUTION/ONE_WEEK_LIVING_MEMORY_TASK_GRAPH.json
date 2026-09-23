@@ -250,10 +250,10 @@
                   ],
     "stop_rule":  "When G5 passes and human proof has no severe trust/comprehension defect, stop feature work and lock the release candidate.",
     "current_checkpoint":  {
-                               "sha":  "VERIFY_AFTER_COMMIT",
+                               "sha":  "5f76b675f2ed78509d22a8dd958217b3457cbe91",
                                "branch":  "integration/lm-week-one",
                                "local_product_loop":  "live_staging_end_to_end_green",
-                               "remote_pushed":  false,
+                               "remote_pushed":  true,
                                "staging_blockers":  [
 
                                                     ],
