@@ -6,6 +6,8 @@ import { handleDiscoveryRoute } from "./discovery-routes";
 import { handleDeletionRoute } from "./deletion";
 import { handleMediaRoute } from "./media-routes";
 import { handleMuseRoute } from "./muse";
+import { handleMuseConversationRoute } from "./muse-conversation";
+import { handleMuseTtsRoute } from "./muse-tts";
 import { handleSharingRoute } from "./sharing";
 import {
   handleTranscriptionRoute,
@@ -20,6 +22,8 @@ export interface Env {
   AI: Ai;
   PROCESSING_QUEUE: Queue<TranscriptionQueueMessage>;
   ELEVENLABS_API_KEY?: string;
+  ELEVENLABS_MUSE_VOICE_ID?: string;
+  ELEVENLABS_TTS_MODEL_ID?: string;
   SHARE_TOKEN_PEPPER?: string;
   APP_NAME?: string;
   PUBLIC_BRAND_NAME?: string;
@@ -58,6 +62,12 @@ const handler: ExportedHandler<Env, TranscriptionQueueMessage> = {
 
     const transcriptionResponse = await handleTranscriptionRoute(request, env);
     if (transcriptionResponse) return transcriptionResponse;
+
+    const museTtsResponse = await handleMuseTtsRoute(request, env);
+    if (museTtsResponse) return museTtsResponse;
+
+    const museConversationResponse = await handleMuseConversationRoute(request, env);
+    if (museConversationResponse) return museConversationResponse;
 
     const museResponse = await handleMuseRoute(request, env);
     if (museResponse) return museResponse;

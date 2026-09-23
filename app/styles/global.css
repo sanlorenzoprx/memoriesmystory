@@ -1533,6 +1533,280 @@ h1 {
   opacity: 0.55;
 }
 
+
+.settings-tab {
+  position: fixed;
+  z-index: 60;
+  right: 0;
+  bottom: calc(1rem + env(safe-area-inset-bottom));
+  min-height: 2.9rem;
+  border: 1px solid rgba(67, 43, 30, 0.18);
+  border-right: 0;
+  border-radius: 999px 0 0 999px;
+  background: rgba(255, 250, 243, 0.97);
+  box-shadow: 0 0.45rem 1.2rem rgba(75, 45, 28, 0.16);
+  color: var(--ink-soft);
+  cursor: pointer;
+  padding: 0.55rem 0.8rem 0.55rem 0.7rem;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.settings-tab span {
+  margin-right: 0.28rem;
+}
+
+.text-size-control .text-size-close {
+  min-width: 2rem;
+  padding: 0;
+  color: var(--ink-soft);
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+.clerk-responsive-frame {
+  width: 100%;
+  max-width: 100%;
+  margin-top: 1.35rem;
+  overflow-x: hidden;
+}
+
+.clerk-responsive-frame > div,
+.clerk-responsive-frame [data-clerk-component],
+.clerk-responsive-frame .cl-rootBox,
+.clerk-responsive-frame .cl-cardBox,
+.clerk-responsive-frame .cl-card {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+}
+
+.clerk-responsive-frame .cl-card {
+  box-sizing: border-box !important;
+  margin-inline: 0 !important;
+}
+
+.clerk-responsive-frame .cl-main,
+.clerk-responsive-frame .cl-form,
+.clerk-responsive-frame .cl-socialButtonsBlockButton,
+.clerk-responsive-frame .cl-formFieldInput,
+.clerk-responsive-frame .cl-formButtonPrimary {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+}
+
+@media (max-width: 520px) {
+  .identity-page {
+    padding-inline: 0.85rem;
+  }
+
+  .identity-card {
+    width: 100%;
+    max-width: 100%;
+    padding-inline: 0.2rem;
+  }
+
+  .clerk-responsive-frame .cl-card {
+    border-radius: 1rem !important;
+    box-shadow: none !important;
+  }
+
+  .clerk-responsive-frame .cl-headerTitle,
+  .clerk-responsive-frame .cl-headerSubtitle {
+    text-align: left !important;
+  }
+}
+
+
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+.muse-voice-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 2.35rem;
+  margin-top: 0.55rem;
+  border: 1px solid rgba(82, 107, 86, 0.24);
+  border-radius: 999px;
+  background: rgba(255, 253, 248, 0.92);
+  color: #45604a;
+  cursor: pointer;
+  padding: 0.4rem 0.72rem;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.muse-voice-action:disabled {
+  cursor: wait;
+  opacity: 0.68;
+}
+
+.muse-dialogue {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1.25rem;
+}
+
+.muse-dialogue-turn {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.muse-dialogue-row {
+  display: flex;
+  width: 100%;
+}
+
+.muse-dialogue-row-muse {
+  align-items: flex-start;
+  gap: 0.65rem;
+  justify-content: flex-start;
+}
+
+.muse-dialogue-row-storyteller {
+  justify-content: flex-end;
+}
+
+.muse-avatar.small {
+  width: 2.55rem;
+  height: 2.55rem;
+  flex: 0 0 2.55rem;
+}
+
+.muse-avatar.small span {
+  font-size: 1.1rem;
+}
+
+.muse-bubble {
+  width: min(100%, 32rem);
+  border: 1px solid rgba(120, 140, 120, 0.28);
+  border-radius: 0.3rem 1rem 1rem 1rem;
+  background: rgba(239, 246, 237, 0.78);
+  padding: 0.85rem 0.95rem;
+}
+
+.muse-bubble strong {
+  color: #45604a;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 0.9rem;
+}
+
+.muse-bubble p {
+  margin: 0.28rem 0 0;
+  color: var(--ink);
+  font-size: 0.98rem;
+  line-height: 1.5;
+}
+
+.storyteller-bubble {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.65rem;
+  max-width: 85%;
+  border-radius: 1rem 0.3rem 1rem 1rem;
+  background: rgba(155, 57, 31, 0.1);
+  color: var(--ink);
+  padding: 0.75rem 0.9rem;
+}
+
+.storyteller-bubble span {
+  line-height: 1.45;
+}
+
+.storyteller-bubble button {
+  border: 0;
+  background: transparent;
+  color: var(--terracotta-deep);
+  cursor: pointer;
+  padding: 0;
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-decoration: underline;
+  text-underline-offset: 0.15rem;
+}
+
+.muse-reply-composer {
+  display: grid;
+  gap: 0.75rem;
+  margin-left: min(3.2rem, 10vw);
+  border: 1px solid rgba(67, 43, 30, 0.12);
+  border-radius: 1rem;
+  background: rgba(255, 253, 248, 0.82);
+  padding: 0.85rem;
+}
+
+.muse-reply-composer input {
+  width: 100%;
+  min-height: 3.25rem;
+  box-sizing: border-box;
+  border: 1px solid rgba(67, 43, 30, 0.18);
+  border-radius: 0.85rem;
+  background: #fffdf8;
+  color: var(--ink);
+  padding: 0.75rem 0.85rem;
+  font: inherit;
+}
+
+.muse-reply-choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.muse-reply-choices button {
+  min-height: 2.45rem;
+  border: 1px solid rgba(67, 43, 30, 0.15);
+  border-radius: 999px;
+  background: rgba(255, 250, 243, 0.95);
+  color: var(--ink-soft);
+  cursor: pointer;
+  padding: 0.45rem 0.7rem;
+  font-size: 0.76rem;
+  font-weight: 750;
+}
+
+.muse-reply-choices button.is-selected {
+  border-color: rgba(155, 57, 31, 0.3);
+  background: rgba(155, 57, 31, 0.1);
+  color: var(--terracotta-deep);
+}
+
+.muse-reply-submit {
+  width: 100%;
+  margin-top: 0;
+}
+
+.muse-dialogue-finish {
+  margin-top: 0.25rem;
+}
+
+@media (max-width: 520px) {
+  .muse-reply-composer {
+    margin-left: 0;
+  }
+
+  .storyteller-bubble {
+    max-width: 92%;
+  }
+
+  .muse-bubble {
+    width: auto;
+    min-width: 0;
+  }
+}
+
 /* Living Memory proof flow */
 .living-memory-page {
   width: min(100%, 72rem);

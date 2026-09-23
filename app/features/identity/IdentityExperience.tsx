@@ -32,7 +32,9 @@ export function IdentityExperience() {
         Sign in to protect this Memory Story and continue on your phone, tablet or computer.
       </p>
       <SignedOut>
-        <SignIn routing="hash" />
+        <div className="clerk-responsive-frame">
+          <SignIn routing="hash" />
+        </div>
       </SignedOut>
       <SignedIn>
         <BindIdentity draftId={draftId} />

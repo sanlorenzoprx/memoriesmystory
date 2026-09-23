@@ -211,7 +211,7 @@ function MemoryPhotoMoment() {
         <figcaption className="voice-keepsake">
           <VoiceWave />
           <span>
-            Keep the <strong>voice</strong> with the photograph.
+            Tell the story in <strong>your voice</strong>.
           </span>
         </figcaption>
       </div>

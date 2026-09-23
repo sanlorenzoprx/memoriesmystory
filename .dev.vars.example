@@ -20,3 +20,6 @@ TURNSTILE_SECRET_KEY=
 
 # Required for the selected launch transcription provider (ElevenLabs Scribe v2)
 ELEVENLABS_API_KEY=
+# Muse speech: requires ElevenLabs voices_read + text_to_speech permissions.
+ELEVENLABS_MUSE_VOICE_ID=
+ELEVENLABS_TTS_MODEL_ID=eleven_multilingual_v2

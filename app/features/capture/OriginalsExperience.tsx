@@ -18,6 +18,7 @@ import {
   syncAcceptedOriginalsInBackground
 } from "../../services/media-background-sync";
 import { saveLocalDraft } from "../../services/local-draft-store";
+import { MuseVoiceButton } from "../MuseVoiceButton";
 
 type OriginalsPhase =
   | "voice-invitation"
@@ -276,6 +277,12 @@ export function OriginalsExperience({
             <div className="muse-presence-copy">
               <strong>Muse</strong>
               <p>{rerecording ? "Would another cue help before you record again?" : "Would you like help remembering?"}</p>
+              <MuseVoiceButton
+                draftId={draft.id}
+                draftToken={draft.draftToken}
+                text={rerecording ? "Would another cue help before you record again?" : "Would you like help remembering?"}
+                autoPlay
+              />
               {museCueVisible ? (
                 <>
                   <span className="muse-starter-cue">
@@ -283,6 +290,16 @@ export function OriginalsExperience({
                       ? "What detail do you most want to make sure your family hears this time?"
                       : "What comes back to you first when you look at this photograph?"}
                   </span>
+                  <MuseVoiceButton
+                    draftId={draft.id}
+                    draftToken={draft.draftToken}
+                    text={
+                      rerecording
+                        ? "What detail do you most want to make sure your family hears this time?"
+                        : "What comes back to you first when you look at this photograph?"
+                    }
+                    autoPlay
+                  />
                   <span>Muse is only helping you begin. You decide what the story is.</span>
                 </>
               ) : (

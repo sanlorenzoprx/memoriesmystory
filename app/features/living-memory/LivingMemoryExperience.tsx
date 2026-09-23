@@ -4,23 +4,23 @@ import { Link, useNavigate, useParams } from "react-router";
 import type { StoryContextKind, StoryContextState } from "../../domain";
 import {
   LivingMemoryApiError,
-  askMuse,
   completeLivingMemory,
+  continueMuseConversation,
   createLivingMemoryShare,
   loadLivingMemory,
-  loadMuse,
+  loadMuseConversation,
   loadProcessing,
   previewLivingMemoryShare,
-  saveStoryContext,
   startProcessing,
   type LivingMemorySnapshot,
-  type MuseView,
+  type MuseConversationView,
   type ProcessingView,
   type SharePreview,
   type ShareSelection
 } from "../../services/living-memory-api";
 import { deleteLocalDraft } from "../../services/local-draft-store";
 import { deleteMemory } from "../../services/memory-deletion";
+import { MuseVoiceButton } from "../MuseVoiceButton";
 
 type Stage =
   | "loading"
@@ -34,46 +34,18 @@ type Stage =
   | "share-created"
   | "error";
 
-type ContextDraft = {
+type ContextBlueprint = {
   readonly kind: StoryContextKind;
   readonly label: string;
   readonly prompt: string;
-  state: StoryContextState;
-  value: string;
 };
 
-const contextBlueprint: readonly Omit<ContextDraft, "state" | "value">[] = [
+const contextBlueprint: readonly ContextBlueprint[] = [
   { kind: "person", label: "Who", prompt: "Who is part of this memory?" },
   { kind: "place", label: "Where", prompt: "Where were you?" },
   { kind: "time", label: "When", prompt: "When was this?" },
   { kind: "event", label: "What", prompt: "What was happening?" }
 ];
-
-const contextStateLabels: Record<StoryContextState, string> = {
-  stated: "This is how I remember it",
-  approximate: "I'm not completely sure",
-  unknown: "I don't remember",
-  omitted: "Leave this out"
-};
-
-function defaultContext(): ContextDraft[] {
-  return contextBlueprint.map((entry) => ({
-    ...entry,
-    state: "stated",
-    value: ""
-  }));
-}
-
-function contextFromMuse(view: MuseView): ContextDraft[] {
-  return contextBlueprint.map((blueprint) => {
-    const existing = view.context.find((entry) => entry.kind === blueprint.kind);
-    return {
-      ...blueprint,
-      state: existing?.state ?? "stated",
-      value: existing?.value ?? ""
-    };
-  });
-}
 
 function apiMessage(error: unknown): string {
   return error instanceof Error
@@ -87,8 +59,8 @@ export function LivingMemoryExperience() {
   const [stage, setStage] = useState<Stage>("loading");
   const [snapshot, setSnapshot] = useState<LivingMemorySnapshot | null>(null);
   const [processing, setProcessing] = useState<ProcessingView | null>(null);
-  const [museQuestion, setMuseQuestion] = useState<string | null>(null);
-  const [context, setContext] = useState<ContextDraft[]>(defaultContext);
+  const [conversation, setConversation] = useState<MuseConversationView | null>(null);
+  const [conversationBusy, setConversationBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [shareSelection, setShareSelection] = useState<ShareSelection>({
     includeVoice: true,
@@ -127,20 +99,21 @@ export function LivingMemoryExperience() {
   async function enterContext(): Promise<void> {
     const nextSnapshot = await requireSnapshot();
     try {
-      let muse = await loadMuse(draftId);
-      let prompt = muse.musePrompt;
-      if (!prompt && muse.transcript) {
-        prompt = await askMuse(draftId);
-        muse = await loadMuse(draftId);
+      let nextConversation = await loadMuseConversation(draftId);
+      if (
+        nextConversation.turns.length === 0 ||
+        (!nextConversation.done && !nextConversation.currentQuestion)
+      ) {
+        nextConversation = await continueMuseConversation(draftId);
       }
-      setMuseQuestion(prompt?.question ?? null);
-      setContext(contextFromMuse(muse));
+      setConversation(nextConversation);
       setMessage(null);
-    } catch {
-      setMuseQuestion(null);
-      setContext(defaultContext());
+    } catch (error) {
+      setConversation(null);
       setMessage(
-        "Muse could not help right now. Your photograph and voice are safe, and you can continue with your own context."
+        error instanceof Error
+          ? error.message
+          : "Muse could not continue right now. Your photograph and voice are safe."
       );
     }
     setSnapshot(nextSnapshot);
@@ -228,52 +201,38 @@ export function LivingMemoryExperience() {
     }
   }
 
-  function updateContext(
-    kind: StoryContextKind,
-    changes: Partial<Pick<ContextDraft, "state" | "value">>
+  async function replyToMuse(
+    answer: string | undefined,
+    state: StoryContextState
   ) {
-    setContext((current) =>
-      current.map((entry) => {
-        if (entry.kind !== kind) return entry;
-        const next = { ...entry, ...changes };
-        if (changes.state === "unknown" || changes.state === "omitted") {
-          next.value = "";
-        }
-        return next;
-      })
-    );
+    const currentQuestion = conversation?.currentQuestion;
+    if (!currentQuestion || conversationBusy) return;
+    setConversationBusy(true);
+    setMessage(null);
+    try {
+      const next = await continueMuseConversation(draftId, {
+        replyToTurnId: currentQuestion.turnId,
+        answer,
+        state
+      });
+      setConversation(next);
+      if (next.done) {
+        setSnapshot(await loadLivingMemory(draftId));
+      }
+    } catch (error) {
+      setMessage(apiMessage(error));
+    } finally {
+      setConversationBusy(false);
+    }
   }
 
   async function reviewContext() {
     setMessage(null);
-    const invalid = context.find(
-      (entry) =>
-        (entry.state === "stated" || entry.state === "approximate") &&
-        !entry.value.trim()
-    );
-    if (invalid) {
-      setMessage(
-        `For “${invalid.label},” add what you remember or choose “I don't remember” or “Leave this out.”`
-      );
+    if (!conversation?.done) {
+      setMessage("Muse is still helping you finish the story context.");
       return;
     }
-
     try {
-      await saveStoryContext(
-        draftId,
-        context.map((entry) => ({
-          kind: entry.kind,
-          state: entry.state,
-          value:
-            entry.state === "stated" || entry.state === "approximate"
-              ? entry.value.trim()
-              : null,
-          sourceRef: snapshot?.transcript?.revisionId
-            ? `transcript:${snapshot.transcript.revisionId}`
-            : null
-        })),
-        `context_${draftId}_${crypto.randomUUID()}`
-      );
       setSnapshot(await loadLivingMemory(draftId));
       setStage("review");
     } catch (error) {
@@ -400,7 +359,7 @@ export function LivingMemoryExperience() {
         <section className="living-memory-card">
           <p className="eyebrow">Your originals are safe</p>
           <h1>Muse is listening to your story.</h1>
-          <MusePresence listening />
+          <MusePresence draftId={draftId} listening />
           <OriginalPair snapshot={snapshot} compact />
           <p className="capture-lede">
             We’re turning your recording into readable words so Muse can help you remember.
@@ -430,7 +389,6 @@ export function LivingMemoryExperience() {
           <p className="eyebrow">Muse helps you remember</p>
           <h1>Your memory stays yours.</h1>
           <OriginalPair snapshot={snapshot} compact />
-          <MusePresence question={museQuestion} />
           {snapshot.transcript && (
             <details className="memory-transcript">
               <summary>Read the transcript from your recording</summary>
@@ -438,23 +396,28 @@ export function LivingMemoryExperience() {
               <span>Your recording—not this transcript—is the original testimony.</span>
             </details>
           )}
-          <div className="context-introduction">
-            <strong>Add what you remember</strong>
-            <span>Who, where, when and what are yours to state, approximate, leave unknown or leave out.</span>
-          </div>
-          <div className="memory-context-grid">
-            {context.map((entry) => (
-              <ContextEditor
-                key={entry.kind}
-                entry={entry}
-                onChange={(changes) => updateContext(entry.kind, changes)}
-              />
-            ))}
-          </div>
+          {conversation ? (
+            <MuseStoryConversation
+              draftId={draftId}
+              conversation={conversation}
+              busy={conversationBusy}
+              onReply={replyToMuse}
+            />
+          ) : (
+            <div className="muse-presence">
+              <div className="muse-avatar" aria-hidden="true"><span>M</span></div>
+              <div className="muse-presence-copy">
+                <strong>Muse</strong>
+                <p>Muse could not continue the conversation right now. Your story remains safe.</p>
+              </div>
+            </div>
+          )}
           {message && <p className="inline-error" role="alert">{message}</p>}
-          <button className="primary-action" type="button" onClick={() => void reviewContext()}>
-            Review my Living Memory
-          </button>
+          {conversation?.done && (
+            <button className="primary-action" type="button" onClick={() => void reviewContext()}>
+              Review my Living Memory
+            </button>
+          )}
           <DeleteMemoryAction deleting={deleting} onDelete={() => void deleteCurrentMemory()} />
         </section>
       </MemoryPage>
@@ -475,12 +438,6 @@ export function LivingMemoryExperience() {
               <span>Your original recording stays unchanged.</span>
             </div>
           )}
-          {snapshot.musePrompt && (
-            <div className="memory-review-section">
-              <strong>Muse’s remembering prompt</strong>
-              <p>{snapshot.musePrompt.question}</p>
-            </div>
-          )}
           <ContextReview snapshot={snapshot} />
           <p className="privacy-promise">
             Private by default. “Confirm” here means this is what you want attached to your story—not that the platform verified history.
@@ -496,7 +453,7 @@ export function LivingMemoryExperience() {
               {stage === "completing" ? "Preserving…" : "Preserve this Living Memory"}
             </button>
             <button className="secondary-action" type="button" onClick={() => setStage("context")}>
-              Change context
+              Return to Muse
             </button>
           </div>
           <DeleteMemoryAction deleting={deleting} onDelete={() => void deleteCurrentMemory()} />
@@ -704,12 +661,15 @@ function DeleteMemoryAction({
 }
 
 function MusePresence({
+  draftId,
   question = null,
   listening = false
 }: {
+  readonly draftId: string;
   readonly question?: string | null;
   readonly listening?: boolean;
 }) {
+  const spokenText = question ?? (listening ? "I'm listening. Take your time." : null);
   return (
     <div className="muse-presence" role={listening ? "status" : undefined}>
       <div className="muse-avatar" aria-hidden="true">
@@ -721,13 +681,20 @@ function MusePresence({
           <>
             <p>{question}</p>
             <span>
-              If that brings something back, add it below. Muse helps you remember; it does not decide whether your memory is right.
+              If that brings something back, add only what feels like yours. Muse helps you remember; it does not decide what is true.
             </span>
           </>
         ) : listening ? (
           <p>Your real voice stays the original while Muse listens for one useful question.</p>
         ) : (
-          <p>Muse listened. You can keep your story exactly as you told it and add only what you want below.</p>
+          <p>Muse listened. You can keep your story exactly as you told it.</p>
+        )}
+        {spokenText && (
+          <MuseVoiceButton
+            draftId={draftId}
+            text={spokenText}
+            autoPlay={Boolean(question)}
+          />
         )}
       </div>
     </div>
@@ -770,40 +737,128 @@ function OriginalPair({
   );
 }
 
-function ContextEditor({
-  entry,
-  onChange
+function MuseStoryConversation({
+  draftId,
+  conversation,
+  busy,
+  onReply
 }: {
-  readonly entry: ContextDraft;
-  readonly onChange: (changes: Partial<Pick<ContextDraft, "state" | "value">>) => void;
+  readonly draftId: string;
+  readonly conversation: MuseConversationView;
+  readonly busy: boolean;
+  readonly onReply: (
+    answer: string | undefined,
+    state: StoryContextState
+  ) => Promise<void>;
 }) {
-  const acceptsValue = entry.state === "stated" || entry.state === "approximate";
+  const [reply, setReply] = useState("");
+  const [approximate, setApproximate] = useState(false);
+  const currentQuestionId = conversation.currentQuestion?.turnId ?? null;
+
+  useEffect(() => {
+    setReply("");
+    setApproximate(false);
+  }, [currentQuestionId]);
+
   return (
-    <fieldset className="memory-context-card">
-      <legend>{entry.label}</legend>
-      <label className="memory-field">
-        <span>{entry.prompt}</span>
-        <input
-          value={entry.value}
-          disabled={!acceptsValue}
-          onChange={(event) => onChange({ value: event.target.value })}
-          placeholder={acceptsValue ? "Add what you remember" : ""}
-        />
-      </label>
-      <label className="memory-field">
-        <span>How should this be preserved?</span>
-        <select
-          value={entry.state}
-          onChange={(event) =>
-            onChange({ state: event.target.value as StoryContextState })
-          }
-        >
-          {Object.entries(contextStateLabels).map(([value, label]) => (
-            <option key={value} value={value}>{label}</option>
-          ))}
-        </select>
-      </label>
-    </fieldset>
+    <div className="muse-dialogue" aria-label="Conversation with Muse">
+      {conversation.turns.map((turn) =>
+        turn.speaker === "muse" ? (
+          <div
+            className="muse-dialogue-row muse-dialogue-row-muse"
+            key={turn.turnId}
+          >
+            <div className="muse-avatar small" aria-hidden="true"><span>M</span></div>
+            <div className="muse-bubble">
+              <strong>Muse</strong>
+              <p>{turn.content}</p>
+              <MuseVoiceButton
+                draftId={draftId}
+                text={turn.content}
+                autoPlay={turn.turnId === currentQuestionId}
+              />
+            </div>
+          </div>
+        ) : (
+          <div
+            className="muse-dialogue-row muse-dialogue-row-storyteller"
+            key={turn.turnId}
+          >
+            <div className="storyteller-bubble">
+              <span>{turn.content}</span>
+            </div>
+          </div>
+        )
+      )}
+
+      {!conversation.done && conversation.currentQuestion && (
+        <div className="muse-reply-composer">
+          <label>
+            <span className="sr-only">
+              Your reply to {conversation.currentQuestion.content}
+            </span>
+            <input
+              value={reply}
+              onChange={(event) => setReply(event.target.value)}
+              placeholder="Tell Muse what comes back to you"
+              autoFocus
+            />
+          </label>
+          <div className="muse-reply-choices">
+            <button
+              type="button"
+              className={approximate ? "is-selected" : undefined}
+              disabled={busy}
+              onClick={() => setApproximate((value) => !value)}
+            >
+              I'm not completely sure
+            </button>
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() => void onReply(undefined, "unknown")}
+            >
+              I don't remember
+            </button>
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() => void onReply(undefined, "omitted")}
+            >
+              Leave this out
+            </button>
+          </div>
+          <button
+            className="primary-action muse-reply-submit"
+            type="button"
+            disabled={busy || !reply.trim()}
+            onClick={() =>
+              void onReply(
+                reply.trim(),
+                approximate ? "approximate" : "stated"
+              )
+            }
+          >
+            {busy ? "Muse is listening…" : "Tell Muse"}
+          </button>
+        </div>
+      )}
+
+      {conversation.done && (
+        <div className="muse-dialogue-row muse-dialogue-row-muse muse-dialogue-finish">
+          <div className="muse-avatar small" aria-hidden="true"><span>M</span></div>
+          <div className="muse-bubble">
+            <strong>Muse</strong>
+            <p>Thank you. Your story has enough context to review now. You can still come back before you preserve it.</p>
+            <MuseVoiceButton
+              draftId={draftId}
+              text="Thank you. Your story has enough context to review now. You can still come back before you preserve it."
+              autoPlay
+            />
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
 

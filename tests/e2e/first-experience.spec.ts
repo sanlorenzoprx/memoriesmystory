@@ -1,9 +1,8 @@
+import { join } from "node:path";
+
 import { expect, test } from "@playwright/test";
 
-const syntheticPng = Buffer.from(
-  "iVBORw0KGgoAAAANSUhEUgAAAKAAAAB4CAIAAAD6wG44AAABuElEQVR42u3cMUpDQRiFUTPMPu1TBNIEKwlWYiNY2NtmIVlEVmNhKQ9FzGT++85Xq+Acri+imc3lfLpTbs0RABZgARZgARZgAQaslPpvPujp+OKk5uzxeLBgP6IFWIAFWHO+iv7e6/ubsxvffruzYAEGLMACLMACLMACDFiABViANbS+hm/y43nxf8ruHw6A01CXPiwSu6+WdukTw5g72mzmjjabudG9yVcGPItBdeNGN9u40c02bnSzjRvdbONGN9vYHxvCa+abPWILtmDzrTxiC7Zgo6k8Ygu2YAEW4MAHXonHsAVbsAALsAALsAALMODZmvMdBiXe92DBFizAApz2wKvyxkMLtmCjKTtfC7ZgI648Xwu2YCOuPN+qC77VKVe8k6Xqj+jxZ130xp3Cz+CRJ173PqXaL7LGnHvp27LKv4q+9ulXvwst4dek6xkE3HQXcpXhl8Q/vtXAXZWxzG6bjWV2X3TVB7Mb38OLVwx/FS3AgAVYgAVYgAVYgAUYsAALsAALsAALMGABFmABFmAB1g/98f+i99uds7NgARZgARbgtba5nE9OwYIFWIAFWIAFWIABK6JPUa93M71fK2YAAAAASUVORK5CYII=",
-  "base64"
-);
+const syntheticPhotoPath = join(process.cwd(), "tests", "fixtures", "synthetic-family-photo.png");
 
 test("the first screen expresses the approved memory-preservation promise", async ({
   page
@@ -13,18 +12,37 @@ test("the first screen expresses the approved memory-preservation promise", asyn
   await expect(
     page.getByRole("heading", {
       level: 1,
-      name: "Old photographs fade. The voices behind them should not."
+      name: "Let them hear the story only you can tell."
     })
   ).toBeVisible();
   await expect(
     page.getByText(
-      "Capture a photo. Tell its story. Preserve your voice for the people you love."
+      "Tell it in your own voice—so the people you love can remember more than the photograph."
     )
   ).toBeVisible();
   await expect(page.getByRole("button", { name: "Capture Your Memories" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Import a photo" })).toBeVisible();
   await expect(page.getByRole("link", { name: "My stories" })).toHaveAttribute("href", "/auth/protect");
-  await expect(page.getByText(/Muse|truthful save status/i)).toHaveCount(0);
+  await expect(page.getByText(/^Muse$/)).toHaveCount(0);
+});
+
+test("reading settings collapse after three seconds and remain discoverable", async ({ page }) => {
+  await page.goto("/");
+
+  await expect(page.locator(".text-size-control")).toBeVisible();
+  await page.waitForTimeout(3200);
+  await expect(page.locator(".text-size-control")).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Open reading settings" })).toBeVisible();
+
+  await page.getByRole("button", { name: "Open reading settings" }).click();
+  await expect(page.locator(".text-size-control")).toBeVisible();
+  await page.getByRole("button", { name: "Use largest text" }).click();
+  await expect(page.getByRole("button", { name: "Use largest text" })).toHaveAttribute(
+    "aria-pressed",
+    "true"
+  );
+  await page.getByRole("button", { name: "Close reading settings" }).click();
+  await expect(page.getByRole("button", { name: "Open reading settings" })).toBeVisible();
 });
 
 test("both first-screen actions preserve their intended capture path", async ({ page }) => {
@@ -53,11 +71,7 @@ test("an imported photograph survives reload without a false saved claim", async
 
   await page
     .getByLabel("Choose a photograph from this device")
-    .setInputFiles({
-      name: "synthetic-family-photo.png",
-      mimeType: "image/png",
-      buffer: syntheticPng
-    });
+    .setInputFiles(syntheticPhotoPath);
 
   await expect(
     page.getByRole("heading", { name: "Does the photograph feel clear enough?" })
@@ -192,11 +206,7 @@ test("an offline photograph never blocks the voice and later backs up in order",
   });
   await page.goto("/");
   await page.getByRole("button", { name: "Import a photo" }).click();
-  await page.getByLabel("Choose a photograph from this device").setInputFiles({
-    name: "synthetic-family-photo.png",
-    mimeType: "image/png",
-    buffer: syntheticPng
-  });
+  await page.getByLabel("Choose a photograph from this device").setInputFiles(syntheticPhotoPath);
   await page.getByRole("button", { name: /Use this photo/ }).click();
 
   await expect(
@@ -251,11 +261,7 @@ test("Muse cues before recording and returns before a rerecord", async ({ page }
 
   await page.goto("/");
   await page.getByRole("button", { name: "Import a photo" }).click();
-  await page.getByLabel("Choose a photograph from this device").setInputFiles({
-    name: "synthetic-family-photo.png",
-    mimeType: "image/png",
-    buffer: syntheticPng
-  });
+  await page.getByLabel("Choose a photograph from this device").setInputFiles(syntheticPhotoPath);
   await page.getByRole("button", { name: /Use this photo/ }).click();
 
   await expect(page.getByText("Would you like help remembering?", { exact: true })).toBeVisible();
@@ -334,11 +340,7 @@ test("the original voice is recorded, preserved, retrieved, and recovered", asyn
 
   await page.goto("/");
   await page.getByRole("button", { name: "Import a photo" }).click();
-  await page.getByLabel("Choose a photograph from this device").setInputFiles({
-    name: "synthetic-family-photo.png",
-    mimeType: "image/png",
-    buffer: syntheticPng
-  });
+  await page.getByLabel("Choose a photograph from this device").setInputFiles(syntheticPhotoPath);
   await page.getByRole("button", { name: /Use this photo/ }).click();
   await expect(
     page.getByRole("heading", { name: "Tell the story you remember." })

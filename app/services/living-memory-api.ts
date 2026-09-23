@@ -93,6 +93,73 @@ export async function askMuse(draftId: string): Promise<MuseView["musePrompt"]> 
   return body.musePrompt;
 }
 
+
+export type MuseConversationTurn = {
+  readonly turnId: string;
+  readonly index: number;
+  readonly speaker: "muse" | "storyteller";
+  readonly content: string;
+  readonly focus:
+    | "person"
+    | "place"
+    | "time"
+    | "event"
+    | "detail"
+    | "meaning"
+    | "sensory"
+    | "emotion"
+    | "sequence"
+    | "open"
+    | null;
+  readonly state: StoryContextInput["state"] | null;
+  readonly replyTo: string | null;
+  readonly createdAt: string;
+};
+
+export type MuseConversationView = {
+  readonly livingMemoryId: string;
+  readonly turns: readonly MuseConversationTurn[];
+  readonly context: readonly StoryContextEntry[];
+  readonly unresolved: readonly ("person" | "place" | "time" | "event")[];
+  readonly done: boolean;
+  readonly currentQuestion: MuseConversationTurn | null;
+};
+
+export async function loadMuseConversation(
+  draftId: string
+): Promise<MuseConversationView> {
+  return requireJson(
+    await fetch(
+      `/resources/drafts/${encodeURIComponent(draftId)}/muse-conversation`,
+      { credentials: "same-origin" }
+    )
+  );
+}
+
+export async function continueMuseConversation(
+  draftId: string,
+  reply?: {
+    readonly replyToTurnId: string;
+    readonly answer?: string;
+    readonly state?: StoryContextInput["state"];
+  }
+): Promise<MuseConversationView> {
+  return requireJson(
+    await fetch(
+      `/resources/drafts/${encodeURIComponent(draftId)}/muse-conversation`,
+      {
+        method: "POST",
+        credentials: "same-origin",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Memories-Request": "muse-conversation-v1"
+        },
+        body: JSON.stringify(reply ?? {})
+      }
+    )
+  );
+}
+
 export async function saveStoryContext(
   draftId: string,
   entries: readonly StoryContextInput[],

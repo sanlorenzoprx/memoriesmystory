@@ -51,6 +51,10 @@ export const phase1Config = {
     transcriptionEndpoint: "https://api.elevenlabs.io/v1/speech-to-text",
     museModelId: "@cf/meta/llama-3.1-8b-instruct-fast",
     musePromptVersion: "remembering-companion-v1",
+    museConversationPromptVersion: "story-elicitor-v1",
+    museTtsProvider: "elevenlabs",
+    museTtsModelId: "eleven_multilingual_v2",
+    museTtsOutputFormat: "mp3_44100_128",
     maxMuseQuestionsPerProof: 1
   },
   sharing: {
