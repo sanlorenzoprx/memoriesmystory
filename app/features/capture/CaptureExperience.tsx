@@ -5,7 +5,7 @@ import {
   useState,
   type ChangeEvent
 } from "react";
-import { Link, useParams, useSearchParams } from "react-router";
+import { Link, useNavigate, useParams, useSearchParams } from "react-router";
 
 import { phase1Config } from "../../../config/phase-1";
 import {
@@ -17,11 +17,13 @@ import {
   type LocalPhoto
 } from "./local-draft";
 import {
+  deleteLocalDraft,
   loadLocalDraft,
   makeDraftToken,
   saveLocalDraft
 } from "../../services/local-draft-store";
 import { inspectLocalPhoto } from "../../services/photo-inspection";
+import { deleteMemory } from "../../services/memory-deletion";
 import { OriginalsExperience } from "./OriginalsExperience";
 
 type CaptureStep =
@@ -79,6 +81,7 @@ function photoFromVideo(video: HTMLVideoElement): Promise<Blob> {
 
 export function CaptureExperience() {
   const { draftId } = useParams();
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const entryMode = entryModeFrom(searchParams.get("start"));
   const [step, setStep] = useState<CaptureStep>("loading");
@@ -86,6 +89,7 @@ export function CaptureExperience() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [recovered, setRecovered] = useState(false);
   const [tipsVisible, setTipsVisible] = useState(true);
+  const [deleting, setDeleting] = useState(false);
   const [isOnline, setIsOnline] = useState(() => navigator.onLine);
   const videoRef = useRef<HTMLVideoElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -302,13 +306,39 @@ export function CaptureExperience() {
     setStep("intro");
   }
 
+  async function deleteCurrentDraft() {
+    if (!draft || deleting) return;
+    const confirmed = window.confirm(
+      "Delete this draft and its preserved photograph and voice? This cannot be undone."
+    );
+    if (!confirmed) return;
+
+    setDeleting(true);
+    setErrorMessage(null);
+    try {
+      await deleteMemory(draft.id, { draftToken: draft.draftToken });
+      await deleteLocalDraft(draft.id);
+      await navigate("/", { replace: true });
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error
+          ? error.message
+          : "This draft could not be deleted right now."
+      );
+      setDeleting(false);
+    }
+  }
+
   return (
     <div className="capture-page" id="main-content">
       <header className="capture-header">
         <Link className="capture-brand" to="/" aria-label="Memories: My Story, home">
           Memories: <em>My Story</em>
         </Link>
-        <span className="capture-step-label">Photo</span>
+        <div className="capture-header-actions">
+          <Link className="account-link" to="/auth/protect">My account</Link>
+          <span className="capture-step-label">Photo</span>
+        </div>
       </header>
 
       <input
@@ -523,6 +553,19 @@ export function CaptureExperience() {
           <p className="capture-lede">{errorMessage}</p>
           <Link className="secondary-action" to="/">Return to the beginning</Link>
         </section>
+      )}
+
+      {draft && step !== "loading" && step !== "opening-camera" && step !== "camera-live" && (
+        <div className="delete-memory-zone">
+          <button
+            className="danger-text-action"
+            type="button"
+            disabled={deleting}
+            onClick={() => void deleteCurrentDraft()}
+          >
+            {deleting ? "Deleting…" : "Delete this draft"}
+          </button>
+        </div>
       )}
     </div>
   );

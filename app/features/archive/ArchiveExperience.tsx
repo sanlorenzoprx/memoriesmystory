@@ -38,13 +38,9 @@ function ArchiveIndex() {
             {drafts.map((draft) => (
               <li key={draft.id}>
                 <Link
-                  to={
-                    draft.status === "complete"
-                      ? `/memory/${encodeURIComponent(draft.id)}`
-                      : `/archive/${encodeURIComponent(draft.id)}`
-                  }
+                  to={`/memory/${encodeURIComponent(draft.id)}`}
                 >
-                  <strong>{draft.status === "complete" ? "Living Memory" : "Photograph and voice"}</strong>
+                  <strong>{draft.status === "complete" ? "Living Memory" : "Continue Living Memory"}</strong>
                   <span>Protected {new Date(draft.updated_at).toLocaleDateString()}</span>
                 </Link>
               </li>

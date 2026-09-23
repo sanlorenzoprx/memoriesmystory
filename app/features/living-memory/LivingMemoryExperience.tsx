@@ -19,6 +19,8 @@ import {
   type SharePreview,
   type ShareSelection
 } from "../../services/living-memory-api";
+import { deleteLocalDraft } from "../../services/local-draft-store";
+import { deleteMemory } from "../../services/memory-deletion";
 
 type Stage =
   | "loading"
@@ -97,6 +99,7 @@ export function LivingMemoryExperience() {
   });
   const [sharePreview, setSharePreview] = useState<SharePreview | null>(null);
   const [sharePath, setSharePath] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
   const shareKeyRef = useRef(
     `share_${draftId || "memory"}_${crypto.randomUUID()}`
   );
@@ -330,6 +333,29 @@ export function LivingMemoryExperience() {
     }
   }
 
+  async function deleteCurrentMemory() {
+    if (deleting) return;
+    const confirmed = window.confirm(
+      "Delete this Living Memory, including its preserved photograph, voice, transcript, Muse material and family links? This cannot be undone."
+    );
+    if (!confirmed) return;
+
+    setDeleting(true);
+    setMessage(null);
+    try {
+      await deleteMemory(draftId);
+      await deleteLocalDraft(draftId).catch(() => undefined);
+      await navigate("/archive", { replace: true });
+    } catch (error) {
+      setMessage(
+        error instanceof Error
+          ? error.message
+          : "This Living Memory could not be deleted right now."
+      );
+      setDeleting(false);
+    }
+  }
+
   async function handOffShare() {
     if (!shareUrl) return;
     const nativeShare = (
@@ -373,7 +399,8 @@ export function LivingMemoryExperience() {
       <MemoryPage>
         <section className="living-memory-card">
           <p className="eyebrow">Your originals are safe</p>
-          <h1>Listening to your story.</h1>
+          <h1>Muse is listening to your story.</h1>
+          <MusePresence listening />
           <OriginalPair snapshot={snapshot} compact />
           <p className="capture-lede">
             We’re turning your recording into readable words so Muse can help you remember.
@@ -390,6 +417,7 @@ export function LivingMemoryExperience() {
               Try transcript again
             </button>
           )}
+          <DeleteMemoryAction deleting={deleting} onDelete={() => void deleteCurrentMemory()} />
         </section>
       </MemoryPage>
     );
@@ -402,13 +430,7 @@ export function LivingMemoryExperience() {
           <p className="eyebrow">Muse helps you remember</p>
           <h1>Your memory stays yours.</h1>
           <OriginalPair snapshot={snapshot} compact />
-          {museQuestion && (
-            <div className="muse-prompt">
-              <strong>Muse asks</strong>
-              <p>{museQuestion}</p>
-              <span>If that brings something back, add it below. Muse is not checking whether your memory is “right.”</span>
-            </div>
-          )}
+          <MusePresence question={museQuestion} />
           {snapshot.transcript && (
             <details className="memory-transcript">
               <summary>Read the transcript from your recording</summary>
@@ -416,6 +438,10 @@ export function LivingMemoryExperience() {
               <span>Your recording—not this transcript—is the original testimony.</span>
             </details>
           )}
+          <div className="context-introduction">
+            <strong>Add what you remember</strong>
+            <span>Who, where, when and what are yours to state, approximate, leave unknown or leave out.</span>
+          </div>
           <div className="memory-context-grid">
             {context.map((entry) => (
               <ContextEditor
@@ -429,6 +455,7 @@ export function LivingMemoryExperience() {
           <button className="primary-action" type="button" onClick={() => void reviewContext()}>
             Review my Living Memory
           </button>
+          <DeleteMemoryAction deleting={deleting} onDelete={() => void deleteCurrentMemory()} />
         </section>
       </MemoryPage>
     );
@@ -472,6 +499,7 @@ export function LivingMemoryExperience() {
               Change context
             </button>
           </div>
+          <DeleteMemoryAction deleting={deleting} onDelete={() => void deleteCurrentMemory()} />
         </section>
       </MemoryPage>
     );
@@ -497,6 +525,7 @@ export function LivingMemoryExperience() {
             </button>
             <Link className="secondary-action" to="/archive">Keep private</Link>
           </div>
+          <DeleteMemoryAction deleting={deleting} onDelete={() => void deleteCurrentMemory()} />
         </section>
       </MemoryPage>
     );
@@ -575,6 +604,7 @@ export function LivingMemoryExperience() {
               Keep private
             </button>
           </div>
+          <DeleteMemoryAction deleting={deleting} onDelete={() => void deleteCurrentMemory()} />
         </section>
       </MemoryPage>
     );
@@ -616,6 +646,7 @@ export function LivingMemoryExperience() {
               Change share
             </button>
           </div>
+          <DeleteMemoryAction deleting={deleting} onDelete={() => void deleteCurrentMemory()} />
         </section>
       </MemoryPage>
     );
@@ -645,8 +676,61 @@ export function LivingMemoryExperience() {
           )}
           <Link className="secondary-action" to="/archive">Return to my archive</Link>
         </div>
+        <DeleteMemoryAction deleting={deleting} onDelete={() => void deleteCurrentMemory()} />
       </section>
     </MemoryPage>
+  );
+}
+
+function DeleteMemoryAction({
+  deleting,
+  onDelete
+}: {
+  readonly deleting: boolean;
+  readonly onDelete: () => void;
+}) {
+  return (
+    <div className="delete-memory-zone">
+      <button
+        className="danger-text-action"
+        type="button"
+        disabled={deleting}
+        onClick={onDelete}
+      >
+        {deleting ? "Deleting…" : "Delete this memory"}
+      </button>
+    </div>
+  );
+}
+
+function MusePresence({
+  question = null,
+  listening = false
+}: {
+  readonly question?: string | null;
+  readonly listening?: boolean;
+}) {
+  return (
+    <div className="muse-presence" role={listening ? "status" : undefined}>
+      <div className="muse-avatar" aria-hidden="true">
+        <span>M</span>
+      </div>
+      <div className="muse-presence-copy">
+        <strong>{listening ? "Muse is listening" : "Muse"}</strong>
+        {question ? (
+          <>
+            <p>{question}</p>
+            <span>
+              If that brings something back, add it below. Muse helps you remember; it does not decide whether your memory is right.
+            </span>
+          </>
+        ) : listening ? (
+          <p>Your real voice stays the original while Muse listens for one useful question.</p>
+        ) : (
+          <p>Muse listened. You can keep your story exactly as you told it and add only what you want below.</p>
+        )}
+      </div>
+    </div>
   );
 }
 
@@ -657,7 +741,10 @@ function MemoryPage({ children }: { readonly children: React.ReactNode }) {
         <Link className="capture-brand" to="/">
           Memories: <em>My Story</em>
         </Link>
-        <span className="capture-step-label">Living Memory</span>
+        <div className="capture-header-actions">
+          <Link className="account-link" to="/archive">My account</Link>
+          <span className="capture-step-label">Living Memory</span>
+        </div>
       </header>
       {children}
     </div>

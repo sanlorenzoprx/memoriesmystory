@@ -344,8 +344,8 @@ export function OriginalsExperience({
       {phase === "originals-durable" && (
         <>
           <p className="eyebrow">Photograph and voice protected</p>
-          <h1 ref={headingRef} tabIndex={-1}>Your originals are backed up.</h1>
-          <p className="capture-lede">Protect them with your account to continue building this Living Memory.</p>
+          <h1 ref={headingRef} tabIndex={-1}>Your photograph and voice are safe.</h1>
+          <p className="capture-lede">Next, save this memory to your private account. Then Muse can listen, help you remember, and you can finish or share the Living Memory.</p>
           <div className="story-photo-focus"><img src={photoUrl} alt="Your privately preserved photograph" /></div>
           {preservedAudioUrl ? (
             <>
@@ -363,8 +363,12 @@ export function OriginalsExperience({
             </div>
           </div>
           <p className="cross-device-note">Carry this Memory Story securely to your phone, tablet and computer.</p>
+          <div className="next-memory-flow" aria-label="What happens next">
+            <strong>Next</strong>
+            <span>Save to account → Muse → Who / Where / When / What → Preserve → Share</span>
+          </div>
           <Link className="primary-action" to={`/auth/protect?draftId=${encodeURIComponent(draft.id)}`}>
-            Protect and continue
+            Save to my account & continue
           </Link>
         </>
       )}

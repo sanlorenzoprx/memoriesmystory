@@ -3,6 +3,7 @@ import { handleAgentRoute } from "./agent-routes";
 import { handleAuthRoute } from "./auth-routes";
 import { handleCompletionRoute } from "./completion";
 import { handleDiscoveryRoute } from "./discovery-routes";
+import { handleDeletionRoute } from "./deletion";
 import { handleMediaRoute } from "./media-routes";
 import { handleMuseRoute } from "./muse";
 import { handleSharingRoute } from "./sharing";
@@ -48,6 +49,9 @@ const handler: ExportedHandler<Env, TranscriptionQueueMessage> = {
 
     const authResponse = await handleAuthRoute(request, env);
     if (authResponse) return authResponse;
+
+    const deletionResponse = await handleDeletionRoute(request, env);
+    if (deletionResponse) return deletionResponse;
 
     const mediaResponse = await handleMediaRoute(request, env);
     if (mediaResponse) return mediaResponse;

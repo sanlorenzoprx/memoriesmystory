@@ -31,6 +31,7 @@ try {
     "user_sessions",
     "draft_ownership_claims",
     "billing_customer_links",
+    "deletion_receipts",
     "memory_story_drafts",
     "memory_stories",
     "media_assets",

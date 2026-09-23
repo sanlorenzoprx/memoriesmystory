@@ -14,6 +14,7 @@ import { CaptureExperience } from "./features/capture/CaptureExperience";
 import { IdentityExperience } from "./features/identity/IdentityExperience";
 import { ArchiveExperience } from "./features/archive/ArchiveExperience";
 import { LivingMemoryExperience } from "./features/living-memory/LivingMemoryExperience";
+import { TextSizeControl } from "./features/TextSizeControl";
 import type { CaptureEntryMode } from "./features/capture/local-draft";
 import { beginLocalDraft } from "./services/local-draft-store";
 
@@ -68,6 +69,7 @@ function AppShell() {
       <a className="skip-link" href="#main-content">
         Skip to the story
       </a>
+      <TextSizeControl />
       <Outlet />
     </main>
   );
