@@ -9,7 +9,7 @@
 
 The automated product proof is live through the complete core loop:
 
-**Photo → real voice → durable originals → transcription → Muse remembering prompt → storyteller-owned context → completion → reopen → original playback → bounded family share → revoke.**
+**Photo → real voice → durable originals → transcription → conversational Muse → optional spoken storyteller replies → storyteller-owned context → completion → reopen → original playback → bounded family share → revoke.**
 
 The release candidate is **not human-locked yet**. Three uncoached human sessions and current real-device iPhone Safari / Android Chrome evidence remain explicit release evidence.
 
@@ -159,6 +159,76 @@ A transient redeploy rebuilt Vite without `.env.staging.local`, which removed th
 
 The same real physical phone journey must still be rerun because the original defect was found on a real device, not in emulation.
 
+## Voice-first conversational Muse evidence
+
+The fixed Who / Where / When / What questionnaire has been replaced by a durable conversational Muse architecture. Person, place, time and event remain internal preservation anchors, but they are no longer presented as four form cards. Muse asks one natural question at a time from the storyteller's original transcript plus prior conversation turns.
+
+Current staging Worker version for this proof:
+
+`5e6a70d2-81cf-41a8-ade6-9f4af598ec80`
+
+Current Git checkpoint:
+
+`86c82591b5bcca56b0a6ccdd2724211614416007`
+
+Verified implementation:
+
+- Muse conversation turns are durable and attributed separately to Muse or storyteller.
+- Muse may ask richer questions about detail, sequence, people, place, time, feeling, sensory memory or meaning.
+- AI inference alone cannot resolve a preservation anchor.
+- an anchor is resolved only by storyteller-stated, approximate, unknown or omitted input.
+- Muse questions can be spoken through the replaceable ElevenLabs TTS provider.
+- storyteller replies may be typed or recorded in their real voice.
+- a spoken reply is preserved immutably in private R2 before transcription is trusted.
+- transcription failure is retryable from the same preserved reply without rerecording.
+- the original machine transcript is retained separately from storyteller-confirmed wording.
+- Muse reads the storyteller-confirmed wording, while the original audio and machine transcript remain unchanged.
+- the storyteller conversation turn retains provenance to both the exact Muse question and the exact preserved voice asset.
+- preserved conversational voice remains privately playable after reload.
+- deleting the Living Memory deletes conversational voice objects and their asset-scoped operation receipts.
+
+Focused backend result:
+
+- dynamic Muse sovereignty
+- spoken-reply durability / provider failure / retry
+- exact playback
+- deletion cleanup
+- transcription provider boundary
+
+**Result: 4 test files / 5 tests passed.**
+
+Focused Pixel-7 Chromium interaction:
+
+**Muse asks → Answer with voice → record → listen → preserve → transcribe → review/correct derivative text → send → next Muse question → replay preserved storyteller voice: PASS.**
+
+Live deployed synthetic staging proof using the existing English acceptance memory:
+
+- active Muse question available: PASS
+- deployed Muse TTS returned HTTP 200: PASS
+- synthetic storyteller reply uploaded through the real Worker: HTTP 201
+- voice reply durable before conversation continuation: PASS
+- ElevenLabs transcription from the preserved R2 object: ready
+- storyteller-confirmed text required before Muse continuation: PASS
+- confirmed storyteller turn attached to the exact preserved voice asset: PASS
+- private voice-reply playback returned HTTP 200
+- playback SHA-256 matched the uploaded recording exactly: PASS
+- `LIVE_CONFIRMED_VOICE_CONVERSATION=PASS`
+
+ElevenLabs permission status:
+
+- `text_to_speech`: working in local permission probe and through the deployed staging Worker
+- `voices_read`: still unavailable on the current local key
+- this does not block the current staging proof because a known working voice ID is configured behind the provider boundary
+- once `voices_read` is enabled, Muse voice selection can be refined without changing the conversation architecture
+
+Staging convergence after deployment:
+
+- `/health` = HTTP 200
+- D1 migrations: **No migrations to apply**
+- required Worker secrets present by name only
+- D1 + R2 + AI + Queue bindings present
+- Queue producer + consumer present
+
 ## Crucial regression gate
 
 Focused convergence suite:
@@ -177,7 +247,7 @@ The additional focused test covers owner-requested deletion of private R2 media 
 
 D1 verifier:
 
-**27 required objects verified**, including integrity, foreign keys, immutable-original triggers, fail-closed completion, and deletion receipts.
+**29 required objects verified**, including integrity, foreign keys, immutable-original triggers, fail-closed completion, deletion receipts, durable Muse conversation, and conversational voice-reply storage.
 
 ## Recovery / rollback evidence
 
