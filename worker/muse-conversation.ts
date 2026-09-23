@@ -687,11 +687,15 @@ async function continueConversation(
         typeof body.answer === "string"
           ? body.answer.replace(/\s+/g, " ").trim()
           : "";
-      const machineTranscript =
-        voiceReply?.transcript_text?.replace(/\s+/g, " ").trim() ?? "";
-      const rawAnswer = voiceReply
-        ? (typedAnswer || voiceReply.storyteller_text?.trim() || machineTranscript)
-        : typedAnswer;
+      const rawAnswer = typedAnswer;
+
+      if (voiceReply && !rawAnswer) {
+        throw new MuseConversationError(
+          400,
+          "voice_reply_confirmation_required",
+          "Review what Muse heard and confirm the words before continuing."
+        );
+      }
 
       if (voiceReply) {
         await confirmVoiceReplyText(
