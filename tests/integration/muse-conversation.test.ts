@@ -57,7 +57,8 @@ class TestD1 {
       "0001_phase_1_foundation.sql",
       "0002_account_binding_recovery.sql",
       "0003_living_memory_proof.sql",
-      "0006_muse_conversation.sql"
+      "0006_muse_conversation.sql",
+      "0007_muse_voice_replies.sql"
     ]) {
       this.database.exec(
         readFileSync(new URL(`../../migrations/${migration}`, import.meta.url), "utf8")

@@ -113,6 +113,8 @@ export type MuseConversationTurn = {
     | null;
   readonly state: StoryContextInput["state"] | null;
   readonly replyTo: string | null;
+  readonly voiceReplyAssetId: string | null;
+  readonly voiceReplyMediaUrl: string | null;
   readonly createdAt: string;
 };
 
@@ -142,6 +144,7 @@ export async function continueMuseConversation(
     readonly replyToTurnId: string;
     readonly answer?: string;
     readonly state?: StoryContextInput["state"];
+    readonly voiceReplyAssetId?: string;
   }
 ): Promise<MuseConversationView> {
   return requireJson(

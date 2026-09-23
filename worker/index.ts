@@ -8,6 +8,7 @@ import { handleMediaRoute } from "./media-routes";
 import { handleMuseRoute } from "./muse";
 import { handleMuseConversationRoute } from "./muse-conversation";
 import { handleMuseTtsRoute } from "./muse-tts";
+import { handleMuseVoiceReplyRoute } from "./muse-voice-replies";
 import { handleSharingRoute } from "./sharing";
 import {
   handleTranscriptionRoute,
@@ -65,6 +66,9 @@ const handler: ExportedHandler<Env, TranscriptionQueueMessage> = {
 
     const museTtsResponse = await handleMuseTtsRoute(request, env);
     if (museTtsResponse) return museTtsResponse;
+
+    const museVoiceReplyResponse = await handleMuseVoiceReplyRoute(request, env);
+    if (museVoiceReplyResponse) return museVoiceReplyResponse;
 
     const museConversationResponse = await handleMuseConversationRoute(request, env);
     if (museConversationResponse) return museConversationResponse;

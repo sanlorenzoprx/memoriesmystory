@@ -39,7 +39,9 @@ class TestD1 {
       "0002_account_binding_recovery.sql",
       "0003_living_memory_proof.sql",
       "0004_configurable_story_entitlements.sql",
-      "0005_memory_deletion.sql"
+      "0005_memory_deletion.sql",
+      "0006_muse_conversation.sql",
+      "0007_muse_voice_replies.sql"
     ]) {
       this.database.exec(readFileSync(new URL(`../../migrations/${migration}`, import.meta.url), "utf8"));
     }
@@ -99,6 +101,32 @@ describe("Living Memory deletion", () => {
     }
 
     d1.database.prepare(
+      `INSERT INTO muse_conversation_turns (
+        id,memory_story_id,turn_index,speaker,content,focus_kind,response_state,
+        source_ref,model_config_version,prompt_version,created_by_user_id,created_at
+      ) VALUES ('muse_turn_delete_001',?,0,'muse','What do you remember?','detail',NULL,
+        'transcript:test','test-model','story-elicitor-v1',NULL,?)`
+    ).run(draftId, now);
+    d1.database.prepare(
+      `INSERT INTO muse_voice_reply_assets (
+        id,memory_story_id,reply_to_turn_id,r2_key,content_type,byte_size,duration_ms,
+        sha256,r2_etag,durability_status,transcript_text,transcript_locale,
+        transcription_model_config_version,created_by_user_id,created_at,transcribed_at
+      ) VALUES (
+        'muse_voice_delete_001',?,'muse_turn_delete_001',?,'audio/webm',12,1200,?,
+        'etag-muse-voice','durable','A preserved spoken reply.','eng',
+        'test-model',?,?,?
+      )`
+    ).run(
+      draftId,
+      `stories/${draftId}/muse-voice/muse_voice_delete_001/original.webm`,
+      "c".repeat(64),
+      userId,
+      now,
+      now
+    );
+
+    d1.database.prepare(
       "UPDATE memory_stories SET status='complete', completed_at=?, updated_at=? WHERE id=?"
     ).run(now, now, draftId);
     expect(
@@ -124,12 +152,16 @@ describe("Living Memory deletion", () => {
     );
 
     expect(response?.status).toBe(200);
-    expect(removed).toHaveLength(2);
+    expect(removed.sort()).toEqual([
+      `drafts/${draftId}/audio`,
+      `drafts/${draftId}/photo`,
+      `stories/${draftId}/muse-voice/muse_voice_delete_001/original.webm`
+    ].sort());
     expect(d1.database.prepare("SELECT count(*) AS n FROM memory_story_drafts WHERE id = ?").get(draftId)).toEqual({ n: 0 });
     expect(d1.database.prepare("SELECT count(*) AS n FROM memory_stories WHERE id = ?").get(draftId)).toEqual({ n: 0 });
     expect(d1.database.prepare("SELECT count(*) AS n FROM media_assets WHERE draft_id = ?").get(draftId)).toEqual({ n: 0 });
     expect(d1.database.prepare("SELECT actor_type, deleted_asset_count FROM deletion_receipts WHERE draft_id = ?").get(draftId))
-      .toEqual({ actor_type: "owner", deleted_asset_count: 2 });
+      .toEqual({ actor_type: "owner", deleted_asset_count: 3 });
     expect(
       d1.database.prepare("SELECT free_stories_completed AS n FROM story_entitlements WHERE user_id = ?").get(userId)
     ).toEqual({ n: 0 });

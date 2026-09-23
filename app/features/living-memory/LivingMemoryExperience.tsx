@@ -21,6 +21,7 @@ import {
 import { deleteLocalDraft } from "../../services/local-draft-store";
 import { deleteMemory } from "../../services/memory-deletion";
 import { MuseVoiceButton } from "../MuseVoiceButton";
+import { MuseVoiceReplyRecorder } from "../MuseVoiceReplyRecorder";
 
 type Stage =
   | "loading"
@@ -203,7 +204,8 @@ export function LivingMemoryExperience() {
 
   async function replyToMuse(
     answer: string | undefined,
-    state: StoryContextState
+    state: StoryContextState,
+    voiceReplyAssetId?: string
   ) {
     const currentQuestion = conversation?.currentQuestion;
     if (!currentQuestion || conversationBusy) return;
@@ -213,7 +215,8 @@ export function LivingMemoryExperience() {
       const next = await continueMuseConversation(draftId, {
         replyToTurnId: currentQuestion.turnId,
         answer,
-        state
+        state,
+        voiceReplyAssetId
       });
       setConversation(next);
       if (next.done) {
@@ -748,7 +751,8 @@ function MuseStoryConversation({
   readonly busy: boolean;
   readonly onReply: (
     answer: string | undefined,
-    state: StoryContextState
+    state: StoryContextState,
+    voiceReplyAssetId?: string
   ) => Promise<void>;
 }) {
   const [reply, setReply] = useState("");
@@ -786,6 +790,15 @@ function MuseStoryConversation({
           >
             <div className="storyteller-bubble">
               <span>{turn.content}</span>
+              {turn.voiceReplyMediaUrl && (
+                <audio
+                  className="storyteller-voice-reply-player"
+                  controls
+                  src={turn.voiceReplyMediaUrl}
+                >
+                  Your browser cannot play this preserved voice reply.
+                </audio>
+              )}
             </div>
           </div>
         )
@@ -793,6 +806,19 @@ function MuseStoryConversation({
 
       {!conversation.done && conversation.currentQuestion && (
         <div className="muse-reply-composer">
+          <MuseVoiceReplyRecorder
+            draftId={draftId}
+            replyToTurnId={conversation.currentQuestion.turnId}
+            disabled={busy}
+            onSend={(answer, state, voiceReplyAssetId) =>
+              onReply(answer, state, voiceReplyAssetId)
+            }
+          />
+
+          <div className="muse-reply-divider" aria-hidden="true">
+            <span>or type your reply</span>
+          </div>
+
           <label>
             <span className="sr-only">
               Your reply to {conversation.currentQuestion.content}
@@ -801,7 +827,6 @@ function MuseStoryConversation({
               value={reply}
               onChange={(event) => setReply(event.target.value)}
               placeholder="Tell Muse what comes back to you"
-              autoFocus
             />
           </label>
           <div className="muse-reply-choices">

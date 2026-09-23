@@ -57,7 +57,21 @@ Muse questions, transcripts, TTS, and other AI output are derivatives and assist
 
 Muse should speak its questions through the configured speech provider and display the same words on screen.
 
-The first provider is ElevenLabs, behind a replaceable Muse speech-provider boundary.
+The storyteller may answer Muse by **voice or text**. Voice is the primary interaction path; typing remains available.
+
+A spoken Muse reply follows this contract:
+
+1. microphone access is requested only after the storyteller chooses **Answer with voice**;
+2. the reply is recorded locally and played back before anything is uploaded;
+3. choosing **Use this voice reply** preserves the original reply audio immutably in R2;
+4. transcription runs from that preserved audio;
+5. if transcription fails, the preserved audio is retried without asking the storyteller to rerecord;
+6. the storyteller sees **Muse heard:** and may correct transcription text before the conversation continues;
+7. correcting the transcript never changes the preserved audio;
+8. the resulting conversation turn retains the preserved voice asset ID and a private playback path;
+9. deleting the Living Memory also deletes all preserved Muse voice-reply audio objects.
+
+The first Muse speech provider is ElevenLabs, behind a replaceable Muse speech-provider boundary.
 
 The storyteller's original voice is never replaced by TTS.
 
@@ -68,3 +82,8 @@ The storyteller's original voice is never replaced by TTS.
 - Storyteller replies may update preservation context only when the question's focus is a preservation anchor.
 - The exact storyteller reply is the source of preserved context.
 - The UI renders a turn-by-turn Muse/storyteller conversation rather than Who/Where/When/What cards.
+- Spoken storyteller replies are durable in `muse_voice_reply_assets` and linked to the exact Muse turn they answer.
+- Voice replies use the existing transcription-provider boundary and keep the original audio as testimony.
+- A transcription outage never requires a new recording; retry reuses the same preserved R2 object.
+- Storyteller turns expose private playback for preserved spoken replies.
+- The phone UI presents **Answer with voice** before the text field and does not autofocus the keyboard.

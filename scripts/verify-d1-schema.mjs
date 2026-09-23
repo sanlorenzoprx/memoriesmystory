@@ -38,6 +38,8 @@ try {
     "transcript_revisions",
     "story_entitlements",
     "living_memory_context_entries",
+    "muse_conversation_turns",
+    "muse_voice_reply_assets",
     "product_events",
     "living_memory_share_artifacts",
     "memory_story_shares",

@@ -1807,6 +1807,147 @@ h1 {
   }
 }
 
+
+.muse-reply-divider {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  color: var(--ink-soft);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.muse-reply-divider::before,
+.muse-reply-divider::after {
+  content: "";
+  height: 1px;
+  flex: 1;
+  background: rgba(67, 43, 30, 0.12);
+}
+
+.muse-voice-reply {
+  display: grid;
+  gap: 0.7rem;
+  width: 100%;
+}
+
+.muse-voice-reply-start {
+  min-height: 3.35rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  border: 1px solid rgba(155, 57, 31, 0.24);
+  border-radius: 999px;
+  background: var(--terracotta-deep);
+  color: #fffaf4;
+  cursor: pointer;
+  padding: 0.7rem 1rem;
+  font-size: 0.96rem;
+  font-weight: 800;
+}
+
+.muse-voice-reply-start span {
+  font-size: 0.72rem;
+}
+
+.muse-voice-reply-start:disabled,
+.muse-voice-reply button:disabled {
+  cursor: wait;
+  opacity: 0.58;
+}
+
+.muse-voice-recording-status {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 0.55rem;
+  border: 1px solid rgba(155, 57, 31, 0.18);
+  border-radius: 0.9rem;
+  background: rgba(155, 57, 31, 0.07);
+  padding: 0.75rem 0.85rem;
+}
+
+.muse-voice-recording-status .recording-dot {
+  width: 0.72rem;
+  height: 0.72rem;
+  border-radius: 50%;
+  background: var(--terracotta-deep);
+}
+
+.muse-voice-recording-status strong {
+  font-size: 0.9rem;
+}
+
+.muse-voice-recording-status > span:last-child {
+  color: var(--ink-soft);
+  font-size: 0.78rem;
+}
+
+.compact-stop {
+  width: 100%;
+  min-height: 3rem;
+}
+
+.muse-voice-reply.review,
+.muse-voice-reply.transcript-review {
+  border: 1px solid rgba(120, 140, 120, 0.22);
+  border-radius: 1rem;
+  background: rgba(239, 246, 237, 0.55);
+  padding: 0.85rem;
+}
+
+.muse-voice-reply audio,
+.storyteller-voice-reply-player {
+  width: 100%;
+  max-width: 100%;
+}
+
+.muse-voice-reply-actions {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.muse-voice-note {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 0.8rem;
+  line-height: 1.45;
+}
+
+.muse-voice-reply textarea {
+  width: 100%;
+  box-sizing: border-box;
+  resize: vertical;
+  border: 1px solid rgba(67, 43, 30, 0.18);
+  border-radius: 0.85rem;
+  background: #fffdf8;
+  color: var(--ink);
+  padding: 0.75rem 0.85rem;
+  font: inherit;
+  line-height: 1.45;
+}
+
+.muse-approximate-choice {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  color: var(--ink-soft);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.storyteller-bubble {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.storyteller-voice-reply-player {
+  margin-top: 0.55rem;
+}
+
 /* Living Memory proof flow */
 .living-memory-page {
   width: min(100%, 72rem);

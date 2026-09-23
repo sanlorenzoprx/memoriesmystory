@@ -50,10 +50,21 @@ type TurnRow = {
   focus_kind: MuseFocus | null;
   response_state: "stated" | "approximate" | "unknown" | "omitted" | null;
   source_ref: string | null;
+  reply_to_turn_id: string | null;
+  voice_reply_asset_id: string | null;
   model_config_version: string | null;
   prompt_version: string | null;
   created_by_user_id: string | null;
   created_at: string;
+};
+
+type VoiceReplyRow = {
+  id: string;
+  memory_story_id: string;
+  reply_to_turn_id: string;
+  durability_status: "pending" | "durable" | "failed";
+  transcript_text: string | null;
+  transcript_locale: string | null;
 };
 
 type ContextRow = {
@@ -166,8 +177,8 @@ async function conversationTurns(
 ): Promise<TurnRow[]> {
   const result = await env.DB.prepare(
     `SELECT id, memory_story_id, turn_index, speaker, content, focus_kind,
-            response_state, source_ref, model_config_version, prompt_version,
-            created_by_user_id, created_at
+            response_state, source_ref, reply_to_turn_id, voice_reply_asset_id,
+            model_config_version, prompt_version, created_by_user_id, created_at
      FROM muse_conversation_turns
      WHERE memory_story_id = ?
      ORDER BY turn_index ASC`
@@ -380,18 +391,26 @@ async function insertStorytellerTurn(
   replyToTurnId: string,
   content: string,
   state: StoryContextInput["state"],
-  focus: MuseFocus | null
+  focus: MuseFocus | null,
+  voiceReplyAssetId: string | null
 ): Promise<string> {
   const hash = await sha256(
-    [livingMemoryId, replyToTurnId, userId, state, content].join("|")
+    [
+      livingMemoryId,
+      replyToTurnId,
+      userId,
+      state,
+      content,
+      voiceReplyAssetId ?? ""
+    ].join("|")
   );
   const turnId = `story_turn_${hash.slice(0, 48)}`;
   await env.DB.prepare(
     `INSERT OR IGNORE INTO muse_conversation_turns (
        id, memory_story_id, turn_index, speaker, content, focus_kind,
-       response_state, source_ref, model_config_version, prompt_version,
-       created_by_user_id, created_at
-     ) VALUES (?, ?, ?, 'storyteller', ?, ?, ?, ?, NULL, NULL, ?, ?)`
+       response_state, source_ref, reply_to_turn_id, voice_reply_asset_id,
+       model_config_version, prompt_version, created_by_user_id, created_at
+     ) VALUES (?, ?, ?, 'storyteller', ?, ?, ?, ?, ?, ?, NULL, NULL, ?, ?)`
   ).bind(
     turnId,
     livingMemoryId,
@@ -400,6 +419,8 @@ async function insertStorytellerTurn(
     focus,
     state,
     `muse:${replyToTurnId}`,
+    replyToTurnId,
+    voiceReplyAssetId,
     userId,
     new Date().toISOString()
   ).run();
@@ -447,7 +468,7 @@ async function saveContextFromReply(
   ).run();
 }
 
-function serializeTurn(turn: TurnRow) {
+function serializeTurn(turn: TurnRow, draftId: string) {
   return {
     turnId: turn.id,
     index: turn.turn_index,
@@ -455,8 +476,14 @@ function serializeTurn(turn: TurnRow) {
     content: turn.content,
     focus: turn.focus_kind,
     state: turn.response_state,
-    replyTo: turn.source_ref?.startsWith("muse:")
-      ? turn.source_ref.slice(5)
+    replyTo:
+      turn.reply_to_turn_id ??
+      (turn.source_ref?.startsWith("muse:")
+        ? turn.source_ref.slice(5)
+        : null),
+    voiceReplyAssetId: turn.voice_reply_asset_id,
+    voiceReplyMediaUrl: turn.voice_reply_asset_id
+      ? `/resources/drafts/${encodeURIComponent(draftId)}/muse-voice-replies/${encodeURIComponent(turn.voice_reply_asset_id)}/media`
       : null,
     createdAt: turn.created_at
   };
@@ -464,7 +491,8 @@ function serializeTurn(turn: TurnRow) {
 
 async function snapshot(
   env: MuseConversationEnv,
-  livingMemoryId: string
+  livingMemoryId: string,
+  draftId: string
 ): Promise<Response> {
   const turns = await conversationTurns(env, livingMemoryId);
   const context = await currentContext(env, livingMemoryId);
@@ -479,19 +507,72 @@ async function snapshot(
   return json({
     ok: true,
     livingMemoryId,
-    turns: turns.map(serializeTurn),
+    turns: turns.map((turn) => serializeTurn(turn, draftId)),
     context,
     unresolved,
     done,
     currentQuestion:
-      !done && lastTurn?.speaker === "muse" ? serializeTurn(lastTurn) : null
+      !done && lastTurn?.speaker === "muse"
+        ? serializeTurn(lastTurn, draftId)
+        : null
   });
+}
+
+async function requireVoiceReply(
+  env: MuseConversationEnv,
+  memoryStoryId: string,
+  replyToTurnId: string,
+  assetId: string
+): Promise<VoiceReplyRow> {
+  const asset = await env.DB.prepare(
+    `SELECT id, memory_story_id, reply_to_turn_id, durability_status,
+            transcript_text, transcript_locale
+     FROM muse_voice_reply_assets
+     WHERE id = ? AND memory_story_id = ?`
+  ).bind(assetId, memoryStoryId).first<VoiceReplyRow>();
+
+  if (
+    !asset ||
+    asset.reply_to_turn_id !== replyToTurnId ||
+    asset.durability_status !== "durable"
+  ) {
+    throw new MuseConversationError(
+      409,
+      "voice_reply_not_ready",
+      "That spoken reply is not ready for this Muse question."
+    );
+  }
+  if (!asset.transcript_text?.trim()) {
+    throw new MuseConversationError(
+      409,
+      "voice_reply_transcript_pending",
+      "Your voice reply is safe. Muse still needs the transcript before continuing."
+    );
+  }
+
+  const alreadyUsed = await env.DB.prepare(
+    `SELECT id
+     FROM muse_conversation_turns
+     WHERE memory_story_id = ?
+       AND voice_reply_asset_id = ?
+     LIMIT 1`
+  ).bind(memoryStoryId, assetId).first();
+  if (alreadyUsed) {
+    throw new MuseConversationError(
+      409,
+      "voice_reply_used",
+      "That spoken reply is already part of the conversation."
+    );
+  }
+
+  return asset;
 }
 
 type ConversationBody = {
   replyToTurnId?: unknown;
   answer?: unknown;
   state?: unknown;
+  voiceReplyAssetId?: unknown;
 };
 
 async function continueConversation(
@@ -526,7 +607,7 @@ async function continueConversation(
       `transcript:${transcript.id}`,
       next.modelConfigVersion
     );
-    return snapshot(env, foundation.livingMemoryId);
+    return snapshot(env, foundation.livingMemoryId, draftId);
   }
 
   if (body.replyToTurnId) {
@@ -548,7 +629,10 @@ async function continueConversation(
     const existingReply = turns.find(
       (turn) =>
         turn.speaker === "storyteller" &&
-        turn.source_ref === `muse:${replyToTurnId}`
+        (
+          turn.reply_to_turn_id === replyToTurnId ||
+          turn.source_ref === `muse:${replyToTurnId}`
+        )
     );
 
     if (!existingReply) {
@@ -557,10 +641,29 @@ async function continueConversation(
       )
         ? (String(body.state) as StoryContextInput["state"])
         : "stated";
-      const rawAnswer =
+
+      const voiceReplyAssetId =
+        typeof body.voiceReplyAssetId === "string" && body.voiceReplyAssetId.trim()
+          ? validIdentifier(body.voiceReplyAssetId, "Voice reply asset ID")
+          : null;
+      const voiceReply = voiceReplyAssetId
+        ? await requireVoiceReply(
+            env,
+            foundation.livingMemoryId,
+            replyToTurnId,
+            voiceReplyAssetId
+          )
+        : null;
+
+      const typedOrCorrectedAnswer =
         typeof body.answer === "string"
           ? body.answer.replace(/\s+/g, " ").trim()
           : "";
+      const rawAnswer =
+        typedOrCorrectedAnswer ||
+        voiceReply?.transcript_text?.replace(/\s+/g, " ").trim() ||
+        "";
+
       if (
         (state === "stated" || state === "approximate") &&
         (!rawAnswer || rawAnswer.length > 1200)
@@ -588,7 +691,8 @@ async function continueConversation(
         replyToTurnId,
         content,
         state,
-        target.focus_kind
+        target.focus_kind,
+        voiceReplyAssetId
       );
       await saveContextFromReply(
         env,
@@ -609,7 +713,7 @@ async function continueConversation(
   const lastTurn = turns.at(-1);
 
   if (unresolved.length === 0 && lastTurn?.speaker === "storyteller" && museTurns.length >= 2) {
-    return snapshot(env, foundation.livingMemoryId);
+    return snapshot(env, foundation.livingMemoryId, draftId);
   }
 
   if (lastTurn?.speaker === "storyteller") {
@@ -627,7 +731,7 @@ async function continueConversation(
     );
   }
 
-  return snapshot(env, foundation.livingMemoryId);
+  return snapshot(env, foundation.livingMemoryId, draftId);
 }
 
 export async function handleMuseConversationRoute(
@@ -645,7 +749,7 @@ export async function handleMuseConversationRoute(
     const foundation = await ensureLivingMemoryFoundation(env, draftId, userId);
 
     if (request.method === "GET") {
-      return snapshot(env, foundation.livingMemoryId);
+      return snapshot(env, foundation.livingMemoryId, draftId);
     }
     if (request.method === "POST") {
       return await continueConversation(request, env, draftId);

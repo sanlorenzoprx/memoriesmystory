@@ -132,9 +132,14 @@ async function deleteMemory(
   const assets = await env.DB.prepare(
     "SELECT id, r2_key FROM media_assets WHERE draft_id = ? ORDER BY created_at DESC"
   ).bind(draftId).all<AssetRow>();
+  const voiceReplies = story
+    ? await env.DB.prepare(
+        "SELECT id, r2_key FROM muse_voice_reply_assets WHERE memory_story_id = ? ORDER BY created_at DESC"
+      ).bind(story.id).all<AssetRow>()
+    : { results: [] as AssetRow[] };
 
   try {
-    for (const asset of assets.results) {
+    for (const asset of [...assets.results, ...voiceReplies.results]) {
       await env.MEDIA_BUCKET.delete(asset.r2_key);
     }
   } catch {
@@ -151,6 +156,9 @@ async function deleteMemory(
 
   if (story) {
     statements.push(
+      env.DB.prepare(
+        "DELETE FROM operation_receipts WHERE scope_id IN (SELECT id FROM muse_voice_reply_assets WHERE memory_story_id = ?)"
+      ).bind(story.id),
       env.DB.prepare(
         "UPDATE media_assets SET memory_story_id = NULL WHERE draft_id = ?"
       ).bind(draftId),
@@ -174,6 +182,9 @@ async function deleteMemory(
   }
 
   statements.push(
+    env.DB.prepare(
+      "DELETE FROM operation_receipts WHERE scope_id IN (SELECT id FROM media_assets WHERE draft_id = ?)"
+    ).bind(draftId),
     env.DB.prepare(
       "DELETE FROM media_assets WHERE draft_id = ? AND role NOT IN ('original_photo', 'original_audio')"
     ).bind(draftId),
@@ -203,7 +214,7 @@ async function deleteMemory(
       story?.id ?? null,
       authorization.ownerUserId,
       authorization.actorType,
-      assets.results.length,
+      assets.results.length + voiceReplies.results.length,
       deletedAt
     )
   );
