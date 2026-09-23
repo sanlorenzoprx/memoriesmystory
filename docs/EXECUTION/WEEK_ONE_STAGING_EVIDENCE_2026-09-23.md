@@ -25,6 +25,8 @@ Verified live and isolated:
 - Clerk email + Google configuration
 - ElevenLabs Scribe v2 runtime secret
 - family-share token pepper
+- custom Cloudflare automation token verified for D1, Queues and R2
+
 ## Live English journey
 
 Synthetic English source audio was preserved and processed through the deployed Worker and Queue.
@@ -95,6 +97,63 @@ Coverage includes:
 - original voice preserve / retrieve / reload
 - keyboard reachability
 - no horizontal overflow at phone width
+## Real-phone product-owner evidence
+
+A real-phone product-owner run was performed after the automated phone-browser pass.
+
+What worked on the real phone:
+
+- photograph capture/import
+- photograph upload/preservation
+- microphone recording
+- original voice playback
+
+What the real phone exposed:
+
+- the journey stopped at durable originals before the Living Memory continuation
+- Muse was therefore not encountered
+- Who / Where / When / What context was therefore not encountered
+- account/save continuation was not obvious; the newest phone-created durable drafts remained anonymous in D1
+- family sharing was unreachable from that stopped journey
+- no in-product text-size control existed
+- no delete control existed
+
+These are release-blocking first-five-minute defects even though the underlying Muse/context/share APIs had already passed synthetic live acceptance.
+
+Repair first deployed in Worker version `d99bf7d7-3657-41fd-b55e-5a2ccf992c39` and finalized in Worker version `822f501d-2064-4e2b-9a90-c4adf3fc9e0c`:
+
+- visible **Save to my account & continue** handoff
+- background Clerk-to-application session alignment for already signed-in users
+- unfinished archive items continue into the Living Memory flow
+- visible Muse listening/question representation
+- explicit Who / Where / When / What section
+- persistent A / A+ / A++ text-size control
+- explicit draft/Living Memory deletion with private R2 + connected D1 cleanup
+- existing bounded family-share UI remains downstream of successful completion
+
+The repair is deployed and compiled/tested. A fresh authenticated synthetic staging draft then proved the repaired phone-width continuation end to end through the missing UI surfaces:
+
+- Muse visible: PASS
+- Who visible: PASS
+- Where visible: PASS
+- When visible: PASS
+- What visible: PASS
+- My account visible: PASS
+- Delete this memory visible: PASS
+- text-size control visible: PASS
+- A++ changed root text size from 16px to 20px: PASS
+- live deletion removed the disposable staging memory: PASS
+- reopening the deleted memory returned HTTP 404: PASS
+- live repair smoke result: `UI_REPAIR_SMOKE=PASS`
+- live account page fallback absent after final deployment: PASS
+- Clerk email sign-in control rendered: PASS
+- Clerk Google sign-in control rendered: PASS
+- completed Living Memory still exposed Share with family, Delete this memory, My account, and text-size controls after final deployment: PASS
+
+A transient redeploy rebuilt Vite without `.env.staging.local`, which removed the compile-time Clerk publishable key and reproduced the fallback account screen. The deployment was corrected by rebuilding Vite with the staging env before Wrangler deploy. Future staging client builds must preserve this rule; a successful Worker deploy alone is not evidence that Clerk is present in the browser bundle.
+
+The same real physical phone journey must still be rerun because the original defect was found on a real device, not in emulation.
+
 ## Crucial regression gate
 
 Focused convergence suite:
@@ -107,11 +166,13 @@ Focused convergence suite:
 - durable completion / activation
 - bounded sharing
 
-**Result: 7 test files / 19 tests passed.**
+**Result: 8 test files / 20 tests passed.**
+
+The additional focused test covers owner-requested deletion of private R2 media and connected D1 Living Memory records while retaining only a minimal deletion receipt.
 
 D1 verifier:
 
-**26 required objects verified**, including integrity, foreign keys, immutable-original triggers, and fail-closed completion.
+**27 required objects verified**, including integrity, foreign keys, immutable-original triggers, fail-closed completion, and deletion receipts.
 
 ## Recovery / rollback evidence
 
@@ -186,13 +247,12 @@ Do not mark Week One fully released until these are done:
 - human confirmation that people understand their own story versus Muse assistance
 - severe trust/comprehension/accessibility defects, if found, are fixed and rerun
 
-Operational caveats:
+Operational caveat:
 
-- the custom Cloudflare automation API token still fails D1 access; the refreshed Wrangler OAuth session works. Correct the token permissions before unattended deployment depends on it.
-- keep the D1 trigger-migration workaround documented until Cloudflare's remote migration parser accepts these files through the normal path.
+- keep the D1 trigger-migration workaround documented for the original trigger-heavy migrations until Cloudflare's remote migration parser accepts those files through the normal path. The later `0005_memory_deletion.sql` migration applied normally through Wrangler.
 
 ## Release interpretation
 
-Automated evidence is sufficient to move to the Day-7 human gate.
+Automated evidence remains green, but the first real-phone run found user-journey defects. The repair is deployed and the real-phone acceptance run must be repeated before moving past the real-device gate.
 
-It is **not** evidence that the product is publicly launch-ready. The stop rule remains: human proof first, then lock the exact RC SHA and stop feature work.
+It is **not** evidence that the product is publicly launch-ready. The stop rule remains: real-device repair acceptance, then human proof, then lock the exact RC SHA and stop feature work.

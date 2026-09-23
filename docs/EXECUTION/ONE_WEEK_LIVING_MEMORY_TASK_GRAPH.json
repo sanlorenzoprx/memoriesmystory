@@ -196,7 +196,7 @@
                       "depends_on":  [
                                          "D5-A0-CONVERGENCE"
                                      ],
-                      "status":  "completed_automated_staging_real_device_pending",
+                      "status":  "repair_deployed_real_device_retest_pending",
                       "deliverable":  "Full English and Spanish/mixed staging journeys on Android Chrome and iPhone Safari, one unreliable-network pass, rollback evidence.",
                       "gate":  "G5_FULL_JOURNEY_RC"
                   },
@@ -250,18 +250,18 @@
                   ],
     "stop_rule":  "When G5 passes and human proof has no severe trust/comprehension defect, stop feature work and lock the release candidate.",
     "current_checkpoint":  {
-                               "sha":  "5f76b675f2ed78509d22a8dd958217b3457cbe91",
+                               "sha":  "96565995bdda13c8223b05522d3542844df63aec",
                                "branch":  "integration/lm-week-one",
-                               "local_product_loop":  "live_staging_end_to_end_green",
+                               "local_product_loop":  "automated_green_real_phone_repair_deployed_retest_pending",
                                "remote_pushed":  true,
                                "staging_blockers":  [
-
+                                                       "real_phone_acceptance_retest_pending"
                                                     ],
                                "configured_queue_name":  "memoriesmystory-processing-staging",
-                               "next_gate":  "three uncoached humans + current real Android Chrome and iPhone Safari smoke",
+                               "next_gate":  "same-phone repair retest + current real Android Chrome and iPhone Safari smoke + three uncoached humans",
                                "staging_worker":  "memoriesmystory-staging",
                                "automated_phone_browser":  "phone-chromium 8/8 live staging",
-                               "crucial_tests":  "7 files / 19 tests + D1 schema 26 objects",
+                               "crucial_tests":  "8 files / 20 tests + D1 schema 27 objects",
                                "rollback_proof":  "pass"
                            },
     "gate_status":  {
@@ -270,6 +270,6 @@
                         "G2_MUSE_NO_INVENTION":  "pass_live_english_and_mixed",
                         "G3_DURABLE_COMPLETION":  "pass_live",
                         "G4_PRIVACY_BOUNDARY":  "pass_live",
-                        "G5_FULL_JOURNEY_RC":  "pass_automated_staging_real_device_and_human_pending"
+                        "G5_FULL_JOURNEY_RC":  "repair_deployed_real_device_retest_and_human_pending"
                     }
 }
