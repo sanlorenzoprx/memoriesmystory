@@ -1465,6 +1465,30 @@ h1 {
   line-height: 1.45;
 }
 
+.muse-before-recording {
+  margin-bottom: 1rem;
+}
+
+.muse-starter-cue {
+  color: var(--ink) !important;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1rem !important;
+  line-height: 1.55 !important;
+}
+
+.muse-cue-action {
+  min-height: 2.75rem;
+  margin-top: 0.7rem;
+  border: 1px solid rgba(82, 107, 86, 0.28);
+  border-radius: 999px;
+  background: rgba(255, 253, 248, 0.92);
+  color: #45604a;
+  cursor: pointer;
+  padding: 0.55rem 0.9rem;
+  font-size: 0.86rem;
+  font-weight: 750;
+}
+
 .context-introduction {
   display: grid;
   gap: 0.3rem;

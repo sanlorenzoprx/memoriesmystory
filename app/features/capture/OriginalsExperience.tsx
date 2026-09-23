@@ -57,6 +57,8 @@ export function OriginalsExperience({
   const [phase, setPhase] = useState<OriginalsPhase>(() => initialPhase(draft));
   const [message, setMessage] = useState<string | null>(null);
   const [elapsedMs, setElapsedMs] = useState(0);
+  const [museCueVisible, setMuseCueVisible] = useState(false);
+  const [rerecording, setRerecording] = useState(false);
   const [preservedAudio, setPreservedAudio] = useState<Blob | null>(null);
   const [isBackingUp, setIsBackingUp] = useState(false);
   const draftRef = useRef(draft);
@@ -245,6 +247,8 @@ export function OriginalsExperience({
     };
     await commit(next);
     setPreservedAudio(null);
+    setRerecording(true);
+    setMuseCueVisible(true);
     setPhase("voice-invitation");
   }
 
@@ -267,10 +271,35 @@ export function OriginalsExperience({
           <p className="eyebrow">Now, the voice behind it</p>
           <h1 ref={headingRef} tabIndex={-1}>Tell the story you remember.</h1>
           <div className="story-photo-focus"><img src={photoUrl} alt="The photograph you are remembering" /></div>
+          <div className="muse-presence muse-before-recording">
+            <div className="muse-avatar" aria-hidden="true"><span>M</span></div>
+            <div className="muse-presence-copy">
+              <strong>Muse</strong>
+              <p>{rerecording ? "Would another cue help before you record again?" : "Would you like help remembering?"}</p>
+              {museCueVisible ? (
+                <>
+                  <span className="muse-starter-cue">
+                    {rerecording
+                      ? "What detail do you most want to make sure your family hears this time?"
+                      : "What comes back to you first when you look at this photograph?"}
+                  </span>
+                  <span>Muse is only helping you begin. You decide what the story is.</span>
+                </>
+              ) : (
+                <button
+                  className="muse-cue-action"
+                  type="button"
+                  onClick={() => setMuseCueVisible(true)}
+                >
+                  Give me a cue
+                </button>
+              )}
+            </div>
+          </div>
           <p className="capture-lede">Take your time. Speak naturally for up to {phase1Config.entitlements.freeVoiceSecondsPerStory} seconds.</p>
           <div className="capture-actions">
             <button className="primary-action" type="button" onClick={() => void openMicrophone()}>
-              Start recording
+              {rerecording ? "Record again" : "I'm ready to record"}
             </button>
             <button className="secondary-action" type="button" onClick={onChangePhoto}>Change photograph</button>
           </div>

@@ -149,6 +149,11 @@ The repair is deployed and compiled/tested. A fresh authenticated synthetic stag
 - Clerk email sign-in control rendered: PASS
 - Clerk Google sign-in control rendered: PASS
 - completed Living Memory still exposed Share with family, Delete this memory, My account, and text-size controls after final deployment: PASS
+- Muse timing refinement deployed in Worker version `e0c83c4f-1362-474d-b002-f0c8417efd53`: after photo acceptance Muse is visibly present before recording and offers the optional non-inventive cue “What comes back to you first when you look at this photograph?”
+- before the first recording, microphone request count remained `0`; it became `1` only after the person chose to record: PASS
+- choosing Record again returns to Muse before reopening the microphone, with the reset cue “What detail do you most want to make sure your family hears this time?”
+- before rerecord, microphone request count remained `1`; it became `2` only after the person chose Record again: PASS
+- dedicated live phone-Chromium regression `Muse cues before recording and returns before a rerecord`: PASS in 7.0s
 
 A transient redeploy rebuilt Vite without `.env.staging.local`, which removed the compile-time Clerk publishable key and reproduced the fallback account screen. The deployment was corrected by rebuilding Vite with the staging env before Wrangler deploy. Future staging client builds must preserve this rule; a successful Worker deploy alone is not evidence that Clerk is present in the browser bundle.
 
