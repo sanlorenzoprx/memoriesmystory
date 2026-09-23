@@ -523,7 +523,9 @@ async function streamMedia(request: Request, env: MediaRouteEnv, draftId: string
   if (!asset || asset.durability_status !== "durable") {
     throw new MediaRouteError(404, "That preserved original was not found.", "not_found");
   }
-  const object = await env.MEDIA_BUCKET.get(asset.r2_key, { range: request.headers });
+  const object = request.headers.has("Range")
+    ? await env.MEDIA_BUCKET.get(asset.r2_key, { range: request.headers })
+    : await env.MEDIA_BUCKET.get(asset.r2_key);
   if (!object) {
     throw new MediaRouteError(503, "The preserved original is temporarily unavailable.", "object_unavailable");
   }
@@ -535,7 +537,7 @@ async function streamMedia(request: Request, env: MediaRouteEnv, draftId: string
     "X-Content-SHA256": asset.sha256
   });
   const range = object.range;
-  if (range && "offset" in range && typeof range.offset === "number") {
+  if (request.headers.has("Range") && range && "offset" in range && typeof range.offset === "number") {
     const length = range.length ?? object.size - range.offset;
     headers.set("Content-Length", String(length));
     headers.set("Content-Range", `bytes ${range.offset}-${range.offset + length - 1}/${asset.byte_size}`);

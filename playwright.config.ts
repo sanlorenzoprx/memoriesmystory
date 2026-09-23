@@ -20,7 +20,26 @@ export default defineConfig({
       use: {
         ...devices["Pixel 7"]
       }
-    }
+    },
+    ...(process.env.PLAYWRIGHT_CROSS_BROWSER
+      ? [
+          {
+            name: "phone-firefox",
+            use: {
+              browserName: "firefox" as const,
+              viewport: { width: 412, height: 915 },
+              hasTouch: true
+            }
+          },
+          {
+            name: "phone-webkit",
+            use: {
+              ...devices["iPhone 13"],
+              browserName: "webkit" as const
+            }
+          }
+        ]
+      : [])
   ],
   webServer: process.env.PLAYWRIGHT_BASE_URL
     ? undefined

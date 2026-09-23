@@ -34,7 +34,7 @@ export class ElevenLabsTranscriptionProvider implements TranscriptionProvider {
 
   constructor(
     private readonly apiKey: string,
-    private readonly transport: typeof fetch = fetch
+    private readonly transport: typeof fetch = (input, init) => fetch(input, init)
   ) {}
 
   async transcribe(input: TranscriptionProviderInput): Promise<TranscriptionProviderResult> {

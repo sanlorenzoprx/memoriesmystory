@@ -554,7 +554,9 @@ async function publicShareMedia(
     throw new SharingRouteError(404, "share_media_not_found", "That shared media is unavailable.");
   }
 
-  const object = await env.MEDIA_BUCKET.get(media.r2_key, { range: request.headers });
+  const object = request.headers.has("Range")
+    ? await env.MEDIA_BUCKET.get(media.r2_key, { range: request.headers })
+    : await env.MEDIA_BUCKET.get(media.r2_key);
   if (!object) {
     throw new SharingRouteError(503, "share_media_unavailable", "That shared media is temporarily unavailable.");
   }
@@ -566,7 +568,7 @@ async function publicShareMedia(
     ETag: object.httpEtag
   });
   const range = object.range;
-  if (range && "offset" in range && typeof range.offset === "number") {
+  if (request.headers.has("Range") && range && "offset" in range && typeof range.offset === "number") {
     const length = range.length ?? object.size - range.offset;
     headers.set("Content-Length", String(length));
     headers.set(

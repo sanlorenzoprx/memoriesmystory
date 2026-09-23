@@ -1,8 +1,10 @@
 # One-Week Living Memory Product Proof Roadmap
 
 **Date:** 2026-09-22  
-**Status:** execution contract  
+**Status:** automated staging proof complete; real-device + three-person human proof pending
 **Target:** one production-ready, not-yet-public release candidate in one week
+
+**2026-09-23 checkpoint:** Days 1–5 are live-complete. Day 6 English and mixed-language staging journeys, phone-Chromium acceptance, crucial regression gates, and rollback proof pass. Current real Android Chrome + iPhone Safari and Day-7 three-person uncoached proof remain release evidence; do not represent them as completed until observed.
 
 ## Product proof
 

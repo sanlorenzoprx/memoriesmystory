@@ -1,4 +1,4 @@
-﻿{
+{
     "schema_version":  "memoriesmystory_one_week_living_memory_proof_v1",
     "sprint_id":  "living-memory-proof-2026-09-22",
     "duration_days":  7,
@@ -57,7 +57,7 @@
                       "depends_on":  [
 
                                      ],
-                      "status":  "blocked_external",
+                      "status":  "completed_live",
                       "deliverable":  "Verify isolated staging D1/R2/AI/Queue configuration and list only genuine blockers.",
                       "gate":  "none"
                   },
@@ -113,7 +113,7 @@
                                          "D1-A1-TRANSCRIPTION-SKELETON",
                                          "D1-A5-STAGING-READY"
                                      ],
-                      "status":  "completed_local",
+                      "status":  "completed_live",
                       "deliverable":  "Idempotent queued transcription, persistence, retries, provider-failure state, and language metadata.",
                       "gate":  "G2_MUSE_NO_INVENTION"
                   },
@@ -125,7 +125,7 @@
                                          "D1-A2-MUSE-SKELETON",
                                          "D2-A1-TRANSCRIPTION-RUNTIME"
                                      ],
-                      "status":  "completed_local",
+                      "status":  "completed_live",
                       "deliverable":  "Muse listens to storyteller material, asks one useful remembering question, and offers optional context without inventing or judging.",
                       "gate":  "G2_MUSE_NO_INVENTION"
                   },
@@ -137,7 +137,7 @@
                                          "D2-A1-TRANSCRIPTION-RUNTIME",
                                          "D2-A2-MUSE-RUNTIME"
                                      ],
-                      "status":  "blocked_external",
+                      "status":  "completed_live",
                       "deliverable":  "Redacted English and Spanish/mixed staging evidence plus no-invention fixtures with missing/ambiguous context.",
                       "gate":  "G2_MUSE_NO_INVENTION"
                   },
@@ -149,7 +149,7 @@
                                          "D1-A3-REVIEW-SHELL",
                                          "D2-A2-MUSE-RUNTIME"
                                      ],
-                      "status":  "completed_local",
+                      "status":  "completed_live",
                       "deliverable":  "Idempotent finalization, completion moment, reopen, and original-audio playback beside the photograph.",
                       "gate":  "G3_DURABLE_COMPLETION"
                   },
@@ -160,7 +160,7 @@
                       "depends_on":  [
                                          "D3-A3-COMPLETE-AND-PLAY"
                                      ],
-                      "status":  "completed_local",
+                      "status":  "completed_live",
                       "deliverable":  "Emit first_living_memory_completed exactly once at durable completion.",
                       "gate":  "G3_DURABLE_COMPLETION"
                   },
@@ -172,7 +172,7 @@
                                          "D1-A4-SHARE-CONTRACT",
                                          "D3-A3-COMPLETE-AND-PLAY"
                                      ],
-                      "status":  "completed_local",
+                      "status":  "completed_live",
                       "deliverable":  "Preview plus bounded family link/native handoff; failure leaves the Living Memory private and intact.",
                       "gate":  "G4_PRIVACY_BOUNDARY"
                   },
@@ -185,7 +185,7 @@
                                          "D3-A0-ACTIVATION",
                                          "D4-A4-FAMILY-SHARE"
                                      ],
-                      "status":  "completed_local_waiting_live_receipts",
+                      "status":  "completed_live",
                       "deliverable":  "One coherent release candidate with interrupted upload, re-login, duplicate queue/finalize, AI failure, and share failure handled.",
                       "gate":  "G1_SOURCE_PRESERVATION"
                   },
@@ -196,7 +196,7 @@
                       "depends_on":  [
                                          "D5-A0-CONVERGENCE"
                                      ],
-                      "status":  "blocked_external",
+                      "status":  "completed_automated_staging_real_device_pending",
                       "deliverable":  "Full English and Spanish/mixed staging journeys on Android Chrome and iPhone Safari, one unreliable-network pass, rollback evidence.",
                       "gate":  "G5_FULL_JOURNEY_RC"
                   },
@@ -207,7 +207,7 @@
                       "depends_on":  [
                                          "D6-A5-STAGING-JOURNEY"
                                      ],
-                      "status":  "blocked",
+                      "status":  "blocked_human",
                       "deliverable":  "At least three uncoached people create, replay, and understand optional sharing and the difference between their story and Muse assistance.",
                       "gate":  "human"
                   },
@@ -218,7 +218,7 @@
                       "depends_on":  [
                                          "D7-A5-HUMAN-PROOF"
                                      ],
-                      "status":  "blocked",
+                      "status":  "blocked_human_and_real_device",
                       "deliverable":  "Exact RC SHA, clean worktree, green crucial gates, current receipts/runbook, and honest known limitations.",
                       "gate":  "G5_FULL_JOURNEY_RC"
                   }
@@ -250,23 +250,26 @@
                   ],
     "stop_rule":  "When G5 passes and human proof has no severe trust/comprehension defect, stop feature work and lock the release candidate.",
     "current_checkpoint":  {
-                               "sha":  "9e4de663da58eb1d50b220c08eb3eb24a4f6201e",
+                               "sha":  "VERIFY_AFTER_COMMIT",
                                "branch":  "integration/lm-week-one",
-                               "local_product_loop":  "implemented_and_focused_gates_green",
-                               "remote_pushed":  true,
+                               "local_product_loop":  "live_staging_end_to_end_green",
+                               "remote_pushed":  false,
                                "staging_blockers":  [
-                                                        "ELEVENLABS_API_KEY missing from Memories staging",
-                                                        "Cloudflare staging API token invalid; Queue not yet proven provisioned"
+
                                                     ],
                                "configured_queue_name":  "memoriesmystory-processing-staging",
-                               "next_gate":  "live English plus Spanish/mixed ElevenLabs + Muse staging receipts"
+                               "next_gate":  "three uncoached humans + current real Android Chrome and iPhone Safari smoke",
+                               "staging_worker":  "memoriesmystory-staging",
+                               "automated_phone_browser":  "phone-chromium 8/8 live staging",
+                               "crucial_tests":  "7 files / 19 tests + D1 schema 26 objects",
+                               "rollback_proof":  "pass"
                            },
     "gate_status":  {
-                        "G0_BASELINE":  "pass_local",
-                        "G1_SOURCE_PRESERVATION":  "pass_local",
-                        "G2_MUSE_NO_INVENTION":  "pass_local_synthetic_live_provider_pending",
-                        "G3_DURABLE_COMPLETION":  "pass_local",
-                        "G4_PRIVACY_BOUNDARY":  "pass_local",
-                        "G5_FULL_JOURNEY_RC":  "blocked_external"
+                        "G0_BASELINE":  "pass",
+                        "G1_SOURCE_PRESERVATION":  "pass_live",
+                        "G2_MUSE_NO_INVENTION":  "pass_live_english_and_mixed",
+                        "G3_DURABLE_COMPLETION":  "pass_live",
+                        "G4_PRIVACY_BOUNDARY":  "pass_live",
+                        "G5_FULL_JOURNEY_RC":  "pass_automated_staging_real_device_and_human_pending"
                     }
 }

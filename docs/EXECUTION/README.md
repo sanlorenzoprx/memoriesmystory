@@ -10,3 +10,10 @@ Read the campaign controls in this order:
 4. `PHASE_GATES.md`
 5. `TASK_QUEUE.json`
 6. `MASTER_BUILD_PROMPT.md`
+
+Current sprint references:
+
+- `ONE_WEEK_LIVING_MEMORY_PROOF_ROADMAP.md` — Week-One product-proof execution contract.
+- `ONE_WEEK_LIVING_MEMORY_TASK_GRAPH.json` — machine-readable task/gate state.
+- `WEEK_ONE_STAGING_EVIDENCE_2026-09-23.md` — dated live staging evidence and remaining human/device gate.
+- `NEXT_PHASE_OUR_LIVING_LEGACY_AND_PHOTO_DIGITIZATION.md` — queued next phase; do not implement before Week-One human proof.

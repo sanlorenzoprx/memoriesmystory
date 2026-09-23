@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 const syntheticPng = Buffer.from(
-  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=",
+  "iVBORw0KGgoAAAANSUhEUgAAAKAAAAB4CAIAAAD6wG44AAABuElEQVR42u3cMUpDQRiFUTPMPu1TBNIEKwlWYiNY2NtmIVlEVmNhKQ9FzGT++85Xq+Acri+imc3lfLpTbs0RABZgARZgARZgAQaslPpvPujp+OKk5uzxeLBgP6IFWIAFWHO+iv7e6/ubsxvffruzYAEGLMACLMACLMACDFiABViANbS+hm/y43nxf8ruHw6A01CXPiwSu6+WdukTw5g72mzmjjabudG9yVcGPItBdeNGN9u40c02bnSzjRvdbONGN9vYHxvCa+abPWILtmDzrTxiC7Zgo6k8Ygu2YAEW4MAHXonHsAVbsAALsAALsAALMODZmvMdBiXe92DBFizAApz2wKvyxkMLtmCjKTtfC7ZgI648Xwu2YCOuPN+qC77VKVe8k6Xqj+jxZ130xp3Cz+CRJ173PqXaL7LGnHvp27LKv4q+9ulXvwst4dek6xkE3HQXcpXhl8Q/vtXAXZWxzG6bjWV2X3TVB7Mb38OLVwx/FS3AgAVYgAVYgAVYgAUYsAALsAALsAALMGABFmABFmAB1g/98f+i99uds7NgARZgARbgtba5nE9OwYIFWIAFWIAFWIABK6JPUa93M71fK2YAAAAASUVORK5CYII=",
   "base64"
 );
 
@@ -179,6 +179,7 @@ test("an offline photograph never blocks the voice and later backs up in order",
         getUserMedia: async (constraints: MediaStreamConstraints) => {
           if (!constraints.audio) throw new Error("Synthetic microphone expected");
           const context = new AudioContext();
+          await context.resume();
           const oscillator = context.createOscillator();
           const destination = context.createMediaStreamDestination();
           oscillator.frequency.value = 220;
@@ -202,7 +203,7 @@ test("an offline photograph never blocks the voice and later backs up in order",
     page.getByRole("heading", { name: "Tell the story you remember." })
   ).toBeVisible();
   await page.getByRole("button", { name: "Start recording" }).click();
-  await page.waitForTimeout(650);
+  await page.waitForTimeout(1250);
   await page.getByRole("button", { name: "Stop recording" }).click();
   await expect(
     page.getByRole("heading", { name: "Does this sound like the story you meant to keep?" })
@@ -216,8 +217,8 @@ test("an offline photograph never blocks the voice and later backs up in order",
 
   connectionAvailable = true;
   await page.evaluate(() => window.dispatchEvent(new Event("online")));
-  await expect(page.getByRole("heading", { name: "We have your back." })).toBeVisible();
-  await expect(page.getByText("Your story is preserved in your family archive.")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Your originals are backed up." })).toBeVisible();
+  await expect(page.getByText("Your photograph and real voice are safely backed up.")).toBeVisible();
 });
 
 test("the original voice is recorded, preserved, retrieved, and recovered", async ({
@@ -230,6 +231,7 @@ test("the original voice is recorded, preserved, retrieved, and recovered", asyn
         getUserMedia: async (constraints: MediaStreamConstraints) => {
           if (!constraints.audio) throw new Error("Synthetic microphone expected");
           const context = new AudioContext();
+          await context.resume();
           const oscillator = context.createOscillator();
           const destination = context.createMediaStreamDestination();
           oscillator.frequency.value = 220;
@@ -255,7 +257,7 @@ test("the original voice is recorded, preserved, retrieved, and recovered", asyn
 
   await page.getByRole("button", { name: "Start recording" }).click();
   await expect(page.getByText("Recording your real voice")).toBeVisible();
-  await page.waitForTimeout(650);
+  await page.waitForTimeout(1250);
   await page.getByRole("button", { name: "Stop recording" }).click();
   await expect(
     page.getByRole("heading", {
@@ -265,14 +267,14 @@ test("the original voice is recorded, preserved, retrieved, and recovered", asyn
 
   await page.getByRole("button", { name: "Keep this recording" }).click();
   await expect(
-    page.getByRole("heading", { name: "We have your back." })
+    page.getByRole("heading", { name: "Your originals are backed up." })
   ).toBeVisible();
   await expect(page.getByText("Playing the preserved original")).toBeVisible();
   await expect(page.getByText(/This memory is now part/i)).toHaveCount(0);
 
   await page.reload();
   await expect(
-    page.getByRole("heading", { name: "We have your back." })
+    page.getByRole("heading", { name: "Your originals are backed up." })
   ).toBeVisible();
   await expect(page.getByText("Private originals confirmed")).toBeVisible();
 });

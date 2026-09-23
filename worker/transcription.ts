@@ -387,6 +387,24 @@ export async function processTranscriptionMessage(
 
   return transcriptId;
 }
+function safeTranscriptionFailureCode(error: unknown): string {
+  if (!(error instanceof Error)) return "unknown";
+  if (error.message === "ELEVENLABS_API_KEY is required for transcription.") {
+    return "provider_key_missing";
+  }
+  if (error.message === "ElevenLabs transcription request body could not be prepared.") {
+    return "provider_request_body";
+  }
+  if (error.message === "ElevenLabs transcription transport failed.") {
+    return "provider_transport";
+  }
+  const providerHttp = error.message.match(/^ElevenLabs transcription failed with HTTP (\d{3})\.$/);
+  if (providerHttp?.[1]) return `provider_http_${providerHttp[1]}`;
+  if (error.message.includes("durable original audio object")) return "source_audio_unavailable";
+  if (error.message.includes("source scope no longer matches")) return "source_scope_mismatch";
+  return "internal";
+}
+
 export async function processTranscriptionBatch(
   batch: MessageBatch<TranscriptionQueueMessage>,
   env: TranscriptionEnv
@@ -415,7 +433,8 @@ export async function processTranscriptionBatch(
         draftId: body.draftId,
         livingMemoryId: body.livingMemoryId,
         attempt: message.attempts,
-        errorType: error instanceof Error ? error.name : "unknown"
+        errorType: error instanceof Error ? error.name : "unknown",
+        errorCode: safeTranscriptionFailureCode(error)
       });
       message.retry();
     }
