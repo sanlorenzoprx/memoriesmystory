@@ -59,11 +59,11 @@ Synthetic mixed Spanish/English source audio was preserved and processed through
 
 Observed transcript:
 
-> Esta foto es de mi madre en San Juan. We were together after school, cerca de la casa de mi abuela, but I do not remember the exact year
+> Esta foto es de mi madre en San Juan. We were together after school, cerca de la casa de mi abuela, but I do not remember the exact year.
 
 Observed Muse prompt:
 
-> ¿Cuántos años crees que tenías en esa foto?
+> ¿Qué te recuerda de tu madre en ese momento, que te hace sentir como si estuvieras allí con ella?
 
 Evidence:
 
@@ -132,6 +132,48 @@ This proves the Worker rollback path without pretending that D1/R2 data roll bac
 
 3. Live phone automation initially produced false negatives under two parallel video-recording Playwright workers on the older Windows machine.
    Serial execution passed. The synthetic microphone fixture was also made deterministic by resuming its AudioContext and allowing enough time for MediaRecorder chunks.
+
+## Failure / recovery proof
+
+The live English staging journey produced a real provider failure before the final transport correction.
+
+Verified after recovery:
+
+- the original photograph and original audio remained `durable` throughout the provider failure
+- the English story has exactly one `original_audio` asset
+- the recovered transcript points to that same original-audio asset
+- the preserved audio SHA-256 remained unchanged
+- no replacement recording or second original-audio upload was required
+- queued transcription subsequently reached `ready`
+- duplicate completion replay returned the existing completed Living Memory rather than consuming completion twice
+- duplicate share creation with the same idempotency key replayed the existing share rather than creating another share
+- the focused provider-failure test still proves a failed provider attempt leaves durable originals intact and marks processing retryable
+
+This is the required recovery behavior: provider failure may delay a derivative transcript, but it must not endanger or replace the storyteller's original testimony.
+
+## Privacy / storyteller-sovereignty audit
+
+Live D1 state and focused tests were checked together.
+
+Verified:
+
+- both acceptance Living Memories are `complete` and `private`
+- every live context row is `source_type = storyteller`
+- the mixed-language story stores `time` as `unknown` with a null value; no date was manufactured
+- English approximate time remains `approximate`, not promoted to a verified fact
+- neither live acceptance story has any row in legacy `memory_story_facts`; Muse output was not asserted as story fact
+- both Muse artifacts are `muse_prompt` derivatives sourced from transcript references
+- observed Muse prompts contain no truth-checking or judgment language
+- original photo/audio assets remain `durable` with their source hashes
+- the D1 immutable-original trigger passed the regression gate
+- byte-for-byte live playback checks passed for both original photographs and both original audio files
+- live share artifacts included only the selected photo/voice projection; captions were off and private context was not selected
+- focused sharing tests verify unselected transcript, private context, account email, user IDs, story IDs, and media IDs do not leak through the public share surface
+- every live acceptance share used for the gate was revoked, and the public URL returned 404 after revocation
+- the staging R2 bucket has public `r2.dev` access disabled and has no custom domains
+
+Storyteller sovereignty therefore remains the product rule: Muse may help a person remember, but it does not judge, verify, reconcile, or silently convert its own output into the person's memory.
+
 ## Known limitations / remaining gate
 
 Do not mark Week One fully released until these are done:
