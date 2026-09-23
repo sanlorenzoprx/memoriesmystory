@@ -75,6 +75,8 @@ Evidence:
 - original photo/audio playback matched source bytes
 - bounded family share and revocation passed
 
+Acceptance-data note: the mixed-language proof reused the synthetic English acceptance account after its normal free-story capacity had already been consumed. That synthetic staging entitlement was increased only to permit another full acceptance journey. The product configuration remains one free Living Memory for normal accounts.
+
 ## Live phone-browser evidence
 
 Live staging was exercised with the repository's Pixel-7 Chromium project, serially to avoid false timing failures on the older Windows machine.
