@@ -443,6 +443,7 @@ describe("Muse spoken reply durability and recovery", () => {
           },
           body: JSON.stringify({
             replyToTurnId: museTurnId,
+            answer: "I remember the bright red pot on the stove.",
             state: "stated",
             voiceReplyAssetId: voiceAssetId
           })
@@ -463,9 +464,23 @@ describe("Muse spoken reply durability and recovery", () => {
       (turn) => turn.speaker === "storyteller"
     );
     expect(storytellerTurn).toMatchObject({
-      content: "I remember the red pot on the stove.",
+      content: "I remember the bright red pot on the stove.",
       voiceReplyAssetId: voiceAssetId
     });
+    expect(
+      d1.database.prepare(
+        `SELECT transcript_text, storyteller_text, storyteller_confirmed_at
+         FROM muse_voice_reply_assets WHERE id = ?`
+      ).get(voiceAssetId)
+    ).toMatchObject({
+      transcript_text: "I remember the red pot on the stove.",
+      storyteller_text: "I remember the bright red pot on the stove."
+    });
+    expect(
+      d1.database.prepare(
+        "SELECT storyteller_confirmed_at FROM muse_voice_reply_assets WHERE id = ?"
+      ).get(voiceAssetId)
+    ).not.toEqual({ storyteller_confirmed_at: null });
     expect(storytellerTurn?.voiceReplyMediaUrl).toContain(
       `/muse-voice-replies/${voiceAssetId}/media`
     );

@@ -65,6 +65,8 @@ type VoiceReplyRow = {
   durability_status: "pending" | "durable" | "failed";
   transcript_text: string | null;
   transcript_locale: string | null;
+  storyteller_text: string | null;
+  storyteller_confirmed_at: string | null;
 };
 
 type ContextRow = {
@@ -526,7 +528,7 @@ async function requireVoiceReply(
 ): Promise<VoiceReplyRow> {
   const asset = await env.DB.prepare(
     `SELECT id, memory_story_id, reply_to_turn_id, durability_status,
-            transcript_text, transcript_locale
+            transcript_text, transcript_locale, storyteller_text, storyteller_confirmed_at
      FROM muse_voice_reply_assets
      WHERE id = ? AND memory_story_id = ?`
   ).bind(assetId, memoryStoryId).first<VoiceReplyRow>();
@@ -566,6 +568,32 @@ async function requireVoiceReply(
   }
 
   return asset;
+}
+
+async function confirmVoiceReplyText(
+  env: MuseConversationEnv,
+  memoryStoryId: string,
+  assetId: string,
+  text: string
+): Promise<void> {
+  const confirmed = text.replace(/\s+/g, " ").trim();
+  if (!confirmed || confirmed.length > 1200) {
+    throw new MuseConversationError(
+      400,
+      "invalid_voice_reply_text",
+      "Review the words Muse heard before continuing."
+    );
+  }
+  await env.DB.prepare(
+    `UPDATE muse_voice_reply_assets
+     SET storyteller_text = ?, storyteller_confirmed_at = ?
+     WHERE id = ? AND memory_story_id = ?`
+  ).bind(
+    confirmed,
+    new Date().toISOString(),
+    assetId,
+    memoryStoryId
+  ).run();
 }
 
 type ConversationBody = {
@@ -655,14 +683,24 @@ async function continueConversation(
           )
         : null;
 
-      const typedOrCorrectedAnswer =
+      const typedAnswer =
         typeof body.answer === "string"
           ? body.answer.replace(/\s+/g, " ").trim()
           : "";
-      const rawAnswer =
-        typedOrCorrectedAnswer ||
-        voiceReply?.transcript_text?.replace(/\s+/g, " ").trim() ||
-        "";
+      const machineTranscript =
+        voiceReply?.transcript_text?.replace(/\s+/g, " ").trim() ?? "";
+      const rawAnswer = voiceReply
+        ? (typedAnswer || voiceReply.storyteller_text?.trim() || machineTranscript)
+        : typedAnswer;
+
+      if (voiceReply) {
+        await confirmVoiceReplyText(
+          env,
+          foundation.livingMemoryId,
+          voiceReply.id,
+          rawAnswer
+        );
+      }
 
       if (
         (state === "stated" || state === "approximate") &&

@@ -14,6 +14,8 @@ CREATE TABLE muse_voice_reply_assets (
   transcript_text TEXT,
   transcript_locale TEXT,
   transcription_model_config_version TEXT,
+  storyteller_text TEXT,
+  storyteller_confirmed_at TEXT,
   created_by_user_id TEXT NOT NULL REFERENCES users(id) ON DELETE RESTRICT,
   created_at TEXT NOT NULL,
   transcribed_at TEXT,
@@ -21,6 +23,10 @@ CREATE TABLE muse_voice_reply_assets (
   CHECK (
     (transcript_text IS NULL AND transcribed_at IS NULL) OR
     (transcript_text IS NOT NULL AND length(trim(transcript_text)) > 0 AND transcribed_at IS NOT NULL)
+  ),
+  CHECK (
+    (storyteller_text IS NULL AND storyteller_confirmed_at IS NULL) OR
+    (storyteller_text IS NOT NULL AND length(trim(storyteller_text)) > 0 AND storyteller_confirmed_at IS NOT NULL)
   )
 );
 

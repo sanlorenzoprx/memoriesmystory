@@ -137,9 +137,10 @@ async function deleteMemory(
         "SELECT id, r2_key FROM muse_voice_reply_assets WHERE memory_story_id = ? ORDER BY created_at DESC"
       ).bind(story.id).all<AssetRow>()
     : { results: [] as AssetRow[] };
+  const allAssets = [...assets.results, ...voiceReplies.results];
 
   try {
-    for (const asset of [...assets.results, ...voiceReplies.results]) {
+    for (const asset of allAssets) {
       await env.MEDIA_BUCKET.delete(asset.r2_key);
     }
   } catch {
@@ -153,6 +154,14 @@ async function deleteMemory(
   const deletedAt = new Date().toISOString();
   const receiptId = `deletion_${crypto.randomUUID()}`;
   const statements = [];
+
+  for (const asset of allAssets) {
+    statements.push(
+      env.DB.prepare(
+        "DELETE FROM operation_receipts WHERE scope_type = 'asset' AND scope_id = ?"
+      ).bind(asset.id)
+    );
+  }
 
   if (story) {
     statements.push(

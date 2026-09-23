@@ -127,6 +127,16 @@ describe("Living Memory deletion", () => {
     );
 
     d1.database.prepare(
+      `INSERT INTO operation_receipts (
+        idempotency_key,operation_kind,scope_type,scope_id,request_hash,
+        status,result_ref,correlation_id,created_at,updated_at
+      ) VALUES (
+        'delete-test-voice-op','upload_muse_voice_reply','asset','muse_voice_delete_001',?,
+        'succeeded','muse_voice_delete_001','cor-delete-voice',?,?
+      )`
+    ).run("d".repeat(64), now, now);
+
+    d1.database.prepare(
       "UPDATE memory_stories SET status='complete', completed_at=?, updated_at=? WHERE id=?"
     ).run(now, now, draftId);
     expect(
@@ -160,6 +170,8 @@ describe("Living Memory deletion", () => {
     expect(d1.database.prepare("SELECT count(*) AS n FROM memory_story_drafts WHERE id = ?").get(draftId)).toEqual({ n: 0 });
     expect(d1.database.prepare("SELECT count(*) AS n FROM memory_stories WHERE id = ?").get(draftId)).toEqual({ n: 0 });
     expect(d1.database.prepare("SELECT count(*) AS n FROM media_assets WHERE draft_id = ?").get(draftId)).toEqual({ n: 0 });
+    expect(d1.database.prepare("SELECT count(*) AS n FROM muse_voice_reply_assets WHERE memory_story_id = ?").get(draftId)).toEqual({ n: 0 });
+    expect(d1.database.prepare("SELECT count(*) AS n FROM operation_receipts WHERE scope_id = 'muse_voice_delete_001'").get()).toEqual({ n: 0 });
     expect(d1.database.prepare("SELECT actor_type, deleted_asset_count FROM deletion_receipts WHERE draft_id = ?").get(draftId))
       .toEqual({ actor_type: "owner", deleted_asset_count: 3 });
     expect(

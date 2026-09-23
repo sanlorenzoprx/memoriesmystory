@@ -75,6 +75,28 @@ The first Muse speech provider is ElevenLabs, behind a replaceable Muse speech-p
 
 The storyteller's original voice is never replaced by TTS.
 
+### Storyteller voice replies
+
+A Muse conversation is voice-first, not text-first with optional decoration.
+
+For every spoken reply:
+
+1. the browser records the storyteller's real voice;
+2. the storyteller listens before choosing to use it;
+3. the accepted reply is preserved immutably in private R2 storage before Muse relies on it;
+4. transcription runs from that preserved object;
+5. provider failure never requires a rerecord?the same preserved voice reply is retryable;
+6. the machine transcript remains a derivative;
+7. if the storyteller corrects what transcription heard, the correction is stored separately as storyteller-confirmed text;
+8. Muse reads the storyteller-confirmed text while the original audio and original machine transcript remain unchanged;
+9. the conversational storyteller turn keeps provenance to the exact Muse question and the exact preserved voice asset;
+10. the storyteller's voice reply remains playable after reload;
+11. deleting the Living Memory deletes every conversational voice asset and its operation receipts.
+
+Text reply remains available as an accessibility and preference path. It is not the privileged path.
+
+The Week-One implementation caps each Muse voice reply at 30 seconds, reusing the existing proof recording limit rather than introducing a speculative new entitlement.
+
 ## Current implementation boundary
 
 - Dynamic conversation is durable in `muse_conversation_turns`.

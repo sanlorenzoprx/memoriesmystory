@@ -35,6 +35,8 @@ type VoiceReplyRow = {
   transcript_text: string | null;
   transcript_locale: string | null;
   transcription_model_config_version: string | null;
+  storyteller_text: string | null;
+  storyteller_confirmed_at: string | null;
   created_by_user_id: string;
   created_at: string;
   transcribed_at: string | null;
@@ -283,6 +285,7 @@ async function loadAsset(
     `SELECT id, memory_story_id, reply_to_turn_id, r2_key, content_type,
             byte_size, duration_ms, sha256, r2_etag, durability_status,
             transcript_text, transcript_locale, transcription_model_config_version,
+            storyteller_text, storyteller_confirmed_at,
             created_by_user_id, created_at, transcribed_at
      FROM muse_voice_reply_assets
      WHERE id = ? AND memory_story_id = ?`
@@ -300,6 +303,8 @@ function assetResult(asset: VoiceReplyRow) {
     durabilityStatus: asset.durability_status,
     transcript: asset.transcript_text,
     locale: asset.transcript_locale,
+    storytellerText: asset.storyteller_text,
+    storytellerConfirmedAt: asset.storyteller_confirmed_at,
     transcribedAt: asset.transcribed_at,
     mediaUrl: `/resources/drafts/${encodeURIComponent(asset.memory_story_id)}/muse-voice-replies/${encodeURIComponent(asset.id)}/media`
   };
@@ -369,6 +374,8 @@ async function transcribeAsset(
       transcript_text: text,
       transcript_locale: result.locale,
       transcription_model_config_version: phase1Config.ai.modelConfigVersion,
+      storyteller_text: asset.storyteller_text,
+      storyteller_confirmed_at: asset.storyteller_confirmed_at,
       transcribed_at: transcribedAt
     };
   } catch {

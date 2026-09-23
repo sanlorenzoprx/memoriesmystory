@@ -15,6 +15,8 @@ export type MuseVoiceReplyView = {
   readonly durabilityStatus: "pending" | "durable" | "failed";
   readonly transcript: string | null;
   readonly locale: string | null;
+  readonly storytellerText: string | null;
+  readonly storytellerConfirmedAt: string | null;
   readonly transcribedAt: string | null;
   readonly mediaUrl: string;
 };
