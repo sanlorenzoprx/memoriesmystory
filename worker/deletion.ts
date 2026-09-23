@@ -16,6 +16,7 @@ type DraftRow = {
 
 type StoryRow = {
   id: string;
+  status: "draft" | "complete";
 };
 
 type AssetRow = {
@@ -125,7 +126,7 @@ async function deleteMemory(
   assertMutation(request);
   const authorization = await authorizeDeletion(request, env, draftId);
   const story = await env.DB.prepare(
-    "SELECT id FROM memory_stories WHERE id = ?"
+    "SELECT id, status FROM memory_stories WHERE id = ?"
   ).bind(draftId).first<StoryRow>();
 
   const assets = await env.DB.prepare(
@@ -157,6 +158,19 @@ async function deleteMemory(
         "DELETE FROM memory_stories WHERE id = ?"
       ).bind(story.id)
     );
+    if (story.status === "complete" && authorization.ownerUserId) {
+      statements.push(
+        env.DB.prepare(
+          `UPDATE story_entitlements
+           SET free_stories_completed = CASE
+                 WHEN free_stories_completed > 0 THEN free_stories_completed - 1
+                 ELSE 0
+               END,
+               updated_at = ?
+           WHERE user_id = ?`
+        ).bind(deletedAt, authorization.ownerUserId)
+      );
+    }
   }
 
   statements.push(

@@ -98,6 +98,13 @@ describe("Living Memory deletion", () => {
       ).run(id, draftId, draftId, role, key, hash, userId, now);
     }
 
+    d1.database.prepare(
+      "UPDATE memory_stories SET status='complete', completed_at=?, updated_at=? WHERE id=?"
+    ).run(now, now, draftId);
+    expect(
+      d1.database.prepare("SELECT free_stories_completed AS n FROM story_entitlements WHERE user_id = ?").get(userId)
+    ).toEqual({ n: 1 });
+
     const env: DeletionEnv = {
       DB: d1 as unknown as D1Database,
       SESSION_SECRET: secret,
@@ -123,5 +130,8 @@ describe("Living Memory deletion", () => {
     expect(d1.database.prepare("SELECT count(*) AS n FROM media_assets WHERE draft_id = ?").get(draftId)).toEqual({ n: 0 });
     expect(d1.database.prepare("SELECT actor_type, deleted_asset_count FROM deletion_receipts WHERE draft_id = ?").get(draftId))
       .toEqual({ actor_type: "owner", deleted_asset_count: 2 });
+    expect(
+      d1.database.prepare("SELECT free_stories_completed AS n FROM story_entitlements WHERE user_id = ?").get(userId)
+    ).toEqual({ n: 0 });
   });
 });
