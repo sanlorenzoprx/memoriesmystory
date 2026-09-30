@@ -77,8 +77,8 @@ When this specification conflicts with a higher-ranked source, the higher-ranked
 ### 3.2 Explicitly deferred from Phase 1
 
 - Memory Albums beyond a future-safe optional association field.
-- In-person multi-speaker Memory Circles.
-- Remote WebRTC Memory Circles.
+- In-person Our Living Legacy sessions.
+- Remote Our Living Legacy sessions.
 - Durable Objects for live rooms.
 - Full public global feed.
 - Ranking, recommendation, moderation, and public discovery systems.
@@ -289,7 +289,7 @@ Production values that affect privacy or deletion require an explicit decision o
 ### 7.3 Boundaries deliberately not used in Phase 1
 
 - No Durable Object: the solo flow has no live multi-participant room state.
-- No WebRTC/SFU: remote Memory Circles are deferred.
+- No WebRTC/SFU: remote Our Living Legacy sessions are deferred.
 - No Vectorize: D1 retrieval is sufficient.
 - No Hono layer: React Router loaders, actions, and resource routes can own the Phase 1 application API.
 - No Workflow unless queue evidence proves a single durable queue job is insufficient.
@@ -1174,7 +1174,6 @@ Phase 1 must leave the canonical repository with:
 These do not block starting Packets 0–3 because they remain configurable or later-scoped:
 
 - exact paid plans and limits;
-- final Memory Circle brand name;
 - full direct-social publishing matrix;
 - public-feed ranking depth;
 - fallback transcription provider selection;

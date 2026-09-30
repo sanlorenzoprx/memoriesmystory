@@ -26,7 +26,7 @@ A storyteller may confirm, edit, approximate, leave unknown, or skip context. He
 
 ## Week-one non-goals
 
-Do not build albums, Memory Circle, public feed, broad social publishing, billing, reels, books, legacy inheritance, family archive expansion, broad landing redesign, database renames, or architecture rewrites.
+Do not build albums, Our Living Legacy, public feed, broad social publishing, billing, reels, books, legacy inheritance, family archive expansion, broad landing redesign, database renames, or architecture rewrites.
 Facebook authentication is not a release dependency. Email + Google account recovery is sufficient for this proof.
 Sharing is voluntary. No share-to-unlock behavior may return.
 

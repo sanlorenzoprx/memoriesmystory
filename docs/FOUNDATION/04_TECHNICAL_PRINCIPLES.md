@@ -24,7 +24,7 @@
 - Cloudflare Workers runtime.
 - D1 for structured data.
 - R2 for original and derived media plus exports.
-- Durable Objects for live Memory Circle room state.
+- Durable Objects for live Our Living Legacy session state.
 - Queues and Workflows for durable background work.
 - WebRTC through Cloudflare Realtime/SFU for remote circles.
 - Cloud transcription first, with device qualification before local transcription.

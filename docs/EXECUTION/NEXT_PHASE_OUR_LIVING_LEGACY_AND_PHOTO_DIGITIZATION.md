@@ -1,6 +1,6 @@
 # Next Phase — Archival Photo Capture + Our Living Legacy
 
-**Status:** queued after Week-One human proof
+**Status:** accepted as the order after the release candidate (`../DECISIONS/2026-09-30-next-phase-order-and-our-living-legacy.md`); queued after Week-One human proof
 **Rule:** do not begin feature implementation until the solo Living Memory proof clears the human gate.
 
 ## Why this order

@@ -76,6 +76,6 @@
 - billing activation;
 - irreversible deletion or migration of user data;
 - automated production secret creation;
-- full Memory Circle, broad public-feed, Life Story, legacy-inheritance, or scaled Reel production beyond the approved slice.
+- full Our Living Legacy, broad public-feed, Life Story, legacy-inheritance, or scaled Reel production beyond the approved slice.
 
 Those actions require a separate owner-approved launch decision after readiness is proven.

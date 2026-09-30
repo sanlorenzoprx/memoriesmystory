@@ -68,6 +68,7 @@ Approved dated decision records explain intentional amendments to locked documen
 - The first-five-minute product sequence is **Photo → Voice → Muse → Preserved → Playback → Invite/Share**.
 - The long-term value ladder is **Moment → Chapter → Life → Family**.
 - Accessibility, multilingual use, portability, offline recovery, cross-device continuity, and legacy stewardship are foundational.
+- After the solo release candidate: archival photo capture, then **Our Living Legacy** (the one name for shared family remembering, in person or at a distance).
 - The completion message remains: **“This memory is now part of your family's history.”**
 - `sanlorenzoprx/memoriesmystory` is the only canonical application repository.
 

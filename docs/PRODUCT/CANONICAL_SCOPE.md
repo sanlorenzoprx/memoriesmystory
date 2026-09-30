@@ -13,8 +13,8 @@ AI is important infrastructure and product capability, but it remains subordinat
 ## Core product paths
 
 1. **Capture Your Memories — Solo:** one person captures or chooses a photograph, tells what they remember in their real voice, optionally receives one useful Muse prompt, preserves source media and context, experiences the Living Memory playback, and chooses whether to invite or share.
-2. **Preserve Together — In Person:** family or friends remember around one photograph in person; the application records the natural conversation, preserves attribution and disagreement, and enriches the Living Memory.
-3. **Remember Together — At a Distance:** family or friends join a Memory Circle remotely; the photograph remains the main visual while participants see one another, remember, contribute, review, preserve, and receive access according to archive permissions.
+2. **Our Living Legacy — In Person:** family or friends remember around one photograph in person; the application records the natural conversation, preserves attribution and disagreement, and enriches the Living Memory.
+3. **Our Living Legacy — At a Distance:** family or friends join an Our Living Legacy session remotely; the photograph remains the main visual while participants see one another, remember, contribute, review, preserve, and receive access according to archive permissions.
 4. **Rediscover:** people later find and revisit Living Memories through people, places, dates, relationships, Chapters, related memories, and respectful resurfacing.
 
 ## First product proof

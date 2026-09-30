@@ -77,7 +77,7 @@ Truth is more important than narrative neatness.
 
 Memory has never belonged only to individuals. One photograph may contain many different stories.
 
-A Living Memory can grow as other people contribute. A **Memory Circle** allows family and friends to gather around a photograph and remember together, in person or remotely. The photograph remains central. Each person's contribution remains attributable to them.
+A Living Memory can grow as other people contribute. **Our Living Legacy** allows family and friends to gather around a photograph and remember together, in person or remotely. The photograph remains central. Each person's contribution remains attributable to them.
 
 Memories: My Story should preserve the richness of how people actually remember rather than flattening a family into one artificial version of events.
 

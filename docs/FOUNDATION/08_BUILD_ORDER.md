@@ -1,7 +1,7 @@
 # Build Order
 
-**Version:** 1.0  
-**Status:** Governing long-horizon implementation sequence
+**Version:** 1.1  
+**Status:** Governing long-horizon implementation sequence; Phases 6–7 reordered by `docs/DECISIONS/2026-09-30-next-phase-order-and-our-living-legacy.md`
 
 These phases are dependency order, not promises about release dates. Existing validated work is preserved and mapped into the sequence rather than rewritten for naming purity.
 
@@ -35,35 +35,39 @@ Verify original audio, original image, transcript lineage, storyteller-owned con
 
 Implement memory elicitation with strict source-grounded behavior. Muse asks one useful question at a time and never manufactures testimony.
 
-## Phase 6 — Family Archive
+## Phase 6 — Archival photo capture
+
+Turn an old physical print into the best practical digital original: calm scanner-style guidance, glare/blur/edge checks with **Use this photo anyway**, and a derived corrected scan that never replaces the untouched source capture. Detail: `docs/EXECUTION/NEXT_PHASE_OUR_LIVING_LEGACY_AND_PHOTO_DIGITIZATION.md` (Phase 2A).
+
+## Phase 7 — Our Living Legacy
+
+A shared family conversation around one photograph, in person or at a distance. Start with one host and one remote family member, a live conversation, the original session recording, speaker attribution, and replay; then grow to small family groups. Real-time transport comes from a replaceable provider behind a small session adapter. Each recollection stays attributed; differing recollections are preserved. Detail: the same document (Phase 2B).
+
+## Phase 8 — Family Archive
 
 Add people, Living Memories, Chapters, relationships, archive navigation, and durable family ownership boundaries.
 
-## Phase 7 — Family contributions
+## Phase 9 — Family contributions
 
 Invite a person into an existing Living Memory and attribute their voice, text, photo, correction, or alternate recollection without flattening disagreement.
 
-## Phase 8 — Retrieval and timeline
+## Phase 10 — Retrieval and timeline
 
 Wire **cards → index → retrieval → source-grounded outputs** into customer-facing discovery, timeline, people/place exploration, and related-memory retrieval.
 
-## Phase 9 — Memory Circle
-
-Build collaborative synchronous remembrance around a pinned photograph/Living Memory with participant attribution, recording boundaries, recovery, and additive assembly.
-
-## Phase 10 — Resurfacing
+## Phase 11 — Resurfacing
 
 Use dates, people, places, incomplete memories, anniversaries, related memories, and unanswered prompts to bring meaningful memories back without engagement manipulation.
 
-## Phase 11 — Derivative storytelling
+## Phase 12 — Derivative storytelling
 
 Create Reels, Chapters, and Life Stories from source-grounded Living Memories. Derivatives never become the canonical source.
 
-## Phase 12 — Legacy infrastructure
+## Phase 13 — Legacy infrastructure
 
 Add exports, stewardship, inheritance/continuity, schema and format migration, archival durability, restoration, and long-term portability.
 
-## Phase 13 — Growth engine
+## Phase 14 — Growth engine
 
 Teach the Idea. Demonstrate the Mechanism. Offer the Product.
 

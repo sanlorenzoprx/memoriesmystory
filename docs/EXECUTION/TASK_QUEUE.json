@@ -60,10 +60,35 @@
       "title": "Landing positioning deferred until core product proof is complete"
     },
     {
+      "id": "release-candidate-hardening",
+      "status": "pending",
+      "depends_on": [
+        "week-one-living-memory-proof",
+        "packet-4"
+      ],
+      "title": "Lock the RC SHA and complete production-ready-not-live hardening (DEFINITION_OF_DONE_V1)"
+    },
+    {
+      "id": "archival-photo-capture",
+      "status": "pending",
+      "depends_on": [
+        "release-candidate-hardening"
+      ],
+      "title": "Physical print → untouched source capture + derived corrected scan (Next Phase 2A)"
+    },
+    {
+      "id": "our-living-legacy",
+      "status": "pending",
+      "depends_on": [
+        "archival-photo-capture"
+      ],
+      "title": "Our Living Legacy: shared family conversation around one photograph, host + one remote member first (Next Phase 2B)"
+    },
+    {
       "id": "family-archive",
       "status": "pending",
       "depends_on": [
-        "week-one-living-memory-proof"
+        "our-living-legacy"
       ],
       "title": "People, relationships, Chapters, and Family Archive"
     },
@@ -85,14 +110,6 @@
       "title": "Privacy-scoped retrieval, timeline, people/place discovery"
     },
     {
-      "id": "memory-circle",
-      "status": "pending",
-      "depends_on": [
-        "family-contributions"
-      ],
-      "title": "Collaborative remembrance around a pinned Living Memory"
-    },
-    {
       "id": "derivative-storytelling",
       "status": "pending",
       "depends_on": [
@@ -112,7 +129,7 @@
       "id": "growth-engine",
       "status": "pending",
       "depends_on": [
-        "week-one-living-memory-proof"
+        "release-candidate-hardening"
       ],
       "title": "Measure and improve the voluntary Living Memory Loop"
     }
@@ -130,5 +147,6 @@
     "Human confirmation that people can tell their own testimony apart from Muse assistance",
     "Packet 4 closeout: email and Google sign-in plus second-device recovery on a real phone (Facebook sign-in is deferred and non-blocking)"
   ],
-  "current_state": "docs/CURRENT_STATE.md"
+  "current_state": "docs/CURRENT_STATE.md",
+  "next_phase": "docs/EXECUTION/NEXT_PHASE_OUR_LIVING_LEGACY_AND_PHOTO_DIGITIZATION.md"
 }

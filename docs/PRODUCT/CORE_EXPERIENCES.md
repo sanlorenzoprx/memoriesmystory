@@ -12,13 +12,13 @@ The product-level activation event is `first_living_memory_completed`.
 
 This is the first build target and the prerequisite for every shared or generative experience.
 
-## 2. Preserve Together — In Person
+## 2. Our Living Legacy — In Person
 
 Two or more people sit together around a photograph or Living Memory. The product records the natural conversation, attributes contributions when reliable, preserves differing recollections, and enriches the same Living Memory without erasing prior source history.
 
-## 3. Remember Together — At a Distance
+## 3. Our Living Legacy — At a Distance
 
-A host invites family or friends to a remote **Memory Circle**. The photograph stays central while participants see one another, remember together, review their contributions, and receive appropriate access to the enriched Living Memory.
+A host invites family or friends to a remote **Our Living Legacy** session. The photograph stays central while participants see one another, remember together, review their contributions, and receive appropriate access to the enriched Living Memory.
 
 ## 4. Rediscover — Across time
 

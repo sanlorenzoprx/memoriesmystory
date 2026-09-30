@@ -10,9 +10,9 @@
 | Memories: My Story | The product and company experience. |
 | Living Memory | The canonical customer unit of value: a source photograph or moment preserved with authentic voice, story, context, people, place, time, relationships, family contributions, provenance, and resurfacing potential. |
 | Living Memory Archive | The product category: a private-first archive built around Living Memories rather than generic files. |
-| Family Archive | A family's durable container of Living Memories, people, Chapters, relationships, Memory Circles, reels, and stewardship. |
+| Family Archive | A family's durable container of Living Memories, people, Chapters, relationships, Our Living Legacy sessions, reels, and stewardship. |
 | Chapter | A meaningful collection of related Living Memories, such as childhood, a home, a business, a migration, or a family tradition. |
-| Memory Circle | An in-person or remote conversation centered on a photograph or Living Memory, with participant attribution. |
+| Our Living Legacy | A shared family conversation, in person or at a distance, around one photograph or Living Memory. Each person's recollection stays attributed to them and differing recollections are preserved, not reconciled. Replaces the earlier working names Preserve Together, Remember Together, and Memory Circle. |
 | Muse | The quiet, voice-first memory companion that helps a person remember without becoming the storyteller. |
 | Muse Prompt | One helpful, context-aware follow-up question. |
 | Muse Help | Replayable audiovisual guidance. |

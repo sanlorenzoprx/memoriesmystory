@@ -15,8 +15,8 @@ The visual and interaction north star is:
 Three experiences share this promise:
 
 1. **Capture Your Memories** — one person and one photograph.
-2. **Preserve Together** — family or friends remembering in person.
-3. **Remember Together** — family or friends remembering at a distance.
+2. **Our Living Legacy — in person** — family or friends remembering together around one photograph.
+3. **Our Living Legacy — at a distance** — family or friends joining remotely while the photograph stays central.
 
 The solo path is built first. Shared paths extend the same authenticity, privacy, and preservation rules.
 
@@ -229,4 +229,4 @@ Internal screens, API responses, test counts, or successful AI calls do not sati
 
 ## Shared-experience extension
 
-In-person and remote Memory Circles keep the selected photograph fixed as the primary visual focus while people remember together. Participants remain visible in remote sessions. Contributions are attributed, disagreements remain intact, and the Living Memory is enriched additively rather than rewritten into a synthetic consensus.
+In-person and remote Our Living Legacy sessions keep the selected photograph fixed as the primary visual focus while people remember together. Participants remain visible in remote sessions. Contributions are attributed, disagreements remain intact, and the Living Memory is enriched additively rather than rewritten into a synthetic consensus.
