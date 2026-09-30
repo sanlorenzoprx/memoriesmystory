@@ -299,9 +299,9 @@ describe("bounded Living Memory family sharing", () => {
     ).toEqual({ count: 1 });
     expect(
       d1.database.prepare(
-        "SELECT free_stories_completed FROM story_entitlements WHERE user_id = ?"
+        "SELECT free_stories_unlocked, free_stories_completed FROM story_entitlements WHERE user_id = ?"
       ).get(userId)
-    ).toEqual({ free_stories_completed: 1 });
+    ).toEqual({ free_stories_unlocked: 1, free_stories_completed: 1 });
 
     const publicPage = await handleSharingRoute(
       new Request(`https://example.test${firstBody.sharePath}`),

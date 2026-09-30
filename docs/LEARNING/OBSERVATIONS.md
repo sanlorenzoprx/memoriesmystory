@@ -29,7 +29,7 @@ Observations preserve evidence separately from proposed solutions. Follow `READM
 - **Observed fact:** The owner approved the Phase 1 production-ready-not-live boundary, staging/auth/language/Workers AI/Turnstile recommendations, and explicitly required the architecture always to be built to scale.
 - **Interpretation:** Scale should be a verified architectural property—statelessness, durable contracts, idempotency, immutable storage, migrations, queues, observability, and environment isolation—not permission for premature services or speculative frameworks.
 - **Confidence and contrary evidence:** High confidence from explicit owner direction. No evidence currently requires microservices, Durable Objects, Workflows, or a broad provider registry in the solo flow.
-- **Affected experience or invariant:** I-06 immutable originals, I-07 additive history, I-08 truthful durability, I-14 accessibility, I-15 language readiness, I-16 privacy, and I-24 share-to-unlock integrity.
+- **Affected experience or invariant:** I-06 immutable originals, I-07 additive history, I-08 truthful durability, I-14 accessibility, I-15 language readiness, I-16 privacy, and I-24 (then share-to-unlock integrity; now voluntary sharing per `DECISIONS/2026-08-11-living-memory-doctrine.md`).
 - **Related proposal:** P-2026-07-16-001.
 
 ### L-2026-07-16-002 — Schema verification must terminate deterministically

@@ -4,9 +4,8 @@
 
 **Version:** 1.0  
 **Date:** 2026-07-15  
-**Status:** Implementation-ready baseline for approval  
+**Status:** Engineering baseline, reconciled 2026-09-30 with the Living Memory doctrine (`docs/DECISIONS/2026-08-11-living-memory-doctrine.md`) and the ElevenLabs provider decision (`docs/DECISIONS/2026-09-22-elevenlabs-first-modular-provider-boundaries.md`). Customer-facing vocabulary is **Living Memory**; `Memory Story` names below are persistence compatibility names. Where this spec and the live migrations/tests differ, the migrations and tests are authoritative and this spec must be corrected.  
 **Canonical repository:** `sanlorenzoprx/memoriesmystory`  
-**Local repository:** `C:\repos\memoriesmystory`  
 **Technical application name:** `memoriesmystory`  
 **Canonical destination:** `docs/IMPLEMENTATION/PHASE_1_SOLO_MEMORY_STORY_BUILD_SPEC.md`
 
@@ -18,7 +17,7 @@ Build the first complete **Capture Your Memories** experience as a mobile-first 
 
 The result is not a camera demo, transcription demo, AI demo, or collection of partially connected components. It is one truthful, durable user outcome:
 
-> A person captures or imports one photograph, tells its story in their real voice, receives restrained help from Muse, reviews what was preserved, sees truthful confirmation that the originals are safe, opens the completed Memory Story, and can deliberately share it to unlock the next free Memory Story.
+> A person captures or imports one photograph, tells its story in their real voice, receives restrained help from Muse, reviews what was preserved, sees truthful confirmation that the originals are safe, opens the completed Living Memory, and can deliberately choose to keep it private or share a bounded copy with family. Sharing never unlocks another Living Memory.
 
 The emotional contract is:
 
@@ -255,7 +254,7 @@ Required bindings:
 
 - `DB`: Cloudflare D1.
 - `MEDIA_BUCKET`: private Cloudflare R2 bucket.
-- `AI`: Cloudflare Workers AI.
+- `AI`: Cloudflare Workers AI, used for Muse text generation. Transcription uses ElevenLabs Scribe v2 through the provider boundary and the `ELEVENLABS_API_KEY` secret.
 - `PROCESSING_QUEUE`: Cloudflare Queue for transcription and Muse jobs.
 - `SESSION_SECRET`: secret used for signed sessions or secure session state.
 
@@ -663,12 +662,12 @@ No update may change an original asset's bytes, role, checksum, or R2 key.
 - purchased/paid capacity fields reserved without Phase 1 billing logic
 - `updated_at`
 
-Launch behavior:
+Launch behavior (see `migrations/0004_configurable_story_entitlements.sql` and `config/phase-1.ts`):
 
-- `free_story_limit = 5`
-- `free_stories_unlocked = 1` at account creation
-- story creation allowed when completed is lower than unlocked
-- one qualifying share for the current completed free story increments unlocked, capped at five
+- `free_story_limit` comes from central configuration; it is currently `1`
+- `free_stories_unlocked = 1` at account creation and is never changed by sharing
+- completion is allowed while completed is lower than unlocked; completion consumes capacity exactly once
+- deleting a Living Memory does not manufacture new free capacity
 
 #### `memory_story_shares`
 
@@ -692,10 +691,10 @@ Store a hash of the external share token when practical. The public loader retur
 - `channel`
 - `action`
 - `occurred_at`
-- `unlock_granted`
+- `unlock_granted` (inert compatibility column from migration 0001; always `0`, never written by the runtime)
 - `application_version`
 - nullable `cancelled_at`
-- idempotency constraint preventing duplicate unlocks
+- idempotency on share creation so a replayed request returns the existing share
 
 #### `agreement_acceptances`
 
@@ -912,14 +911,14 @@ Minimum events:
 - story finalization completed/failed;
 - story opened after completion;
 - share intent recorded/cancelled where observable;
-- entitlement unlock granted/duplicate prevented.
+- completion capacity consumed exactly once / duplicate completion replayed.
 
 Operational logs must answer:
 
 - Were both originals durable?
 - Which transition failed?
 - Can the action be retried safely?
-- Was an unlock granted exactly once?
+- Was completion capacity consumed exactly once?
 - Did the user see a false completion state?
 
 User-facing analytics must not become surveillance of intimate family content.
@@ -952,9 +951,9 @@ Run against local Cloudflare-compatible D1/R2/Queue bindings:
 - finalization fails without either original;
 - finalization retry returns the original story;
 - private share projection excludes private fields;
-- copied link grants one unlock;
-- repeated/concurrent share events do not grant another;
-- story 5 cannot unlock story 6 under the free policy;
+- creating, copying, or revoking a share never changes entitlement;
+- repeated/concurrent share creation with one idempotency key returns the same share;
+- a revoked share returns 404;
 - account promotion cannot be claimed twice;
 - transcript correction appends rather than overwrites history.
 
@@ -973,7 +972,7 @@ Use Playwright with representative phone viewports and both English and Spanish:
 9. Transcript/Muse output is reviewed with human/generated separation.
 10. Locked completion sentence appears only after durable confirmation.
 11. Completed Memory Story reopens from a new navigation session.
-12. Copying a private link records a qualifying share and unlocks Memory Story 2.
+12. The owner creates a bounded family share, previews exactly what leaves the archive, opens it as a recipient, and revokes it; entitlement is unchanged.
 
 Additional paths:
 
@@ -1199,8 +1198,8 @@ Phase 1 is done when a first-time user can, on a real mobile browser:
 6. distinguish original testimony from corrections and generated material;
 7. complete account ownership without losing progress;
 8. receive durable confirmation only after the required originals are safe;
-9. reopen the Memory Story later;
-10. copy or share a private link and unlock Memory Story 2 exactly once;
+9. reopen the Living Memory later;
+10. deliberately keep it private or share a bounded, revocable family copy, with no reward or unlock;
 11. complete the path in English or Spanish with accessible interaction;
 12. produce receipts proving the outcome and every affected Product Invariant.
 
@@ -1208,17 +1207,6 @@ Only then does implementation move to broader Phase 2/3 capabilities.
 
 ---
 
-## 28. Immediate next task after approval
+## 28. Current next task
 
-Run **Packet 0 — Fresh repository bootstrap** in `sanlorenzoprx/memoriesmystory`.
-
-The bootstrap must:
-
-- place this combined package at the repository root;
-- use the local path `C:\repos\memoriesmystory`;
-- apply `memoriesmystory` to every technical application identifier;
-- preserve the Foundation document hierarchy;
-- create the React Router v8 + TypeScript + Vite Cloudflare Worker application;
-- introduce only the configuration and code required for a clean build, typecheck, test, and CI baseline;
-- create no speculative feature modules, compatibility layers, deployed resources, or provider wrappers;
-- produce a receipt identifying the commit, commands, results, and next bounded Phase 1 packet.
+Packet 0 through the Week-One Living Memory proof are implemented. The current next task and release-candidate gate are recorded in `docs/CURRENT_STATE.md`.

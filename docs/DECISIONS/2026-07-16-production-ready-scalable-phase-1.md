@@ -1,6 +1,7 @@
 # Production-Ready, Scalable Phase 1 Campaign
 
-**Status:** accepted
+**Status:** accepted, partially superseded
+**Superseded in part by:** `2026-08-11-living-memory-doctrine.md` (Living Memory vocabulary, voluntary sharing) and `2026-09-22-elevenlabs-first-modular-provider-boundaries.md` (ElevenLabs Scribe v2 replaces Workers AI as the launch transcription provider; Workers AI remains the Muse text-generation binding). The production-ready-not-live boundary, staging isolation, and scale posture remain in force.
 **Date:** 2026-07-16
 
 ## Context

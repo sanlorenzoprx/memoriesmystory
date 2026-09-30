@@ -13,6 +13,7 @@ Read the campaign controls in this order:
 
 Current sprint references:
 
+- `../CURRENT_STATE.md` — single current-status record and release-candidate gate.
 - `ONE_WEEK_LIVING_MEMORY_PROOF_ROADMAP.md` — Week-One product-proof execution contract.
 - `ONE_WEEK_LIVING_MEMORY_TASK_GRAPH.json` — machine-readable task/gate state.
 - `WEEK_ONE_STAGING_EVIDENCE_2026-09-23.md` — dated live staging evidence and remaining human/device gate.

@@ -4,7 +4,6 @@ import {
   asId,
   canCreateFreeStory,
   createInitialEntitlement,
-  grantShareUnlock,
   type UserId
 } from "../../app/domain";
 import { localeFallbackChain, phase1Config } from "../../config/phase-1";
@@ -51,20 +50,5 @@ describe("free Living Memory entitlement", () => {
     expect(entitlement.freeStoriesUnlocked).toBe(1);
     expect(canCreateFreeStory(entitlement)).toBe(true);
     expect(canCreateFreeStory({ ...entitlement, freeStoriesCompleted: 1 })).toBe(false);
-  });
-
-  it("never grants another free Living Memory for sharing", () => {
-    const entitlement = createInitialEntitlement(userId, now);
-    const result = grantShareUnlock({
-      entitlement,
-      storyAlreadyGrantedUnlock: false,
-      now
-    });
-
-    expect(result).toMatchObject({
-      granted: false,
-      reason: "voluntary_sharing_no_reward",
-      entitlement: { freeStoriesUnlocked: 1 }
-    });
   });
 });

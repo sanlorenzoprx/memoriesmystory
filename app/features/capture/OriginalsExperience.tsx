@@ -408,7 +408,7 @@ export function OriginalsExperience({
               <p>Your photograph and real voice are safely backed up.</p>
             </div>
           </div>
-          <p className="cross-device-note">Carry this Memory Story securely to your phone, tablet and computer.</p>
+          <p className="cross-device-note">Carry this Living Memory securely to your phone, tablet and computer.</p>
           <div className="next-memory-flow" aria-label="What happens next">
             <strong>Next</strong>
             <span>Save to account → Muse → Who / Where / When / What → Preserve → Share</span>

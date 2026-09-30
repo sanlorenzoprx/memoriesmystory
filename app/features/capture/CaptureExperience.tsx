@@ -125,7 +125,7 @@ export function CaptureExperience() {
 
     async function recoverDraft() {
       if (!draftId) {
-        setErrorMessage("This local Memory Story does not have a draft address.");
+        setErrorMessage("This local Living Memory does not have a draft address.");
         setStep("error");
         return;
       }

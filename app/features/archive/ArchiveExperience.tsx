@@ -29,10 +29,10 @@ function ArchiveIndex() {
     <div className="quiet-page archive-page" id="main-content">
       <section className="capture-introduction archive-card">
         <p className="eyebrow">Your private family archive</p>
-        <h1>Your Memory Stories</h1>
+        <h1>Your Living Memories</h1>
         {error && <ArchiveSignInMessage message={error} />}
         {drafts === null && !error && <p className="preservation-status" role="status">Gathering your stories…</p>}
-        {drafts?.length === 0 && <p className="capture-lede">Your first protected Memory Story will appear here.</p>}
+        {drafts?.length === 0 && <p className="capture-lede">Your first protected Living Memory will appear here.</p>}
         {drafts && drafts.length > 0 && (
           <ul className="archive-list">
             {drafts.map((draft) => (
@@ -79,7 +79,7 @@ function ArchiveMemory({ draftId }: { readonly draftId: string }) {
             <div className="durable-status" role="status"><span aria-hidden="true">✓</span><div><strong>Available across your devices</strong><p>Your signed-in archive keeps the original photograph and voice together.</p></div></div>
           </>
         )}
-        <Link className="secondary-action" to="/archive">All Memory Stories</Link>
+        <Link className="secondary-action" to="/archive">All Living Memories</Link>
         <AccountExit />
       </section>
     </div>

@@ -73,7 +73,7 @@ Approved dated decision records explain intentional amendments to locked documen
 
 ## Current sequencing
 
-The doctrine/domain branch intentionally does not replace the landing page. The final landing surface is a dedicated Phase 1 product-positioning slice built after the Living Memory contracts are ratified.
+`CURRENT_STATE.md` is the single current-status record: what works, the release-candidate gate, branch disposition, known debt, and the decisions still open. The landing page is replaced in a dedicated slice after the release candidate is locked.
 
 ## What remains open
 

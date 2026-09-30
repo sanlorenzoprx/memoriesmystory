@@ -261,8 +261,8 @@ function parseDecision(
 ): { question: string; focus: MuseFocus } {
   const stripped = raw
     .trim()
-    .replace(/^\`\`\`(?:json)?/i, "")
-    .replace(/\`\`\`$/, "")
+    .replace(/^```(?:json)?/i, "")
+    .replace(/```$/, "")
     .trim();
 
   try {
