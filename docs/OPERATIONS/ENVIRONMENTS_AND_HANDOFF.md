@@ -48,7 +48,7 @@ npm run deploy:staging -- --dry-run   # build and verify, no upload
 npm run deploy:staging
 ```
 
-`scripts/deploy-staging.mjs` reads the Worker, D1, R2 and Queue names from `.env.staging.local`, writes the ignored `wrangler.staging.generated.jsonc`, builds the client in staging mode, refuses to deploy if the Clerk publishable key is missing from the browser bundle or the D1 ID is the placeholder, and deploys with `--keep-vars` so variables already on the staging Worker survive. Secrets are managed separately with `wrangler secret put --config wrangler.staging.generated.jsonc`. Migrations are applied separately (see `docs/CURRENT_STATE.md` for the trigger-migration workaround).
+`scripts/deploy-staging.mjs` reads the Worker, D1, R2 and Queue names from `.env.staging.local`, writes the ignored `wrangler.staging.generated.jsonc`, builds the client in staging mode, refuses to deploy if the Clerk publishable key is missing from the browser bundle or the D1 ID is the placeholder, and deploys with `--keep-vars` so variables already on the staging Worker survive. Wrangler authenticates with `CLOUDFLARE_API_TOKEN` when `.env.staging.local` sets it, otherwise with the operator's `wrangler login` session; an expired token fails with `Invalid access token [code: 9109]`. Secrets are managed separately with `wrangler secret put --config wrangler.staging.generated.jsonc`. Migrations are applied separately (see `docs/CURRENT_STATE.md` for the trigger-migration workaround).
 
 ## Scale and operational evidence
 
