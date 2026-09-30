@@ -7,7 +7,7 @@
 - Install normal project dependencies with reviewed lockfile changes.
 - Generate synthetic fixtures and local development secrets that remain ignored.
 - Provision isolated staging resources after a redacted credential/account preflight.
-- Run minimal staging Workers AI transcription evidence in English and Spanish or mixed language.
+- Run minimal staging ElevenLabs Scribe v2 transcription evidence in English and Spanish or mixed language.
 - Create bounded commits and publish campaign branches.
 
 ## Requires owner approval

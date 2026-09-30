@@ -29,10 +29,12 @@ export function IdentityExperience() {
       <p className="eyebrow">Protected family archive</p>
       <h1>Your story, wherever you are.</h1>
       <p className="capture-lede">
-        Sign in to protect this Memory Story and continue on your phone, tablet or computer.
+        Sign in to protect this Living Memory and continue on your phone, tablet or computer.
       </p>
       <SignedOut>
-        <SignIn routing="hash" />
+        <div className="clerk-responsive-frame">
+          <SignIn routing="hash" />
+        </div>
       </SignedOut>
       <SignedIn>
         <BindIdentity draftId={draftId} />
@@ -58,7 +60,7 @@ function BindIdentity({ draftId }: { readonly draftId: string | null }) {
           if (!draft) throw new Error("This device no longer has the local claim key.");
           setMessage("Protecting your photograph and voice…");
           await claimLocalDraft(draft);
-          if (active) await navigate(`/archive/${encodeURIComponent(draftId)}`, { replace: true });
+          if (active) await navigate(`/memory/${encodeURIComponent(draftId)}`, { replace: true });
         } else if (active) {
           await navigate("/archive", { replace: true });
         }

@@ -12,7 +12,7 @@ Use the precedence in `00_START_HERE.md`. Foundation truth governs product contr
 | --- | --- | --- |
 | Locked constitutional truth | Founding Principles, Product Invariants, Soul, Product Vision | Requires explicit owner approval, a dated decision record, affected-invariant review, and coordinated downstream updates. |
 | Binding experience and technical guides | User Experience, Technical Principles, Product Language, AI Behavior Guide | Requires evidence, a documented proposal, explicit approval when behavior changes, and downstream traceability. |
-| Product and architecture controls | Canonical Scope, Good Karma policy, stack, repository structure | May be clarified from approved decisions; behavior changes still require a proposal and decision record. |
+| Product and architecture controls | Canonical Scope, Living Memory Share Policy V2, stack, repository structure | May be clarified from approved decisions; behavior changes still require a proposal and decision record. |
 | Implementation specifications | Phase and packet specifications | Update when approved behavior or verified technical evidence changes; cite the governing source. |
 | Receipts and learning records | Implementation receipts, observations, proposals | Append evidence; do not rewrite history to make a result look cleaner. Supersede visibly when needed. |
 

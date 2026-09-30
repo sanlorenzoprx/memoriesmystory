@@ -18,6 +18,7 @@ import {
   syncAcceptedOriginalsInBackground
 } from "../../services/media-background-sync";
 import { saveLocalDraft } from "../../services/local-draft-store";
+import { MuseVoiceButton } from "../MuseVoiceButton";
 
 type OriginalsPhase =
   | "voice-invitation"
@@ -57,6 +58,8 @@ export function OriginalsExperience({
   const [phase, setPhase] = useState<OriginalsPhase>(() => initialPhase(draft));
   const [message, setMessage] = useState<string | null>(null);
   const [elapsedMs, setElapsedMs] = useState(0);
+  const [museCueVisible, setMuseCueVisible] = useState(false);
+  const [rerecording, setRerecording] = useState(false);
   const [preservedAudio, setPreservedAudio] = useState<Blob | null>(null);
   const [isBackingUp, setIsBackingUp] = useState(false);
   const draftRef = useRef(draft);
@@ -245,6 +248,8 @@ export function OriginalsExperience({
     };
     await commit(next);
     setPreservedAudio(null);
+    setRerecording(true);
+    setMuseCueVisible(true);
     setPhase("voice-invitation");
   }
 
@@ -267,10 +272,51 @@ export function OriginalsExperience({
           <p className="eyebrow">Now, the voice behind it</p>
           <h1 ref={headingRef} tabIndex={-1}>Tell the story you remember.</h1>
           <div className="story-photo-focus"><img src={photoUrl} alt="The photograph you are remembering" /></div>
+          <div className="muse-presence muse-before-recording">
+            <div className="muse-avatar" aria-hidden="true"><span>M</span></div>
+            <div className="muse-presence-copy">
+              <strong>Muse</strong>
+              <p>{rerecording ? "Would another cue help before you record again?" : "Would you like help remembering?"}</p>
+              <MuseVoiceButton
+                draftId={draft.id}
+                draftToken={draft.draftToken}
+                text={rerecording ? "Would another cue help before you record again?" : "Would you like help remembering?"}
+                autoPlay
+              />
+              {museCueVisible ? (
+                <>
+                  <span className="muse-starter-cue">
+                    {rerecording
+                      ? "What detail do you most want to make sure your family hears this time?"
+                      : "What comes back to you first when you look at this photograph?"}
+                  </span>
+                  <MuseVoiceButton
+                    draftId={draft.id}
+                    draftToken={draft.draftToken}
+                    text={
+                      rerecording
+                        ? "What detail do you most want to make sure your family hears this time?"
+                        : "What comes back to you first when you look at this photograph?"
+                    }
+                    autoPlay
+                  />
+                  <span>Muse is only helping you begin. You decide what the story is.</span>
+                </>
+              ) : (
+                <button
+                  className="muse-cue-action"
+                  type="button"
+                  onClick={() => setMuseCueVisible(true)}
+                >
+                  Give me a cue
+                </button>
+              )}
+            </div>
+          </div>
           <p className="capture-lede">Take your time. Speak naturally for up to {phase1Config.entitlements.freeVoiceSecondsPerStory} seconds.</p>
           <div className="capture-actions">
             <button className="primary-action" type="button" onClick={() => void openMicrophone()}>
-              Start recording
+              {rerecording ? "Record again" : "I'm ready to record"}
             </button>
             <button className="secondary-action" type="button" onClick={onChangePhoto}>Change photograph</button>
           </div>
@@ -344,8 +390,8 @@ export function OriginalsExperience({
       {phase === "originals-durable" && (
         <>
           <p className="eyebrow">Photograph and voice protected</p>
-          <h1 ref={headingRef} tabIndex={-1}>We have your back.</h1>
-          <p className="capture-lede">Your story is preserved in your family archive.</p>
+          <h1 ref={headingRef} tabIndex={-1}>Your photograph and voice are safe.</h1>
+          <p className="capture-lede">Next, save this memory to your private account. Then Muse can listen, help you remember, and you can finish or share the Living Memory.</p>
           <div className="story-photo-focus"><img src={photoUrl} alt="Your privately preserved photograph" /></div>
           {preservedAudioUrl ? (
             <>
@@ -362,9 +408,13 @@ export function OriginalsExperience({
               <p>Your photograph and real voice are safely backed up.</p>
             </div>
           </div>
-          <p className="cross-device-note">Carry this Memory Story securely to your phone, tablet and computer.</p>
+          <p className="cross-device-note">Carry this Living Memory securely to your phone, tablet and computer.</p>
+          <div className="next-memory-flow" aria-label="What happens next">
+            <strong>Next</strong>
+            <span>Save to account → Muse → Who / Where / When / What → Preserve → Share</span>
+          </div>
           <Link className="primary-action" to={`/auth/protect?draftId=${encodeURIComponent(draft.id)}`}>
-            Protect this Memory Story
+            Save to my account & continue
           </Link>
         </>
       )}

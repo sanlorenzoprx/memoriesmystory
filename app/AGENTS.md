@@ -15,7 +15,7 @@ These instructions apply to work under `app/`.
 
 - `routes/`: screens, loaders, actions, resource routes, error states, and route-level recovery.
 - `features/`: complete user outcomes such as capture, recording, review, and sharing.
-- `domain/`: product truth such as provenance, truth state, ownership, and durable state transitions.
+- `domain/`: product contracts such as provenance, storyteller-owned context, ownership, and durable state transitions. Legacy truth-state fields are compatibility storage, not memory judgments.
 - `services/`: narrow infrastructure boundaries used by the domain or a feature.
 - `localization/`: message catalogs, locale behavior, and mixed-language support.
 - `styles/`: accessible tokens, responsive behavior, and shared presentation rules.

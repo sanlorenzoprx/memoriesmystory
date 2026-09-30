@@ -8,7 +8,7 @@ Deliver one complete solo Memory Story that preserves a photograph and the story
 
 The campaign ends at **production ready, not live**. It implements Packets 1–8 from the Phase 1 specification and produces staging, security, operations, accessibility, localization, real-device, and invariant evidence.
 
-It does not implement Memory Circles, albums beyond future-safe associations, a public feed, billing, video reels, semantic archive search, or other deferred phases.
+It does not implement Our Living Legacy, albums beyond future-safe associations, a public feed, billing, video reels, semantic archive search, or other deferred phases.
 
 ## Architecture that scales
 

@@ -11,10 +11,10 @@ Memories: My Story is a Cloudflare-first web application. It is not an Android a
 | Application API | React Router actions/loaders; Hono only for isolated services where it adds demonstrated value |
 | Structured data | Cloudflare D1 |
 | Original and derived media | Cloudflare R2 |
-| Live Memory Circle room state | Cloudflare Durable Objects |
+| Live Our Living Legacy session state | Cloudflare Durable Objects |
 | Background processing | Cloudflare Queues + Workflows |
 | Remote video | WebRTC through Cloudflare Realtime/SFU |
-| Initial transcription | Cloudflare Workers AI Whisper-class transcription with a higher-quality fallback boundary |
+| Initial transcription | ElevenLabs Scribe v2 through a narrow replaceable provider boundary |
 | Qualified on-device transcription | Transformers.js / ONNX Runtime Web or equivalent, after device qualification |
 | Image processing | Browser camera APIs + OpenCV.js/Wasm where useful; Cloudflare Images for delivery variants |
 | Search | D1 metadata first; Vectorize later if semantic archive retrieval proves valuable |

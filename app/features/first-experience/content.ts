@@ -1,8 +1,8 @@
 export const firstExperienceContent = {
-  eyebrow: "A photograph can open a whole world",
-  headline: "Old photographs fade. The voices behind them should not.",
+  eyebrow: "A photograph can hold a lifetime",
+  headline: "Let them hear the story only you can tell.",
   supporting:
-    "Capture a photo. Tell its story. Preserve your voice for the people you love.",
+    "Tell it in your own voice—so the people you love can remember more than the photograph.",
   primaryAction: "Capture Your Memories",
   secondaryAction: "Import a photo",
   photoPrompt: "Hold a photograph here",

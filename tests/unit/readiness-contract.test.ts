@@ -18,7 +18,7 @@ describe("production-readiness configuration contract", () => {
       "CLERK_SECRET_KEY",
       "SHARE_TOKEN_PEPPER",
       "TURNSTILE_SECRET_KEY",
-      "TRANSCRIPTION_FALLBACK_API_KEY"
+      "ELEVENLABS_API_KEY"
     ];
 
     for (const name of secretNames) {

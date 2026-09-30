@@ -13,6 +13,8 @@ import { firstExperienceContent } from "./features/first-experience/content";
 import { CaptureExperience } from "./features/capture/CaptureExperience";
 import { IdentityExperience } from "./features/identity/IdentityExperience";
 import { ArchiveExperience } from "./features/archive/ArchiveExperience";
+import { LivingMemoryExperience } from "./features/living-memory/LivingMemoryExperience";
+import { TextSizeControl } from "./features/TextSizeControl";
 import type { CaptureEntryMode } from "./features/capture/local-draft";
 import { beginLocalDraft } from "./services/local-draft-store";
 
@@ -40,6 +42,10 @@ export const routes: RouteObject[] = [
         element: <IdentityExperience />
       },
       {
+        path: "memory/:draftId",
+        element: <LivingMemoryExperience />
+      },
+      {
         path: "archive",
         element: <ArchiveExperience />
       },
@@ -63,6 +69,7 @@ function AppShell() {
       <a className="skip-link" href="#main-content">
         Skip to the story
       </a>
+      <TextSizeControl />
       <Outlet />
     </main>
   );
@@ -204,7 +211,7 @@ function MemoryPhotoMoment() {
         <figcaption className="voice-keepsake">
           <VoiceWave />
           <span>
-            Keep the <strong>voice</strong> with the photograph.
+            Tell the story in <strong>your voice</strong>.
           </span>
         </figcaption>
       </div>

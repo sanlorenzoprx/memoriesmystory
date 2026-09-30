@@ -17,7 +17,7 @@ Actual credentials never belong in Git, uploaded ZIPs, prompts, receipts, screen
 | `CLERK_SECRET_KEY` | Runtime secret | Clerk token verification and staging identity acceptance | `.dev.vars`; Cloudflare Worker secret |
 | `SHARE_TOKEN_PEPPER` | Runtime secret | Private share tokens are implemented | `.dev.vars`; Cloudflare Worker secret |
 | `TURNSTILE_SECRET_KEY` | Runtime secret | Public/auth endpoint staging acceptance | `.dev.vars`; Cloudflare Worker secret |
-| `TRANSCRIPTION_FALLBACK_API_KEY` | Conditional runtime secret | A non-Cloudflare fallback provider is selected | `.dev.vars`; Cloudflare Worker secret |
+| `ELEVENLABS_API_KEY` | Runtime secret | ElevenLabs Scribe v2 transcription | `.dev.vars`; Cloudflare Worker secret |
 | `CLOUDFLARE_API_TOKEN` | Deployment secret | Automated staging provisioning or deployment is approved | GitHub Actions secret or operator environment; never a Worker secret |
 
 ## Non-secret configuration
@@ -56,6 +56,6 @@ Packet 4 identity staging uses `npm run preflight:identity:staging`. The command
 - Clerk is the approved identity provider. Email, Google, and Facebook account paths remain live staging acceptance requirements.
 - Clerk proves identity; the D1 `users.id` owns Memory Stories and survives provider or billing changes.
 - Turnstile protects authentication, draft-creation, and sharing boundaries.
-- Workers AI is the first transcription provider; the fallback interface remains narrow and no second provider is selected without evidence.
+- ElevenLabs Scribe v2 is the first transcription provider. Keep the provider boundary narrow; do not add a second transcription provider without evidence that one is needed.
 - English and Spanish are both acceptance-blocking.
 - Staging credentials and resources are isolated from production.

@@ -3,10 +3,10 @@
 The organized foundation was grounded in these approved sources:
 
 1. Project constitution discussion and completed Product Vision text.
-2. Approved Product Review v0.2 and its amendments for Muse, participant delivery, Good Karma sharing, onboarding, and Invisible AI.
+2. Approved Product Review v0.2 and its amendments for Muse, participant delivery, sharing (Good Karma share-to-unlock later retired by `DECISIONS/2026-08-11-living-memory-doctrine.md`), onboarding, and Invisible AI.
 3. Formatted Product Review v0.2 corresponding to the base review before its amendments.
 4. Approved React Router, TypeScript, Vite, and Cloudflare Workers technical foundation.
-5. Continuity decisions confirming the Cloudflare-first web-app scope, no Android application, non-negotiable first-five share-to-unlock rule, invisible-unless-needed Muse behavior, and locked completion copy.
+5. Continuity decisions confirming the Cloudflare-first web-app scope, no Android application, first-five share-to-unlock rule (since retired by the Living Memory doctrine), invisible-unless-needed Muse behavior, and locked completion copy.
 
 ## Reconciliation decisions
 

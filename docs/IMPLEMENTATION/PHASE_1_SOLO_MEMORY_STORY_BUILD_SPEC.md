@@ -4,9 +4,8 @@
 
 **Version:** 1.0  
 **Date:** 2026-07-15  
-**Status:** Implementation-ready baseline for approval  
+**Status:** Engineering baseline, reconciled 2026-09-30 with the Living Memory doctrine (`docs/DECISIONS/2026-08-11-living-memory-doctrine.md`) and the ElevenLabs provider decision (`docs/DECISIONS/2026-09-22-elevenlabs-first-modular-provider-boundaries.md`). Customer-facing vocabulary is **Living Memory**; `Memory Story` names below are persistence compatibility names. Where this spec and the live migrations/tests differ, the migrations and tests are authoritative and this spec must be corrected.  
 **Canonical repository:** `sanlorenzoprx/memoriesmystory`  
-**Local repository:** `C:\repos\memoriesmystory`  
 **Technical application name:** `memoriesmystory`  
 **Canonical destination:** `docs/IMPLEMENTATION/PHASE_1_SOLO_MEMORY_STORY_BUILD_SPEC.md`
 
@@ -18,7 +17,7 @@ Build the first complete **Capture Your Memories** experience as a mobile-first 
 
 The result is not a camera demo, transcription demo, AI demo, or collection of partially connected components. It is one truthful, durable user outcome:
 
-> A person captures or imports one photograph, tells its story in their real voice, receives restrained help from Muse, reviews what was preserved, sees truthful confirmation that the originals are safe, opens the completed Memory Story, and can deliberately share it to unlock the next free Memory Story.
+> A person captures or imports one photograph, tells its story in their real voice, receives restrained help from Muse, reviews what was preserved, sees truthful confirmation that the originals are safe, opens the completed Living Memory, and can deliberately choose to keep it private or share a bounded copy with family. Sharing never unlocks another Living Memory.
 
 The emotional contract is:
 
@@ -62,24 +61,24 @@ When this specification conflicts with a higher-ranked source, the higher-ranked
 - Immutable original image upload to R2.
 - Up to the centrally configured free voice allowance; launch value is 30 seconds.
 - Immutable original audio upload to R2.
-- Workers AI Whisper-class transcription through a real, replaceable transcription boundary.
+- ElevenLabs Scribe v2 transcription through a real, replaceable transcription boundary.
 - Mixed English and Spanish handling without forcing a language choice before listening.
 - One useful Muse prompt at a time.
 - Muse Legacy Description stored separately from testimony.
-- Suggested people, place, date, event, and other tags with explicit truth states.
+- Optional people, place, time, and event context that the storyteller may state, approximate, leave unknown, omit, edit, or skip.
 - Transcript and metadata correction without changing the original audio.
 - Truthful durable-save confirmation.
 - Completed Memory Story playback and return path.
 - Just-in-time email, Google, and Facebook account paths needed for ownership and recovery.
-- Minimum Good Karma share path: private tokenized page, copy link, native share handoff, qualifying event, and unlock of the next free Memory Story.
+- Minimum voluntary family-share path: private bounded share artifact, preview, copy link/native handoff, and revocation without any reward or unlock.
 - English and Spanish message catalogs with BCP 47 locale behavior.
 - Accessibility, interruption recovery, security, observability, and invariant evidence.
 
 ### 3.2 Explicitly deferred from Phase 1
 
 - Memory Albums beyond a future-safe optional association field.
-- In-person multi-speaker Memory Circles.
-- Remote WebRTC Memory Circles.
+- In-person Our Living Legacy sessions.
+- Remote Our Living Legacy sessions.
 - Durable Objects for live rooms.
 - Full public global feed.
 - Ranking, recommendation, moderation, and public discovery systems.
@@ -110,21 +109,17 @@ The following do not complete Phase 1 by themselves:
 
 ---
 
-## 4. Reconciliation decision: sharing belongs in the minimum Phase 1 slice
+## 4. Reconciliation decision: sharing is voluntary and downstream of preservation
 
-Foundation v1.1 contains two statements that need an explicit implementation interpretation:
+The Living Memory doctrine and Voluntary Share Policy V2 supersede the earlier Good Karma share-to-unlock concept.
 
-- The binding first-five-minute acceptance contract requires a deliberate qualifying share to unlock the next free Memory Story.
-- The earlier build-order guide placed sharing and Good Karma entitlements in Phase 3.
+Therefore:
 
-The Foundation precedence rule makes the acceptance contract and Product Invariant I-24 controlling. Therefore:
+- **Phase 1 proves preservation first, then offers a voluntary bounded family share.**
+- Sharing never changes entitlement, unlocks another memory, or becomes a condition of preservation.
+- **Phase 3 may expand sharing** with albums, richer channel coverage, broader direct publishing, social assets, public discovery, and scaled operations only if those additions continue to serve preservation.
 
-- **Phase 1 implements the minimum share-and-unlock path required to prove the first-use promise.**
-- **Phase 3 expands sharing** with albums, richer channel coverage, broader direct publishing, social assets, public discovery, and scaled operations.
-
-Phase 1 sharing is intentionally narrow but real. A copied private link qualifies. Recipient-open verification and proof of external publication are not required in V1.
-
-After this specification is approved, `08_BUILD_ORDER.md` should be clarified so future builders do not reintroduce the conflict.
+Phase 1 sharing is intentionally narrow but real: preview exactly what leaves the archive, create/reuse a revocable bounded Share Artifact, then offer copy-link/native handoff. Recipient-open proof and external-platform publication are not required for the week-one proof.
 
 ---
 
@@ -138,7 +133,7 @@ The time ranges are design targets, not restrictions imposed on a person.
 | 0:30–1:30 | Capture a physical photograph or import a digital one. | Original remains local until durable upload; guidance is helpful and overridable. |
 | 1:30–2:30 | Hear **Would you like help remembering?** and begin speaking. | Microphone requested in context; recording limit comes from centralized entitlement configuration. |
 | 2:30–3:30 | Muse listens and, only when useful, asks one warm question. | Silence, uncertainty, emotion, and mixed English/Spanish are accepted. |
-| 3:30–4:30 | Review the photograph, original voice, transcript, Muse Legacy Description, and suggested facts. | Human, corrected, uncertain, and generated material remain distinguishable. |
+| 3:30–4:30 | Review the photograph, original voice, transcript, Muse help, and storyteller-owned context. | Original testimony, transcript derivative, Muse help, and storyteller context remain distinguishable without judging the memory. |
 | 4:30–5:00 | Receive durable confirmation, open the Memory Story, and choose whether to share. | Locked completion copy appears only after required originals and ownership metadata are durable. |
 
 ### 5.1 First screen
@@ -190,14 +185,11 @@ Once required original assets and ownership metadata are durably confirmed, show
 
 Then offer:
 
-1. **Share this Memory Story**
-2. **View my Memory Story**
+1. **Hear this Living Memory**
+2. **Share with family**
+3. **Keep private**
 
-Supporting Good Karma message:
-
-**Share a memory. Preserve another.**
-
-The story just completed remains preserved even if the user does not share. Sharing unlocks the next free story and may be completed later.
+The completed Living Memory is preserved whether or not the storyteller shares it. Sharing is a deliberate downstream choice and never changes entitlement.
 
 ---
 
@@ -250,7 +242,8 @@ flowchart TD
     Worker --> D1["D1 records"]
     Worker --> R2["R2 private originals"]
     Worker --> Queue["Processing Queue"]
-    Queue --> AI["Workers AI transcription and Muse processing"]
+    Queue --> STT["ElevenLabs Scribe v2 transcription"]
+    Queue --> AI["Muse processing through replaceable model provider"]
     Queue --> D1
     Share["Private share page"] --> Worker
 ```
@@ -261,7 +254,7 @@ Required bindings:
 
 - `DB`: Cloudflare D1.
 - `MEDIA_BUCKET`: private Cloudflare R2 bucket.
-- `AI`: Cloudflare Workers AI.
+- `AI`: Cloudflare Workers AI, used for Muse text generation. Transcription uses ElevenLabs Scribe v2 through the provider boundary and the `ELEVENLABS_API_KEY` secret.
 - `PROCESSING_QUEUE`: Cloudflare Queue for transcription and Muse jobs.
 - `SESSION_SECRET`: secret used for signed sessions or secure session state.
 
@@ -296,7 +289,7 @@ Production values that affect privacy or deletion require an explicit decision o
 ### 7.3 Boundaries deliberately not used in Phase 1
 
 - No Durable Object: the solo flow has no live multi-participant room state.
-- No WebRTC/SFU: remote Memory Circles are deferred.
+- No WebRTC/SFU: remote Our Living Legacy sessions are deferred.
 - No Vectorize: D1 retrieval is sufficient.
 - No Hono layer: React Router loaders, actions, and resource routes can own the Phase 1 application API.
 - No Workflow unless queue evidence proves a single durable queue job is insufficient.
@@ -441,8 +434,8 @@ Store:
 
 - Process only after the original audio is durably stored.
 - Queue one idempotent job keyed by audio asset and transcription version.
-- Use the Cloudflare Workers AI binding with the launch-selected Whisper-class model.
-- Keep model identifiers in configuration and verify current Cloudflare availability during implementation.
+- Use ElevenLabs Scribe v2 as the launch transcription provider.
+- Keep provider endpoint and model identifiers in configuration and verify current ElevenLabs availability during implementation.
 - Preserve detected language and uncertainty.
 - Mixed English and Spanish must not be flattened into one forced language.
 - A provider failure cannot replace the transcript with placeholder text in a user-visible environment.
@@ -470,14 +463,14 @@ The current display revision may change. The original audio and prior transcript
 
 ### 12.4 Muse prompt generation
 
-The prompt system receives the transcript, accepted facts, unknown fields, locale, and previous Muse question. It returns either:
+The prompt system receives the storyteller transcript, storyteller-owned context, locale, and previous Muse question. It returns either:
 
 - one warm question; or
 - no question.
 
 Returning no question is correct when the story is already sufficient or the user has declined help.
 
-Do not build a large provider registry in Phase 1. Create a narrow transcription boundary because a higher-quality fallback is an approved requirement. Keep Muse model invocation behind a small domain service with versioned prompts; add another provider abstraction only when a real second provider is selected.
+Do not build a large provider registry in Phase 1. Keep one narrow transcription provider boundary with ElevenLabs Scribe v2 as the selected implementation. Keep Muse model invocation behind a separate small provider boundary with versioned prompts. Add another implementation only when a real replacement or fallback is selected.
 
 ---
 
@@ -508,12 +501,11 @@ type AssetRole =
   | "original_audio"
   | "cleaned_audio";
 
-type TruthState =
-  | "confirmed"
+type StoryContextState =
+  | "stated"
   | "approximate"
   | "unknown"
-  | "disputed"
-  | "ai_suggested_unconfirmed";
+  | "omitted";
 
 type FactKind =
   | "person"
@@ -670,12 +662,12 @@ No update may change an original asset's bytes, role, checksum, or R2 key.
 - purchased/paid capacity fields reserved without Phase 1 billing logic
 - `updated_at`
 
-Launch behavior:
+Launch behavior (see `migrations/0004_configurable_story_entitlements.sql` and `config/phase-1.ts`):
 
-- `free_story_limit = 5`
-- `free_stories_unlocked = 1` at account creation
-- story creation allowed when completed is lower than unlocked
-- one qualifying share for the current completed free story increments unlocked, capped at five
+- `free_story_limit` comes from central configuration; it is currently `1`
+- `free_stories_unlocked = 1` at account creation and is never changed by sharing
+- completion is allowed while completed is lower than unlocked; completion consumes capacity exactly once
+- deleting a Living Memory does not manufacture new free capacity
 
 #### `memory_story_shares`
 
@@ -699,10 +691,10 @@ Store a hash of the external share token when practical. The public loader retur
 - `channel`
 - `action`
 - `occurred_at`
-- `unlock_granted`
+- `unlock_granted` (inert compatibility column from migration 0001; always `0`, never written by the runtime)
 - `application_version`
 - nullable `cancelled_at`
-- idempotency constraint preventing duplicate unlocks
+- idempotency on share creation so a replayed request returns the existing share
 
 #### `agreement_acceptances`
 
@@ -784,39 +776,39 @@ If the response is lost, retry with the same idempotency key and return the same
 
 ---
 
-## 16. Minimum Good Karma share and unlock
+## 16. Minimum voluntary family sharing
 
-### 16.1 Qualifying Phase 1 actions
+### 16.1 Phase 1 action
 
-- copy private link;
-- invoke native/browser share and select or initiate a destination where observable;
-- provider handoff initiated;
-- direct publication completed if supported;
-- public-feed publication completed when that later surface exists.
+After durable completion, the storyteller may keep the Living Memory private or create a bounded family share.
 
-Recipient-open proof is not required.
+The share action may:
+- preview the exact Share Artifact;
+- create/copy a private link;
+- invoke native/browser share handoff.
 
-### 16.2 Unlock transaction
+Recipient-open proof is not required for the product proof.
+
+### 16.2 Share transaction
 
 The share action must:
 
-1. Verify the owner and completed Memory Story.
+1. Verify the owner and completed Living Memory.
 2. Create or reuse a revocable share record.
-3. Record the qualifying intent event.
-4. Determine whether this story/account has already granted the next free unlock.
-5. Increment `free_stories_unlocked` once, capped at five.
-6. Return an entitlement receipt and user-facing confirmation.
+3. Create or reuse an allowlist-only Share Artifact.
+4. Show the selected projection before handoff.
+5. Record the share intent/event without changing entitlements.
+6. Return the share artifact/URL and revocation state.
 
-Concurrent or repeated actions must not grant multiple unlocks.
+Concurrent or repeated actions must not create duplicate share artifacts for the same idempotent request.
 
 ### 16.3 Privacy
 
 - Private is the default.
-- Copying a private link qualifies.
 - Public sharing is never assumed.
-- The user sees the selected audience before handoff.
-- A share can be revoked without deleting the Memory Story.
-- Shared projection excludes private metadata, raw provenance records, account identifiers, and unapproved facts.
+- The storyteller sees exactly what will leave the private archive before handoff.
+- A share can be revoked without deleting the Living Memory.
+- Shared projection excludes unrelated transcript/context, internal provenance records, account identifiers, relationships, and other private archive metadata by default.
 
 ---
 
@@ -919,14 +911,14 @@ Minimum events:
 - story finalization completed/failed;
 - story opened after completion;
 - share intent recorded/cancelled where observable;
-- entitlement unlock granted/duplicate prevented.
+- completion capacity consumed exactly once / duplicate completion replayed.
 
 Operational logs must answer:
 
 - Were both originals durable?
 - Which transition failed?
 - Can the action be retried safely?
-- Was an unlock granted exactly once?
+- Was completion capacity consumed exactly once?
 - Did the user see a false completion state?
 
 User-facing analytics must not become surveillance of intimate family content.
@@ -938,9 +930,9 @@ User-facing analytics must not become surveillance of intimate family content.
 ### 21.1 Unit tests
 
 - State-machine transitions and invalid transitions.
-- Entitlement calculations and five-story cap.
+- Entitlement calculations for the centrally configured first-proof limit.
 - Share-event idempotency.
-- Truth-state validation.
+- Storyteller-context validation: stated/approximate/unknown/omitted, with no truth verdicts.
 - Immutable asset rules.
 - MIME/signature validation.
 - Prompt-output schema and one-question maximum.
@@ -959,9 +951,9 @@ Run against local Cloudflare-compatible D1/R2/Queue bindings:
 - finalization fails without either original;
 - finalization retry returns the original story;
 - private share projection excludes private fields;
-- copied link grants one unlock;
-- repeated/concurrent share events do not grant another;
-- story 5 cannot unlock story 6 under the free policy;
+- creating, copying, or revoking a share never changes entitlement;
+- repeated/concurrent share creation with one idempotency key returns the same share;
+- a revoked share returns 404;
 - account promotion cannot be claimed twice;
 - transcript correction appends rather than overwrites history.
 
@@ -980,7 +972,7 @@ Use Playwright with representative phone viewports and both English and Spanish:
 9. Transcript/Muse output is reviewed with human/generated separation.
 10. Locked completion sentence appears only after durable confirmation.
 11. Completed Memory Story reopens from a new navigation session.
-12. Copying a private link records a qualifying share and unlocks Memory Story 2.
+12. The owner creates a bounded family share, previews exactly what leaves the archive, opens it as a recipient, and revokes it; entitlement is unchanged.
 
 Additional paths:
 
@@ -999,7 +991,7 @@ Mocks and fixtures are allowed in unit and deterministic integration tests. They
 
 Before Phase 1 acceptance:
 
-- run at least one real Workers AI transcription through the deployed binding;
+- run at least one real ElevenLabs Scribe v2 transcription through the deployed Worker using synthetic/non-family audio;
 - verify an English recording;
 - verify a Spanish or mixed English/Spanish recording;
 - preserve the provider receipt, latency, model configuration, and result;
@@ -1026,7 +1018,7 @@ The product is a web application, but mobile browser behavior is part of the pro
 | I-01 Original voice | R2 original audio receipt and completed-story playback. |
 | I-02 Photograph + voice bound | Story record references immutable original photo and audio assets. |
 | I-03 No editorial correction | Transcript correction is additive; original audio and machine revision remain. |
-| I-04 Truth states | Suggested facts remain unconfirmed until accepted. |
+| I-04 Storyteller sovereignty | Muse suggestions remain prompts until the storyteller chooses what belongs with their memory; acceptance is not historical verification. |
 | I-06 Immutable originals | Attempted mutation is rejected; derivative receives a new asset ID. |
 | I-07 Additive history | Transcript, fact, agreement, share, and entitlement events retain attribution. |
 | I-08 Saved means durable | Completion fails without both R2/D1 durable receipts. |
@@ -1038,9 +1030,9 @@ The product is a web application, but mobile browser behavior is part of the pro
 | I-16 Family controls visibility | Private default and deliberate audience selection. |
 | I-18 Generated distinction | Muse description and suggestions have separate labels and records. |
 | I-20 Versioned agreements | Account/draft agreement receipt includes version and context. |
-| I-21 Growth serves preservation | Share follows preservation and uses approved Good Karma copy. |
-| I-22 Central limits | Five-story and 30-second rules loaded from configuration. |
-| I-24 Share-to-unlock | One qualifying private share unlocks story 2 exactly once. |
+| I-21 Growth serves preservation | Share follows preservation, remains voluntary, and never changes entitlement. |
+| I-22 Central limits | First-proof story count and 30-second voice allowance are loaded from centralized configuration. |
+| I-24 Voluntary sharing | Sharing is creator-controlled and never changes Living Memory entitlements or unlocks another memory. |
 | I-25 Locked promise | Exact sentence appears only after durable completion. |
 
 Any failed row blocks Phase 1 acceptance.
@@ -1081,7 +1073,7 @@ Each build packet must end in a demonstrable user outcome and a receipt.
 ### Packet 1 — Domain, configuration, and persistence contracts
 
 - Implement Phase 1 domain types.
-- Centralize five-story and 30-second entitlements.
+- Centralize the current free Living Memory count and 30-second voice allowance.
 - Add D1 migrations and R2 key policy.
 - Add idempotency receipts.
 
@@ -1118,7 +1110,7 @@ Each build packet must end in a demonstrable user outcome and a receipt.
 ### Packet 5 — Transcription and Muse
 
 - Add queue processing.
-- Add real Workers AI transcription binding.
+- Add real ElevenLabs Scribe v2 transcription through the provider boundary.
 - Add transcript revision model.
 - Add zero-or-one Muse question service.
 - Add Muse Legacy Description with provenance.
@@ -1128,22 +1120,22 @@ Each build packet must end in a demonstrable user outcome and a receipt.
 ### Packet 6 — Review and durable completion
 
 - Build unified Memory Story review.
-- Show human/generated/truth-state distinctions.
+- Show original testimony, transcript derivative, Muse help, and storyteller-owned context distinctly without judging the memory.
 - Implement idempotent completion transaction.
 - Show locked completion copy only after confirmation.
 - Build owner playback and safe return path.
 
 **Exit evidence:** completion retry creates one story, consumes one entitlement, and reopens after a new navigation session.
 
-### Packet 7 — Minimum share-to-unlock
+### Packet 7 — Minimum voluntary family sharing
 
 - Create revocable private share.
-- Build public-token projection.
+- Build bounded Share Artifact/public-token projection with explicit preview.
+- Do not grant entitlements or rewards for sharing.
 - Add copy link and native/browser handoff.
-- Record qualifying intent.
-- Grant exactly one unlock up to five.
+- Record share intent/event without changing entitlements.
 
-**Exit evidence:** Story 2 unlocks after one copied link; duplicate/concurrent events do not double grant.
+**Exit evidence:** a completed Living Memory can remain private or create one bounded revocable family share; duplicate/concurrent requests do not duplicate the share artifact.
 
 ### Packet 8 — Full Phase 1 acceptance
 
@@ -1182,7 +1174,6 @@ Phase 1 must leave the canonical repository with:
 These do not block starting Packets 0–3 because they remain configurable or later-scoped:
 
 - exact paid plans and limits;
-- final Memory Circle brand name;
 - full direct-social publishing matrix;
 - public-feed ranking depth;
 - fallback transcription provider selection;
@@ -1206,8 +1197,8 @@ Phase 1 is done when a first-time user can, on a real mobile browser:
 6. distinguish original testimony from corrections and generated material;
 7. complete account ownership without losing progress;
 8. receive durable confirmation only after the required originals are safe;
-9. reopen the Memory Story later;
-10. copy or share a private link and unlock Memory Story 2 exactly once;
+9. reopen the Living Memory later;
+10. deliberately keep it private or share a bounded, revocable family copy, with no reward or unlock;
 11. complete the path in English or Spanish with accessible interaction;
 12. produce receipts proving the outcome and every affected Product Invariant.
 
@@ -1215,17 +1206,6 @@ Only then does implementation move to broader Phase 2/3 capabilities.
 
 ---
 
-## 28. Immediate next task after approval
+## 28. Current next task
 
-Run **Packet 0 — Fresh repository bootstrap** in `sanlorenzoprx/memoriesmystory`.
-
-The bootstrap must:
-
-- place this combined package at the repository root;
-- use the local path `C:\repos\memoriesmystory`;
-- apply `memoriesmystory` to every technical application identifier;
-- preserve the Foundation document hierarchy;
-- create the React Router v8 + TypeScript + Vite Cloudflare Worker application;
-- introduce only the configuration and code required for a clean build, typecheck, test, and CI baseline;
-- create no speculative feature modules, compatibility layers, deployed resources, or provider wrappers;
-- produce a receipt identifying the commit, commands, results, and next bounded Phase 1 packet.
+Packet 0 through the Week-One Living Memory proof are implemented. The current next task and release-candidate gate are recorded in `docs/CURRENT_STATE.md`.

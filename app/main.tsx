@@ -4,6 +4,7 @@ import { createBrowserRouter, RouterProvider } from "react-router";
 import { ClerkProvider } from "@clerk/clerk-react";
 
 import { routes } from "./routes";
+import { AccountSessionBridge } from "./features/identity/AccountSessionBridge";
 import "./styles/global.css";
 
 const rootElement = document.getElementById("root");
@@ -21,6 +22,11 @@ const application = (
 const publishableKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 createRoot(rootElement).render(
   publishableKey
-    ? <ClerkProvider publishableKey={publishableKey}>{application}</ClerkProvider>
+    ? (
+        <ClerkProvider publishableKey={publishableKey}>
+          <AccountSessionBridge />
+          {application}
+        </ClerkProvider>
+      )
     : application
 );

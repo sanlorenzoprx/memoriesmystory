@@ -1,9 +1,8 @@
+import { join } from "node:path";
+
 import { expect, test } from "@playwright/test";
 
-const syntheticPng = Buffer.from(
-  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=",
-  "base64"
-);
+const syntheticPhotoPath = join(process.cwd(), "tests", "fixtures", "synthetic-family-photo.png");
 
 test("the first screen expresses the approved memory-preservation promise", async ({
   page
@@ -13,18 +12,37 @@ test("the first screen expresses the approved memory-preservation promise", asyn
   await expect(
     page.getByRole("heading", {
       level: 1,
-      name: "Old photographs fade. The voices behind them should not."
+      name: "Let them hear the story only you can tell."
     })
   ).toBeVisible();
   await expect(
     page.getByText(
-      "Capture a photo. Tell its story. Preserve your voice for the people you love."
+      "Tell it in your own voice—so the people you love can remember more than the photograph."
     )
   ).toBeVisible();
   await expect(page.getByRole("button", { name: "Capture Your Memories" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Import a photo" })).toBeVisible();
   await expect(page.getByRole("link", { name: "My stories" })).toHaveAttribute("href", "/auth/protect");
-  await expect(page.getByText(/Muse|truthful save status/i)).toHaveCount(0);
+  await expect(page.getByText(/^Muse$/)).toHaveCount(0);
+});
+
+test("reading settings collapse after three seconds and remain discoverable", async ({ page }) => {
+  await page.goto("/");
+
+  await expect(page.locator(".text-size-control")).toBeVisible();
+  await page.waitForTimeout(3200);
+  await expect(page.locator(".text-size-control")).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Open reading settings" })).toBeVisible();
+
+  await page.getByRole("button", { name: "Open reading settings" }).click();
+  await expect(page.locator(".text-size-control")).toBeVisible();
+  await page.getByRole("button", { name: "Use largest text" }).click();
+  await expect(page.getByRole("button", { name: "Use largest text" })).toHaveAttribute(
+    "aria-pressed",
+    "true"
+  );
+  await page.getByRole("button", { name: "Close reading settings" }).click();
+  await expect(page.getByRole("button", { name: "Open reading settings" })).toBeVisible();
 });
 
 test("both first-screen actions preserve their intended capture path", async ({ page }) => {
@@ -53,16 +71,12 @@ test("an imported photograph survives reload without a false saved claim", async
 
   await page
     .getByLabel("Choose a photograph from this device")
-    .setInputFiles({
-      name: "synthetic-family-photo.png",
-      mimeType: "image/png",
-      buffer: syntheticPng
-    });
+    .setInputFiles(syntheticPhotoPath);
 
   await expect(
     page.getByRole("heading", { name: "Does the photograph feel clear enough?" })
   ).toBeVisible();
-  await page.getByRole("button", { name: "Use this photo anyway" }).click();
+  await page.getByRole("button", { name: /Use this photo/ }).click();
 
   await expect(
     page.getByRole("heading", { name: "Tell the story you remember." })
@@ -179,6 +193,7 @@ test("an offline photograph never blocks the voice and later backs up in order",
         getUserMedia: async (constraints: MediaStreamConstraints) => {
           if (!constraints.audio) throw new Error("Synthetic microphone expected");
           const context = new AudioContext();
+          await context.resume();
           const oscillator = context.createOscillator();
           const destination = context.createMediaStreamDestination();
           oscillator.frequency.value = 220;
@@ -191,18 +206,14 @@ test("an offline photograph never blocks the voice and later backs up in order",
   });
   await page.goto("/");
   await page.getByRole("button", { name: "Import a photo" }).click();
-  await page.getByLabel("Choose a photograph from this device").setInputFiles({
-    name: "synthetic-family-photo.png",
-    mimeType: "image/png",
-    buffer: syntheticPng
-  });
-  await page.getByRole("button", { name: "Use this photo anyway" }).click();
+  await page.getByLabel("Choose a photograph from this device").setInputFiles(syntheticPhotoPath);
+  await page.getByRole("button", { name: /Use this photo/ }).click();
 
   await expect(
     page.getByRole("heading", { name: "Tell the story you remember." })
   ).toBeVisible();
-  await page.getByRole("button", { name: "Start recording" }).click();
-  await page.waitForTimeout(650);
+  await page.getByRole("button", { name: "I'm ready to record" }).click();
+  await page.waitForTimeout(1250);
   await page.getByRole("button", { name: "Stop recording" }).click();
   await expect(
     page.getByRole("heading", { name: "Does this sound like the story you meant to keep?" })
@@ -216,20 +227,27 @@ test("an offline photograph never blocks the voice and later backs up in order",
 
   connectionAvailable = true;
   await page.evaluate(() => window.dispatchEvent(new Event("online")));
-  await expect(page.getByRole("heading", { name: "We have your back." })).toBeVisible();
-  await expect(page.getByText("Your story is preserved in your family archive.")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Your photograph and voice are safe." })).toBeVisible();
+  await expect(page.getByText("Your photograph and real voice are safely backed up.")).toBeVisible();
 });
 
-test("the original voice is recorded, preserved, retrieved, and recovered", async ({
-  page
-}) => {
+
+test("Muse cues before recording and returns before a rerecord", async ({ page }) => {
   await page.addInitScript(() => {
+    Object.defineProperty(window, "micRequestCount", {
+      configurable: true,
+      writable: true,
+      value: 0
+    });
     Object.defineProperty(navigator, "mediaDevices", {
       configurable: true,
       value: {
         getUserMedia: async (constraints: MediaStreamConstraints) => {
           if (!constraints.audio) throw new Error("Synthetic microphone expected");
+          const holder = window as unknown as { micRequestCount: number };
+          holder.micRequestCount += 1;
           const context = new AudioContext();
+          await context.resume();
           const oscillator = context.createOscillator();
           const destination = context.createMediaStreamDestination();
           oscillator.frequency.value = 220;
@@ -243,19 +261,94 @@ test("the original voice is recorded, preserved, retrieved, and recovered", asyn
 
   await page.goto("/");
   await page.getByRole("button", { name: "Import a photo" }).click();
-  await page.getByLabel("Choose a photograph from this device").setInputFiles({
-    name: "synthetic-family-photo.png",
-    mimeType: "image/png",
-    buffer: syntheticPng
+  await page.getByLabel("Choose a photograph from this device").setInputFiles(syntheticPhotoPath);
+  await page.getByRole("button", { name: /Use this photo/ }).click();
+
+  await expect(page.getByText("Would you like help remembering?", { exact: true })).toBeVisible();
+  expect(
+    await page.evaluate(
+      () => (window as unknown as { micRequestCount: number }).micRequestCount
+    )
+  ).toBe(0);
+
+  await page.getByRole("button", { name: "Give me a cue" }).click();
+  await expect(
+    page.getByText("What comes back to you first when you look at this photograph?", { exact: true })
+  ).toBeVisible();
+
+  await page.getByRole("button", { name: "I'm ready to record" }).click();
+  await page.waitForTimeout(1250);
+  expect(
+    await page.evaluate(
+      () => (window as unknown as { micRequestCount: number }).micRequestCount
+    )
+  ).toBe(1);
+  await page.getByRole("button", { name: "Stop recording" }).click();
+
+  await page.getByRole("button", { name: "Record again" }).click();
+  await expect(
+    page.getByText("Would another cue help before you record again?", { exact: true })
+  ).toBeVisible();
+  await expect(
+    page.getByText(
+      "What detail do you most want to make sure your family hears this time?",
+      { exact: true }
+    )
+  ).toBeVisible();
+  expect(
+    await page.evaluate(
+      () => (window as unknown as { micRequestCount: number }).micRequestCount
+    )
+  ).toBe(1);
+
+  await page.getByRole("button", { name: "Record again" }).click();
+  await page.waitForTimeout(1250);
+  expect(
+    await page.evaluate(
+      () => (window as unknown as { micRequestCount: number }).micRequestCount
+    )
+  ).toBe(2);
+  await page.getByRole("button", { name: "Stop recording" }).click();
+  await expect(
+    page.getByRole("heading", {
+      name: "Does this sound like the story you meant to keep?"
+    })
+  ).toBeVisible();
+});
+
+test("the original voice is recorded, preserved, retrieved, and recovered", async ({
+  page
+}) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, "mediaDevices", {
+      configurable: true,
+      value: {
+        getUserMedia: async (constraints: MediaStreamConstraints) => {
+          if (!constraints.audio) throw new Error("Synthetic microphone expected");
+          const context = new AudioContext();
+          await context.resume();
+          const oscillator = context.createOscillator();
+          const destination = context.createMediaStreamDestination();
+          oscillator.frequency.value = 220;
+          oscillator.connect(destination);
+          oscillator.start();
+          return destination.stream;
+        }
+      }
+    });
   });
-  await page.getByRole("button", { name: "Use this photo anyway" }).click();
+
+  await page.goto("/");
+  await page.getByRole("button", { name: "Import a photo" }).click();
+  await page.getByLabel("Choose a photograph from this device").setInputFiles(syntheticPhotoPath);
+  await page.getByRole("button", { name: /Use this photo/ }).click();
   await expect(
     page.getByRole("heading", { name: "Tell the story you remember." })
   ).toBeVisible();
 
-  await page.getByRole("button", { name: "Start recording" }).click();
+  await page.getByRole("button", { name: "I'm ready to record" }).click();
   await expect(page.getByText("Recording your real voice")).toBeVisible();
-  await page.waitForTimeout(650);
+  await page.waitForTimeout(1250);
   await page.getByRole("button", { name: "Stop recording" }).click();
   await expect(
     page.getByRole("heading", {
@@ -265,14 +358,14 @@ test("the original voice is recorded, preserved, retrieved, and recovered", asyn
 
   await page.getByRole("button", { name: "Keep this recording" }).click();
   await expect(
-    page.getByRole("heading", { name: "We have your back." })
+    page.getByRole("heading", { name: "Your photograph and voice are safe." })
   ).toBeVisible();
   await expect(page.getByText("Playing the preserved original")).toBeVisible();
   await expect(page.getByText(/This memory is now part/i)).toHaveCount(0);
 
   await page.reload();
   await expect(
-    page.getByRole("heading", { name: "We have your back." })
+    page.getByRole("heading", { name: "Your photograph and voice are safe." })
   ).toBeVisible();
   await expect(page.getByText("Private originals confirmed")).toBeVisible();
 });

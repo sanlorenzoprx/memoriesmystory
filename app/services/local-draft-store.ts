@@ -137,6 +137,18 @@ export async function saveLocalDraft(draft: LocalMemoryDraft): Promise<void> {
   }
 }
 
+export async function deleteLocalDraft(draftId: string): Promise<void> {
+  const database = await openDatabase();
+
+  try {
+    const transaction = database.transaction(draftStoreName, "readwrite");
+    transaction.objectStore(draftStoreName).delete(draftId);
+    await transactionComplete(transaction);
+  } finally {
+    database.close();
+  }
+}
+
 export function makeLocalDraftId(): string {
   return `local_${crypto.randomUUID()}`;
 }

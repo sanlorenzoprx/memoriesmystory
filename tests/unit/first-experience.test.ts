@@ -5,10 +5,10 @@ import { firstExperienceContent } from "../../app/features/first-experience/cont
 describe("first experience contract", () => {
   it("uses the approved loving-urgency copy and actions", () => {
     expect(firstExperienceContent.headline).toBe(
-      "Old photographs fade. The voices behind them should not."
+      "Let them hear the story only you can tell."
     );
     expect(firstExperienceContent.supporting).toBe(
-      "Capture a photo. Tell its story. Preserve your voice for the people you love."
+      "Tell it in your own voice—so the people you love can remember more than the photograph."
     );
     expect(firstExperienceContent.primaryAction).toBe("Capture Your Memories");
     expect(firstExperienceContent.secondaryAction).toBe("Import a photo");

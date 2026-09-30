@@ -52,7 +52,8 @@ describe("identity staging preflight", () => {
     expect(result.status).toBe(0);
     expect(result.stdout).toContain("CLERK_FACEBOOK_ENABLED: deferred");
     expect(result.stdout).toContain("Preflight ready for email and Google staging");
-    expect(result.stdout).toContain("remain final acceptance blockers");
+    expect(result.stdout).toContain("explicitly deferred non-blocking item(s)");
+    expect(result.stdout).not.toContain("accepted");
   });
 
   it("rejects an undeclared Facebook state", () => {

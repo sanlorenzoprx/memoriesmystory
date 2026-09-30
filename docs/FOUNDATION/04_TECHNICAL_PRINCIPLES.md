@@ -7,7 +7,7 @@
 
 1. Build a complete vertical slice before broad feature expansion.
 2. Preserve immutable originals; store enhancements as derived assets with provenance.
-3. Model uncertain and disputed human facts explicitly.
+3. Preserve source, attribution, and the storyteller's own uncertainty explicitly; never turn the data model into a truth-adjudication system.
 4. Make durable-storage confirmation observable and testable.
 5. Design every workflow for interruption, retry, and unreliable connectivity.
 6. Keep entitlement values in centralized configuration.
@@ -16,7 +16,7 @@
 9. Prefer accessible browser-native behavior and progressive enhancement.
 10. Make archive export part of the core domain, not an afterthought.
 11. Record agreement, share, edit, and deletion events with versioned provenance.
-12. Introduce services or provider abstractions only where a real replacement, fallback, or isolation boundary exists.
+12. Introduce provider abstractions only at real change boundaries. Product/domain contracts must not depend on vendor response shapes, credentials, SDKs, or model-specific fields. Provider adapters own those details so a future provider change does not rewrite the Living Memory state machine.
 
 ## Approved platform foundation
 
@@ -24,7 +24,7 @@
 - Cloudflare Workers runtime.
 - D1 for structured data.
 - R2 for original and derived media plus exports.
-- Durable Objects for live Memory Circle room state.
+- Durable Objects for live Our Living Legacy session state.
 - Queues and Workflows for durable background work.
 - WebRTC through Cloudflare Realtime/SFU for remote circles.
 - Cloud transcription first, with device qualification before local transcription.

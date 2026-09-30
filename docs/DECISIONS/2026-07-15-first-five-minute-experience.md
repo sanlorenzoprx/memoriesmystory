@@ -1,6 +1,7 @@
 # Decision: First Five-Minute Experience Baseline
 
-**Status:** Accepted  
+**Status:** Accepted, partially superseded  
+**Superseded in part by:** `2026-08-11-living-memory-doctrine.md` (share-to-unlock and I-24 five-free-stories are retired; one free Living Memory; sharing is voluntary and never unlocks capacity) and `2026-09-23-muse-conversational-story-elicitor.md` (Muse behavior). Every other clause remains in force.  
 **Date:** 2026-07-15  
 **Foundation package:** Version 1.1
 

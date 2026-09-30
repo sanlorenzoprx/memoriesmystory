@@ -8,7 +8,7 @@ memoriesmystory/
 ├── app/
 │   ├── routes/            # React Router screens, loaders, and actions
 │   ├── features/          # User-outcome modules such as capture and circles
-│   ├── domain/            # Memory Story, truth state, ownership, provenance
+│   ├── domain/            # Living Memory / Memory Story compatibility, storyteller context, ownership, provenance
 │   ├── services/          # Storage, transcription, sharing, workflow boundaries
 │   ├── localization/      # BCP 47 message catalogs and locale behavior
 │   └── styles/            # Accessible design tokens and global styling

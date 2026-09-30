@@ -1,32 +1,17 @@
-# Good Karma Share Policy V1
+# Good Karma Share Policy V1 — Superseded
 
-**Status:** Approved and non-negotiable v1 product policy  
-**Review threshold:** 25,000 registered users
+**Status:** superseded historical policy  
+**Superseded on:** 2026-08-11  
+**Replacement:** `LIVING_MEMORY_SHARE_POLICY_V2.md`
 
-## Promise
+This file is retained so the repository does not rewrite product history.
 
-**Share a memory. Preserve another.**
+The former policy granted additional free Memory Stories through qualifying share actions. The product owner explicitly replaced that rule after ratifying the Living Memory doctrine.
 
-## Default behavior
+The current rule is:
 
-- Memory Story 1 is available immediately.
-- A deliberate qualifying share action unlocks the next free 30-second Memory Story.
-- The sequence continues through five free Memory Stories.
-- A copied link counts.
-- Proof that the recipient opened the link is not required in V1.
-- Proof that an external platform completed publication is not required in V1.
-- Public sharing is never required; the user may share privately, with family, through social destinations, or publicly.
+> **Preserve first. Share by choice.**
 
-## Qualifying intent events
+Sharing is voluntary, creator-controlled, and receives no free-Living-Memory entitlement reward. Growth should come from the value of the shared Living Memory and the recipient's desire to preserve one of their own.
 
-- native share destination selected, where detectable;
-- provider handoff initiated;
-- link copied;
-- public-feed publication completed;
-- direct publish completed where supported.
-
-Record at minimum: share event ID, Memory Story ID, account ID, channel, action, timestamp, unlock granted, and application version. Record cancellation when observable.
-
-## Review, do not auto-change
-
-At 25,000 registered users, review abuse, acquisition, sharing, conversion, free-story cost, privacy effects, and user sentiment. Stronger verification may be introduced only if evidence shows that its value exceeds its technical and experience cost.
+Do not implement new share-to-unlock behavior from this historical file.

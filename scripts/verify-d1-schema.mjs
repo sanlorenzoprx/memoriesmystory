@@ -1,20 +1,23 @@
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
+import { readdir, readFile } from "node:fs/promises";
 import { DatabaseSync } from "node:sqlite";
 
-const foundationMigration = await readFile(
-  new URL("../migrations/0001_phase_1_foundation.sql", import.meta.url),
-  "utf8"
-);
-const accountBindingMigration = await readFile(
-  new URL("../migrations/0002_account_binding_recovery.sql", import.meta.url),
-  "utf8"
+const migrationsDirectory = new URL("../migrations/", import.meta.url);
+const migrationNames = (await readdir(migrationsDirectory))
+  .filter((name) => /^\d+_.+\.sql$/.test(name))
+  .sort();
+const migrations = await Promise.all(
+  migrationNames.map(async (name) => ({
+    name,
+    sql: await readFile(new URL(name, migrationsDirectory), "utf8")
+  }))
 );
 const database = new DatabaseSync(":memory:");
 
 try {
-  database.exec(foundationMigration);
-  database.exec(accountBindingMigration);
+  for (const migration of migrations) {
+    database.exec(migration.sql);
+  }
 
   const objects = database
     .prepare(
@@ -28,11 +31,17 @@ try {
     "user_sessions",
     "draft_ownership_claims",
     "billing_customer_links",
+    "deletion_receipts",
     "memory_story_drafts",
     "memory_stories",
     "media_assets",
     "transcript_revisions",
     "story_entitlements",
+    "living_memory_context_entries",
+    "muse_conversation_turns",
+    "muse_voice_reply_assets",
+    "product_events",
+    "living_memory_share_artifacts",
     "memory_story_shares",
     "share_events",
     "operation_receipts",
@@ -41,6 +50,8 @@ try {
     "memory_stories_complete_requires_originals",
     "memory_stories_complete_insert_forbidden",
     "memory_stories_cannot_reopen_complete",
+    "memory_stories_complete_requires_entitlement",
+    "memory_stories_complete_consumes_entitlement",
     "transcript_revisions_append_only",
     "draft_ownership_claim_requires_owner",
     "draft_ownership_claims_immutable"
@@ -81,6 +92,12 @@ try {
   database.exec(`
     INSERT INTO users (id, email, created_at, updated_at)
     VALUES ('user-1', 'owner@example.test', '2026-07-16T00:00:00Z', '2026-07-16T00:00:00Z');
+    INSERT INTO story_entitlements (
+      user_id, plan, free_story_limit, free_stories_unlocked,
+      free_stories_completed, paid_story_capacity, updated_at
+    ) VALUES (
+      'user-1', 'free', 1, 1, 0, 0, '2026-07-16T00:00:00Z'
+    );
     INSERT INTO memory_stories (
       id, owner_user_id, status, visibility, created_at, updated_at, version
     ) VALUES (
@@ -88,6 +105,15 @@ try {
       '2026-07-16T00:00:00Z', 1
     );
   `);
+
+  assert.deepEqual(
+    {
+      ...database.prepare(
+        "SELECT free_story_limit, free_stories_unlocked, free_stories_completed FROM story_entitlements WHERE user_id = 'user-1'"
+      ).get()
+    },
+    { free_story_limit: 1, free_stories_unlocked: 1, free_stories_completed: 0 }
+  );
 
   assert.throws(
     () =>
@@ -131,6 +157,15 @@ try {
         updated_at = '2026-07-16T00:00:01Z', version = 2
     WHERE id = 'story-1';
   `);
+
+  assert.deepEqual(
+    {
+      ...database.prepare(
+        "SELECT free_stories_completed FROM story_entitlements WHERE user_id = 'user-1'"
+      ).get()
+    },
+    { free_stories_completed: 1 }
+  );
 
   assert.throws(
     () => database.exec("UPDATE memory_stories SET status = 'draft' WHERE id = 'story-1';"),

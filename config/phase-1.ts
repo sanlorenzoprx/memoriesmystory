@@ -2,9 +2,10 @@ const mebibyte = 1024 * 1024;
 
 export const phase1Config = {
   entitlements: {
-    freeStoryLimit: 5,
+    freeStoryLimit: 1,
     initiallyUnlockedStories: 1,
-    freeVoiceSecondsPerStory: 30
+    freeVoiceSecondsPerStory: 30,
+    shareRewardEnabled: false
   },
   auth: {
     provider: "clerk",
@@ -44,16 +45,28 @@ export const phase1Config = {
     completedStoryRecoveryDays: null
   },
   ai: {
-    modelConfigVersion: "phase1-unselected-v1",
-    transcriptionModelId: null,
-    museModelId: null,
-    musePromptVersion: "pending-packet-5"
+    modelConfigVersion: "living-memory-proof-v2",
+    transcriptionProvider: "elevenlabs",
+    transcriptionModelId: "scribe_v2",
+    transcriptionEndpoint: "https://api.elevenlabs.io/v1/speech-to-text",
+    museModelId: "@cf/meta/llama-3.1-8b-instruct-fast",
+    musePromptVersion: "remembering-companion-v1",
+    museConversationPromptVersion: "story-elicitor-v1",
+    museTtsProvider: "elevenlabs",
+    museTtsModelId: "eleven_multilingual_v2",
+    museTtsOutputFormat: "mp3_44100_128",
+    maxMuseQuestionsPerProof: 1
   },
   sharing: {
     defaultStoryVisibility: "private",
     tokenLifetimeDays: null,
     tokenPolicyStatus: "requires_security_review",
-    revocable: true
+    revocable: true,
+    rewardUnlocks: false,
+    primaryPublicTarget: "facebook",
+    primaryFamilyTarget: "whatsapp",
+    requireShareArtifactPreview: true,
+    includePrivateArchiveMetadataByDefault: false
   }
 } as const;
 
