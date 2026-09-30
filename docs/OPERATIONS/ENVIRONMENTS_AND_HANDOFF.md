@@ -39,6 +39,17 @@ npm run preflight:identity:staging
 
 The command requires the Clerk publishable/secret configuration, `SESSION_SECRET`, exact authorized HTTPS origin, Cloudflare account/deployment authorization, isolated staging Worker/D1/R2 identifiers, and operator confirmation that email and Google are enabled. Facebook must be either `true` after a successful live path or explicitly `false` as an owner-approved interim deferral. A deferred result permits only the separately logged email-and-Google staging checks; it does not complete Packet 4 or final acceptance. The command makes no provider call, and a green result never substitutes for live evidence.
 
+## Deploying staging
+
+Staging identifiers are never committed; `wrangler.jsonc` keeps a zero D1 ID so a plain `npm run deploy` cannot reach a real environment. Deploy staging only with:
+
+```powershell
+npm run deploy:staging -- --dry-run   # build and verify, no upload
+npm run deploy:staging
+```
+
+`scripts/deploy-staging.mjs` reads the Worker, D1, R2 and Queue names from `.env.staging.local`, writes the ignored `wrangler.staging.generated.jsonc`, builds the client in staging mode, refuses to deploy if the Clerk publishable key is missing from the browser bundle or the D1 ID is the placeholder, and deploys with `--keep-vars` so variables already on the staging Worker survive. Wrangler authenticates with `CLOUDFLARE_API_TOKEN` when `.env.staging.local` sets it, otherwise with the operator's `wrangler login` session; an expired token fails with `Invalid access token [code: 9109]`. Secrets are managed separately with `wrangler secret put --config wrangler.staging.generated.jsonc`. Migrations are applied separately (see `docs/CURRENT_STATE.md` for the trigger-migration workaround).
+
 ## Scale and operational evidence
 
 Before handoff, record request/error latency, upload failure rate, queue age/retries/dead letters, AI latency/failure/usage, D1 query/index evidence, R2 storage growth, entitlement/share idempotency, and durability-confirmation failures. Establish alerts and a bounded cost response before public launch.

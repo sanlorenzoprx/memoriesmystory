@@ -64,7 +64,7 @@ Always branch from current `origin/main`.
 
 - `share_events.unlock_granted` and its unique index (migration 0001) are inert; the runtime never writes them. `story_entitlements.free_stories_unlocked` is fixed at 1. Drop them only in a deliberate migration with product value.
 - Trigger-heavy migrations 0001–0004 apply to remote D1 through `wrangler d1 execute --file`; the normal migration path rejects them (`incomplete input`). Later migrations apply normally.
-- A staging client build must include `.env.staging.local`; otherwise the Clerk publishable key is missing from the browser bundle even though the Worker deploys.
+- Deploy staging only with `npm run deploy:staging` (`docs/OPERATIONS/ENVIRONMENTS_AND_HANDOFF.md`). It builds in staging mode and refuses to deploy a bundle without the Clerk publishable key, the failure seen on 2026-09-23.
 - `wrangler.jsonc` intentionally carries a zero D1 ID; environments supply real IDs.
 - `config/phase-1.ts` lists `facebook` in `supportedMethods` while Facebook sign-in is deferred.
 - ElevenLabs `voices_read` permission is unavailable on the current key; a fixed voice ID is configured.
