@@ -17,6 +17,10 @@ describe("central Phase 1 configuration", () => {
     expect(phase1Limits.freeMemoryStoryCount).toBe(phase1Config.entitlements.freeStoryLimit);
   });
 
+  it("keeps only the active Phase 1 sign-in methods enabled", () => {
+    expect(phase1Config.auth.supportedMethods).toEqual(["email", "google"]);
+  });
+
   it("keeps sharing private-first and voluntary", () => {
     expect(phase1Config.sharing.defaultStoryVisibility).toBe("private");
     expect(phase1Config.sharing.rewardUnlocks).toBe(false);
