@@ -9,7 +9,7 @@ export const phase1Config = {
   },
   auth: {
     provider: "clerk",
-    supportedMethods: ["email", "google", "facebook"],
+    supportedMethods: ["email", "google"],
     sessionLifetimeDays: 30,
     accountOwnershipAgreementVersion: "account-ownership-v1"
   },
