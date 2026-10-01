@@ -46,6 +46,7 @@ If a task crosses rows, read every applicable source. If sources conflict, apply
 ## Non-negotiable boundaries
 
 - The only canonical repository is `https://github.com/sanlorenzoprx/memoriesmystory`.
+- Start all new development from current `origin/main`. Historical or parked branches are never valid bases for new work; PR #13 is parked only and must be rebased from current `main` before any future use.
 - Every technical application identifier is `memoriesmystory`; the customer-facing brand is **Memories: My Story**.
 - No code, architecture, or product rule is inherited from another repository.
 - Living Memory is the canonical product object; `MemoryStory` is a compatibility implementation name where still present.
