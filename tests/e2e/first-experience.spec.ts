@@ -23,6 +23,8 @@ test("the first screen expresses the approved memory-preservation promise", asyn
   await expect(page.getByRole("button", { name: "Capture Your Memories" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Import a photo" })).toBeVisible();
   await expect(page.getByRole("link", { name: "My stories" })).toHaveAttribute("href", "/auth/protect");
+  await expect(page.getByRole("list", { name: "Your Living Memory journey" })).toBeVisible();
+  await expect(page.locator('[aria-label="Begin your first Living Memory"]')).toBeVisible();
   await expect(page.getByText(/^Muse$/)).toHaveCount(0);
 });
 
