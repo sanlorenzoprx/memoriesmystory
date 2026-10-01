@@ -23,7 +23,7 @@ The sole exception is `feat/functional-discovery-surface-01` (PR #13). It remain
 | `agent/commerce-slice-c` | `c92add0a51ab947baadaf46cba5771c71c21d709` | Early commerce work; closed PR #10 |
 | `copy/four-part-persuasion` | `abba7a86def76f46e36366111cfc24e74456fa49` | Superseded customer-copy work; closed PR #14 |
 
-`claude/blissful-euler-l5rsze` is also retired. Its tip `7b6a00822338e2358f14159028a2ec43a2c6c0a1` is already a parent of the merged `main` history, so it needs no separate archival branch.
+`claude/blissful-euler-l5rsze` is also retired. Before deletion it was fully contained by `main` (zero commits ahead), so it needs no separate archival branch.
 
 ## Why
 
