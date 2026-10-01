@@ -109,7 +109,7 @@ function HomeRoute() {
         <MemoryPhotoMoment />
       </section>
 
-      <ol className="memory-journey" aria-label="Your Memory Story journey">
+      <ol className="memory-journey" aria-label="Your Living Memory journey">
         {firstExperienceContent.journey.map((stage, index) => (
           <li className={index === 0 ? "is-current" : undefined} key={stage}>
             <span className="journey-dot" aria-hidden="true" />
@@ -143,7 +143,7 @@ function StartMemoryActions() {
 
   return (
     <>
-      <div className="hero-actions" aria-label="Begin your first Memory Story">
+      <div className="hero-actions" aria-label="Begin your first Living Memory">
         <button
           className="primary-action"
           type="button"
