@@ -1,0 +1,102 @@
+[
+  {
+    "slug": "questions-to-ask-your-mother",
+    "title": "Questions to Ask Your Mother About Her Life | Memories: My Story",
+    "headline": "Questions that help your mother tell the stories only she can tell.",
+    "description": "Generate a gentle family-story starter for your mother, then preserve the photograph, story, and sound of her real voice together as a Living Memory.",
+    "intent": "questions for your mother",
+    "relationship": "mother",
+    "themes": ["childhood", "family traditions", "legacy"],
+    "sampleQuestions": ["What is one childhood memory you still picture clearly?", "Who shaped the person you became?", "What family tradition would you want us to carry forward?"]
+  },
+  {
+    "slug": "questions-to-ask-your-father",
+    "title": "Questions to Ask Your Father About His Life | Memories: My Story",
+    "headline": "Help your father tell the stories your family may never think to ask about.",
+    "description": "Create warm, open-ended questions for your father about childhood, work, family, places, and legacy, then begin a Living Memory in his real voice.",
+    "intent": "questions for your father",
+    "relationship": "father",
+    "themes": ["childhood", "work", "legacy"],
+    "sampleQuestions": ["What did an ordinary day look like when you were a child?", "Who taught you something at work that stayed with you?", "What lesson would you want your family to remember?"]
+  },
+  {
+    "slug": "questions-to-ask-your-grandmother",
+    "title": "Questions to Ask Your Grandmother | Memories: My Story",
+    "headline": "Ask your grandmother the questions that bring a lifetime back into the room.",
+    "description": "Generate thoughtful questions for your grandmother about childhood, family traditions, recipes, old photographs, and the stories she wants future generations to hear.",
+    "intent": "questions for your grandmother",
+    "relationship": "grandmother",
+    "themes": ["childhood", "old photographs", "recipes", "legacy"],
+    "sampleQuestions": ["What place still feels like home when you picture it?", "What family dish carries a story for you?", "What might we miss if we only kept the photographs?"]
+  },
+  {
+    "slug": "questions-to-ask-your-grandfather",
+    "title": "Questions to Ask Your Grandfather | Memories: My Story",
+    "headline": "Give your grandfather room to tell the stories behind the facts.",
+    "description": "Create a gentle interview starter for your grandfather about childhood, work, service, home, family, and legacy without inventing or correcting his memory.",
+    "intent": "questions for your grandfather",
+    "relationship": "grandfather",
+    "themes": ["childhood", "work", "service", "legacy"],
+    "sampleQuestions": ["What did you do for fun when you were young?", "Was there a day that changed how you saw the world?", "What would you want a great-grandchild to hear directly from you?"]
+  },
+  {
+    "slug": "questions-to-ask-aging-parents",
+    "title": "Questions to Ask Aging Parents | Memories: My Story",
+    "headline": "Start the conversations you will be grateful your family preserved.",
+    "description": "Generate respectful, unhurried questions for aging parents about the people, places, traditions, work, love, and lessons that shaped their lives.",
+    "intent": "questions for aging parents",
+    "relationship": "parent",
+    "themes": ["family traditions", "homes", "love", "legacy"],
+    "sampleQuestions": ["Who made you feel safe or understood when you were young?", "What place still feels like home?", "What part of your story do you think the family knows least?"]
+  },
+  {
+    "slug": "family-oral-history",
+    "title": "Family Oral History Questions and Interview Starter | Memories: My Story",
+    "headline": "Turn a family interview into a story worth hearing again.",
+    "description": "Build a family oral-history interview plan with warm questions, photo prompts, and follow-ups designed to preserve authentic human testimony rather than manufacture a biography.",
+    "intent": "family oral history",
+    "relationship": "family member",
+    "themes": ["childhood", "migration", "family traditions", "legacy"],
+    "sampleQuestions": ["When you think back to that time, what comes back first?", "What do you remember about leaving one place and arriving somewhere new?", "What detail would you not want the family to lose?"]
+  },
+  {
+    "slug": "preserving-a-parents-voice",
+    "title": "How to Preserve a Parent's Voice and Stories | Memories: My Story",
+    "headline": "Keep the story with the voice that makes it theirs.",
+    "description": "Use a gentle Story Starter to begin recording a parent's memories, then preserve the photograph and authentic human voice together instead of leaving an unlabeled recording or photo behind.",
+    "intent": "preserving a parent's voice",
+    "relationship": "parent",
+    "themes": ["legacy", "family traditions", "homes"],
+    "sampleQuestions": ["What memory would you want us to hear in your own voice?", "What family tradition feels most like ours?", "What happened in a place you would never want us to forget?"]
+  },
+  {
+    "slug": "stories-behind-old-photographs",
+    "title": "Questions for the Stories Behind Old Family Photographs | Memories: My Story",
+    "headline": "A photograph can survive long after the story behind it disappears.",
+    "description": "Generate questions for an old family photograph without guessing who, where, or when. Let the storyteller supply the memory, context, and real voice.",
+    "intent": "stories behind old photographs",
+    "relationship": "family member",
+    "themes": ["old photographs", "homes", "family traditions"],
+    "sampleQuestions": ["Who is in this photograph, as you remember it?", "What was happening around the moment it was taken?", "What does this picture bring back that the image alone cannot show?"]
+  },
+  {
+    "slug": "family-recipe-stories",
+    "title": "Family Recipe Story Questions | Memories: My Story",
+    "headline": "Preserve the story around the recipe, not only the ingredients.",
+    "description": "Generate questions about family recipes, kitchens, gatherings, and the people who taught them so the food stays connected to the human story behind it.",
+    "intent": "family recipe stories",
+    "relationship": "family member",
+    "themes": ["recipes", "family traditions", "legacy"],
+    "sampleQuestions": ["What family dish carries a story for you?", "Who taught you how it was made?", "Was anything measured by feel instead of written down?"]
+  },
+  {
+    "slug": "family-reunion-questions",
+    "title": "Family Reunion Questions That Bring Out Real Stories | Memories: My Story",
+    "headline": "Use the reunion to capture the stories everyone assumes someone else remembers.",
+    "description": "Generate family-reunion questions that invite stories about gatherings, relatives, traditions, places, jokes, food, and moments worth preserving in the storyteller's own voice.",
+    "intent": "family reunion questions",
+    "relationship": "family member",
+    "themes": ["reunion", "family traditions", "old photographs", "legacy"],
+    "sampleQuestions": ["What family gathering do you remember most clearly?", "Who was always there, and what were they like?", "What moment from a gathering still makes you smile?"]
+  }
+]

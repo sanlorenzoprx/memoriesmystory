@@ -23,4 +23,20 @@ Muse helps someone remember. It does not invent the memory. Generated prompts ar
 
 These public capabilities cannot read photographs, voice recordings, transcripts, private stories, family members, archive records, or private share tokens.
 
+## Functional discovery utilities
+
+Each utility is a crawlable web page that calls the same deterministic public Story Starter and then offers a human-only path into the ordinary Living Memory experience. Each build emits a Markdown twin at `<path>.md`.
+
+- /questions-to-ask-your-mother
+- /questions-to-ask-your-father
+- /questions-to-ask-your-grandmother
+- /questions-to-ask-your-grandfather
+- /questions-to-ask-aging-parents
+- /family-oral-history
+- /preserving-a-parents-voice
+- /stories-behind-old-photographs
+- /family-recipe-stories
+- /family-reunion-questions
+- Distribution route manifest: /discovery-manifest.json
+
 Starting a Living Memory always requires human action in the Memories: My Story application.
