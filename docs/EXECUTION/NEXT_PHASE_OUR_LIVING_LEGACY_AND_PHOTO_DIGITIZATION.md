@@ -1,7 +1,7 @@
 # Next Phase — Archival Photo Capture + Our Living Legacy
 
-**Status:** accepted as the order after the release candidate (`../DECISIONS/2026-09-30-next-phase-order-and-our-living-legacy.md`); queued after Week-One human proof
-**Rule:** do not begin feature implementation until the solo Living Memory proof clears the human gate.
+**Status:** technical specification retained; release sequencing superseded by `../DECISIONS/2026-11-13-expanded-first-release.md`. Archival capture and Our Living Legacy are now required inside the first release.
+**Rule:** preserve and verify the internal solo foundation before integrating shared changes. The final expanded release candidate is locked only after all required capabilities pass; see `EXPANDED_FIRST_RELEASE.md`.
 
 ## Why this order
 

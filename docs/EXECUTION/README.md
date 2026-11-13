@@ -1,6 +1,6 @@
 # Execution Controls
 
-`DEFINITION_OF_DONE_V1.md` is the release boundary for the Phase 1 production-ready campaign. It supplements the task loop in the root `AGENTS.md`; it does not replace Foundation or Product authority.
+`DEFINITION_OF_DONE_V1.md` and `EXPANDED_FIRST_RELEASE.md` define the expanded first-release boundary approved on 2026-11-13. It supplements the task loop in the root `AGENTS.md`; it does not replace Foundation or Product authority.
 
 Read the campaign controls in this order:
 
@@ -13,8 +13,10 @@ Read the campaign controls in this order:
 
 Current sprint references:
 
+- `EXPANDED_FIRST_RELEASE.md` — required first-release capabilities, dependencies, evidence and activation prerequisites.
+
 - `../CURRENT_STATE.md` — single current-status record and release-candidate gate.
 - `ONE_WEEK_LIVING_MEMORY_PROOF_ROADMAP.md` — Week-One product-proof execution contract.
 - `ONE_WEEK_LIVING_MEMORY_TASK_GRAPH.json` — machine-readable task/gate state.
 - `WEEK_ONE_STAGING_EVIDENCE_2026-09-23.md` — dated live staging evidence and remaining human/device gate.
-- `NEXT_PHASE_OUR_LIVING_LEGACY_AND_PHOTO_DIGITIZATION.md` — accepted next phase; do not implement before the release candidate is locked.
+- `NEXT_PHASE_OUR_LIVING_LEGACY_AND_PHOTO_DIGITIZATION.md` — historical implementation detail; the November 13 decision moves these outcomes inside the first release after the internal solo foundation checkpoint.

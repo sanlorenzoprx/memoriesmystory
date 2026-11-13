@@ -22,6 +22,7 @@ import { deleteLocalDraft } from "../../services/local-draft-store";
 import { deleteMemory } from "../../services/memory-deletion";
 import { MuseVoiceButton } from "../MuseVoiceButton";
 import { MuseVoiceReplyRecorder } from "../MuseVoiceReplyRecorder";
+import { FamilyLinkManager } from "./FamilyLinkManager";
 
 type Stage =
   | "loading"
@@ -59,6 +60,8 @@ export function LivingMemoryExperience() {
   const navigate = useNavigate();
   const [stage, setStage] = useState<Stage>("loading");
   const [snapshot, setSnapshot] = useState<LivingMemorySnapshot | null>(null);
+  const [processingAttempt, setProcessingAttempt] = useState(0);
+  const retryProcessingRef = useRef(false);
   const [processing, setProcessing] = useState<ProcessingView | null>(null);
   const [conversation, setConversation] = useState<MuseConversationView | null>(null);
   const [conversationBusy, setConversationBusy] = useState(false);
@@ -190,15 +193,20 @@ export function LivingMemoryExperience() {
       active = false;
       if (timer) window.clearTimeout(timer);
     };
-  }, [stage, draftId]);
+  }, [stage, draftId, processingAttempt]);
 
   async function retryProcessing() {
+    if (retryProcessingRef.current) return;
+    retryProcessingRef.current = true;
     setMessage(null);
     try {
       setProcessing(await startProcessing(draftId));
+      setProcessingAttempt((attempt) => attempt + 1);
       setStage("processing");
     } catch (error) {
       setMessage(apiMessage(error));
+    } finally {
+      retryProcessingRef.current = false;
     }
   }
 
@@ -483,8 +491,9 @@ export function LivingMemoryExperience() {
             <button className="primary-action" type="button" onClick={() => setStage("share-settings")}>
               Share with family
             </button>
-            <Link className="secondary-action" to="/archive">Keep private</Link>
+            <Link className="secondary-action" to="/archive">Return to my archive</Link>
           </div>
+          <FamilyLinkManager key={snapshot.livingMemoryId} livingMemoryId={snapshot.livingMemoryId} onRevoked={() => setSharePath(null)} />
           <DeleteMemoryAction deleting={deleting} onDelete={() => void deleteCurrentMemory()} />
         </section>
       </MemoryPage>
@@ -498,7 +507,7 @@ export function LivingMemoryExperience() {
           <p className="eyebrow">Optional family sharing</p>
           <h1>You decide what leaves your archive.</h1>
           <p className="capture-lede">
-            The photograph is included. Your original voice is included by default.
+            Anyone with this link can open it without signing in. The photograph is included. Your original voice is included by default.
             Context and other archive details stay private.
           </p>
           <label className="share-option">
@@ -561,7 +570,7 @@ export function LivingMemoryExperience() {
               Preview what family will see
             </button>
             <button className="secondary-action" type="button" onClick={() => setStage("complete")}>
-              Keep private
+              Cancel new share
             </button>
           </div>
           <DeleteMemoryAction deleting={deleting} onDelete={() => void deleteCurrentMemory()} />
@@ -615,7 +624,7 @@ export function LivingMemoryExperience() {
   return (
     <MemoryPage>
       <section className="living-memory-card">
-        <p className="eyebrow">Private family link ready</p>
+        <p className="eyebrow">{shareUrl ? "Private family link ready" : "Your family links"}</p>
         <h1>Share it only when you choose.</h1>
         <OriginalPair snapshot={snapshot} compact />
         {shareUrl && (
@@ -626,7 +635,7 @@ export function LivingMemoryExperience() {
         )}
         {message && <p className="preservation-status" role="status">{message}</p>}
         <div className="capture-actions">
-          <button className="primary-action" type="button" onClick={() => void handOffShare()}>
+          <button className="primary-action" type="button" disabled={!shareUrl} onClick={() => void handOffShare()}>
             Share private link
           </button>
           {shareUrl && (
@@ -636,6 +645,11 @@ export function LivingMemoryExperience() {
           )}
           <Link className="secondary-action" to="/archive">Return to my archive</Link>
         </div>
+        <button className="secondary-action" type="button" onClick={() => {
+          shareKeyRef.current = `share_${draftId}_${crypto.randomUUID()}`;
+          setStage("share-settings");
+        }}>Create another family link</button>
+        <FamilyLinkManager key={snapshot.livingMemoryId} livingMemoryId={snapshot.livingMemoryId} onRevoked={() => setSharePath(null)} />
         <DeleteMemoryAction deleting={deleting} onDelete={() => void deleteCurrentMemory()} />
       </section>
     </MemoryPage>

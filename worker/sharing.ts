@@ -400,6 +400,53 @@ async function createShare(
     replayed: false
   }, 201);
 }
+async function listShares(
+  request: Request,
+  env: SharingEnv,
+  storyId: string
+): Promise<Response> {
+  const { userId } = await requireOwner(request, env, storyId);
+  const before = new URL(request.url).searchParams.get("before");
+  let cursor: { created_at: string; id: string } | null = null;
+  if (before) {
+    cursor = await env.DB.prepare(
+      `SELECT id, created_at FROM memory_story_shares
+       WHERE id = ? AND memory_story_id = ? AND owner_user_id = ?`
+    ).bind(validIdentifier(before, "Share cursor"), storyId, userId)
+      .first<{ created_at: string; id: string }>();
+    if (!cursor) throw new SharingRouteError(400, "invalid_cursor", "Refresh the family link list and try again.");
+  }
+  const result = await env.DB.prepare(
+    `SELECT s.id, s.created_at, s.revoked_at, s.visibility,
+            a.include_voice, a.include_captions, a.include_narrator_attribution,
+            a.include_brand_attribution
+     FROM memory_story_shares s
+     JOIN living_memory_share_artifacts a ON a.share_id = s.id
+     WHERE s.memory_story_id = ? AND s.owner_user_id = ?
+       AND (? IS NULL OR s.created_at < ? OR (s.created_at = ? AND s.id < ?))
+     ORDER BY s.created_at DESC, s.id DESC LIMIT 51`
+  ).bind(storyId, userId, cursor?.id ?? null, cursor?.created_at ?? null,
+    cursor?.created_at ?? null, cursor?.id ?? null).all<{
+      id: string; created_at: string; revoked_at: string | null; visibility: string;
+      include_voice: number; include_captions: number;
+      include_narrator_attribution: number; include_brand_attribution: number;
+    }>();
+  const page = result.results.slice(0, 50);
+  return json({
+    shares: page.map((row) => ({
+      shareId: row.id, createdAt: row.created_at, revokedAt: row.revoked_at,
+      visibility: row.visibility,
+      selection: {
+        includePhoto: true, includeVoice: row.include_voice === 1,
+        includeCaptions: row.include_captions === 1,
+        includeNarratorAttribution: row.include_narrator_attribution === 1,
+        includeBrandAttribution: row.include_brand_attribution === 1
+      }
+    })),
+    nextCursor: result.results.length > 50 ? page.at(-1)!.id : null
+  });
+}
+
 async function revokeShare(
   request: Request,
   env: SharingEnv,
@@ -615,6 +662,11 @@ export async function handleSharingRoute(
         request,
         env,
         validIdentifier(decodeURIComponent(createMatch[1]), "Living Memory ID")
+      );
+    }
+    if (createMatch?.[1] && request.method === "GET") {
+      return await listShares(
+        request, env, validIdentifier(decodeURIComponent(createMatch[1]), "Living Memory ID")
       );
     }
     if (revokeMatch?.[1] && revokeMatch[2] && request.method === "DELETE") {

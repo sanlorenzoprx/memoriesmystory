@@ -13,6 +13,8 @@ Preserve validated implementation. Existing MemoryStory, MediaAsset, legacy trut
 
 Work one dependency-ready slice at a time. For each slice: inspect current code and receipts; identify affected Product Invariants; complete the Living Memory anti-drift checklist; implement the smallest complete human outcome; add deterministic failure/recovery/privacy tests; run applicable checks; inspect artifacts; write a receipt; commit intentionally; then advance only to the next ready slice.
 
+The first release must include all outcomes in EXECUTION/EXPANDED_FIRST_RELEASE.md under the explicit 2026-11-13 owner scope decision. Solo capture is the entry experience, not the release boundary. Historical solo-only exclusions are superseded; approved policy, live billing and production remain separately gated.
+
 The first product proof is Photo → Voice → Muse → Preserved → Playback → Invite/Share. The canonical activation event is first_living_memory_completed. The first successful experience must make an ordinary photograph feel materially more valuable because authentic voice and context remain with it.
 
 Muse listens first and exists to help the individual remember. AI may transcribe, organize, retrieve, connect, translate, ask, and present source-grounded material. It must never fact-check, judge, score, correct, or rank a person's recollection; never silently invent testimony; never collapse different recollections into one official version; never replace an original source; and never expose material outside the authorized archive scope.

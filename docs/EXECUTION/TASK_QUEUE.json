@@ -1,14 +1,15 @@
 {
-  "schema_version": "memoriesmystory_living_memory_queue_v3",
+  "schema_version": "memoriesmystory_expanded_release_queue_v4",
   "project": "memoriesmystory",
-  "campaign": "one-week-living-memory-product-proof",
-  "active_task_id": "week-one-living-memory-proof",
+  "campaign": "expanded-first-release",
+  "active_task_id": "solo-trust-controls",
   "tasks": [
     {
       "id": "packet-1",
       "status": "completed",
       "depends_on": [],
-      "title": "Existing domain, configuration, and persistence contracts"
+      "title": "Existing domain, configuration, and persistence contracts",
+      "release_required": true
     },
     {
       "id": "packet-2",
@@ -16,7 +17,8 @@
       "depends_on": [
         "packet-1"
       ],
-      "title": "Existing local-first capture and recovery"
+      "title": "Existing local-first capture and recovery",
+      "release_required": true
     },
     {
       "id": "packet-3",
@@ -24,7 +26,8 @@
       "depends_on": [
         "packet-2"
       ],
-      "title": "Existing original media durability"
+      "title": "Existing original media durability",
+      "release_required": true
     },
     {
       "id": "packet-4",
@@ -32,7 +35,8 @@
       "depends_on": [
         "packet-3"
       ],
-      "title": "Account binding/recovery; email + Google are sufficient for week-one proof, Facebook remains deferred"
+      "title": "Account binding/recovery; email + Google are sufficient for week-one proof, Facebook remains deferred",
+      "release_required": true
     },
     {
       "id": "living-memory-ratification",
@@ -40,16 +44,27 @@
       "depends_on": [
         "packet-3"
       ],
-      "title": "Living Memory doctrine, voluntary sharing, storyteller sovereignty, domain overlay, and execution contracts"
+      "title": "Living Memory doctrine, voluntary sharing, storyteller sovereignty, domain overlay, and execution contracts",
+      "release_required": true
+    },
+    {
+      "id": "solo-trust-controls",
+      "status": "active",
+      "depends_on": [
+        "packet-3"
+      ],
+      "title": "Owner share inventory/revoke, editable review, voluntary finish, bilingual UI and resilient speech/retries",
+      "release_required": true
     },
     {
       "id": "week-one-living-memory-proof",
-      "status": "active",
+      "status": "verification_pending",
       "depends_on": [
         "packet-3",
         "living-memory-ratification"
       ],
-      "title": "Photo → Voice → Muse → Story Context → Preserve → Playback → Optional Family Share"
+      "title": "Photo \u2192 Voice \u2192 Muse \u2192 Story Context \u2192 Preserve \u2192 Playback \u2192 Optional Family Share",
+      "release_required": true
     },
     {
       "id": "landing-positioning",
@@ -57,24 +72,49 @@
       "depends_on": [
         "living-memory-ratification"
       ],
-      "title": "Landing positioning deferred until core product proof is complete"
-    },
-    {
-      "id": "release-candidate-hardening",
-      "status": "pending",
-      "depends_on": [
-        "week-one-living-memory-proof",
-        "packet-4"
-      ],
-      "title": "Lock the RC SHA and complete production-ready-not-live hardening (DEFINITION_OF_DONE_V1)"
+      "title": "Landing positioning deferred until core product proof is complete",
+      "release_required": true
     },
     {
       "id": "archival-photo-capture",
       "status": "pending",
       "depends_on": [
-        "release-candidate-hardening"
+        "solo-trust-controls"
       ],
-      "title": "Physical print → untouched source capture + derived corrected scan (Next Phase 2A)"
+      "title": "First release: archival still capture, untouched original and separate perspective-corrected scan",
+      "release_required": true
+    },
+    {
+      "id": "legacy-infrastructure",
+      "status": "pending",
+      "depends_on": [
+        "solo-trust-controls"
+      ],
+      "title": "First release: complete export, integrity/restore maintenance and policy-approved stewardship; extend export with group/family sources before acceptance",
+      "release_required": true
+    },
+    {
+      "id": "growth-engine",
+      "status": "pending",
+      "depends_on": [
+        "solo-trust-controls"
+      ],
+      "title": "First release: bounded channel handoff, external-copy boundary and no-reward referral evidence",
+      "release_required": true
+    },
+    {
+      "id": "paid-plans",
+      "status": "pending",
+      "depends_on": [
+        "solo-trust-controls"
+      ],
+      "title": "First release: approved paid offers, checkout, verified webhook fulfillment, entitlements, refunds and cost guards",
+      "release_required": true,
+      "activation_gates": [
+        "Approved exact offer/prices and billing terms",
+        "Provider sandbox configuration",
+        "Separate live billing authorization"
+      ]
     },
     {
       "id": "our-living-legacy",
@@ -82,7 +122,8 @@
       "depends_on": [
         "archival-photo-capture"
       ],
-      "title": "Our Living Legacy: shared family conversation around one photograph, host + one remote member first (Next Phase 2B)"
+      "title": "First release: in-person then remote two-person sessions, consent, attribution, recording, scoped joining and replay",
+      "release_required": true
     },
     {
       "id": "family-archive",
@@ -90,7 +131,8 @@
       "depends_on": [
         "our-living-legacy"
       ],
-      "title": "People, relationships, Chapters, and Family Archive"
+      "title": "People, relationships, Chapters, and Family Archive",
+      "release_required": true
     },
     {
       "id": "family-contributions",
@@ -98,7 +140,8 @@
       "depends_on": [
         "family-archive"
       ],
-      "title": "Separately attributed family recollections and contributions"
+      "title": "Separately attributed family recollections and contributions",
+      "release_required": true
     },
     {
       "id": "retrieval-timeline",
@@ -107,7 +150,8 @@
         "family-archive",
         "family-contributions"
       ],
-      "title": "Privacy-scoped retrieval, timeline, people/place discovery"
+      "title": "First release: privacy-scoped metadata search and honest approximate/unknown timeline",
+      "release_required": true
     },
     {
       "id": "derivative-storytelling",
@@ -115,23 +159,37 @@
       "depends_on": [
         "retrieval-timeline"
       ],
-      "title": "Source-grounded Reels, Chapters, Life Stories, and books"
+      "title": "Source-grounded Reels, Chapters, Life Stories, and books",
+      "release_required": true
     },
     {
-      "id": "legacy-infrastructure",
+      "id": "resurfacing",
       "status": "pending",
       "depends_on": [
-        "family-archive"
+        "retrieval-timeline"
       ],
-      "title": "Export, stewardship, inheritance, migration, and archival durability"
+      "title": "First release: optional respectful resurfacing and verified opt-out",
+      "release_required": true
     },
     {
-      "id": "growth-engine",
+      "id": "release-candidate-hardening",
       "status": "pending",
       "depends_on": [
-        "release-candidate-hardening"
+        "solo-trust-controls",
+        "archival-photo-capture",
+        "our-living-legacy",
+        "family-archive",
+        "family-contributions",
+        "retrieval-timeline",
+        "resurfacing",
+        "legacy-infrastructure",
+        "derivative-storytelling",
+        "growth-engine",
+        "paid-plans",
+        "packet-4"
       ],
-      "title": "Measure and improve the voluntary Living Memory Loop"
+      "title": "Accept the complete expanded first release and lock its RC SHA; production remains separately authorized",
+      "release_required": true
     }
   ],
   "completion_contract": "docs/EXECUTION/DEFINITION_OF_DONE_V1.md",
@@ -139,14 +197,19 @@
   "week_one_task_graph": "docs/EXECUTION/ONE_WEEK_LIVING_MEMORY_TASK_GRAPH.json",
   "storyteller_sovereignty": "docs/PRODUCT/STORYTELLER_SOVEREIGNTY.md",
   "historical_packet_specification": "docs/IMPLEMENTATION/PHASE_1_SOLO_MEMORY_STORY_BUILD_SPEC.md",
-  "current_checkpoint_sha": "9f76dd8d89d7eccad06df0a4f2ffffbca700ca35",
-  "current_stage": "live-staging-proven-awaiting-real-device-and-human-acceptance",
+  "current_checkpoint_sha": "0d4452eb9ffb78ad22758d00ab32df0fdead0367",
+  "current_stage": "expanded-first-release-development",
   "current_blockers": [
     "Repeat the real-phone journey on the repaired build: iPhone Safari and Android Chrome",
     "Three uncoached human sessions, including one Spanish or mixed-language storyteller",
     "Human confirmation that people can tell their own testimony apart from Muse assistance",
-    "Packet 4 closeout: email and Google sign-in plus second-device recovery on a real phone (Facebook sign-in is deferred and non-blocking)"
+    "Packet 4 closeout: email and Google sign-in plus second-device recovery on a real phone (Facebook sign-in is deferred and non-blocking)",
+    "All required expanded first-release capabilities need code and matching evidence; see release matrix",
+    "Live staging/provider credentials are absent from the current execution environment",
+    "Paid offers/terms and stewardship/contributor legal policies remain unapproved"
   ],
   "current_state": "docs/CURRENT_STATE.md",
-  "next_phase": "docs/EXECUTION/NEXT_PHASE_OUR_LIVING_LEGACY_AND_PHOTO_DIGITIZATION.md"
+  "next_phase": "docs/EXECUTION/NEXT_PHASE_OUR_LIVING_LEGACY_AND_PHOTO_DIGITIZATION.md",
+  "scope_decision": "docs/DECISIONS/2026-11-13-expanded-first-release.md",
+  "release_matrix": "docs/EXECUTION/EXPANDED_FIRST_RELEASE.md"
 }

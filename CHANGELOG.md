@@ -1,5 +1,12 @@
 # Foundation Package Changelog
 
+## Expanded first-release scope and owner controls — 2026-11-13
+
+- Recorded the explicit owner decision to include archival scans, shared sessions, family organization/contributions, retrieval/resurfacing, export/integrity/stewardship, reviewed derivatives/distribution and paid plans in the same first release. Updated release gates and the ordered task ledger without marking unbuilt capabilities complete.
+- Added paginated owner-only family-link inventory and revocation controls that survive returning to a memory; public page/photo/voice access closes after revocation, without listing bearer tokens.
+- Made Muse playback stoppable and replayable with cancellation and object URL cleanup; restarted transcription polling after a retry.
+- Production, live billing, final paid offers and legally operative succession remain separate decisions.
+
 ## Packet 3 offline continuity revision — 2026-07-16
 
 - Removed cloud photograph durability as a gate to recording the memory story.

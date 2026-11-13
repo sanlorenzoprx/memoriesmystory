@@ -193,7 +193,7 @@ function cookieHeader(cookie: string): string {
 function ownerRequest(
   path: string,
   cookie: string,
-  method: "POST" | "DELETE",
+  method: "GET" | "POST" | "DELETE",
   body?: Record<string, unknown>,
   idempotencyKey?: string
 ): Request {
@@ -326,6 +326,69 @@ describe("bounded Living Memory family sharing", () => {
     expect(voice?.status).toBe(200);
     expect(voice?.headers.get("Content-Type")).toBe("audio/webm");
   });
+  it("lists only owner-scoped safe metadata after a return and revokes every public media path idempotently", async () => {
+    const path = `/resources/living-memories/${storyId}/shares`;
+    const created = await handleSharingRoute(ownerRequest(path, cookie, "POST",
+      { includeVoice: true }, "share_inventory_001"), env);
+    const body = await created!.json() as { shareId: string; sharePath: string };
+    const list = await handleSharingRoute(ownerRequest(path, cookie, "GET"), env);
+    expect(list?.status).toBe(200);
+    expect(list?.headers.get("Cache-Control")).toContain("no-store");
+    const inventory = await list!.json() as { shares: { shareId: string; revokedAt: string | null }[]; nextCursor: string | null };
+    expect(inventory.shares).toHaveLength(1);
+    expect(inventory.shares[0]).toMatchObject({ shareId: body.shareId, revokedAt: null,
+      selection: { includePhoto: true, includeVoice: true, includeCaptions: false } });
+    expect(inventory.nextCursor).toBeNull();
+    const serialized = JSON.stringify(inventory);
+    for (const secret of ["token_hash", "sharePath", body.sharePath, "PRIVATE TRANSCRIPT", "PRIVATE CONTEXT", userId]) {
+      expect(serialized).not.toContain(secret);
+    }
+    expect((await handleSharingRoute(new Request(`https://example.test${path}`), env))?.status).toBe(401);
+    d1.database.prepare("INSERT INTO users (id, created_at, updated_at) VALUES (?, ?, ?)")
+      .run("user_other_owner", now, now);
+    const otherCookie = cookieHeader((await createAppSession(env, "user_other_owner")).cookie);
+    expect((await handleSharingRoute(ownerRequest(path, otherCookie, "GET"), env))?.status).toBe(404);
+    expect((await handleSharingRoute(ownerRequest(`${path}/${body.shareId}`, otherCookie, "DELETE"), env))?.status).toBe(404);
+    expect((await handleSharingRoute(ownerRequest(`${path}/${body.shareId}`, cookie, "DELETE"), env))?.status).toBe(200);
+    expect((await handleSharingRoute(ownerRequest(`${path}/${body.shareId}`, cookie, "DELETE"), env))?.status).toBe(200);
+    for (const suffix of ["", "/photo", "/voice"]) {
+      expect((await handleSharingRoute(new Request(`https://example.test${body.sharePath}${suffix}`), env))?.status).toBe(404);
+    }
+    const refreshed = await handleSharingRoute(ownerRequest(path, cookie, "GET"), env);
+    const refreshedBody = await refreshed!.json() as { shares: { revokedAt: string | null }[] };
+    expect(refreshedBody.shares[0]!.revokedAt).toBeTruthy();
+  });
+
+  it("paginates link inventory even when timestamps match and rejects unscoped cursors", async () => {
+    const path = `/resources/living-memories/${storyId}/shares`;
+    const created = await handleSharingRoute(ownerRequest(path, cookie, "POST", {}, "share_pagination_001"), env);
+    const { shareId } = await created!.json() as { shareId: string };
+    // All records share a timestamp; the ID tie breaker must not omit links.
+    for (let i = 0; i < 53; i += 1) {
+      const id = `share_page_${String(i).padStart(4, "0")}`;
+      d1.database.prepare(`INSERT INTO memory_story_shares
+        (id, memory_story_id, owner_user_id, token_hash, visibility, created_at, updated_at)
+        VALUES (?, ?, ?, ?, 'private_link', ?, ?)`)
+        .run(id, storyId, userId, `hash_${i}`, now, now);
+      d1.database.prepare(`INSERT INTO living_memory_share_artifacts
+        (id, share_id, memory_story_id, owner_user_id, include_photo, include_voice,
+         include_captions, include_narrator_attribution, include_brand_attribution, created_at, updated_at)
+        SELECT ?, ?, memory_story_id, owner_user_id, include_photo, include_voice,
+          include_captions, include_narrator_attribution, include_brand_attribution, ?, ?
+        FROM living_memory_share_artifacts WHERE share_id = ?`)
+        .run(`artifact_page_${i}`, id, now, now, shareId);
+    }
+    const first = await handleSharingRoute(ownerRequest(path, cookie, "GET"), env);
+    const page = await first!.json() as { shares: { shareId: string }[]; nextCursor: string };
+    expect(page.shares).toHaveLength(50);
+    const second = await handleSharingRoute(ownerRequest(`${path}?before=${page.nextCursor}`, cookie, "GET"), env);
+    const last = await second!.json() as { shares: { shareId: string }[]; nextCursor: string | null };
+    expect(last.shares).toHaveLength(4);
+    expect(last.nextCursor).toBeNull();
+    expect(new Set([...page.shares, ...last.shares].map((link) => link.shareId)).size).toBe(54);
+    expect((await handleSharingRoute(ownerRequest(`${path}?before=share_unrelated_cursor`, cookie, "GET"), env))?.status).toBe(400);
+  });
+
   it("can include transcript only after preview selection and revocation closes the link", async () => {
     const preview = await handleSharingRoute(
       ownerRequest(

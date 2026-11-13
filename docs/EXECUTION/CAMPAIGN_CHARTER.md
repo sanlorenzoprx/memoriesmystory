@@ -1,14 +1,14 @@
-# Phase 1 Production-Ready Campaign Charter
+# Expanded First-Release Campaign Charter
 
 ## Mission
 
-Deliver one complete solo Memory Story that preserves a photograph and the storyteller's real voice, survives interruption, distinguishes testimony from generated help, confirms durability truthfully, and supports a deliberate private share that unlocks the next story exactly once.
+Deliver the complete expanded release in `EXPANDED_FIRST_RELEASE.md`, beginning with a simple private Living Memory that preserves a photograph and authentic voice, recovers interruptions, distinguishes testimony from Muse and supports deliberate revocable sharing. Sharing never unlocks capacity.
 
 ## Outcome boundary
 
-The campaign ends at **production ready, not live**. It implements Packets 1–8 from the Phase 1 specification and produces staging, security, operations, accessibility, localization, real-device, and invariant evidence.
+The campaign ends at **production ready, not live**. The 2026-11-13 owner decision includes archival scans, Our Living Legacy, family organization/contributions, retrieval/resurfacing, export/integrity/stewardship, reviewed derivatives/distribution and paid plans, with staging, security, operations, accessibility, localization, physical-device and human evidence.
 
-It does not implement Our Living Legacy, albums beyond future-safe associations, a public feed, billing, video reels, semantic archive search, or other deferred phases.
+A broad public social feed remains outside scope. Production deployment, live charging, unapproved new data processors and legally operative stewardship policies require separate decisions. A larger first-release scope is not permission to invent those decisions.
 
 ## Architecture that scales
 
