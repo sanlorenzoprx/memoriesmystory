@@ -1,7 +1,7 @@
 # Expanded first release
 
 **Scope authority:** [owner decision, 2026-11-13](../DECISIONS/2026-11-13-expanded-first-release.md).  
-**Implementation baseline:** `0d4452eb9ffb78ad22758d00ab32df0fdead0367`.  
+**Implementation baseline:** `cb87c5656c9994ec0b0fabd1ebf93762888cc2ac`.
 **State:** in development; no release candidate is accepted and no production deployment is authorized.
 
 All rows below are required for the same first release. Solo capture remains the uncomplicated entry path. Implementation may be staged, but later rows are not deferred to a separate release. Use `TASK_QUEUE.json` as the one task ledger; this matrix describes acceptance, not a second source of task status.
@@ -23,7 +23,7 @@ All rows below are required for the same first release. Solo capture remains the
 
 ## Implementation evidence
 
-Owner link controls and speech/retry repairs are on draft PR #21. Editable review, caption pinning and voluntary source-confirmed finish are on its dependent `feat/storyteller-review-finish` branch; see `../IMPLEMENTATION/STORYTELLER_REVIEW_FINISH_2026-11-13.md`. Neither branch status establishes live/device/human acceptance. The task queue remains the single task-status ledger.
+PRs #21 (owner link controls/speech retries), #22 (attributable review, caption pinning and voluntary finish), and #23 (English/Spanish solo interface) are merged. The preparatory native-still branch follows the owner's explicit instruction; see `../IMPLEMENTATION/ARCHIVAL_STILL_CAPTURE_2026-11-13.md`. Solo physical-device/human acceptance, the internal checkpoint, separate corrected-scan implementation and full R1 physical-print evidence remain pending. The task queue remains the single task-status ledger.
 
 ## Dependency sequence
 

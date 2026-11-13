@@ -27,3 +27,5 @@ The bootstrap growth loop is product value, not a reward scheme:
 **Living Memory completed → voluntary share → recipient experiences the memory → recipient recognizes their own preservation need → another Living Memory begins.**
 
 Instrument the loop with the canonical product events in `app/domain/product-events.ts`.
+
+Native-still acquisition and honest fallback evidence are recorded in `../IMPLEMENTATION/ARCHIVAL_STILL_CAPTURE_2026-11-13.md` (I-03, I-08–I-10, I-15, I-17–I-18). Full archival-scan and physical-device acceptance remain pending.

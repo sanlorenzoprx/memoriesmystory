@@ -1,8 +1,10 @@
+import { validatePhotoBlob } from "./still-photo-capture";
 import { assessPhotoQuality } from "../features/capture/local-draft";
 import type {
   CaptureEntryMode,
   LocalPhoto,
-  PhotoInspection
+  PhotoInspection,
+  PhotoAcquisition
 } from "../features/capture/local-draft";
 
 const sampleEdge = 320;
@@ -16,13 +18,15 @@ type DecodedImage = {
 
 async function decodeImage(blob: Blob): Promise<DecodedImage> {
   if ("createImageBitmap" in globalThis) {
-    const bitmap = await createImageBitmap(blob);
-    return {
-      source: bitmap,
-      width: bitmap.width,
-      height: bitmap.height,
-      close: () => bitmap.close()
-    };
+    try {
+      const bitmap = await createImageBitmap(blob);
+      return {
+        source: bitmap,
+        width: bitmap.width,
+        height: bitmap.height,
+        close: () => bitmap.close()
+      };
+    } catch { /* Some formats decode through the image element instead. */ }
   }
 
   const objectUrl = URL.createObjectURL(blob);
@@ -116,8 +120,10 @@ async function sha256(blob: Blob): Promise<string> {
 
 export async function inspectLocalPhoto(
   blob: Blob,
-  source: CaptureEntryMode
+  source: CaptureEntryMode,
+  acquisition: PhotoAcquisition = source === "import" ? "file_import" : "video_frame"
 ): Promise<LocalPhoto> {
+  validatePhotoBlob(blob);
   const image = await decodeImage(blob);
 
   try {
@@ -128,6 +134,11 @@ export async function inspectLocalPhoto(
       byteSize: blob.size,
       sha256: await sha256(blob),
       source,
+      capture: {
+        method: acquisition,
+        orientation: image.width === image.height ? "square" : image.width > image.height ? "landscape" : "portrait",
+        orientationBasis: "browser_decoded"
+      },
       capturedAt: new Date().toISOString(),
       inspection,
       warning: assessPhotoQuality(inspection),

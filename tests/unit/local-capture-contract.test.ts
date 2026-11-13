@@ -11,8 +11,8 @@ import {
 } from "../../app/features/capture/local-draft";
 
 const healthyInspection: PhotoInspection = {
-  width: 1600,
-  height: 1200,
+  width: 2400,
+  height: 1800,
   averageLuminance: 128,
   brightPixelRatio: 0.02,
   contrast: 42,
@@ -94,7 +94,7 @@ describe("local-first photograph contract", () => {
     [
       "resolution",
       { ...healthyInspection, width: 600, height: 450 },
-      /closer/i
+      /more detail/i
     ],
     [
       "glare",

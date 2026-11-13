@@ -140,10 +140,11 @@ test("camera permission is contextual and denial keeps an import fallback", asyn
   ).toBe(1);
 });
 
-test("a capability-qualified camera can capture and manually accept a photograph", async ({
+test("a camera-preview fallback can capture and manually accept a photograph", async ({
   page
 }) => {
   await page.addInitScript(() => {
+    Object.defineProperty(globalThis, "ImageCapture", { configurable: true, value: undefined });
     Object.defineProperty(navigator, "mediaDevices", {
       configurable: true,
       value: {
@@ -174,6 +175,7 @@ test("a capability-qualified camera can capture and manually accept a photograph
   await expect(
     page.getByRole("heading", { name: "Does the photograph feel clear enough?" })
   ).toBeVisible();
+  await expect(page.getByText("This photo came from the camera preview. For more detail, try your device camera.")).toBeVisible();
   await page.getByRole("button", { name: /Use this photo/ }).click();
   await expect(
     page.getByRole("heading", { name: "Tell the story you remember." })
@@ -382,6 +384,8 @@ test("capture entry remains keyboard reachable at a phone viewport", async ({ pa
   await expect(heading).toBeVisible();
   await expect(heading).toBeFocused();
 
+  await page.keyboard.press("Tab");
+  await expect(page.getByRole("button", { name: "Use device camera" })).toBeFocused();
   await page.keyboard.press("Tab");
   await expect(page.getByRole("button", { name: "Open camera" })).toBeFocused();
   await page.keyboard.press("Tab");
