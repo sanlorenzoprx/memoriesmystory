@@ -1,3 +1,5 @@
+import { requestUiLocale, sourceLanguageTag } from "../app/localization/locale";
+import { translate } from "../app/localization/messages";
 import { appIdentity } from "../config/app-identity";
 import {
   normalizeShareSelection,
@@ -62,6 +64,7 @@ type PublicShareRow = {
   primary_photo_asset_id: string;
   primary_audio_asset_id: string;
   transcript_text: string | null;
+  transcript_locale: string | null;
 };
 
 type MediaRow = {
@@ -508,7 +511,8 @@ async function publicShareByToken(
        a.caption,
        ms.primary_photo_asset_id,
        ms.primary_audio_asset_id,
-       CASE WHEN a.include_captions = 1 THEN tr.text ELSE NULL END AS transcript_text
+       CASE WHEN a.include_captions = 1 THEN tr.text ELSE NULL END AS transcript_text,
+       CASE WHEN a.include_captions = 1 THEN tr.locale ELSE NULL END AS transcript_locale
      FROM memory_story_shares s
      JOIN living_memory_share_artifacts a ON a.share_id = s.id
      JOIN memory_stories ms ON ms.id = s.memory_story_id
@@ -532,44 +536,48 @@ function escapeHtml(value: string): string {
 }
 
 async function publicSharePage(
+  request: Request,
   env: SharingEnv,
   token: string
 ): Promise<Response> {
   const share = await publicShareByToken(env, token);
+  const locale = requestUiLocale(request);
+  const copy = (key: string, values?: Record<string, string | number>) => escapeHtml(translate(key, locale, values));
   const caption = share.caption
     ? `<p class="caption">${escapeHtml(share.caption)}</p>`
     : "";
   const transcript = share.include_captions === 1 && share.transcript_text
-    ? `<section><h2>Words from this memory</h2><p>${escapeHtml(share.transcript_text)}</p></section>`
+    ? `<section><h2>${copy("Words from this memory")}</h2><p lang="${sourceLanguageTag(share.transcript_locale)}">${escapeHtml(share.transcript_text)}</p></section>`
     : "";
   const voice = share.include_voice === 1
     ? `<audio controls preload="metadata" src="/shared/${token}/voice"></audio>`
     : "";
   const narrator = share.include_narrator_attribution === 1
-    ? "<p>Story told in the storyteller's own voice.</p>"
+    ? `<p>${copy("Story told in the storyteller's own voice.")}</p>`
     : "";
   const brand = share.include_brand_attribution === 1
-    ? `<p class="brand">Preserved with ${escapeHtml(appIdentity.brandName)}</p>`
+    ? `<p class="brand">${copy("Preserved with {brand}", { brand: appIdentity.brandName })}</p>`
     : "";
 
   const html = `<!doctype html>
-<html lang="en">
+<html lang="${locale}">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>A Living Memory</title>
+<title>${copy("A Living Memory")}</title>
 <style>
 body{font-family:system-ui,sans-serif;margin:0;background:#f7f4ef;color:#26211d}
 main{max-width:720px;margin:auto;padding:24px}
 img{max-width:100%;height:auto;border-radius:14px}
 audio{width:100%;margin:18px 0}
-.caption{font-size:1.15rem}.brand{opacity:.7;font-size:.9rem}
+nav{display:flex;flex-wrap:wrap;gap:8px;align-items:center}nav a{display:inline-flex;align-items:center;min-height:44px;padding:0 8px}.caption{font-size:1.15rem}.brand{opacity:.7;font-size:.9rem}
 </style>
 </head>
 <body><main>
-<h1>A Living Memory</h1>
+<nav aria-label="${copy("Interface language")}"><a href="?lang=en-US" lang="en">English</a> · <a href="?lang=es-US" lang="es">Español</a> · <a href="?lang=es-PR" lang="es-PR">Español (Puerto Rico)</a></nav>
+<h1>${copy("A Living Memory")}</h1>
 ${caption}
-<img alt="Shared memory photograph" src="/shared/${token}/photo">
+<img alt="${copy("Shared memory photograph")}" src="/shared/${token}/photo">
 ${voice}
 ${narrator}
 ${transcript}
@@ -581,6 +589,7 @@ ${brand}
     headers: {
       "Cache-Control": "private, no-store",
       "Content-Type": "text/html; charset=utf-8",
+      "Vary": "Accept-Language",
       "Content-Security-Policy":
         "default-src 'none'; img-src 'self'; media-src 'self'; style-src 'unsafe-inline'; base-uri 'none'; frame-ancestors 'none'"
     }
@@ -696,7 +705,7 @@ export async function handleSharingRoute(
       );
     }
     if (publicMatch?.[1] && request.method === "GET") {
-      return await publicSharePage(env, decodeURIComponent(publicMatch[1]));
+      return await publicSharePage(request, env, decodeURIComponent(publicMatch[1]));
     }
 
     return json({ ok: false, error: { code: "method", message: "Method not allowed." } }, 405);
@@ -704,6 +713,13 @@ export async function handleSharingRoute(
     const routeError = error instanceof SharingRouteError
       ? error
       : new SharingRouteError(500, "internal", "The family share could not be completed.");
+    if (publicMatch && request.method === "GET") {
+      const locale = requestUiLocale(request);
+      const message = translate("This family link is unavailable. Ask its owner for a new link.", locale);
+      return new Response(`<!doctype html><html lang="${locale}"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escapeHtml(translate("A Living Memory", locale))}</title><main><h1>${escapeHtml(message)}</h1><a href="/">${escapeHtml(translate("Return home", locale))}</a></main></html>`, {
+        status: routeError.status, headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "private, no-store", "Content-Security-Policy": "default-src 'none'; base-uri 'none'; frame-ancestors 'none'", "Vary": "Accept-Language" }
+      });
+    }
     return json(
       { ok: false, error: { code: routeError.code, message: routeError.message } },
       routeError.status

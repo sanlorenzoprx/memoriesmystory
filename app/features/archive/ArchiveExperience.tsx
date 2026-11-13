@@ -1,3 +1,4 @@
+import { t, notice, useLocale, getLocale } from "../../localization/language";
 import { useEffect, useState } from "react";
 import { useClerk } from "@clerk/clerk-react";
 import { Link, useNavigate, useParams } from "react-router";
@@ -13,11 +14,13 @@ import {
 const clerkConfigured = Boolean(import.meta.env.VITE_CLERK_PUBLISHABLE_KEY);
 
 export function ArchiveExperience() {
+  useLocale();
   const { draftId } = useParams();
   return draftId ? <ArchiveMemory draftId={draftId} /> : <ArchiveIndex />;
 }
 
 function ArchiveIndex() {
+  useLocale();
   const [drafts, setDrafts] = useState<readonly ArchiveDraft[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   useEffect(() => {
@@ -28,11 +31,11 @@ function ArchiveIndex() {
   return (
     <div className="quiet-page archive-page" id="main-content">
       <section className="capture-introduction archive-card">
-        <p className="eyebrow">Your private family archive</p>
-        <h1>Your Living Memories</h1>
-        {error && <ArchiveSignInMessage message={error} />}
-        {drafts === null && !error && <p className="preservation-status" role="status">Gathering your stories…</p>}
-        {drafts?.length === 0 && <p className="capture-lede">Your first protected Living Memory will appear here.</p>}
+        <p className="eyebrow">{t("Your private family archive")}</p>
+        <h1>{t("Your Living Memories")}</h1>
+        {error && <ArchiveSignInMessage message={notice(error)} />}
+        {drafts === null && !error && <p className="preservation-status" role="status">{t("Gathering your stories…")}</p>}
+        {drafts?.length === 0 && <p className="capture-lede">{t("Your first protected Living Memory will appear here.")}</p>}
         {drafts && drafts.length > 0 && (
           <ul className="archive-list">
             {drafts.map((draft) => (
@@ -40,14 +43,14 @@ function ArchiveIndex() {
                 <Link
                   to={`/memory/${encodeURIComponent(draft.id)}`}
                 >
-                  <strong>{draft.status === "complete" ? "Living Memory" : "Continue Living Memory"}</strong>
-                  <span>Protected {new Date(draft.updated_at).toLocaleDateString()}</span>
+                  <strong>{draft.status === "complete" ? t("Living Memory") : t("Continue Living Memory")}</strong>
+                  <span>{t("Protected")} {new Date(draft.updated_at).toLocaleDateString(getLocale())}</span>
                 </Link>
               </li>
             ))}
           </ul>
         )}
-        <Link className="secondary-action" to="/">Capture another memory</Link>
+        <Link className="secondary-action" to="/">{t("Capture another memory")}</Link>
         <AccountExit />
       </section>
     </div>
@@ -55,6 +58,7 @@ function ArchiveIndex() {
 }
 
 function ArchiveMemory({ draftId }: { readonly draftId: string }) {
+  useLocale();
   const [draft, setDraft] = useState<ArchiveDraft | null>(null);
   const [assets, setAssets] = useState<readonly ArchiveAsset[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -68,18 +72,18 @@ function ArchiveMemory({ draftId }: { readonly draftId: string }) {
   return (
     <div className="quiet-page archive-page" id="main-content">
       <section className="capture-introduction archive-card">
-        <p className="eyebrow">Safe in your family archive</p>
-        <h1>We have your back.</h1>
-        {error && <ArchiveSignInMessage message={error} draftId={draftId} />}
-        {!draft && !error && <p className="preservation-status" role="status">Opening your preserved story…</p>}
+        <p className="eyebrow">{t("Safe in your family archive")}</p>
+        <h1>{t("We have your back.")}</h1>
+        {error && <ArchiveSignInMessage message={notice(error)} draftId={draftId} />}
+        {!draft && !error && <p className="preservation-status" role="status">{t("Opening your preserved story…")}</p>}
         {draft && (
           <>
-            {photo && <div className="story-photo-focus"><img src={photo.mediaUrl} alt="Your privately preserved photograph" /></div>}
-            {audio && <audio className="voice-player" controls src={audio.mediaUrl}>Your browser cannot play the preserved recording.</audio>}
-            <div className="durable-status" role="status"><span aria-hidden="true">✓</span><div><strong>Available across your devices</strong><p>Your signed-in archive keeps the original photograph and voice together.</p></div></div>
+            {photo && <div className="story-photo-focus"><img src={photo.mediaUrl} alt={t("Your privately preserved photograph")} /></div>}
+            {audio && <audio className="voice-player" controls src={audio.mediaUrl}>{t("Your browser cannot play the preserved recording.")}</audio>}
+            <div className="durable-status" role="status"><span aria-hidden="true">✓</span><div><strong>{t("Available across your devices")}</strong><p>{t("Your signed-in archive keeps the original photograph and voice together.")}</p></div></div>
           </>
         )}
-        <Link className="secondary-action" to="/archive">All Living Memories</Link>
+        <Link className="secondary-action" to="/archive">{t("All Living Memories")}</Link>
         <AccountExit />
       </section>
     </div>
@@ -87,10 +91,12 @@ function ArchiveMemory({ draftId }: { readonly draftId: string }) {
 }
 
 function AccountExit() {
+  useLocale();
   return clerkConfigured ? <ConfiguredAccountExit /> : null;
 }
 
 function ConfiguredAccountExit() {
+  useLocale();
   const clerk = useClerk();
   const navigate = useNavigate();
   const [busy, setBusy] = useState(false);
@@ -104,10 +110,11 @@ function ConfiguredAccountExit() {
       setBusy(false);
     }
   }
-  return <button className="light-text-action" type="button" disabled={busy} onClick={() => void signOut()}>{busy ? "Signing out…" : "Sign out"}</button>;
+  return <button className="light-text-action" type="button" disabled={busy} onClick={() => void signOut()}>{busy ? t("Signing out…") : t("Sign out")}</button>;
 }
 
 function ArchiveSignInMessage({ message, draftId }: { readonly message: string; readonly draftId?: string }) {
+  useLocale();
   const target = draftId ? `/auth/protect?draftId=${encodeURIComponent(draftId)}` : "/auth/protect";
-  return <><p className="inline-error" role="alert">{message}</p><Link className="primary-action" to={target}>Sign in to your archive</Link></>;
+  return <><p className="inline-error" role="alert">{notice(message)}</p><Link className="primary-action" to={target}>{t("Sign in to your archive")}</Link></>;
 }

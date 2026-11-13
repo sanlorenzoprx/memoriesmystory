@@ -214,6 +214,23 @@ describe("Muse conversational story elicitation", () => {
     cookie = cookieHeader((await createAppSession(env, userId)).cookie);
   });
 
+  it("uses the chosen UI language for a fallback question while keeping the English source unchanged", async () => {
+    const source = d1.database.prepare("SELECT text, locale FROM transcript_revisions").get();
+    let system = "";
+    const fallbackEnv = { ...env, AI: { run: async (_model: string, input: { messages: { content: string }[] }) => {
+      system = input.messages[0]!.content;
+      throw new Error("Synthetic provider outage");
+    } } as unknown as Ai };
+    const request = conversationRequest(cookie);
+    request.headers.set("X-UI-Locale", "es-PR");
+    const result = await handleMuseConversationRoute(request, fallbackEnv);
+    expect(result?.status).toBe(200);
+    const data = await result!.json() as { currentQuestion: { content: string } };
+    expect(data.currentQuestion.content).toMatch(/^¿/);
+    expect(system).toContain("Use Spanish (es-PR)");
+    expect(d1.database.prepare("SELECT text, locale FROM transcript_revisions").get()).toEqual(source);
+  });
+
   it("elicits dynamically but only storyteller replies resolve preservation context", async () => {
     const started = await handleMuseConversationRoute(
       conversationRequest(cookie),

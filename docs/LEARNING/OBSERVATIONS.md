@@ -110,3 +110,13 @@ Observations preserve evidence separately from proposed solutions. Follow `READM
 - **Interpretation:** correct the evidence record; do not silently reinterpret trial/paid entitlements while introducing storyteller revisions. Choose the intended behavior explicitly with capacity/retention policy.
 - **Confidence:** high for code/test behavior; no real-account or live-provider behavior asserted.
 - **Affected invariants:** I-09, I-29; paid-capacity and deletion policy.
+
+### L-2026-11-13-003 — Interface language is separate from testimony
+
+- **Status:** addressed on implementation branch; human language review pending.
+- **Evidence source:** deterministic localization/sharing/Muse tests and synthetic phone-browser language-switch journeys.
+- **Observed fact:** interface controls and system notices can change language in place while imported photo hashes, storyteller text and unsaved transcript edits remain unchanged. An English phrase that is also a catalog key remains English when used as testimony.
+- **Interpretation:** translate explicit application messages, never arbitrary DOM/story text. Store source metadata independently of device UI preference; use stable API codes for recovery copy. Existing Muse turns are historical content; only newly requested questions use the current UI locale.
+- **Confidence and contrary evidence:** high for tested synthetic paths; native Spanish/Puerto Rican, live account/provider, physical-device and mixed-language human evidence remain pending.
+- **Affected invariants:** I-02–I-06, I-08–I-10, I-17–I-18, I-19–I-21.
+- **Related decision/receipt:** `../DECISIONS/2026-11-13-english-spanish-interface.md`, `../IMPLEMENTATION/ENGLISH_SPANISH_INTERFACE_2026-11-13.md`.

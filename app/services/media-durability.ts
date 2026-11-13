@@ -1,3 +1,4 @@
+import { apiMessageKey } from "../localization/errors";
 import type {
   DurableMediaReceipt,
   LocalAudio,
@@ -25,7 +26,7 @@ async function responseError(response: Response): Promise<MediaDurabilityError> 
       error?: { message?: string; code?: string };
     };
     return new MediaDurabilityError(
-      body.error?.message ?? fallback,
+      apiMessageKey(body.error?.code, fallback),
       response.status >= 500 || response.status === 408 || response.status === 429,
       body.error?.code ?? "upload_failed"
     );

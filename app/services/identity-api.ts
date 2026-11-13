@@ -1,3 +1,4 @@
+import { apiMessageKey } from "../localization/errors";
 import type { LocalMemoryDraft } from "../features/capture/local-draft";
 
 type ApiErrorBody = { error?: { message?: string; code?: string } };
@@ -11,7 +12,7 @@ export class IdentityApiError extends Error {
 async function responseError(response: Response): Promise<IdentityApiError> {
   const body = (await response.json().catch(() => ({}))) as ApiErrorBody;
   return new IdentityApiError(
-    body.error?.message ?? "The account request could not be completed.",
+    apiMessageKey(body.error?.code, "The account request could not be completed."),
     body.error?.code ?? "account_request"
   );
 }

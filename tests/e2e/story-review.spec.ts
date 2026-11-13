@@ -117,3 +117,43 @@ test("an unsent reply requires a deliberate discard choice before finishing", as
   await page.getByRole("button", { name: "Finish for now" }).click();
   await expect(page.getByRole("button", { name: "Preserve this Living Memory" })).toBeVisible();
 });
+
+
+test("Spanish review keeps testimony and unsaved edits unchanged across language switches", async ({ page }) => {
+  const state = await install(page, "complete");
+  await page.goto(`/memory/${draftId}`);
+  await page.getByRole("combobox", { name: "Interface language" }).selectOption("es-PR");
+  await expect(page.locator("html")).toHaveAttribute("lang", "es-PR");
+  await expect(page.getByText(originalText, { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Editar detalles", exact: true }).click();
+  const edited = "Your story stays with you.";
+  const editor = page.getByRole("textbox", { name: "Editar transcripción", exact: true });
+  await editor.fill(edited);
+  await page.getByRole("combobox", { name: "Idioma de la interfaz" }).selectOption("en-US");
+  await expect(page.getByRole("textbox", { name: "Edit transcript", exact: true })).toHaveValue(edited);
+  await page.getByRole("combobox", { name: "Interface language" }).selectOption("es-US");
+  await expect(editor).toHaveValue(edited);
+  state.failNext = true;
+  await page.getByRole("button", { name: "Guardar mis cambios", exact: true }).click();
+  await expect(page.getByRole("alert")).not.toContainText("The save needs another try.");
+  await expect(page.getByRole("alert")).toContainText("sin guardar");
+  await expect(editor).toHaveValue(edited);
+  await page.getByRole("button", { name: "Guardar mis cambios", exact: true }).click();
+  await expect(page.getByText(edited, { exact: true })).toBeVisible();
+  expect(state.text).toBe(edited);
+  await page.reload();
+  await expect(page.locator("html")).toHaveAttribute("lang", "es-US");
+  await expect(page.getByText(edited, { exact: true })).toBeVisible();
+});
+
+test("Spanish finish confirms originals without requiring optional details", async ({ page }) => {
+  const state = await install(page);
+  await page.goto(`/memory/${draftId}`);
+  await page.getByRole("combobox", { name: "Interface language" }).selectOption("es-PR");
+  await page.getByRole("button", { name: "Terminar por ahora", exact: true }).click();
+  await page.getByRole("checkbox").check();
+  await page.getByRole("button", { name: "Conservar este Recuerdo Vivo", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "Este recuerdo ya forma parte de la historia de tu familia." })).toBeVisible();
+  expect(state.completions).toEqual([{ confirmOriginals: true, expectedVersion: 1 }]);
+  expect(state.conversationPosts).toBe(0);
+});

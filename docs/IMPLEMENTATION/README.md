@@ -21,3 +21,7 @@ Where that file conflicts with the current Living Memory decision, Foundation v2
 Existing packet receipts remain evidence of what was actually built and verified; do not rewrite them to make historical terminology appear current.
 
 Each new build slice must produce a human outcome, anti-drift review, test evidence, and a receipt. Internal code activity is not completion.
+
+## Current bilingual implementation
+
+See [A04 English/Spanish interface receipt](ENGLISH_SPANISH_INTERFACE_2026-11-13.md) for the merged #21/#22 baseline, current locale behavior, automated evidence and remaining human/device acceptance.

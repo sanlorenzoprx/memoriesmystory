@@ -1,3 +1,5 @@
+import { getLocale } from "../localization/language";
+import { apiMessageKey } from "../localization/errors";
 import type {
   StoryContextEntry,
   StoryContextInput
@@ -14,7 +16,7 @@ export class LivingMemoryApiError extends Error {
 async function responseError(response: Response): Promise<LivingMemoryApiError> {
   const body = (await response.json().catch(() => ({}))) as ApiErrorBody;
   return new LivingMemoryApiError(
-    body.error?.message ?? "The Living Memory request could not be completed.",
+    apiMessageKey(body.error?.code, "The Living Memory request could not be completed."),
     body.error?.code ?? "living_memory_request",
     response.status
   );
@@ -156,6 +158,7 @@ export async function continueMuseConversation(
         credentials: "same-origin",
         headers: {
           "Content-Type": "application/json",
+          "X-UI-Locale": getLocale(),
           "X-Memories-Request": "muse-conversation-v1"
         },
         body: JSON.stringify(reply ?? {})

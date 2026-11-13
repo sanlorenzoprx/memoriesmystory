@@ -233,6 +233,29 @@ describe("bounded Living Memory family sharing", () => {
     cookie = cookieHeader((await createAppSession(env, userId)).cookie);
   });
 
+  it("localizes family views and revoked-link errors without translating selected testimony", async () => {
+    const created = await handleSharingRoute(ownerRequest(`/resources/living-memories/${storyId}/shares`, cookie, "POST",
+      { includeCaptions: true, includeVoice: false, expectedTranscriptRevisionId: transcriptId }, "share_spanish_ui_001"), env);
+    const body = await created!.json() as { shareId: string; sharePath: string };
+    const spanish = await handleSharingRoute(new Request(`https://example.test${body.sharePath}?lang=es-PR`), env);
+    const html = await spanish!.text();
+    expect(html).toContain('lang="es-PR"');
+    expect(html).toContain("Un Recuerdo Vivo");
+    expect(html).toContain("Palabras de este recuerdo");
+    expect(html).toContain("PRIVATE TRANSCRIPT");
+    expect(html).not.toContain("PRIVATE CONTEXT");
+    expect(html).toContain('lang="en"');
+    const english = await handleSharingRoute(new Request(`https://example.test${body.sharePath}?lang=en-US`, { headers: { "Accept-Language": "es-PR" } }), env);
+    expect(await english!.text()).toContain("<h1>A Living Memory</h1>");
+    const inferred = await handleSharingRoute(new Request(`https://example.test${body.sharePath}`, { headers: { "Accept-Language": "es-PR,es;q=0.9" } }), env);
+    expect(await inferred!.text()).toContain("Un Recuerdo Vivo");
+    await handleSharingRoute(ownerRequest(`/resources/living-memories/${storyId}/shares/${body.shareId}`, cookie, "DELETE"), env);
+    const revoked = await handleSharingRoute(new Request(`https://example.test${body.sharePath}?lang=es-PR`), env);
+    expect(revoked?.status).toBe(404);
+    expect(await revoked!.text()).toContain("Este enlace familiar no está disponible");
+    expect(d1.database.prepare("SELECT count(*) AS count FROM transcript_revisions").get()).toEqual({ count: 1 });
+  });
+
   it("pins pre-migration captions and shares created by the old Worker during cutover", () => {
     const legacy = new TestD1(false);
     seedCompletedLivingMemory(legacy);

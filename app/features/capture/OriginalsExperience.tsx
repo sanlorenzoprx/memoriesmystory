@@ -1,3 +1,4 @@
+import { t, notice, useLocale } from "../../localization/language";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router";
 
@@ -40,10 +41,6 @@ function stopTracks(stream: MediaStream | null): void {
   stream?.getTracks().forEach((track) => track.stop());
 }
 
-function secondsLabel(milliseconds: number): string {
-  return `${Math.ceil(milliseconds / 1000)} seconds`;
-}
-
 export function OriginalsExperience({
   draft,
   onDraftChange,
@@ -55,6 +52,7 @@ export function OriginalsExperience({
   readonly photoUrl: string;
   readonly onChangePhoto: () => void;
 }) {
+  useLocale();
   const [phase, setPhase] = useState<OriginalsPhase>(() => initialPhase(draft));
   const [message, setMessage] = useState<string | null>(null);
   const [elapsedMs, setElapsedMs] = useState(0);
@@ -269,153 +267,148 @@ export function OriginalsExperience({
     <section className={`capture-state originals-state phase-${phase}`}>
       {phase === "voice-invitation" && (
         <>
-          <p className="eyebrow">Now, the voice behind it</p>
-          <h1 ref={headingRef} tabIndex={-1}>Tell the story you remember.</h1>
-          <div className="story-photo-focus"><img src={photoUrl} alt="The photograph you are remembering" /></div>
+          <p className="eyebrow">{t("Now, the voice behind it")}</p>
+          <h1 ref={headingRef} tabIndex={-1}>{t("Tell the story you remember.")}</h1>
+          <div className="story-photo-focus"><img src={photoUrl} alt={t("The photograph you are remembering")} /></div>
           <div className="muse-presence muse-before-recording">
             <div className="muse-avatar" aria-hidden="true"><span>M</span></div>
             <div className="muse-presence-copy">
               <strong>Muse</strong>
-              <p>{rerecording ? "Would another cue help before you record again?" : "Would you like help remembering?"}</p>
+              <p>{rerecording ? t("Would another cue help before you record again?") : t("Would you like help remembering?")}</p>
               <MuseVoiceButton
                 draftId={draft.id}
                 draftToken={draft.draftToken}
-                text={rerecording ? "Would another cue help before you record again?" : "Would you like help remembering?"}
+                text={rerecording ? t("Would another cue help before you record again?") : t("Would you like help remembering?")}
                 autoPlay
               />
               {museCueVisible ? (
                 <>
                   <span className="muse-starter-cue">
                     {rerecording
-                      ? "What detail do you most want to make sure your family hears this time?"
-                      : "What comes back to you first when you look at this photograph?"}
+                      ? t("What detail do you most want to make sure your family hears this time?")
+                      : t("What comes back to you first when you look at this photograph?")}
                   </span>
                   <MuseVoiceButton
                     draftId={draft.id}
                     draftToken={draft.draftToken}
                     text={
                       rerecording
-                        ? "What detail do you most want to make sure your family hears this time?"
-                        : "What comes back to you first when you look at this photograph?"
+                        ? t("What detail do you most want to make sure your family hears this time?")
+                        : t("What comes back to you first when you look at this photograph?")
                     }
                     autoPlay
                   />
-                  <span>Muse is only helping you begin. You decide what the story is.</span>
+                  <span>{t("Muse is only helping you begin. You decide what the story is.")}</span>
                 </>
               ) : (
                 <button
                   className="muse-cue-action"
                   type="button"
                   onClick={() => setMuseCueVisible(true)}
-                >
-                  Give me a cue
-                </button>
+                >{t("Give me a cue")}</button>
               )}
             </div>
           </div>
-          <p className="capture-lede">Take your time. Speak naturally for up to {phase1Config.entitlements.freeVoiceSecondsPerStory} seconds.</p>
+          <p className="capture-lede">{t("Take your time. Speak naturally for up to")} {phase1Config.entitlements.freeVoiceSecondsPerStory} {t("seconds.")}</p>
           <div className="capture-actions">
             <button className="primary-action" type="button" onClick={() => void openMicrophone()}>
-              {rerecording ? "Record again" : "I'm ready to record"}
+              {rerecording ? t("Record again") : t("I'm ready to record")}
             </button>
-            <button className="secondary-action" type="button" onClick={onChangePhoto}>Change photograph</button>
+            <button className="secondary-action" type="button" onClick={onChangePhoto}>{t("Change photograph")}</button>
           </div>
-          <p className="permission-note">Your browser asks for microphone access only after you start.</p>
-          {message && <p className="inline-error" role="alert">{message}</p>}
+          <p className="permission-note">{t("Your browser asks for microphone access only after you start.")}</p>
+          {message && <p className="inline-error" role="alert">{notice(message)}</p>}
         </>
       )}
 
       {phase === "microphone-opening" && (
         <div className="centered-state" aria-live="polite">
-          <h1 ref={headingRef} tabIndex={-1}>Opening your microphone…</h1>
-          <p>Your browser may ask for permission now.</p>
+          <h1 ref={headingRef} tabIndex={-1}>{t("Opening your microphone…")}</h1>
+          <p>{t("Your browser may ask for permission now.")}</p>
         </div>
       )}
 
       {phase === "recording" && (
         <>
-          <p className="eyebrow recording-eyebrow">Recording your real voice</p>
-          <h1 ref={headingRef} tabIndex={-1}>Take your time.</h1>
-          <div className="story-photo-focus recording-photo"><img src={photoUrl} alt="The photograph you are remembering" /></div>
+          <p className="eyebrow recording-eyebrow">{t("Recording your real voice")}</p>
+          <h1 ref={headingRef} tabIndex={-1}>{t("Take your time.")}</h1>
+          <div className="story-photo-focus recording-photo"><img src={photoUrl} alt={t("The photograph you are remembering")} /></div>
           <div className="recording-status" role="timer" aria-live="off">
             <span className="recording-pulse" aria-hidden="true" />
             <strong>{Math.floor(elapsedMs / 1000)}s</strong>
-            <span>{remainingMs <= 10_000 ? `${secondsLabel(remainingMs)} remaining` : "Tell the story this picture brings back."}</span>
+            <span>{remainingMs <= 10_000 ? t("{seconds} seconds remaining", { seconds: Math.ceil(remainingMs / 1000) }) : t("Tell the story this picture brings back.")}</span>
           </div>
           <button className="stop-recording-action" type="button" onClick={stopRecording}>
-            <span aria-hidden="true" /> Stop recording
-          </button>
+            <span aria-hidden="true" />{t("Stop recording")}</button>
         </>
       )}
 
       {phase === "microphone-denied" && (
         <>
-          <p className="eyebrow">Your photograph is safe</p>
-          <h1 ref={headingRef} tabIndex={-1}>The microphone stayed closed.</h1>
-          <p className="capture-lede">{message}</p>
+          <p className="eyebrow">{t("Your photograph is safe")}</p>
+          <h1 ref={headingRef} tabIndex={-1}>{t("The microphone stayed closed.")}</h1>
+          <p className="capture-lede">{notice(message)}</p>
           <div className="capture-actions">
-            <button className="primary-action" type="button" onClick={() => void openMicrophone()}>Try microphone again</button>
+            <button className="primary-action" type="button" onClick={() => void openMicrophone()}>{t("Try microphone again")}</button>
           </div>
           <details className="settings-help">
-            <summary>How to allow the microphone</summary>
-            <p>Open this site’s settings in your browser, allow Microphone, then return and try again.</p>
+            <summary>{t("How to allow the microphone")}</summary>
+            <p>{t("Open this site’s settings in your browser, allow Microphone, then return and try again.")}</p>
           </details>
         </>
       )}
 
       {phase === "audio-review" && draft.audio && localAudioUrl && (
         <>
-          <p className="eyebrow">Listen to your voice</p>
-          <h1 ref={headingRef} tabIndex={-1}>Does this sound like the story you meant to keep?</h1>
-          <div className="story-photo-focus compact-story-photo"><img src={photoUrl} alt="The photograph paired with your recording" /></div>
-          <audio className="voice-player" controls src={localAudioUrl}>Your browser cannot play this recording.</audio>
-          <p className="local-only-note">Your recording is safe on this device while you decide.</p>
+          <p className="eyebrow">{t("Listen to your voice")}</p>
+          <h1 ref={headingRef} tabIndex={-1}>{t("Does this sound like the story you meant to keep?")}</h1>
+          <div className="story-photo-focus compact-story-photo"><img src={photoUrl} alt={t("The photograph paired with your recording")} /></div>
+          <audio className="voice-player" controls src={localAudioUrl}>{t("Your browser cannot play this recording.")}</audio>
+          <p className="local-only-note">{t("Your recording is safe on this device while you decide.")}</p>
           <div className="capture-actions">
-            <button className="primary-action" type="button" onClick={() => void keepRecording()}>Keep this recording</button>
-            <button className="secondary-action" type="button" onClick={() => void recordAgain()}>Record again</button>
+            <button className="primary-action" type="button" onClick={() => void keepRecording()}>{t("Keep this recording")}</button>
+            <button className="secondary-action" type="button" onClick={() => void recordAgain()}>{t("Record again")}</button>
           </div>
         </>
       )}
 
       {phase === "story-local" && draft.audio && localAudioUrl && (
         <>
-          <p className="eyebrow">Your memory is safe</p>
-          <h1 ref={headingRef} tabIndex={-1}>Your story stays with you.</h1>
-          <div className="story-photo-focus compact-story-photo"><img src={photoUrl} alt="The photograph paired with your recording" /></div>
+          <p className="eyebrow">{t("Your memory is safe")}</p>
+          <h1 ref={headingRef} tabIndex={-1}>{t("Your story stays with you.")}</h1>
+          <div className="story-photo-focus compact-story-photo"><img src={photoUrl} alt={t("The photograph paired with your recording")} /></div>
           <audio className="voice-player" controls src={localAudioUrl} />
-          <p className="capture-lede">You can leave this page. We’ll quietly finish preserving your photograph and voice when a connection is available.</p>
+          <p className="capture-lede">{t("You can leave this page. We’ll quietly finish preserving your photograph and voice when a connection is available.")}</p>
         </>
       )}
 
       {phase === "originals-durable" && (
         <>
-          <p className="eyebrow">Photograph and voice protected</p>
-          <h1 ref={headingRef} tabIndex={-1}>Your photograph and voice are safe.</h1>
-          <p className="capture-lede">Next, save this memory to your private account. Then Muse can listen, help you remember, and you can finish or share the Living Memory.</p>
-          <div className="story-photo-focus"><img src={photoUrl} alt="Your privately preserved photograph" /></div>
+          <p className="eyebrow">{t("Photograph and voice protected")}</p>
+          <h1 ref={headingRef} tabIndex={-1}>{t("Your photograph and voice are safe.")}</h1>
+          <p className="capture-lede">{t("Next, save this memory to your private account. Then Muse can listen, help you remember, and you can finish or share the Living Memory.")}</p>
+          <div className="story-photo-focus"><img src={photoUrl} alt={t("Your privately preserved photograph")} /></div>
           {preservedAudioUrl ? (
             <>
-              <p className="preserved-player-label">Playing the preserved original</p>
-              <audio className="voice-player" controls src={preservedAudioUrl}>Your browser cannot play the preserved recording.</audio>
+              <p className="preserved-player-label">{t("Playing the preserved original")}</p>
+              <audio className="voice-player" controls src={preservedAudioUrl}>{t("Your browser cannot play the preserved recording.")}</audio>
             </>
           ) : (
-            <p className="preservation-status" role="status">{message ?? "Retrieving the preserved recording…"}</p>
+            <p className="preservation-status" role="status">{message ? notice(message) : t("Retrieving the preserved recording…")}</p>
           )}
           <div className="durable-status" role="status">
             <span aria-hidden="true">✓</span>
             <div>
-              <strong>Private originals confirmed</strong>
-              <p>Your photograph and real voice are safely backed up.</p>
+              <strong>{t("Private originals confirmed")}</strong>
+              <p>{t("Your photograph and real voice are safely backed up.")}</p>
             </div>
           </div>
-          <p className="cross-device-note">Carry this Living Memory securely to your phone, tablet and computer.</p>
-          <div className="next-memory-flow" aria-label="What happens next">
-            <strong>Next</strong>
-            <span>Save to account → Muse → Who / Where / When / What → Preserve → Share</span>
+          <p className="cross-device-note">{t("Carry this Living Memory securely to your phone, tablet and computer.")}</p>
+          <div className="next-memory-flow" aria-label={t("What happens next")}>
+            <strong>{t("Next")}</strong>
+            <span>{t("Save to account → Muse → Optional details → Preserve → Share")}</span>
           </div>
-          <Link className="primary-action" to={`/auth/protect?draftId=${encodeURIComponent(draft.id)}`}>
-            Save to my account & continue
-          </Link>
+          <Link className="primary-action" to={`/auth/protect?draftId=${encodeURIComponent(draft.id)}`}>{t("Save to my account & continue")}</Link>
         </>
       )}
 
@@ -424,8 +417,8 @@ export function OriginalsExperience({
           <span className={isBackingUp ? "backup-pulse" : "backup-device"} aria-hidden="true" />
           <p>
             {isBackingUp
-              ? "Preserving quietly in the background…"
-              : "Safe on this device. Backup will continue when a connection is available."}
+              ? t("Preserving quietly in the background…")
+              : t("Safe on this device. Backup will continue when a connection is available.")}
           </p>
         </div>
       )}
