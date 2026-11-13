@@ -16,6 +16,8 @@ Start with [AGENTS.md](AGENTS.md), which routes each task to the exact governing
 
 See [docs/CURRENT_STATE.md](docs/CURRENT_STATE.md). In short: the solo Living Memory loop (photo → voice → Muse → preserve → playback → optional family share) works end to end in isolated Cloudflare staging; the release candidate still needs real-phone and uncoached human acceptance. Nothing is deployed to production.
 
+The owner expanded the first release on 2026-11-13 to include archival scans, Our Living Legacy, family organization/contributions, retrieval/resurfacing, export/integrity/stewardship, reviewed derivatives/distribution and paid plans. See [the required release matrix](docs/EXECUTION/EXPANDED_FIRST_RELEASE.md); inclusion in scope is not a claim of implementation.
+
 ## Fresh-start rule
 
 This repository begins from the approved Foundation and Phase 1 specification in this package. No application code, architecture, migration, provider, or business rule is inherited from another codebase. New implementation must be written and verified against the Foundation documents.

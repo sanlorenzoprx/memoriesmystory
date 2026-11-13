@@ -3,12 +3,12 @@
 ## Current authority
 
 - Repository: `https://github.com/sanlorenzoprx/memoriesmystory`
-- Living Memory doctrine base: `packet-4/account-binding-recovery` at `2df806817142b57058dbe25cadb90dbfe1c0f915`.
-- Active doctrine/domain branch: `agent/living-memory-doctrine`.
-- Approved product amendment: `docs/DECISIONS/2026-08-11-living-memory-doctrine.md`.
-- Current implementation map: `docs/IMPLEMENTATION/2026-08-11_LIVING_MEMORY_MIGRATION_PLAN.md`.
+- Development base: current `origin/main`; audited baseline for this scope change is `0d4452eb9ffb78ad22758d00ab32df0fdead0367`.
+- Approved scope amendment: `docs/DECISIONS/2026-11-13-expanded-first-release.md`.
+- Current acceptance map: `docs/EXECUTION/EXPANDED_FIRST_RELEASE.md`.
+- Current implementation/status authority: code, tests and dated receipts; `docs/CURRENT_STATE.md` and `docs/EXECUTION/TASK_QUEUE.json` route ongoing work.
 
-Every later implementation slice must begin from the accepted preceding head and re-read the current Foundation, not from an older packet prompt copied into chat or a ZIP.
+Every implementation slice begins from current protected main (or an explicitly reviewed dependent PR), not a historical packet/doctrine branch or copied prompt. Historical doctrine receipts preserve their original provenance.
 
 ## Include
 

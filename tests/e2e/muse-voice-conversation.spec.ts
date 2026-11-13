@@ -227,7 +227,7 @@ test("storyteller can answer Muse by preserved voice and continue the conversati
   await page.getByRole("button", { name: "Send voice reply to Muse" }).click();
 
   await expect(
-    page.getByText("I remember the bright red pot on the stove.", { exact: true })
+    page.locator(".storyteller-bubble").getByText("I remember the bright red pot on the stove.", { exact: true })
   ).toBeVisible();
   await expect(
     page.getByText("Who do you remember being there with you?", { exact: true })

@@ -1,6 +1,6 @@
 # Foundation Traceability
 
-Use this map to prevent implementation from becoming disconnected from the Living Memory doctrine.
+Use this map to prevent implementation from becoming disconnected from the Living Memory doctrine. The expanded first-release scope and evidence mapping are recorded in `../DECISIONS/2026-11-13-expanded-first-release.md` and `../EXECUTION/EXPANDED_FIRST_RELEASE.md`; no Product Invariant is weakened.
 
 | Product outcome | Foundation reason | Primary invariants | First evidence |
 | --- | --- | --- | --- |

@@ -2,7 +2,7 @@
 
 Every packet inherits the root work loop, security contract, Definition of Done, Living Memory anti-drift checklist, and Foundation precedence.
 
-Order after the release candidate follows `../DECISIONS/2026-09-30-next-phase-order-and-our-living-legacy.md`. Existing Packets 1–4 remain valid evidence for persistence, local-first capture, immutable originals, and account binding. The 2026-08-11 doctrine changes downstream product semantics without erasing those receipts.
+The expanded first-release boundary follows `../DECISIONS/2026-11-13-expanded-first-release.md` and `EXPANDED_FIRST_RELEASE.md`. The build order below describes internal checkpoints; archival capture through paid capacity must pass before the final expanded RC lock. Existing Packets 1–4 remain valid evidence for persistence, local-first capture, immutable originals, and account binding. The 2026-08-11 doctrine changes downstream product semantics without erasing those receipts.
 
 | Packet | Outcome | Gate evidence | Scale protection |
 | --- | --- | --- | --- |
@@ -12,7 +12,7 @@ Order after the release candidate follows `../DECISIONS/2026-09-30-next-phase-or
 | 4 | Source authenticity hardening | source/provenance/revision tests, durable receipts | immutable originals, derivative lineage |
 | 5 | Transcription and restrained Muse | queue retries, English/Spanish/mixed receipts, source-grounded prompt evidence | versioned model/prompt config, bounded fallback |
 | 7 | Voluntary Share Artifact + growth telemetry | privacy projection, preview, Facebook handoff, no-reward entitlement test, referral events | bounded projection, revocation where controlled, idempotent event tracking |
-| RC | Release-candidate acceptance and production-ready hardening | real-phone journey, uncoached human sessions, `DEFINITION_OF_DONE_V1.md` evidence (see `../CURRENT_STATE.md`) | locked RC SHA; production deployment needs separate owner authorization |
+| SOLO | Internal solo foundation acceptance (not release authorization) | real-phone journey, uncoached human sessions, `DEFINITION_OF_DONE_V1.md` evidence (see `../CURRENT_STATE.md`) | recorded solo checkpoint; remaining first-release capabilities still required |
 | 8 | Archival photo capture | physical print → untouched source capture + derived corrected scan; target-phone quality evidence | source capture immutable; correction is a derivative |
 | 9 | Our Living Legacy | one photograph + host + one remote family member, live conversation, original session recording, speaker attribution, replay | replaceable real-time provider adapter; per-participant consent and attribution |
 | 10 | Family Archive foundation | people/relationship/Chapter contracts and access tests | ownership keys, archive boundaries, indexes |
@@ -21,6 +21,9 @@ Order after the release candidate follows `../DECISIONS/2026-09-30-next-phase-or
 | 13 | Resurfacing | meaningful date/person/place/unfinished-memory return paths | no manipulative engagement dependency |
 | 14 | Derivative storytelling | Reel/Chapter/Life Story generation with source receipts | derivatives cannot replace sources |
 | 15 | Legacy and growth readiness | export/stewardship/migration tests plus Living Memory Loop metrics | portable archive, long-term continuity, evidence-driven acquisition |
+
+| 16 | Paid capacity | Approved offers/terms, verified webhook fulfillment, sandbox failure/replay/refund evidence | no success-page grant; no live charges without authorization |
+| RC | Expanded first-release acceptance | Every row of `EXPANDED_FIRST_RELEASE.md`, integrated human/device/security/restore evidence | locked RC SHA; no automatic production deployment |
 
 ## Landing-page sequencing
 

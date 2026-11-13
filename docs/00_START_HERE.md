@@ -74,7 +74,7 @@ Approved dated decision records explain intentional amendments to locked documen
 
 ## Current sequencing
 
-`CURRENT_STATE.md` is the single current-status record: what works, the release-candidate gate, branch disposition, known debt, and the decisions still open. The landing page is replaced in a dedicated slice after the release candidate is locked.
+`CURRENT_STATE.md` is the single current-status record: what works, the release-candidate gate, branch disposition, known debt, and the decisions still open. The 2026-11-13 owner decision expands the first release to the complete matrix in `EXECUTION/EXPANDED_FIRST_RELEASE.md`; earlier solo-only and post-RC sequencing statements are superseded for release scope. Solo capture remains the entry experience.
 
 ## What remains open
 

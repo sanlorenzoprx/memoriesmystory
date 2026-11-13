@@ -1,6 +1,6 @@
 # Current State
 
-**As of:** 2026-10-01
+**As of:** 2026-11-13
 **Canonical line:** `main`. The Week-One product line (`integration/lm-week-one`) was promoted into `main` on 2026-09-30.
 
 This page is the single current-status record. It replaces earlier audits and function inventories. When it disagrees with an older status document, this page wins; when it disagrees with Foundation or an accepted decision record, those win and this page must be corrected.
@@ -21,7 +21,13 @@ Proven through automated tests and live, isolated Cloudflare staging with synthe
 - Owner deletion of R2 media and connected D1 rows with a content-free deletion receipt; deletion does not restore free capacity.
 - A / A+ / A++ text size; public Legacy Story Starter, `llms.txt`, OpenAPI, and MCP agent surface (ASC-01) with the private archive excluded.
 
-## Release-candidate gate (not yet passed)
+## Expanded first-release scope
+
+The owner explicitly included archival still capture/scans; Our Living Legacy sessions; Chapters/people/family roles/invitations/contributions; search/timeline/optional resurfacing; complete export/integrity/stewardship; and reviewed derivatives/distribution/paid plans in the same first release. See `DECISIONS/2026-11-13-expanded-first-release.md` and `EXECUTION/EXPANDED_FIRST_RELEASE.md`. These capabilities are required, not post-release deferrals. Their inclusion is a scope decision, not a claim they are implemented.
+
+The current source baseline remains `0d4452e`. The owner-control implementation branch is under review; no new live-provider, physical-device or human proof has been established.
+
+## Internal solo foundation checkpoint (not yet passed)
 
 The product is **not** release-locked. Remaining, in order:
 
@@ -29,9 +35,9 @@ The product is **not** release-locked. Remaining, in order:
 2. Packet 4 closeout on a real phone: email and Google sign-in and second-device recovery. Facebook sign-in is deferred and does not block (`docs/DECISIONS/2026-07-16-facebook-staging-deferral.md`).
 3. Three uncoached human sessions, at least one in Spanish or mixed language, confirming people can tell their own testimony apart from Muse.
 4. Fix any severe trust, comprehension, or accessibility defect found, then repeat the affected step.
-5. Lock the release-candidate SHA and stop feature work on it.
+5. Record an internal solo foundation checkpoint before integrating the remaining required release capabilities. Lock the expanded RC only after the full release matrix passes.
 
-After the RC lock, the production-ready-not-live hardening in `docs/EXECUTION/DEFINITION_OF_DONE_V1.md` remains: WCAG 2.2 AA review, threat model and security review, Turnstile/rate limits, secure headers, log redaction, retention and deletion-recovery policy (requires legal approval), observability and alerts, backup/rollback rehearsal, and legal wording. Production deployment itself requires separate owner authorization.
+Before the expanded RC lock, the production-ready-not-live hardening in `docs/EXECUTION/DEFINITION_OF_DONE_V1.md` remains: WCAG 2.2 AA review, threat model and security review, Turnstile/rate limits, secure headers, log redaction, retention and deletion-recovery policy (requires legal approval), observability and alerts, backup/rollback rehearsal, and legal wording. Production deployment itself requires separate owner authorization.
 
 ## Settled — do not reopen
 
@@ -42,9 +48,9 @@ After the RC lock, the production-ready-not-live hardening in `docs/EXECUTION/DE
 | Transcription provider | ElevenLabs Scribe v2 behind a replaceable boundary; Workers AI powers Muse text. | `DECISIONS/2026-09-22-elevenlabs-first-modular-provider-boundaries.md` |
 | Muse behavior | Conversational elicitor; never judges, verifies, or invents. | `DECISIONS/2026-09-23-muse-conversational-story-elicitor.md`, `PRODUCT/STORYTELLER_SOVEREIGNTY.md` |
 | Facebook sign-in | Deferred; email + Google are sufficient for the first release. | `DECISIONS/2026-07-16-facebook-staging-deferral.md` |
-| Commerce | Not on the production line until the RC is locked. Historical commerce work is preserved only in closed PRs #8–#10 and is not a development base. | `DECISIONS/2026-10-01-retire-stale-reference-branches.md` |
-| "Production v1" | Production-ready-not-live solo Living Memory. Public feed, direct social publishing, Our Living Legacy, billing are outside it. | `EXECUTION/DEFINITION_OF_DONE_V1.md` |
-| Order after the RC | Archival photo capture, then Our Living Legacy, then Family Archive and the rest of the build order. | `DECISIONS/2026-09-30-next-phase-order-and-our-living-legacy.md` |
+| Commerce | Paid plans are required for the expanded release; offers/terms and live activation remain approval gates. Historical PRs #8–#10 are not development bases. | `DECISIONS/2026-11-13-expanded-first-release.md` |
+| First release | Expanded scope; all matrix rows required. Production, live charges and legally operative succession remain separately gated. | `DECISIONS/2026-11-13-expanded-first-release.md` |
+| Build order within first release | Solo trust controls, archival capture, Our Living Legacy, Family Archive and remaining matrix outcomes; export/operations proceed where independent. | `DECISIONS/2026-11-13-expanded-first-release.md` |
 | Shared family experience name | **Our Living Legacy**, in person or at a distance. | same |
 
 ## Branch policy
@@ -63,13 +69,13 @@ Always branch from current `origin/main`. See `DECISIONS/2026-10-01-retire-stale
 - Trigger-heavy migrations 0001–0004 apply to remote D1 through `wrangler d1 execute --file`; the normal migration path rejects them (`incomplete input`). Later migrations apply normally.
 - Deploy staging only with `npm run deploy:staging` (`docs/OPERATIONS/ENVIRONMENTS_AND_HANDOFF.md`). It builds in staging mode and refuses to deploy a bundle without the Clerk publishable key, the failure seen on 2026-09-23.
 - `wrangler.jsonc` intentionally carries a zero D1 ID; environments supply real IDs.
-- `config/phase-1.ts` lists `facebook` in `supportedMethods` while Facebook sign-in is deferred.
+- Facebook sign-in remains deferred; `config/phase-1.ts` correctly lists only email and Google.
 - ElevenLabs `voices_read` permission is unavailable on the current key; a fixed voice ID is configured.
 
 ## Next
 
-1. Clear the release-candidate gate above.
-2. Production-ready-not-live hardening.
-3. Archival photo capture, then Our Living Legacy (`EXECUTION/NEXT_PHASE_OUR_LIVING_LEGACY_AND_PHOTO_DIGITIZATION.md`).
+1. Implement and verify solo trust controls, starting with owner-visible family link revocation.
+2. Build the complete expanded first-release matrix in dependency order, including all six owner-requested capability groups.
+3. Complete integrated human/device/security/legal/operations evidence and present an exact candidate SHA. Production is a separate decision.
 
-No product decision is currently blocking engineering. Open business questions live in `PRODUCT/OPEN_DECISIONS.md`.
+Routine engineering can proceed. Exact paid offers/terms and stewardship/contributor policies block their activation and final acceptance; current environment also lacks live staging/provider credentials. Open business questions live in `PRODUCT/OPEN_DECISIONS.md`.

@@ -17,6 +17,10 @@ AI is important infrastructure and product capability, but it remains subordinat
 3. **Our Living Legacy — At a Distance:** family or friends join an Our Living Legacy session remotely; the photograph remains the main visual while participants see one another, remember, contribute, review, preserve, and receive access according to archive permissions.
 4. **Rediscover:** people later find and revisit Living Memories through people, places, dates, relationships, Chapters, related memories, and respectful resurfacing.
 
+## First-release boundary
+
+By the explicit owner decision of 2026-11-13, the first release includes every capability in `../EXECUTION/EXPANDED_FIRST_RELEASE.md`: archival scans, shared sessions, family organization/contributions, search/timeline/resurfacing, complete export/integrity/stewardship, reviewed derivatives/distribution and paid plans. Solo capture remains the entry path. These requirements supersede earlier solo-only release exclusions; implementation and acceptance evidence remain separate.
+
 ## First product proof
 
 The first product proof is one complete Living Memory:

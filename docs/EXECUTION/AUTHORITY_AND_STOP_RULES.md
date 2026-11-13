@@ -2,7 +2,7 @@
 
 ## Authorized without another product decision
 
-- Implement Packets 1–8 within the approved Phase 1 specification.
+- Implement every capability in `EXPANDED_FIRST_RELEASE.md`, explicitly included by the owner on 2026-11-13; keep work staged and independently reviewable.
 - Change source, tests, migrations, safe configuration, implementation docs, receipts, and learning records in the canonical repository.
 - Install normal project dependencies with reviewed lockfile changes.
 - Generate synthetic fixtures and local development secrets that remain ignored.
@@ -16,7 +16,7 @@
 - billing activation, paid plan upgrades, or a recurring-spend commitment;
 - destructive or irreversible data operations;
 - final legal language;
-- widening scope beyond Phase 1;
+- widening scope beyond the approved expanded first-release matrix;
 - weakening or changing a locked Foundation promise;
 - selecting a paid transcription fallback without evidence;
 - sending real family media to a new provider.

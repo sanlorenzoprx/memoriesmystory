@@ -7,11 +7,13 @@ export class MuseSpeechError extends Error {
 export async function loadMuseSpeech({
   draftId,
   text,
-  draftToken = null
+  draftToken = null,
+  signal
 }: {
   readonly draftId: string;
   readonly text: string;
   readonly draftToken?: string | null;
+  readonly signal?: AbortSignal;
 }): Promise<Blob> {
   const headers = new Headers({
     "Content-Type": "application/json",
@@ -24,6 +26,7 @@ export async function loadMuseSpeech({
     {
       method: "POST",
       credentials: "same-origin",
+      signal,
       headers,
       body: JSON.stringify({ text })
     }

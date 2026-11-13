@@ -1,6 +1,6 @@
-# Definition of Done v1.1 — Production Ready, Not Live
+# Definition of Done v1.2 — Expanded First Release, Not Live
 
-**Decision:** build the Phase 1 solo **Living Memory** experience to production-ready evidence, but do not release it to production or the public.
+**Decision:** build the expanded first release requested on 2026-11-13 to production-ready evidence. Solo capture remains the entry experience. All capabilities in [the expanded release matrix](EXPANDED_FIRST_RELEASE.md) are required before release, including archival scans, Our Living Legacy, family organization/contributions, retrieval/resurfacing, export/integrity/stewardship, reviewed derivatives/distribution and paid plans. This supersedes the former solo-only scope; it does not authorize production deployment.
 
 “Production ready” means a release candidate can be deployed by an authorized owner using documented, reversible steps. It does not mean that a build passes or that isolated components work.
 
@@ -73,9 +73,11 @@
 
 - production deployment;
 - public launch, traffic migration, or DNS cutover;
-- billing activation;
+- live billing activation without approved offers/terms and separate authorization;
 - irreversible deletion or migration of user data;
 - automated production secret creation;
-- full Our Living Legacy, broad public-feed, Life Story, legacy-inheritance, or scaled Reel production beyond the approved slice.
+- a broad public social feed or unapproved inheritance/access policy.
+
+Our Living Legacy, reviewed source-grounded derivatives, stewardship under approved policy, and sandbox-tested paid plans are now inside the readiness gate. Unresolved policy/provider decisions block acceptance; a disabled feature does not count as delivered.
 
 Those actions require a separate owner-approved launch decision after readiness is proven.

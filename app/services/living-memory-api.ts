@@ -241,6 +241,38 @@ export type SharePreview = {
   readonly caption: string | null;
 };
 
+export type FamilyLink = {
+  readonly shareId: string;
+  readonly createdAt: string;
+  readonly revokedAt: string | null;
+  readonly visibility: "private_link";
+  readonly selection: {
+    readonly includePhoto: true;
+    readonly includeVoice: boolean;
+    readonly includeCaptions: boolean;
+    readonly includeNarratorAttribution: boolean;
+    readonly includeBrandAttribution: boolean;
+  };
+};
+
+export async function listFamilyLinks(livingMemoryId: string, before?: string): Promise<{
+  readonly shares: readonly FamilyLink[];
+  readonly nextCursor: string | null;
+}> {
+  const query = before ? `?before=${encodeURIComponent(before)}` : "";
+  return requireJson(await fetch(
+    `/resources/living-memories/${encodeURIComponent(livingMemoryId)}/shares${query}`,
+    { credentials: "same-origin" }
+  ));
+}
+
+export async function revokeFamilyLink(livingMemoryId: string, shareId: string): Promise<void> {
+  await requireJson(await fetch(
+    `/resources/living-memories/${encodeURIComponent(livingMemoryId)}/shares/${encodeURIComponent(shareId)}`,
+    { method: "DELETE", credentials: "same-origin", headers: { "X-Memories-Request": "share-v1" } }
+  ));
+}
+
 export async function previewLivingMemoryShare(
   livingMemoryId: string,
   selection: ShareSelection
