@@ -1,4 +1,5 @@
 import { appIdentity } from "../config/app-identity";
+import { handleLegacySessionRoute } from "./legacy-sessions";
 import { handleAgentRoute } from "./agent-routes";
 import { handleAuthRoute } from "./auth-routes";
 import { handleCompletionRoute } from "./completion";
@@ -57,6 +58,9 @@ const handler: ExportedHandler<Env, TranscriptionQueueMessage> = {
 
     const authResponse = await handleAuthRoute(request, env);
     if (authResponse) return authResponse;
+
+    const legacyResponse = await handleLegacySessionRoute(request, env);
+    if (legacyResponse) return legacyResponse;
 
     const deletionResponse = await handleDeletionRoute(request, env);
     if (deletionResponse) return deletionResponse;

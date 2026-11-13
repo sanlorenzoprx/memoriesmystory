@@ -6,7 +6,7 @@
 
 The merged solo foundation includes original photo/voice preservation, account entry/recovery, transcription/Muse, owner review and voluntary finish, private sharing/revocation/deletion and English/Spanish controls. PR #24 adds native-still preference with reliable fallbacks.
 
-The next archival slice adds manual corners/perspective correction, separate corrected JPEGs and provenance, private backup/retry/reopen/deletion, digital steadiness assistance, quarter-turn scan rotation and retake source isolation. Implementation and exact evidence are recorded in `../IMPLEMENTATION/ARCHIVAL_SCANS_STEADINESS_2026-11-13.md`.
+Merged PR #25 adds manual corners/perspective correction, separate corrected JPEGs and provenance, private backup/retry/reopen/deletion, digital steadiness assistance, quarter-turn scan rotation and retake source isolation. Implementation and exact evidence are recorded in `../IMPLEMENTATION/ARCHIVAL_SCANS_STEADINESS_2026-11-13.md`.
 
 ## Confirmed milestone scope
 
@@ -21,3 +21,7 @@ Use actual angled prints on iPhone Safari and Android Chrome, including a low-po
 Verify original checksums stay unchanged; corrected scans are separate with source/corner/rotation provenance; pending scan uploads never claim backup or block preserving real voice; revoke/delete/reopen and unsaved English/Spanish work remain trustworthy. Record failures before accepting the candidate.
 
 Do not claim the internal solo checkpoint, full WCAG conformance, live-provider paths, group consent/legal acceptance or the expanded release candidate from automated browser tests alone. Production and live charges remain separate operations.
+
+## Video recovery direction
+
+Owner direction on 2026-11-13 removes Jitsi fallback. The Memories remote prototype must stay within its authorized provider and session boundary. A provider failure offers retry/leave in the application; it must not open a public or third-party backup room. SureDose is an interaction reference only; its Jitsi fallback was removed in PR #4 (merge `56e7a7c86e21d18610a047e9d0c793485771c6cf`, all five Verify jobs green). No SureDose code or provider choice is inherited.

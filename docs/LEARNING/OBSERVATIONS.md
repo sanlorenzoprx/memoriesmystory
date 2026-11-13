@@ -138,3 +138,13 @@ Observations preserve evidence separately from proposed solutions. Follow `READM
 - **Interpretation:** create a fresh draft for an accepted-photo retake; preserve prior originals/scan lineage, and scope late UI callbacks. Do not silently replace primary source identity or guess from upload completion timing.
 - **Confidence/limits:** deterministic browser recovery evidence; live account/physical-phone acceptance remains pending.
 - **Related decision/receipt:** `../DECISIONS/2026-11-13-separate-scans-steady-capture.md`, `../IMPLEMENTATION/ARCHIVAL_SCANS_STEADINESS_2026-11-13.md`.
+
+### L-2026-11-13-legacy-boundary — Consent belongs to each participant
+
+- Status: corroborated by synthetic integration and phone browser evidence; human acceptance pending.
+- Evidence source: `../IMPLEMENTATION/OUR_LIVING_LEGACY_SESSIONS_2026-11-13.md`.
+- Observed fact: separate participant access can expose one pinned photograph while denying archive access; own-consent checks and revocation can be enforced before recording infrastructure exists.
+- Interpretation: establish this boundary before attaching any remote media provider. A display name or invitation is not proof of a distinct human's identity.
+- Confidence and contrary evidence: automated boundary evidence only; no live two-device/provider or legal acceptance evidence.
+- Affected experience/invariant: authentic human attribution, private originals, deliberate boundary crossing.
+- Related decision: `../DECISIONS/2026-11-13-private-legacy-session-boundary.md`; no Foundation change proposed.

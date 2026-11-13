@@ -15,6 +15,7 @@ import { CaptureExperience } from "./features/capture/CaptureExperience";
 import { IdentityExperience } from "./features/identity/IdentityExperience";
 import { ArchiveExperience } from "./features/archive/ArchiveExperience";
 import { LivingMemoryExperience } from "./features/living-memory/LivingMemoryExperience";
+import { NewLegacySession, JoinLegacySession, LegacySessionExperience } from "./features/legacy/LegacySessionExperience";
 import { LanguageControl } from "./localization/LanguageControl";
 import { TextSizeControl } from "./features/TextSizeControl";
 import type { CaptureEntryMode } from "./features/capture/local-draft";
@@ -30,6 +31,9 @@ export const routes: RouteObject[] = [
     element: <AppShell />,
     errorElement: <RouteErrorBoundary />,
     children: [
+      { path: "legacy/new", element: <NewLegacySession /> },
+      { path: "legacy/:sessionId/join", element: <JoinLegacySession /> },
+      { path: "legacy/:sessionId", element: <LegacySessionExperience /> },
       {
         index: true,
         loader: homeLoader,

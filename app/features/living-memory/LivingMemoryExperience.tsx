@@ -503,6 +503,7 @@ export function LivingMemoryExperience() {
           </div>
           <div className="capture-actions">
             <button className="primary-action" type="button" disabled={reviewEditing} onClick={() => setStage("share-settings")}>{t("Share with family")}</button>
+            <Link className="secondary-action" to={`/legacy/new?memoryId=${encodeURIComponent(draftId)}`}>{t("Remember together")}</Link>
             <Link className="secondary-action" to="/archive">{t("Return to my archive")}</Link>
           </div>
           <StoryReview draftId={draftId} snapshot={snapshot} onUpdated={refreshReview} onEditingChange={setReviewEditing} />
