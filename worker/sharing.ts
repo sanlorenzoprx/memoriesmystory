@@ -227,6 +227,7 @@ async function previewShare(
       photo: true,
       voice: selection.includeVoice,
       captions: selection.includeCaptions ? transcript : null,
+      captionTranscriptRevisionId: selection.includeCaptions ? story.current_transcript_revision_id : null,
       narratorAttribution: selection.includeNarratorAttribution
         ? "Story told in the storyteller's own voice."
         : null,
@@ -262,14 +263,21 @@ async function createShare(
   storyId: string
 ): Promise<Response> {
   assertMutation(request);
-  const { userId, story } = await requireOwner(request, env, storyId);
+  const { userId } = await requireOwner(request, env, storyId);
   const pepper = requirePepper(env);
   const idempotencyKey = validIdentifier(
     request.headers.get("X-Idempotency-Key"),
     "Idempotency key"
   );
-  const selection = normalizedSelection(await request.json().catch(() => null));
-  const transcript = selection.includeCaptions ? await transcriptText(env, story) : null;
+  const body = await request.json().catch(() => null) as Record<string, unknown> | null;
+  const selection = normalizedSelection(body);
+  const captionRevisionId = selection.includeCaptions
+    ? validIdentifier(typeof body?.expectedTranscriptRevisionId === "string" ? body.expectedTranscriptRevisionId : null, "Previewed transcript revision")
+    : null;
+  const selectedTranscript = captionRevisionId ? await env.DB.prepare(
+    "SELECT text FROM transcript_revisions WHERE id = ? AND memory_story_id = ?"
+  ).bind(captionRevisionId, storyId).first<{ text: string }>() : null;
+  const transcript = selectedTranscript?.text ?? null;
 
   if (selection.includeCaptions && !transcript) {
     throw new SharingRouteError(
@@ -287,7 +295,8 @@ async function createShare(
       includeCaptions: selection.includeCaptions,
       includeNarratorAttribution: selection.includeNarratorAttribution,
       includeBrandAttribution: selection.includeBrandAttribution,
-      caption: selection.caption
+      caption: selection.caption,
+      captionRevisionId
     })
   );
 
@@ -351,8 +360,8 @@ async function createShare(
           id, share_id, memory_story_id, owner_user_id,
           include_photo, include_voice, include_captions,
           include_narrator_attribution, include_brand_attribution,
-          caption, created_at, updated_at
-        ) VALUES (?, ?, ?, ?, 1, ?, ?, ?, ?, ?, ?, ?)`
+          caption, transcript_revision_id, created_at, updated_at
+        ) VALUES (?, ?, ?, ?, 1, ?, ?, ?, ?, ?, ?, ?, ?)`
       ).bind(
         artifactId,
         shareId,
@@ -363,6 +372,7 @@ async function createShare(
         selection.includeNarratorAttribution ? 1 : 0,
         selection.includeBrandAttribution ? 1 : 0,
         selection.caption,
+        captionRevisionId,
         now,
         now
       ),
@@ -502,7 +512,7 @@ async function publicShareByToken(
      FROM memory_story_shares s
      JOIN living_memory_share_artifacts a ON a.share_id = s.id
      JOIN memory_stories ms ON ms.id = s.memory_story_id
-     LEFT JOIN transcript_revisions tr ON tr.id = ms.current_transcript_revision_id
+     LEFT JOIN transcript_revisions tr ON tr.id = a.transcript_revision_id AND tr.memory_story_id = ms.id
      WHERE s.token_hash = ? AND s.revoked_at IS NULL AND ms.status = 'complete'`
   ).bind(tokenHash).first<PublicShareRow>();
 

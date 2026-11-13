@@ -138,6 +138,29 @@ async function deleteMemory(
       ).bind(story.id).all<AssetRow>()
     : { results: [] as AssetRow[] };
   const allAssets = [...assets.results, ...voiceReplies.results];
+  const revisions = story ? await env.DB.prepare(
+    "SELECT id, parent_revision_id FROM transcript_revisions WHERE memory_story_id = ?"
+  ).bind(story.id).all<{ id: string; parent_revision_id: string | null }>() : { results: [] };
+  // Parent revisions use ON DELETE RESTRICT. Delete leaves first in the same
+  // transaction as the memory, rather than relying on cascade row order.
+  const parents = new Map(revisions.results.map((row) => [row.id, row.parent_revision_id]));
+  const children = new Map(revisions.results.map((row) => [row.id, 0]));
+  for (const parent of parents.values()) if (parent && children.has(parent)) children.set(parent, children.get(parent)! + 1);
+  const leaves = [...children].filter(([, count]) => count === 0).map(([id]) => id);
+  const deletionOrder: string[] = [];
+  while (leaves.length) {
+    const id = leaves.pop()!;
+    deletionOrder.push(id);
+    const parent = parents.get(id);
+    if (parent && children.has(parent)) {
+      const remaining = children.get(parent)! - 1;
+      children.set(parent, remaining);
+      if (remaining === 0) leaves.push(parent);
+    }
+  }
+  if (deletionOrder.length !== revisions.results.length) {
+    throw new DeletionRouteError(409, "revision_cleanup_required", "This memory's revision history needs repair before it can be deleted. No media was removed.");
+  }
 
   try {
     for (const asset of allAssets) {
@@ -164,6 +187,9 @@ async function deleteMemory(
   }
 
   if (story) {
+    for (const revisionId of deletionOrder) statements.push(env.DB.prepare(
+      "DELETE FROM transcript_revisions WHERE id = ? AND memory_story_id = ?"
+    ).bind(revisionId, story.id));
     statements.push(
       env.DB.prepare(
         "DELETE FROM operation_receipts WHERE scope_id IN (SELECT id FROM muse_voice_reply_assets WHERE memory_story_id = ?)"

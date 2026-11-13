@@ -31,6 +31,7 @@ export type TranscriptView = {
   readonly locale: string;
   readonly sourceAudioAssetId?: string;
   readonly createdAt?: string;
+  readonly revisionKind?: "machine_transcript" | "corrected_transcript" | "translated_transcript";
 };
 
 export type ProcessingView = {
@@ -187,6 +188,7 @@ export type LivingMemorySnapshot = {
   readonly livingMemoryId: string;
   readonly status: "draft" | "complete";
   readonly completedAt: string | null;
+  readonly version: number;
   readonly originals: {
     readonly photo: { readonly assetId: string; readonly mediaUrl: string };
     readonly audio: { readonly assetId: string; readonly mediaUrl: string };
@@ -205,7 +207,8 @@ export async function loadLivingMemory(draftId: string): Promise<LivingMemorySna
 }
 
 export async function completeLivingMemory(
-  draftId: string
+  draftId: string,
+  expectedVersion: number
 ): Promise<{
   readonly livingMemoryId: string;
   readonly completedAt: string;
@@ -218,13 +221,16 @@ export async function completeLivingMemory(
       credentials: "same-origin",
       headers: {
         "X-Memories-Request": "completion-v1",
-        "X-Idempotency-Key": `complete_${draftId}`
-      }
+        "X-Idempotency-Key": `complete_${draftId}_${expectedVersion}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ confirmOriginals: true, expectedVersion })
     })
   );
 }
 
 export type ShareSelection = {
+  readonly expectedTranscriptRevisionId?: string | null;
   readonly includeVoice: boolean;
   readonly includeCaptions: boolean;
   readonly includeNarratorAttribution: boolean;
@@ -233,6 +239,7 @@ export type ShareSelection = {
 };
 
 export type SharePreview = {
+  readonly captionTranscriptRevisionId: string | null;
   readonly photo: true;
   readonly voice: boolean;
   readonly captions: string | null;
@@ -319,4 +326,32 @@ export async function createLivingMemoryShare(
       }
     )
   );
+}
+
+
+export type ReviewHistory = {
+  readonly originalTranscript: { id: string; text: string; locale: string; created_at: string } | null;
+  readonly revisions: readonly {
+    reviewId: string; kind: "edit" | "completion"; baseVersion: number; authorId: string; createdAt: string;
+    photoAssetId: string; audioAssetId: string; transcriptRevisionId: string | null;
+    transcriptText: string | null; locale: string | null; context: readonly StoryContextInput[];
+  }[];
+  readonly nextCursor: string | null;
+};
+
+export async function loadReviewHistory(draftId: string, before?: string): Promise<ReviewHistory> {
+  return requireJson(await fetch(`/resources/drafts/${encodeURIComponent(draftId)}/review${before ? `?before=${encodeURIComponent(before)}` : ""}`,
+    { credentials: "same-origin" }));
+}
+
+export async function saveStoryReview(draftId: string, review: {
+  readonly expectedVersion: number;
+  readonly transcriptText: string | null;
+  readonly context: readonly StoryContextInput[];
+}, idempotencyKey: string): Promise<{ reviewId: string; replayed: boolean }> {
+  return requireJson(await fetch(`/resources/drafts/${encodeURIComponent(draftId)}/review`, {
+    method: "PUT", credentials: "same-origin",
+    headers: { "Content-Type": "application/json", "X-Memories-Request": "story-review-v1", "X-Idempotency-Key": idempotencyKey },
+    body: JSON.stringify(review)
+  }));
 }

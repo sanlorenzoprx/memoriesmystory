@@ -9,6 +9,7 @@ import { handleMuseRoute } from "./muse";
 import { handleMuseConversationRoute } from "./muse-conversation";
 import { handleMuseTtsRoute } from "./muse-tts";
 import { handleMuseVoiceReplyRoute } from "./muse-voice-replies";
+import { handleStoryReviewRoute } from "./story-review";
 import { handleSharingRoute } from "./sharing";
 import {
   handleTranscriptionRoute,
@@ -26,6 +27,7 @@ export interface Env {
   ELEVENLABS_MUSE_VOICE_ID?: string;
   ELEVENLABS_TTS_MODEL_ID?: string;
   SHARE_TOKEN_PEPPER?: string;
+  STORY_REVIEW_WRITES_PAUSED?: string;
   APP_NAME?: string;
   PUBLIC_BRAND_NAME?: string;
   SESSION_SECRET?: string;
@@ -75,6 +77,9 @@ const handler: ExportedHandler<Env, TranscriptionQueueMessage> = {
 
     const museResponse = await handleMuseRoute(request, env);
     if (museResponse) return museResponse;
+
+    const reviewResponse = await handleStoryReviewRoute(request, env);
+    if (reviewResponse) return reviewResponse;
 
     const completionResponse = await handleCompletionRoute(request, env);
     if (completionResponse) return completionResponse;

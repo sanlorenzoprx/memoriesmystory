@@ -21,6 +21,10 @@ All rows below are required for the same first release. Solo capture remains the
 | R8 / paid-plans | Approved offers, server-owned checkout, verified replay-safe fulfillment, paid entitlements, cancellation/refund handling and cost controls | Provider sandbox scenarios including duplicate/out-of-order events, wrong amount/currency/account, pending payments and refunds; paid/free capacity separated; approved prices/terms before live activation |
 | R9 / release-candidate-hardening | Security, abuse/rate/cost protection, consent/legal terms, accessibility, bilingual physical-device/human acceptance, observability, restore/rollback, release SHA | All Definition of Done evidence, three uncoached sessions including Spanish/mixed speech; physical Android/iPhone and second-device recovery; dated security/backup/incident receipts |
 
+## Implementation evidence
+
+Owner link controls and speech/retry repairs are on draft PR #21. Editable review, caption pinning and voluntary source-confirmed finish are on its dependent `feat/storyteller-review-finish` branch; see `../IMPLEMENTATION/STORYTELLER_REVIEW_FINISH_2026-11-13.md`. Neither branch status establishes live/device/human acceptance. The task queue remains the single task-status ledger.
+
 ## Dependency sequence
 
 R0 → R1 → R2 → R3 → R4 → R6. R5 can begin with the existing solo sources and extend as R2/R3 add source types. R7 builds on R0 and validated share artifacts. R8 depends on approved offers and measured costs, not a share action. R9 evaluates the integrated result after every required capability is proven.

@@ -1,3 +1,4 @@
+import { readBoundedText, RequestBodyTooLarge } from "./request-body";
 import { authenticateAppSession, type AuthSessionEnv } from "./auth-session";
 import {
   ensureLivingMemoryFoundation,
@@ -13,6 +14,7 @@ type StoryRow = {
   status: "draft" | "complete";
   completed_at: string | null;
   current_transcript_revision_id: string | null;
+  version: number;
 };
 
 type ContextRow = {
@@ -48,7 +50,6 @@ class CompletionRouteError extends Error {
 
 const requestHeader = "completion-v1";
 const identifierPattern = /^[A-Za-z0-9_-]{8,160}$/;
-const requiredContextKinds = ["person", "place", "time", "event"] as const;
 
 function json(body: unknown, status = 200): Response {
   return Response.json(body, {
@@ -89,7 +90,7 @@ async function sha256(value: string): Promise<string> {
 
 async function storyRow(env: CompletionEnv, livingMemoryId: string): Promise<StoryRow> {
   const story = await env.DB.prepare(
-    `SELECT id, owner_user_id, status, completed_at, current_transcript_revision_id
+    `SELECT id, owner_user_id, status, completed_at, current_transcript_revision_id, version
      FROM memory_stories WHERE id = ?`
   ).bind(livingMemoryId).first<StoryRow>();
   if (!story) throw new CompletionRouteError(409, "story_not_ready", "The Living Memory is not ready yet.");
@@ -113,16 +114,6 @@ async function latestContext(env: CompletionEnv, livingMemoryId: string): Promis
   return latest;
 }
 
-function assertContextReviewed(context: readonly ContextRow[]): void {
-  const kinds = new Set(context.map((entry) => entry.kind));
-  if (!requiredContextKinds.every((kind) => kinds.has(kind))) {
-    throw new CompletionRouteError(
-      409,
-      "context_review_required",
-      "Review who, where, when, and what happened. “I don't remember” and “leave this out” are both okay."
-    );
-  }
-}
 async function requireCompletionEntitlement(
   env: CompletionEnv,
   userId: string
@@ -174,7 +165,7 @@ async function completionSnapshot(
   const context = await latestContext(env, foundation.livingMemoryId);
   const transcript = story.current_transcript_revision_id
     ? await env.DB.prepare(
-        `SELECT id, text, locale, source_audio_asset_id, created_at
+        `SELECT id, text, locale, source_audio_asset_id, created_at, revision_kind
          FROM transcript_revisions WHERE id = ? AND memory_story_id = ?`
       ).bind(story.current_transcript_revision_id, foundation.livingMemoryId)
         .first<{
@@ -183,6 +174,7 @@ async function completionSnapshot(
           locale: string;
           source_audio_asset_id: string;
           created_at: string;
+          revision_kind: string;
         }>()
     : null;
   const muse = await env.DB.prepare(
@@ -204,6 +196,7 @@ async function completionSnapshot(
     livingMemoryId: foundation.livingMemoryId,
     status: story.status,
     completedAt: story.completed_at,
+    version: story.version,
     originals: {
       photo: {
         assetId: foundation.photoAssetId,
@@ -214,7 +207,11 @@ async function completionSnapshot(
         mediaUrl: `/resources/drafts/${encodeURIComponent(draftId)}/media/${encodeURIComponent(foundation.audioAssetId)}`
       }
     },
-    transcript,
+    transcript: transcript ? {
+      revisionId: transcript.id, text: transcript.text, locale: transcript.locale,
+      sourceAudioAssetId: transcript.source_audio_asset_id, createdAt: transcript.created_at,
+      revisionKind: transcript.revision_kind
+    } : null,
     musePrompt: muse
       ? {
           artifactId: muse.id,
@@ -224,7 +221,11 @@ async function completionSnapshot(
           modelConfigVersion: muse.model_config_version
         }
       : null,
-    context
+    context: context.map((entry) => ({
+      id: entry.id, livingMemoryId: foundation.livingMemoryId, kind: entry.kind,
+      value: entry.value, state: entry.context_state, sourceRef: entry.source_ref,
+      createdByUserId: userId, createdAt: entry.created_at, updatedAt: entry.created_at
+    }))
   });
 }
 async function finalizeLivingMemory(
@@ -248,10 +249,17 @@ async function finalizeLivingMemory(
     });
   }
 
+  const bodyText = await readBoundedText(request, 4096);
+  let body: { confirmOriginals?: unknown; expectedVersion?: unknown } | null;
+  try { body = JSON.parse(bodyText || "null"); }
+  catch { throw new CompletionRouteError(400, "invalid_confirmation", "The source confirmation could not be read."); }
+  if (body?.confirmOriginals !== true) throw new CompletionRouteError(409, "source_confirmation_required", "Confirm that you want to preserve this photograph and your original voice. Optional details may be left out.");
+  if (!Number.isSafeInteger(body.expectedVersion) || body.expectedVersion !== story.version) {
+    throw new CompletionRouteError(409, "review_conflict", "This memory changed. Reopen and review the latest version before preserving it.");
+  }
   await requireCompletionEntitlement(env, userId);
 
   const context = await latestContext(env, foundation.livingMemoryId);
-  assertContextReviewed(context);
   const contextFingerprint = context
     .slice()
     .sort((left, right) => left.kind.localeCompare(right.kind))
@@ -262,6 +270,8 @@ async function finalizeLivingMemory(
       foundation.livingMemoryId,
       foundation.photoAssetId,
       foundation.audioAssetId,
+      story.version,
+      "originals-confirmed-v1",
       contextFingerprint
     ].join("|")
   );
@@ -298,7 +308,7 @@ async function finalizeLivingMemory(
     ).bind(now, idempotencyKey, requestHash).run();
   } else {
     await env.DB.prepare(
-      `INSERT INTO operation_receipts (
+      `INSERT OR IGNORE INTO operation_receipts (
         idempotency_key, operation_kind, scope_type, scope_id, request_hash,
         status, result_ref, correlation_id, created_at, updated_at
       ) VALUES (?, 'finalize_story', 'story', ?, ?, 'started', NULL, ?, ?, ?)`
@@ -311,12 +321,26 @@ async function finalizeLivingMemory(
       now
     ).run();
   }
+  const claimed = await env.DB.prepare("SELECT request_hash FROM operation_receipts WHERE idempotency_key = ?")
+    .bind(idempotencyKey).first<{ request_hash: string }>();
+  if (!claimed || claimed.request_hash !== requestHash) {
+    throw new CompletionRouteError(409, "idempotency_conflict", "That completion key belongs to a different review state.");
+  }
   const activationHash = await sha256(`${userId}|first_living_memory_completed`);
   const activationId = `product_event_${activationHash.slice(0, 40)}`;
   const activationKey = `activation_${activationHash.slice(0, 48)}`;
 
   try {
     await env.DB.batch([
+      env.DB.prepare(`INSERT INTO living_memory_reviews
+        (id, memory_story_id, kind, created_by_user_id, base_story_version, request_hash,
+         source_photo_asset_id, source_audio_asset_id, transcript_revision_id, context_json, created_at)
+        VALUES (?, ?, 'completion', ?, ?, ?, ?, ?, ?, ?, ?)`)
+        .bind(`review_complete_${(await sha256(idempotencyKey)).slice(0, 40)}`, foundation.livingMemoryId,
+          userId, story.version, requestHash, foundation.photoAssetId, foundation.audioAssetId,
+          story.current_transcript_revision_id, JSON.stringify(context.map((entry) => ({
+            kind: entry.kind, value: entry.value, state: entry.context_state
+          }))), now),
       env.DB.prepare(
         `UPDATE memory_stories
          SET status = 'complete', visibility = 'private', completed_at = ?,
@@ -346,6 +370,14 @@ async function finalizeLivingMemory(
        WHERE idempotency_key = ? AND request_hash = ?`
     ).bind(new Date().toISOString(), idempotencyKey, requestHash).run().catch(() => undefined);
 
+    const latest = await storyRow(env, foundation.livingMemoryId);
+    if (latest.status === "complete" && latest.completed_at) {
+      return json({ ok: true, livingMemoryId: foundation.livingMemoryId, completedAt: latest.completed_at,
+        activationRecorded: await activationState(env, userId, foundation.livingMemoryId), replayed: true });
+    }
+    if (String(error).includes("story review version conflict")) {
+      throw new CompletionRouteError(409, "review_conflict", "This memory changed. Reopen and review the latest version before preserving it.");
+    }
     if (String(error).includes("available story entitlement")) {
       throw new CompletionRouteError(
         409,
@@ -383,6 +415,7 @@ export async function handleCompletionRoute(
     }
     return json({ ok: false, error: { code: "method", message: "Method not allowed." } }, 405);
   } catch (error) {
+    if (error instanceof RequestBodyTooLarge) return json({ error: { code: "invalid_confirmation", message: "The confirmation request is too large." } }, 413);
     if (error instanceof LivingMemoryPersistenceError) {
       const status = error.code === "draft_not_found" ? 404
         : error.code === "owner_required" ? 401

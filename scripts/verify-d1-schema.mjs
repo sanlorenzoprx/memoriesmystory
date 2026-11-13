@@ -26,6 +26,13 @@ try {
     .all();
   const names = new Set(objects.map((object) => object.name));
   const requiredObjects = [
+    "living_memory_share_pins_legacy_captions",
+    "living_memory_share_caption_revision_immutable",
+    "living_memory_reviews",
+    "living_memory_review_scope_version",
+    "living_memory_reviews_append_only",
+    "living_memory_context_append_only",
+    "living_memory_context_bumps_story_version",
     "users",
     "auth_principals",
     "user_sessions",

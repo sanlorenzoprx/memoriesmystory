@@ -58,7 +58,12 @@ class TestD1 {
     for (const migration of [
       "0001_phase_1_foundation.sql",
       "0002_account_binding_recovery.sql",
-      "0003_living_memory_proof.sql"
+      "0003_living_memory_proof.sql",
+      "0004_configurable_story_entitlements.sql",
+      "0005_memory_deletion.sql",
+      "0006_muse_conversation.sql",
+      "0007_muse_voice_replies.sql",
+      "0008_storyteller_review.sql"
     ]) {
       this.database.exec(
         readFileSync(new URL(`../../migrations/${migration}`, import.meta.url), "utf8")
@@ -221,6 +226,21 @@ describe("Living Memory transcription processing", () => {
     expect(body.state).toBe("ready");
     expect(body.transcript.text).toContain("Abuela");
     expect(body.transcript.sourceAudioAssetId).toBe("asset_audio_transcription");
+  });
+
+  it("does not reopen a memory when queued transcription arrives after source-only completion", async () => {
+    await handleTranscriptionRoute(processRequest(cookie), env);
+    const now = new Date().toISOString();
+    d1.database.prepare(`INSERT OR IGNORE INTO story_entitlements
+      (user_id,plan,free_story_limit,free_stories_unlocked,free_stories_completed,paid_story_capacity,updated_at)
+      VALUES (?,'free',1,1,0,0,?)`).run(userId, now);
+    d1.database.prepare("UPDATE memory_stories SET status = 'complete', completed_at = ? WHERE id = ?").run(now, draftId);
+    d1.database.prepare("UPDATE memory_story_drafts SET status = 'complete' WHERE id = ?").run(draftId);
+    await processTranscriptionMessage(env, queue.bodies[0]!);
+    expect(d1.database.prepare("SELECT status FROM memory_story_drafts WHERE id = ?").get(draftId)).toEqual({ status: "complete" });
+    expect(d1.database.prepare("SELECT status FROM memory_stories WHERE id = ?").get(draftId)).toEqual({ status: "complete" });
+    expect(d1.database.prepare("SELECT count(*) AS count FROM transcript_revisions").get()).toEqual({ count: 1 });
+    expect(d1.database.prepare("SELECT free_stories_completed FROM story_entitlements WHERE user_id = ?").get(userId)).toEqual({ free_stories_completed: 1 });
   });
 
   it("keeps durable originals intact when ElevenLabs fails and marks the job retryable", async () => {

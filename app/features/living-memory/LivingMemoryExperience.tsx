@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
 
-import type { StoryContextKind, StoryContextState } from "../../domain";
+import type { StoryContextState } from "../../domain";
 import {
   LivingMemoryApiError,
   completeLivingMemory,
@@ -23,6 +23,7 @@ import { deleteMemory } from "../../services/memory-deletion";
 import { MuseVoiceButton } from "../MuseVoiceButton";
 import { MuseVoiceReplyRecorder } from "../MuseVoiceReplyRecorder";
 import { FamilyLinkManager } from "./FamilyLinkManager";
+import { StoryReview } from "./StoryReview";
 
 type Stage =
   | "loading"
@@ -35,19 +36,6 @@ type Stage =
   | "share-preview"
   | "share-created"
   | "error";
-
-type ContextBlueprint = {
-  readonly kind: StoryContextKind;
-  readonly label: string;
-  readonly prompt: string;
-};
-
-const contextBlueprint: readonly ContextBlueprint[] = [
-  { kind: "person", label: "Who", prompt: "Who is part of this memory?" },
-  { kind: "place", label: "Where", prompt: "Where were you?" },
-  { kind: "time", label: "When", prompt: "When was this?" },
-  { kind: "event", label: "What", prompt: "What was happening?" }
-];
 
 function apiMessage(error: unknown): string {
   return error instanceof Error
@@ -76,6 +64,11 @@ export function LivingMemoryExperience() {
   const [sharePreview, setSharePreview] = useState<SharePreview | null>(null);
   const [sharePath, setSharePath] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [sourceConfirmed, setSourceConfirmed] = useState(false);
+  const [reviewEditing, setReviewEditing] = useState(false);
+  const [hasUnsentReply, setHasUnsentReply] = useState(false);
+  const journeyEpoch = useRef(0);
+  const completingRef = useRef(false);
   const shareKeyRef = useRef(
     `share_${draftId || "memory"}_${crypto.randomUUID()}`
   );
@@ -101,7 +94,9 @@ export function LivingMemoryExperience() {
   }
 
   async function enterContext(): Promise<void> {
+    const epoch = journeyEpoch.current;
     const nextSnapshot = await requireSnapshot();
+    if (epoch !== journeyEpoch.current) return;
     try {
       let nextConversation = await loadMuseConversation(draftId);
       if (
@@ -110,9 +105,11 @@ export function LivingMemoryExperience() {
       ) {
         nextConversation = await continueMuseConversation(draftId);
       }
+      if (epoch !== journeyEpoch.current) return;
       setConversation(nextConversation);
       setMessage(null);
     } catch (error) {
+      if (epoch !== journeyEpoch.current) return;
       setConversation(null);
       setMessage(
         error instanceof Error
@@ -120,6 +117,7 @@ export function LivingMemoryExperience() {
           : "Muse could not continue right now. Your photograph and voice are safe."
       );
     }
+    if (epoch !== journeyEpoch.current) return;
     setSnapshot(nextSnapshot);
     setStage("context");
   }
@@ -156,7 +154,9 @@ export function LivingMemoryExperience() {
       setStage("error");
       return;
     }
+    journeyEpoch.current += 1;
     void beginJourney();
+    return () => { journeyEpoch.current += 1; };
   }, [draftId]);
 
   useEffect(() => {
@@ -217,6 +217,7 @@ export function LivingMemoryExperience() {
   ) {
     const currentQuestion = conversation?.currentQuestion;
     if (!currentQuestion || conversationBusy) return;
+    const epoch = journeyEpoch.current;
     setConversationBusy(true);
     setMessage(null);
     try {
@@ -226,6 +227,7 @@ export function LivingMemoryExperience() {
         state,
         voiceReplyAssetId
       });
+      if (epoch !== journeyEpoch.current) return;
       setConversation(next);
       if (next.done) {
         setSnapshot(await loadLivingMemory(draftId));
@@ -238,39 +240,45 @@ export function LivingMemoryExperience() {
   }
 
   async function reviewContext() {
+    if (hasUnsentReply && !window.confirm("Finish with the photograph and voice already preserved? Any unsent reply will not be included.")) return;
+    journeyEpoch.current += 1;
+    setHasUnsentReply(false);
+    setSourceConfirmed(false);
+    setReviewEditing(false);
     setMessage(null);
-    if (!conversation?.done) {
-      setMessage("Muse is still helping you finish the story context.");
-      return;
-    }
     try {
       setSnapshot(await loadLivingMemory(draftId));
       setStage("review");
-    } catch (error) {
-      setMessage(apiMessage(error));
-    }
+    } catch (error) { setMessage(apiMessage(error)); }
+  }
+
+  async function refreshReview() {
+    setSnapshot(await loadLivingMemory(draftId));
+    setSourceConfirmed(false);
   }
 
   async function finishLivingMemory() {
+    if (!snapshot || !sourceConfirmed || reviewEditing || completingRef.current) return;
+    completingRef.current = true;
     setStage("completing");
     setMessage(null);
     try {
-      await completeLivingMemory(draftId);
+      await completeLivingMemory(draftId, snapshot.version);
       setSnapshot(await loadLivingMemory(draftId));
       setStage("complete");
     } catch (error) {
       setMessage(apiMessage(error));
       setStage("review");
-    }
+    } finally { completingRef.current = false; }
   }
 
   async function prepareSharePreview() {
     if (!snapshot) return;
     setMessage(null);
     try {
-      setSharePreview(
-        await previewLivingMemoryShare(snapshot.livingMemoryId, shareSelection)
-      );
+      const preview = await previewLivingMemoryShare(snapshot.livingMemoryId, shareSelection);
+      setSharePreview(preview);
+      setShareSelection((selection) => ({ ...selection, expectedTranscriptRevisionId: preview.captionTranscriptRevisionId }));
       setStage("share-preview");
     } catch (error) {
       setMessage(apiMessage(error));
@@ -387,11 +395,18 @@ export function LivingMemoryExperience() {
               Try transcript again
             </button>
           )}
+          <p>Transcription is optional. You can preserve your photograph and original voice now.</p>
+          <button className="secondary-action" type="button" onClick={() => void reviewContext()}>Finish for now</button>
           <DeleteMemoryAction deleting={deleting} onDelete={() => void deleteCurrentMemory()} />
         </section>
       </MemoryPage>
     );
   }
+
+  if (stage === "error") return <MemoryPage>
+    <ErrorPanel message={message ?? "Muse could not continue. Your originals remain safe."} />
+    <button className="secondary-action" type="button" onClick={() => void reviewContext()}>Finish for now</button>
+  </MemoryPage>;
 
   if (stage === "context") {
     return (
@@ -413,6 +428,7 @@ export function LivingMemoryExperience() {
               conversation={conversation}
               busy={conversationBusy}
               onReply={replyToMuse}
+              onInputPending={setHasUnsentReply}
             />
           ) : (
             <div className="muse-presence">
@@ -424,11 +440,10 @@ export function LivingMemoryExperience() {
             </div>
           )}
           {message && <p className="inline-error" role="alert">{message}</p>}
-          {conversation?.done && (
-            <button className="primary-action" type="button" onClick={() => void reviewContext()}>
-              Review my Living Memory
-            </button>
-          )}
+          <p>Optional details can stay unknown or be left out. You decide when your story is ready.</p>
+          <button className="primary-action" type="button" onClick={() => void reviewContext()}>
+            {conversation?.done ? "Review my Living Memory" : "Finish for now"}
+          </button>
           <DeleteMemoryAction deleting={deleting} onDelete={() => void deleteCurrentMemory()} />
         </section>
       </MemoryPage>
@@ -442,29 +457,30 @@ export function LivingMemoryExperience() {
           <p className="eyebrow">Before you preserve it</p>
           <h1>This is your story.</h1>
           <OriginalPair snapshot={snapshot} />
-          {snapshot.transcript && (
-            <div className="memory-review-section">
-              <strong>Transcript from your voice</strong>
-              <p>{snapshot.transcript.text}</p>
-              <span>Your original recording stays unchanged.</span>
-            </div>
-          )}
-          <ContextReview snapshot={snapshot} />
+          <StoryReview draftId={draftId} snapshot={snapshot} onUpdated={refreshReview} onEditingChange={setReviewEditing} />
+          <label className="share-option">
+            <input type="checkbox" checked={sourceConfirmed} disabled={reviewEditing || stage === "completing"}
+              onChange={(event) => setSourceConfirmed(event.target.checked)} />
+            I want to preserve this photograph and my original voice.
+          </label>
+          {reviewEditing && <p>Save or cancel your detail changes before preserving.</p>}
           <p className="privacy-promise">
             Private by default. “Confirm” here means this is what you want attached to your story—not that the platform verified history.
           </p>
           {message && <p className="inline-error" role="alert">{message}</p>}
+          {message && !reviewEditing && <button className="secondary-action" type="button" onClick={() => void refreshReview().then(() => setMessage(null)).catch((error: unknown) => setMessage(apiMessage(error)))}>Reopen latest review</button>}
           <div className="capture-actions">
             <button
               className="primary-action"
               type="button"
-              disabled={stage === "completing"}
+              disabled={stage === "completing" || !sourceConfirmed || reviewEditing}
               onClick={() => void finishLivingMemory()}
             >
               {stage === "completing" ? "Preserving…" : "Preserve this Living Memory"}
             </button>
-            <button className="secondary-action" type="button" onClick={() => setStage("context")}>
-              Return to Muse
+            <button className="secondary-action" type="button" disabled={stage === "completing" || reviewEditing}
+              onClick={() => { if (snapshot.transcript) void enterContext(); else { setProcessingAttempt((attempt) => attempt + 1); setStage("processing"); } }}>
+              {snapshot.transcript ? "Return to Muse" : "Return to transcript processing"}
             </button>
           </div>
           <DeleteMemoryAction deleting={deleting} onDelete={() => void deleteCurrentMemory()} />
@@ -488,11 +504,12 @@ export function LivingMemoryExperience() {
             </div>
           </div>
           <div className="capture-actions">
-            <button className="primary-action" type="button" onClick={() => setStage("share-settings")}>
+            <button className="primary-action" type="button" disabled={reviewEditing} onClick={() => setStage("share-settings")}>
               Share with family
             </button>
             <Link className="secondary-action" to="/archive">Return to my archive</Link>
           </div>
+          <StoryReview draftId={draftId} snapshot={snapshot} onUpdated={refreshReview} onEditingChange={setReviewEditing} />
           <FamilyLinkManager key={snapshot.livingMemoryId} livingMemoryId={snapshot.livingMemoryId} onRevoked={() => setSharePath(null)} />
           <DeleteMemoryAction deleting={deleting} onDelete={() => void deleteCurrentMemory()} />
         </section>
@@ -758,11 +775,13 @@ function MuseStoryConversation({
   draftId,
   conversation,
   busy,
-  onReply
+  onReply,
+  onInputPending
 }: {
   readonly draftId: string;
   readonly conversation: MuseConversationView;
   readonly busy: boolean;
+  readonly onInputPending: (pending: boolean) => void;
   readonly onReply: (
     answer: string | undefined,
     state: StoryContextState,
@@ -770,6 +789,8 @@ function MuseStoryConversation({
   ) => Promise<void>;
 }) {
   const [reply, setReply] = useState("");
+  const [voicePending, setVoicePending] = useState(false);
+  useEffect(() => { onInputPending(Boolean(reply.trim()) || voicePending); }, [reply, voicePending, onInputPending]);
   const [approximate, setApproximate] = useState(false);
   const currentQuestionId = conversation.currentQuestion?.turnId ?? null;
 
@@ -823,6 +844,7 @@ function MuseStoryConversation({
           <MuseVoiceReplyRecorder
             draftId={draftId}
             replyToTurnId={conversation.currentQuestion.turnId}
+            onActivityChange={setVoicePending}
             disabled={busy}
             onSend={(answer, state, voiceReplyAssetId) =>
               onReply(answer, state, voiceReplyAssetId)
@@ -897,32 +919,6 @@ function MuseStoryConversation({
           </div>
         </div>
       )}
-    </div>
-  );
-}
-
-function ContextReview({ snapshot }: { readonly snapshot: LivingMemorySnapshot }) {
-  return (
-    <div className="memory-context-review" aria-label="Story context">
-      {contextBlueprint.map((blueprint) => {
-        const entry = snapshot.context.find(
-          (candidate) => candidate.kind === blueprint.kind
-        );
-        if (!entry) return null;
-        return (
-          <div key={blueprint.kind}>
-            <strong>{blueprint.label}</strong>
-            <span>
-              {entry.state === "unknown"
-                ? "I don't remember"
-                : entry.state === "omitted"
-                  ? "Left out"
-                  : entry.value}
-              {entry.state === "approximate" ? " — approximate" : ""}
-            </span>
-          </div>
-        );
-      })}
     </div>
   );
 }

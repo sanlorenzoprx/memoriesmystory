@@ -31,6 +31,11 @@ export const phase1Config = {
       "audio/ogg"
     ]
   },
+  review: {
+    maxTranscriptCharacters: 12_000,
+    maxContextCharacters: 1_200,
+    historyPageSize: 10
+  },
   durability: {
     backgroundRetryDelaysMs: [0, 1_000, 3_000]
   },

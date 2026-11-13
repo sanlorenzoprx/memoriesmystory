@@ -18,8 +18,14 @@ Proven through automated tests and live, isolated Cloudflare staging with synthe
 - Muse (Workers AI) asks one natural question at a time from the storyteller's own words, never resolves a detail by inference, and keeps its turns attributed separately; Muse questions can be spoken (ElevenLabs TTS) and answered by voice.
 - Idempotent completion consumes the single free Living Memory exactly once; completed memories reopen.
 - Voluntary, previewed, revocable family share exposing only selected fields; sharing never changes entitlement.
-- Owner deletion of R2 media and connected D1 rows with a content-free deletion receipt; deletion does not restore free capacity.
+- Owner deletion of R2 media and connected D1 rows with a content-free deletion receipt. Existing code/tests decrement the free completion count after deletion; the earlier claim that deletion does not restore capacity was inaccurate. Resolve the intended entitlement policy explicitly before release.
 - A / A+ / A++ text size; public Legacy Story Starter, `llms.txt`, OpenAPI, and MCP agent surface (ASC-01) with the private archive excluded.
+
+## Review/finish work on the dependent implementation branch
+
+PR #21 remains an open draft at `be1e85e`, with successful CI. The dependent `feat/storyteller-review-finish` branch adds editable transcript/context review, owner-attributed revision history, atomic stale-version protection, explicit source confirmation and voluntary finish without required Muse turns/context/transcription. It also pins family-link captions so subsequent private corrections cannot expand earlier shares. Additive migration 0008 is required before its matching Worker/client.
+
+These are implementation-branch changes, not merged main or fresh live staging/device/human acceptance. See `IMPLEMENTATION/STORYTELLER_REVIEW_FINISH_2026-11-13.md` and the corresponding decision. Keep the pinned-caption reader and schema if pausing edits; never roll back to the old current-transcript sharing reader after private corrections exist.
 
 ## Expanded first-release scope
 
@@ -74,7 +80,7 @@ Always branch from current `origin/main`. See `DECISIONS/2026-10-01-retire-stale
 
 ## Next
 
-1. Implement and verify solo trust controls, starting with owner-visible family link revocation.
+1. Review/integrate PR #21 and the dependent review/finish work; complete EN/ES UI and remaining media/accessibility/operations evidence.
 2. Build the complete expanded first-release matrix in dependency order, including all six owner-requested capability groups.
 3. Complete integrated human/device/security/legal/operations evidence and present an exact candidate SHA. Production is a separate decision.
 

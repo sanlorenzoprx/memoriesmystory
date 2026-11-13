@@ -265,7 +265,7 @@ async function enqueueTranscription(
       ).bind(new Date().toISOString(), idempotencyKey, requestHash),
       env.DB.prepare(
         `UPDATE memory_story_drafts
-         SET status = 'review_partial', updated_at = ?, version = version + 1
+         SET status = CASE WHEN status = 'complete' THEN 'complete' ELSE 'review_partial' END, updated_at = ?, version = version + 1
          WHERE id = ? AND owner_user_id = ?`
       ).bind(new Date().toISOString(), draftId, userId)
     ]);
@@ -380,7 +380,7 @@ export async function processTranscriptionMessage(
     ).bind(transcriptId, now, message.idempotencyKey),
     env.DB.prepare(
       `UPDATE memory_story_drafts
-       SET status = 'review_partial', updated_at = ?, version = version + 1
+       SET status = CASE WHEN status = 'complete' THEN 'complete' ELSE 'review_partial' END, updated_at = ?, version = version + 1
        WHERE id = ? AND owner_user_id = ?`
     ).bind(now, foundation.draftId, foundation.ownerUserId)
   ]);
@@ -424,7 +424,7 @@ export async function processTranscriptionBatch(
         ).bind(now, body.idempotencyKey),
         env.DB.prepare(
           `UPDATE memory_story_drafts
-           SET status = 'review_partial', updated_at = ?, version = version + 1
+           SET status = CASE WHEN status = 'complete' THEN 'complete' ELSE 'review_partial' END, updated_at = ?, version = version + 1
            WHERE id = ? AND owner_user_id = ?`
         ).bind(now, body.draftId, body.requestedByUserId)
       ]).catch(() => undefined);
