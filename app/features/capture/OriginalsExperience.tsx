@@ -19,6 +19,7 @@ import {
   syncAcceptedOriginalsInBackground
 } from "../../services/media-background-sync";
 import { saveLocalDraft } from "../../services/local-draft-store";
+import { LocalScanStatus } from "./PhotoScanStatus";
 import { MuseVoiceButton } from "../MuseVoiceButton";
 
 type OriginalsPhase =
@@ -422,6 +423,7 @@ export function OriginalsExperience({
           </p>
         </div>
       )}
+      {draft.scan && (phase !== "recording" && phase !== "microphone-opening") && <LocalScanStatus scan={draft.scan} busy={isBackingUp} onRetry={()=>void runBackgroundSync()}/>}
     </section>
   );
 }

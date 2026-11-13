@@ -18,14 +18,18 @@ import {
   type LocalPhoto
 } from "./local-draft";
 import {
+  beginLocalDraft,
   deleteLocalDraft,
   loadLocalDraft,
   makeDraftToken,
   saveLocalDraft
 } from "../../services/local-draft-store";
+import { abortableDelay, cameraFocusAssist, captureSteadyPhoto } from "../../services/steady-photo";
 import { captureStillPhoto } from "../../services/still-photo-capture";
 import { inspectLocalPhoto } from "../../services/photo-inspection";
 import { deleteMemory } from "../../services/memory-deletion";
+import { PhotoScanEditor } from "./PhotoScanEditor";
+import type { LocalPhotoScan } from "./local-draft";
 import { OriginalsExperience } from "./OriginalsExperience";
 
 type CaptureStep =
@@ -58,6 +62,9 @@ export function CaptureExperience() {
   const [draft, setDraft] = useState<LocalMemoryDraft | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [recovered, setRecovered] = useState(false);
+  const [steady,setSteady] = useState(false);
+  const [shutterDelay,setShutterDelay] = useState(false);
+  const [scanEditing,setScanEditing] = useState(false);
   const [tipsVisible, setTipsVisible] = useState(true);
   const [capturing, setCapturing] = useState(false);
   const captureBusy = useRef(false);
@@ -202,6 +209,10 @@ export function CaptureExperience() {
       });
       if (!alive.current || epoch !== cameraEpoch.current) { stopStream(stream); return; }
       streamRef.current = stream;
+      const track=stream.getVideoTracks()[0];
+      if(track)await cameraFocusAssist(track);
+      if(!alive.current||epoch!==cameraEpoch.current){stopStream(stream);return;}
+      streamRef.current = stream;
       setStep("camera-live");
     } catch (error) {
       if (!alive.current || epoch !== cameraEpoch.current) return;
@@ -225,6 +236,7 @@ export function CaptureExperience() {
       if (!alive.current || epoch !== cameraEpoch.current) return;
       setDraft(updated);
       setRecovered(false);
+      setScanEditing(false);
       setStep("review");
     } catch {
       if (!alive.current || epoch !== cameraEpoch.current) return;
@@ -244,9 +256,14 @@ export function CaptureExperience() {
     setCapturing(true);
     setErrorMessage(null);
     try {
-      const { blob, acquisition } = await captureStillPhoto(videoRef.current, streamRef.current, controller.signal);
-      if (!alive.current || epoch !== cameraEpoch.current) return;
-      const photo = await inspectLocalPhoto(blob, "camera", acquisition);
+      if(shutterDelay)await abortableDelay(phase1Config.capture.shutterDelayMs,controller.signal);
+      let photo:LocalPhoto;
+      if(steady)photo=await captureSteadyPhoto(videoRef.current,streamRef.current,controller.signal);
+      else{
+        const {blob,acquisition}=await captureStillPhoto(videoRef.current,streamRef.current,controller.signal);
+        if(!alive.current||epoch!==cameraEpoch.current)return;
+        photo=await inspectLocalPhoto(blob,"camera",acquisition);
+      }
       if (!alive.current || epoch !== cameraEpoch.current) return;
       closeCamera();
       await keepPhoto(photo);
@@ -283,6 +300,12 @@ export function CaptureExperience() {
     }
   }
 
+  async function keepScan(scan:LocalPhotoScan|null) {
+    if(!draft?.photo || (scan&&scan.sourceSha256!==draft.photo.sha256))return;
+    const updated={...draft,scan,updatedAt:new Date().toISOString()};
+    await saveLocalDraft(updated);setDraft(updated);setScanEditing(false);
+  }
+
   async function acceptPhoto() {
     if (!draft?.photo) return;
 
@@ -298,10 +321,17 @@ export function CaptureExperience() {
     }
   }
 
-  function tryAnother() {
+  async function tryAnother() {
     setErrorMessage(null);
-    setRecovered(false);
-    setStep("intro");
+    if(draft?.photo?.acceptedAt){
+      try {
+        closeCamera();
+        const next=await beginLocalDraft(entryMode,getLocale());
+        await navigate(`/capture/${encodeURIComponent(next.id)}?start=${entryMode}`);
+      }catch{setErrorMessage("The next draft could not be opened. Your earlier photograph is still here.");}
+      return;
+    }
+    setRecovered(false);setScanEditing(false);setStep("intro");
   }
 
   async function deleteCurrentDraft() {
@@ -453,6 +483,13 @@ export function CaptureExperience() {
             <div className="camera-edge-guide" aria-hidden="true" />
             <p className="camera-instruction" aria-live="polite">{t("Keep all four edges inside the frame.")}</p>
           </div>
+          <fieldset className="steady-photo-options" disabled={capturing}>
+            <legend>{t("Help with shaky hands")}</legend>
+            <label className="share-option"><input type="checkbox" checked={steady} onChange={event=>setSteady(event.target.checked)}/>{t("Steady photo: take up to three shots and keep the clearest")}</label>
+            <label className="share-option"><input type="checkbox" checked={shutterDelay} onChange={event=>setShutterDelay(event.target.checked)}/>{t("Pause briefly after I press the shutter")}</label>
+            <p>{t("Rest your elbows or use a phone stand. Keep the phone parallel to the print in soft, even light. You can always take a photo yourself.")}</p>
+            <p>{t("Steady photo selects an unchanged shot. It does not reconstruct blurry details.")}</p>
+          </fieldset>
           {errorMessage && <p className="inline-error" role="alert">{notice(errorMessage)}</p>}
           <div className="camera-actions">
             <button className="shutter-action" type="button" disabled={capturing} onClick={() => void capturePhoto()}>
@@ -509,12 +546,16 @@ export function CaptureExperience() {
                 t("The light and detail look usable. Check that the people and all four edges you want are visible.")}
             </p>
           </div>
+          {scanEditing?<PhotoScanEditor photo={draft.photo} photoUrl={photoUrl} onKeep={keepScan} onClose={()=>{void keepScan(null).catch(()=>setErrorMessage("The scan could not be kept on this device. Your original is still here."));}}/>:<>
+            <button className="secondary-action" type="button" onClick={()=>setScanEditing(true)}>{draft.scan?t("Adjust separate scan"):t("Straighten a separate copy")}</button>
+            {draft.scan&&<p role="status">{t("Your corrected scan is kept on this device. Its backup is still pending.")}</p>}
+          </>}
           <p className="manual-choice">{t("You know what matters in this photograph. You can keep it even if our check is unsure.")}</p>
           <div className="capture-actions">
-            <button className="primary-action" type="button" onClick={() => void acceptPhoto()}>
+            <button className="primary-action" type="button" disabled={scanEditing} onClick={() => void acceptPhoto()}>
               {draft.photo.warning ? t("Use this photo anyway") : t("Use this photo")}
             </button>
-            <button className="secondary-action" type="button" onClick={tryAnother}>{t("Try another photo")}</button>
+            <button className="secondary-action" type="button" disabled={scanEditing} onClick={tryAnother}>{t("Try another photo")}</button>
           </div>
           {errorMessage && <p className="inline-error" role="alert">{notice(errorMessage)}</p>}
         </section>
@@ -523,7 +564,7 @@ export function CaptureExperience() {
       {step === "ready" && draft?.photo && photoUrl && (
         <OriginalsExperience
           draft={draft}
-          onDraftChange={setDraft}
+          onDraftChange={(next)=>setDraft(current=>current?.id===next.id?next:current)}
           photoUrl={photoUrl}
           onChangePhoto={tryAnother}
         />

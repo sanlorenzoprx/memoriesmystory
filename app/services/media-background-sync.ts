@@ -1,3 +1,4 @@
+import { uploadPhotoScan } from "./photo-scans";
 import { phase1Config } from "../../config/phase-1";
 import {
   updateLocalUpload,
@@ -177,6 +178,22 @@ async function preserveAudio(
   }
 }
 
+async function preserveScan(draft:LocalMemoryDraft,commit:DraftCommit,getDraft:DraftRead):Promise<LocalMemoryDraft> {
+  const scan=draft.scan;
+  if(!scan||scan.upload.status==="durable"||draft.photoUpload?.status!=="durable")return getDraft();
+  try {
+    await uploadPhotoScan(draft);
+    const latest=getDraft();
+    if(latest.scan?.upload.assetId!==scan.upload.assetId||latest.photo?.sha256!==scan.sourceSha256)return latest;
+    const next={...latest,scan:{...latest.scan,upload:{...latest.scan.upload,status:"durable" as const,lastError:null}}};
+    await commit(next);return next;
+  }catch(error){
+    const latest=getDraft();if(latest.scan?.upload.assetId!==scan.upload.assetId)return latest;
+    const next={...latest,scan:{...latest.scan,upload:{...latest.scan.upload,status:"needs_connection" as const,lastError:error instanceof Error?error.message:"Your scan is still on this device. Its backup needs another try."}}};
+    await commit(next);return next;
+  }
+}
+
 export function needsOriginalSync(draft: LocalMemoryDraft): boolean {
   const photoPending = Boolean(
     draft.photo?.acceptedAt && draft.photoUpload?.status !== "durable"
@@ -184,7 +201,7 @@ export function needsOriginalSync(draft: LocalMemoryDraft): boolean {
   const audioPending = Boolean(
     draft.audio?.acceptedAt && draft.audioUpload?.status !== "durable"
   );
-  return photoPending || audioPending;
+  return photoPending || audioPending || Boolean(draft.photo?.acceptedAt && draft.scan && draft.scan.upload.status !== "durable");
 }
 
 export async function syncAcceptedOriginalsOnce(
@@ -199,7 +216,8 @@ export async function syncAcceptedOriginalsOnce(
     await commit(next);
   };
   const withPhoto = await preservePhoto(draft, trackCommit, readLatest);
-  return preserveAudio(withPhoto, trackCommit, readLatest);
+  const withScan = await preserveScan(withPhoto, trackCommit, readLatest);
+  return preserveAudio(withScan, trackCommit, readLatest);
 }
 
 function isRetryable(error: unknown): boolean {
@@ -225,12 +243,15 @@ export async function syncAcceptedOriginalsInBackground(input: {
     if (!needsOriginalSync(current)) return current;
 
     try {
-      return await syncAcceptedOriginalsOnce(current, input.commit, input.getDraft);
+      const next = await syncAcceptedOriginalsOnce(current, input.commit, input.getDraft);
+      if (!needsOriginalSync(next)) return next;
     } catch (error) {
       lastError = error;
       if (!isRetryable(error)) break;
     }
   }
 
+  const latest = input.getDraft();
+  if (latest.photoUpload?.status === "durable" && (!latest.audio?.acceptedAt || latest.audioUpload?.status === "durable")) return latest;
   throw lastError ?? new Error("Background backup is waiting for a connection.");
 }

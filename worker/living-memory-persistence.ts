@@ -149,6 +149,9 @@ export async function ensureLivingMemoryFoundation(
     ).bind(livingMemoryId, ownerUserId, draftId, photo.id, audio.id, livingMemoryId).run();
   }
 
+  await env.DB.prepare(`UPDATE media_assets SET memory_story_id = ? WHERE draft_id = ? AND role = 'enhanced_photo' AND source_asset_id = ? AND (memory_story_id IS NULL OR memory_story_id = ?)`)
+    .bind(livingMemoryId,draftId,photo.id,livingMemoryId).run();
+
   return {
     livingMemoryId,
     draftId,

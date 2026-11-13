@@ -4,6 +4,7 @@ import { handleAuthRoute } from "./auth-routes";
 import { handleCompletionRoute } from "./completion";
 import { handleDiscoveryRoute } from "./discovery-routes";
 import { handleDeletionRoute } from "./deletion";
+import { handlePhotoScanRoute } from "./photo-scans";
 import { handleMediaRoute } from "./media-routes";
 import { handleMuseRoute } from "./muse";
 import { handleMuseConversationRoute } from "./muse-conversation";
@@ -59,6 +60,9 @@ const handler: ExportedHandler<Env, TranscriptionQueueMessage> = {
 
     const deletionResponse = await handleDeletionRoute(request, env);
     if (deletionResponse) return deletionResponse;
+
+    const scanResponse = await handlePhotoScanRoute(request, env);
+    if (scanResponse) return scanResponse;
 
     const mediaResponse = await handleMediaRoute(request, env);
     if (mediaResponse) return mediaResponse;

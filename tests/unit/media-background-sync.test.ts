@@ -18,7 +18,8 @@ import {
 
 const uploads = vi.hoisted(() => ({
   photo: vi.fn(),
-  audio: vi.fn()
+  audio: vi.fn(),
+  scan: vi.fn()
 }));
 
 vi.mock("../../app/services/media-durability", async (importOriginal) => {
@@ -29,6 +30,8 @@ vi.mock("../../app/services/media-durability", async (importOriginal) => {
     uploadOriginalAudio: uploads.audio
   };
 });
+
+vi.mock("../../app/services/photo-scans",()=>({uploadPhotoScan:uploads.scan}));
 
 const photoReceipt: DurableMediaReceipt = {
   assetId: "asset-photo",
@@ -114,6 +117,7 @@ describe("ordered background original sync", () => {
   beforeEach(() => {
     uploads.photo.mockReset();
     uploads.audio.mockReset();
+    uploads.scan.mockReset();
     uploads.photo.mockImplementation(async (draft: LocalMemoryDraft) => ({
       ...photoReceipt,
       assetId: draft.photoUpload!.assetId
@@ -223,4 +227,14 @@ describe("ordered background original sync", () => {
     expect(current.photoUpload?.status).toBe("local");
     expect(current.photo?.sha256).toBe("replacement-photo-sha");
   });
+  it("preserves photo and voice when a separate scan backup keeps failing",async()=>{
+    const story=acceptedStory();
+    let current:LocalMemoryDraft={...story,scan:{blob:new Blob(["scan"],{type:"image/jpeg"}),mimeType:"image/jpeg",byteSize:4,sha256:"scan-sha",sourceSha256:story.photo!.sha256,createdAt:new Date().toISOString(),transform:{version:"perspective-v1",coordinateBasis:"browser_decoded",sourceWidth:1600,sourceHeight:1200,outputWidth:1000,outputHeight:700,corners:[{x:0,y:0},{x:1,y:0},{x:1,y:1},{x:0,y:1}]},upload:{assetId:"asset_scan_pending",idempotencyKey:"upload_scan_pending",status:"local",receipt:null,lastError:null}}};
+    uploads.scan.mockRejectedValue(new Error("Your scan is still on this device. Its backup needs another try."));
+    const next=await syncAcceptedOriginalsInBackground({getDraft:()=>current,commit:async(value)=>{current=value;},wait:async()=>{}});
+    expect(next.photoUpload?.status).toBe("durable");expect(next.audioUpload?.status).toBe("durable");
+    expect(next.scan?.upload.status).toBe("needs_connection");expect(uploads.scan).toHaveBeenCalledTimes(3);
+    expect(uploads.audio).toHaveBeenCalledTimes(1);expect(next.photo?.blob).toBe(story.photo?.blob);
+  });
+
 });

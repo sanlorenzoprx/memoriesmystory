@@ -1,3 +1,4 @@
+import type { ScanTransform } from "../../domain/photo-scan";
 import { phase1Config } from "../../../config/phase-1";
 import type { DraftStatus } from "../../domain/memory-story";
 
@@ -35,6 +36,7 @@ export type LocalPhoto = {
   readonly capture?: {
     readonly method: PhotoAcquisition;
     readonly orientation: "portrait" | "landscape" | "square";
+    readonly steady?: { readonly method: "best-shot-v1"; readonly candidates: number; readonly selectedIndex: number };
     readonly orientationBasis: "browser_decoded";
   };
   readonly capturedAt: string;
@@ -80,6 +82,7 @@ export type LocalMemoryDraft = {
   readonly draftToken: string;
   readonly photo: LocalPhoto | null;
   readonly photoUpload: LocalUploadState | null;
+  readonly scan?: LocalPhotoScan | null;
   readonly audio: LocalAudio | null;
   readonly audioUpload: LocalUploadState | null;
   readonly createdAt: string;
@@ -122,6 +125,7 @@ export function attachLocalPhoto(
     status: "photo_local",
     photo,
     photoUpload: createLocalUploadState(),
+    scan: null,
     audio: null,
     audioUpload: null,
     updatedAt: now
@@ -239,3 +243,14 @@ export function assessPhotoQuality(
 
   return null;
 }
+
+export type LocalPhotoScan = {
+  readonly blob: Blob;
+  readonly mimeType: "image/jpeg";
+  readonly byteSize: number;
+  readonly sha256: string;
+  readonly sourceSha256: string;
+  readonly transform: ScanTransform;
+  readonly createdAt: string;
+  readonly upload: LocalUploadState;
+};

@@ -125,16 +125,30 @@
       ],
       "title": "First release: archival still capture, untouched original and separate perspective-corrected scan",
       "release_required": true,
-      "note": "Owner explicitly authorized preparatory native-still implementation; solo physical-device/human checkpoint remains pending. Full R1 includes separate corrected scans and physical-print acceptance.",
+      "note": "Native still PR #24 merged. Separate scans/steady capture are in implementation. Owner defers physical-camera testing until MVP v0.5, which includes two-person Our Living Legacy and the full V2 handoff. Continue independent code work; acceptance evidence remains pending.",
       "implementation_packets": [
         {
           "packet": "R1a",
           "branch": "feat/archival-still-capture",
-          "status": "locally_proven_pending_ci_and_review",
+          "status": "merged_local_and_ci_proven",
           "receipt": "docs/IMPLEMENTATION/ARCHIVAL_STILL_CAPTURE_2026-11-13.md",
           "local_verification": {
             "unit_integration_tests": 114,
             "phone_chromium_tests": 27,
+            "canonical_verify": "passed"
+          },
+          "pr": 24,
+          "head_sha": "28ba78d0b4f1d3cf9ddc1f17f758e652a65a1f9b",
+          "merge_sha": "6af7a9472ae6743b84901d2161427bd8d34d7e2d"
+        },
+        {
+          "packet": "R1b",
+          "branch": "feat/archival-scans-steady-capture",
+          "status": "locally_proven_pending_ci_and_review",
+          "receipt": "docs/IMPLEMENTATION/ARCHIVAL_SCANS_STEADINESS_2026-11-13.md",
+          "local_verification": {
+            "unit_integration_tests": 126,
+            "phone_chromium_tests": 32,
             "canonical_verify": "passed"
           }
         }
@@ -253,7 +267,7 @@
   "week_one_task_graph": "docs/EXECUTION/ONE_WEEK_LIVING_MEMORY_TASK_GRAPH.json",
   "storyteller_sovereignty": "docs/PRODUCT/STORYTELLER_SOVEREIGNTY.md",
   "historical_packet_specification": "docs/IMPLEMENTATION/PHASE_1_SOLO_MEMORY_STORY_BUILD_SPEC.md",
-  "current_checkpoint_sha": "cb87c5656c9994ec0b0fabd1ebf93762888cc2ac",
+  "current_checkpoint_sha": "6af7a9472ae6743b84901d2161427bd8d34d7e2d",
   "current_stage": "expanded-first-release-development",
   "current_blockers": [
     "Repeat the real-phone journey on the repaired build: iPhone Safari and Android Chrome",
@@ -268,5 +282,6 @@
   "current_state": "docs/CURRENT_STATE.md",
   "next_phase": "docs/EXECUTION/NEXT_PHASE_OUR_LIVING_LEGACY_AND_PHOTO_DIGITIZATION.md",
   "scope_decision": "docs/DECISIONS/2026-11-13-expanded-first-release.md",
-  "release_matrix": "docs/EXECUTION/EXPANDED_FIRST_RELEASE.md"
+  "release_matrix": "docs/EXECUTION/EXPANDED_FIRST_RELEASE.md",
+  "mvp_testing_milestone": "docs/EXECUTION/MVP_V0_5.md"
 }

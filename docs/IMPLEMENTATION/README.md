@@ -27,3 +27,5 @@ Each new build slice must produce a human outcome, anti-drift review, test evide
 See [A04 English/Spanish interface receipt](ENGLISH_SPANISH_INTERFACE_2026-11-13.md) for the merged #21/#22 baseline, current locale behavior, automated evidence and remaining human/device acceptance.
 
 See [R1a archival still acquisition](ARCHIVAL_STILL_CAPTURE_2026-11-13.md) for untouched still bytes, fallback/recovery behavior, the #23 merge record and remaining separate-scan/physical-print work.
+
+See [R1b scans and steadiness](ARCHIVAL_SCANS_STEADINESS_2026-11-13.md) for separate scan provenance/durability, owner-only replay, digital assistance limits and deferred MVP v0.5 physical testing.

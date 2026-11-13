@@ -36,7 +36,16 @@ export const phase1Config = {
     previewHeight: 3072,
     preferredShortestEdge: 1800,
     videoJpegQuality: 0.98,
+    steadyShots: 3,
+    steadyDelayMs: 200,
+    shutterDelayMs: 1500,
     stillRequestTimeoutMs: 8_000
+  },
+  scans: {
+    maxDecodedPixels: 48_000_000,
+    maxEdge: 3072,
+    maxPixels: 6_000_000,
+    jpegQuality: 0.95
   },
   review: {
     maxTranscriptCharacters: 12_000,
