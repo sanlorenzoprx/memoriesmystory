@@ -2,7 +2,7 @@
   "schema_version": "memoriesmystory_expanded_release_queue_v4",
   "project": "memoriesmystory",
   "campaign": "expanded-first-release",
-  "active_task_id": "archival-photo-capture",
+  "active_task_id": "our-living-legacy",
   "tasks": [
     {
       "id": "packet-1",
@@ -119,13 +119,13 @@
     },
     {
       "id": "archival-photo-capture",
-      "status": "active",
+      "status": "verification_pending",
       "depends_on": [
         "solo-trust-controls"
       ],
       "title": "First release: archival still capture, untouched original and separate perspective-corrected scan",
       "release_required": true,
-      "note": "Native still PR #24 merged. Separate scans/steady capture are in implementation. Owner defers physical-camera testing until MVP v0.5, which includes two-person Our Living Legacy and the full V2 handoff. Continue independent code work; acceptance evidence remains pending.",
+      "note": "Native still PR #24 and separate scans/steadiness PR #25 are merged with local and CI proof. Owner defers physical camera testing until the full MVP v0.5 implementation milestone. Continue Our Living Legacy independently; real-device/human acceptance remains pending.",
       "implementation_packets": [
         {
           "packet": "R1a",
@@ -144,13 +144,16 @@
         {
           "packet": "R1b",
           "branch": "feat/archival-scans-steady-capture",
-          "status": "locally_proven_pending_ci_and_review",
+          "status": "merged_local_and_ci_proven",
           "receipt": "docs/IMPLEMENTATION/ARCHIVAL_SCANS_STEADINESS_2026-11-13.md",
           "local_verification": {
             "unit_integration_tests": 126,
             "phone_chromium_tests": 32,
             "canonical_verify": "passed"
-          }
+          },
+          "pr": 25,
+          "head_sha": "553180f679de827a0a45d1891ac18f24d72b686e",
+          "merge_sha": "3c50c49fbb23994dd25d9024e04286c0cff29e62"
         }
       ]
     },
@@ -188,12 +191,27 @@
     },
     {
       "id": "our-living-legacy",
-      "status": "pending",
+      "status": "active",
       "depends_on": [
         "archival-photo-capture"
       ],
       "title": "First release: in-person then remote two-person sessions, consent, attribution, recording, scoped joining and replay",
-      "release_required": true
+      "release_required": true,
+      "note": "D01 private two-person source/session/invitation/consent boundary in implementation; in-person recording/replay and remote provider work follow. No Jitsi or external-room fallback. Live provider configuration and final consent/retention policy remain separate gates.",
+      "implementation_packets": [
+        {
+          "packet": "D01",
+          "branch": "feat/our-living-legacy-session-contracts",
+          "status": "locally_proven_pending_ci_and_review",
+          "receipt": "docs/IMPLEMENTATION/OUR_LIVING_LEGACY_SESSIONS_2026-11-13.md",
+          "local_verification": {
+            "unit_integration_tests": 131,
+            "phone_chromium_tests": 34,
+            "typecheck_lint_schema_build_dry_run": "passed"
+          },
+          "note": "Session/access/consent boundary only; recording/replay and remote media transport remain next slices."
+        }
+      ]
     },
     {
       "id": "family-archive",

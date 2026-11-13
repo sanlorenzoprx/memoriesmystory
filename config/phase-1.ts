@@ -41,6 +41,13 @@ export const phase1Config = {
     shutterDelayMs: 1500,
     stillRequestTimeoutMs: 8_000
   },
+  legacy: {
+    inviteLifetimeHours: 24,
+    guestAccessDays: 7,
+    maxNameCharacters: 60,
+    maxRecordingSeconds: 600,
+    pollIntervalMs: 1500
+  },
   scans: {
     maxDecodedPixels: 48_000_000,
     maxEdge: 3072,
