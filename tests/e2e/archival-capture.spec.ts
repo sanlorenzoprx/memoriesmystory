@@ -139,3 +139,12 @@ test("canceling pending permission stops a camera granted after cancellation", a
   await expect(page.getByRole("heading", { name: "Bring the photograph into the light." })).toBeVisible();
   expect(await original(page)).toBeNull();
 });
+
+test("steady photo keeps one untouched candidate after a disclosed three-shot burst",async({page})=>{
+  await installStill(page);await openGuidedCamera(page);
+  await page.getByRole("checkbox",{name:"Steady photo: take up to three shots and keep the clearest",exact:true}).check();
+  await page.getByRole("button",{name:"Take photo",exact:true}).click();
+  await expect(page.getByRole("heading",{name:"Does the photograph feel clear enough?"})).toBeVisible();
+  expect(await page.evaluate(()=>(window as unknown as {archivalTest:{takeCalls:number}}).archivalTest.takeCalls)).toBe(3);
+  const photo=await original(page);expect(photo?.capture).toMatchObject({method:"image_capture",steady:{method:"best-shot-v1",candidates:3,selectedIndex:0}});
+});

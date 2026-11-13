@@ -9,14 +9,14 @@ import type {
 
 const sampleEdge = 320;
 
-type DecodedImage = {
+export type DecodedImage = {
   readonly source: CanvasImageSource;
   readonly width: number;
   readonly height: number;
   readonly close: () => void;
 };
 
-async function decodeImage(blob: Blob): Promise<DecodedImage> {
+export async function decodeImage(blob: Blob): Promise<DecodedImage> {
   if ("createImageBitmap" in globalThis) {
     try {
       const bitmap = await createImageBitmap(blob);
@@ -101,6 +101,7 @@ function calculateInspection(image: DecodedImage): PhotoInspection {
     }
   }
 
+  canvas.width = 0; canvas.height = 0;
   return {
     width: image.width,
     height: image.height,

@@ -26,6 +26,10 @@ try {
     .all();
   const names = new Set(objects.map((object) => object.name));
   const requiredObjects = [
+    "archival_scan_provenance",
+    "archival_scan_source_scope",
+    "archival_scan_provenance_immutable",
+    "archival_scan_identity_immutable",
     "living_memory_share_pins_legacy_captions",
     "living_memory_share_caption_revision_immutable",
     "living_memory_reviews",

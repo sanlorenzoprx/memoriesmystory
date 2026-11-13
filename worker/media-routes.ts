@@ -45,7 +45,7 @@ type RouteMatch = {
   readonly assetId?: string;
 };
 
-class MediaRouteError extends Error {
+export class MediaRouteError extends Error {
   constructor(
     readonly status: number,
     message: string,
@@ -228,7 +228,7 @@ async function ensureDraft(
   return draft;
 }
 
-async function authorizeDraft(
+export async function authorizeDraft(
   request: Request,
   env: MediaRouteEnv,
   draftId: string
@@ -514,7 +514,7 @@ async function mediaStatus(request: Request, env: MediaRouteEnv, draftId: string
 }
 
 async function streamMedia(request: Request, env: MediaRouteEnv, draftId: string, assetId: string): Promise<Response> {
-  await authorizeDraft(request, env, draftId);
+  const authorizedDraft = await authorizeDraft(request, env, draftId);
   const asset = await env.DB.prepare(
     `SELECT id, draft_id, role, r2_key, content_type, byte_size, duration_ms,
       sha256, r2_etag, durability_status, created_at
@@ -522,6 +522,10 @@ async function streamMedia(request: Request, env: MediaRouteEnv, draftId: string
   ).bind(assetId, draftId).first<MediaRow>();
   if (!asset || asset.durability_status !== "durable") {
     throw new MediaRouteError(404, "That preserved original was not found.", "not_found");
+  }
+  if ((asset.role as string) === "enhanced_photo" && authorizedDraft.owner_user_id) {
+    const session = await authenticateAppSession(request, env);
+    if (session?.userId !== authorizedDraft.owner_user_id) throw new MediaRouteError(403,"Sign in to open this scan.","owner_required");
   }
   const object = request.headers.has("Range")
     ? await env.MEDIA_BUCKET.get(asset.r2_key, { range: request.headers })
@@ -534,7 +538,8 @@ async function streamMedia(request: Request, env: MediaRouteEnv, draftId: string
     "Cache-Control": "private, no-store",
     "Content-Type": asset.content_type,
     ETag: object.httpEtag,
-    "X-Content-SHA256": asset.sha256
+    "X-Content-SHA256": asset.sha256,
+    "X-Content-Type-Options": "nosniff"
   });
   const range = object.range;
   if (request.headers.has("Range") && range && "offset" in range && typeof range.offset === "number") {

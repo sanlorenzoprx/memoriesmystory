@@ -29,3 +29,5 @@ The bootstrap growth loop is product value, not a reward scheme:
 Instrument the loop with the canonical product events in `app/domain/product-events.ts`.
 
 Native-still acquisition and honest fallback evidence are recorded in `../IMPLEMENTATION/ARCHIVAL_STILL_CAPTURE_2026-11-13.md` (I-03, I-08–I-10, I-15, I-17–I-18). Full archival-scan and physical-device acceptance remain pending.
+
+Separate scan provenance/durability, source-safe retakes and digital steadiness assistance (I-03–I-10, I-15, I-17–I-21) are mapped in `../IMPLEMENTATION/ARCHIVAL_SCANS_STEADINESS_2026-11-13.md`. Owner-confirmed MVP v0.5 includes the full V2 handoff, including two-person Our Living Legacy; physical camera testing follows that implementation milestone.

@@ -130,3 +130,11 @@ Observations preserve evidence separately from proposed solutions. Follow `READM
 - **Confidence and contrary evidence:** high for synthetic byte identity and failure recovery; real iPhone/Android optical quality, orientation, formats and performance still require observed evidence.
 - **Affected invariants:** I-03, I-08–I-10, I-15, I-17–I-18.
 - **Related decision/receipt:** `../DECISIONS/2026-11-13-archival-still-capture.md`, `../IMPLEMENTATION/ARCHIVAL_STILL_CAPTURE_2026-11-13.md`.
+
+### L-2026-11-13-005 — Retakes need an unambiguous original source scope
+
+- **Status:** addressed on the separate-scan implementation branch.
+- **Evidence:** `loadDurableOriginals` selected the earliest durable photo/audio per draft; accepting then changing a photo could leave multiple originals under that scope.
+- **Interpretation:** create a fresh draft for an accepted-photo retake; preserve prior originals/scan lineage, and scope late UI callbacks. Do not silently replace primary source identity or guess from upload completion timing.
+- **Confidence/limits:** deterministic browser recovery evidence; live account/physical-phone acceptance remains pending.
+- **Related decision/receipt:** `../DECISIONS/2026-11-13-separate-scans-steady-capture.md`, `../IMPLEMENTATION/ARCHIVAL_SCANS_STEADINESS_2026-11-13.md`.

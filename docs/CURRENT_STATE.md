@@ -29,15 +29,17 @@ PR #23 merged as `cb87c56` after CI passed. It adds the current solo interface i
 
 No fresh live staging/device/human acceptance or deployment is claimed for these changes. Keep the pinned-caption reader and schema if pausing edits; never roll back to the old current-transcript sharing reader after private corrections exist.
 
-## Archival still acquisition in development
+## Archival capture and separate scans
 
-The owner explicitly authorized `feat/archival-still-capture` from merged main while physical-device/human solo acceptance remains pending. The branch adds an explicit device-camera picker, ImageCapture still preference with default retry/bounded waits, a labeled actual-size video-frame fallback, cancellation/late-response guards, unchanged source bytes and additive local acquisition/orientation metadata. See `IMPLEMENTATION/ARCHIVAL_STILL_CAPTURE_2026-11-13.md` for evidence and limits. It does not yet deliver perspective correction or separate durable scan storage. Full R1 and the internal solo checkpoint remain unaccepted.
+PR #24 merged as `6af7a94` with native-still preference, device picker, labeled preview fallback, cancellation guards and untouched source-byte recovery. The next `feat/archival-scans-steady-capture` branch adds manual perspective correction/rotation, separate private scan storage/provenance/retry/replay/deletion, optional three-shot/short-delay steadiness assistance and retake source isolation. See `IMPLEMENTATION/ARCHIVAL_SCANS_STEADINESS_2026-11-13.md` for exact evidence and limits. Migration 0009 is required before its matching Worker/client.
+
+The owner will test physical cameras after the MVP v0.5 implementation milestone; no optical, physical-device, older-user or internal solo-checkpoint acceptance is implied. The owner confirmed v0.5 includes two-person Our Living Legacy and the full V2 handoff scope; the expanded implementation target remains required. See `EXECUTION/MVP_V0_5.md`.
 
 ## Expanded first-release scope
 
 The owner explicitly included archival still capture/scans; Our Living Legacy sessions; Chapters/people/family roles/invitations/contributions; search/timeline/optional resurfacing; complete export/integrity/stewardship; and reviewed derivatives/distribution/paid plans in the same first release. See `DECISIONS/2026-11-13-expanded-first-release.md` and `EXECUTION/EXPANDED_FIRST_RELEASE.md`. These capabilities are required, not post-release deferrals. Their inclusion is a scope decision, not a claim they are implemented.
 
-The current merged source baseline is `cb87c56`. No new live-provider, physical-device or human proof has been established.
+The current merged source baseline is `6af7a94`, after #24. No new live-provider, physical-device or human proof has been established.
 
 ## Internal solo foundation checkpoint (not yet passed)
 
@@ -86,7 +88,7 @@ Always branch from current `origin/main`. See `DECISIONS/2026-10-01-retire-stale
 
 ## Next
 
-1. Review the native-still capture slice and complete separate perspective-corrected scans. PRs #21–#23 are merged; Spanish copy, real-device, human and operations evidence remain pending.
+1. Review/integrate separate scans and steadiness assistance. PRs #21–#24 are merged. Continue two-person Our Living Legacy and the full V2 handoff toward MVP v0.5; collect deferred physical-camera/human and operations evidence on that candidate.
 2. Build the complete expanded first-release matrix in dependency order, including all six owner-requested capability groups.
 3. Complete integrated human/device/security/legal/operations evidence and present an exact candidate SHA. Production is a separate decision.
 

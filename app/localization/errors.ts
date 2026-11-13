@@ -1,6 +1,10 @@
 // API codes select presentation copy; workflow decisions continue to use codes/status.
 // Never display an arbitrary provider/server message as translated interface copy.
 const messages: Readonly<Record<string, string>> = {
+  invalid_scan: "This scan could not be verified. Your original is unchanged.",
+  scan_source_unavailable: "The original photo must finish backing up before its scan.",
+  scan_backup_pending: "Your scan is still on this device. Its backup needs another try.",
+  scan_too_large: "This scan is too large. Keep the original and try a smaller crop.",
   session_required: "Sign in to your archive",
   session_expired: "Sign in to your archive",
   owner_required: "Sign in to your archive",

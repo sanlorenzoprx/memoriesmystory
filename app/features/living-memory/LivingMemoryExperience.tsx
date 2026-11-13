@@ -2,6 +2,7 @@ import { t, notice, useLocale } from "../../localization/language";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
 
+import { SavedScanGallery } from "../capture/PhotoScanStatus";
 import { sourceLanguageTag } from "../../localization/locale";
 import type { StoryContextState } from "../../domain";
 import {
@@ -736,6 +737,7 @@ function OriginalPair({
       <div className={compact ? "story-photo-focus compact-story-photo" : "story-photo-focus"}>
         <img src={snapshot.originals.photo.mediaUrl} alt={t("Your preserved photograph")} />
       </div>
+      <SavedScanGallery draftId={snapshot.livingMemoryId}/>
       <audio className="voice-player" controls src={snapshot.originals.audio.mediaUrl}>{t("Your browser cannot play your preserved original recording.")}</audio>
     </>
   );
