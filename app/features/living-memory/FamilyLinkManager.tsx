@@ -1,3 +1,4 @@
+import { t, notice, useLocale, getLocale } from "../../localization/language";
 import { useEffect, useRef, useState } from "react";
 
 import { listFamilyLinks, revokeFamilyLink, type FamilyLink } from "../../services/living-memory-api";
@@ -6,6 +7,7 @@ export function FamilyLinkManager({ livingMemoryId, onRevoked }: {
   readonly livingMemoryId: string;
   readonly onRevoked?: () => void;
 }) {
+  useLocale();
   const [open, setOpen] = useState(false);
   const [links, setLinks] = useState<readonly FamilyLink[]>([]);
   const [cursor, setCursor] = useState<string | null>(null);
@@ -41,7 +43,7 @@ export function FamilyLinkManager({ livingMemoryId, onRevoked }: {
   }
 
   async function revoke(link: FamilyLink) {
-    if (pending.current || !window.confirm("Revoke this family link? Anyone using it will lose access. Downloaded copies cannot be recalled.")) return;
+    if (pending.current || !window.confirm(t("Revoke this family link? Anyone using it will lose access. Downloaded copies cannot be recalled."))) return;
     pending.current = true;
     const current = generation.current;
     setBusy(true);
@@ -67,27 +69,25 @@ export function FamilyLinkManager({ livingMemoryId, onRevoked }: {
   }
 
   return (
-    <section ref={panel} tabIndex={-1} className="memory-review-section" aria-label="Manage family links">
+    <section ref={panel} tabIndex={-1} className="memory-review-section" aria-label={t("Manage family links")}>
       <button className="secondary-action" type="button" aria-expanded={open}
-        onClick={() => { setOpen(!open); if (!open) void load(); }}>
-        Manage family links
-      </button>
+        onClick={() => { setOpen(!open); if (!open) void load(); }}>{t("Manage family links")}</button>
       {open && <>
-        <p>Anyone with a family link can open it without signing in. Revoke a link to stop future access; copies already downloaded or shared elsewhere cannot be recalled.</p>
-        <p>For your privacy, previous link addresses are not shown here. To share again, create a new link from Share with family.</p>
-        {busy && <p role="status">Updating family links…</p>}
-        {message && <p role="status">{message}</p>}
-        <button type="button" className="light-text-action" disabled={busy} onClick={() => void load()}>Refresh family links</button>
-        {!busy && links.length === 0 && !message && <p>No family links have been created.</p>}
+        <p>{t("Anyone with a family link can open it without signing in. Revoke a link to stop future access; copies already downloaded or shared elsewhere cannot be recalled.")}</p>
+        <p>{t("For your privacy, previous link addresses are not shown here. To share again, create a new link from Share with family.")}</p>
+        {busy && <p role="status">{t("Updating family links…")}</p>}
+        {message && <p role="status">{notice(message)}</p>}
+        <button type="button" className="light-text-action" disabled={busy} onClick={() => void load()}>{t("Refresh family links")}</button>
+        {!busy && links.length === 0 && !message && <p>{t("No family links have been created.")}</p>}
         <ul className="family-link-list">
           {links.map((link) => <li key={link.shareId}>
-            <p><strong>{link.revokedAt ? "Revoked" : "Active"}</strong> · Created {new Date(link.createdAt).toLocaleString()}</p>
-            <p>Photograph{link.selection.includeVoice ? ", original voice" : ""}{link.selection.includeCaptions ? ", captions" : ""}</p>
-            {link.revokedAt ? <p>Revoked {new Date(link.revokedAt).toLocaleString()}</p> :
-              <button type="button" className="secondary-action" disabled={busy} onClick={() => void revoke(link)}>Revoke family link</button>}
+            <p><strong>{link.revokedAt ? t("Revoked") : t("Active")}</strong> {t("· Created")} {new Date(link.createdAt).toLocaleString(getLocale())}</p>
+            <p>{t("Photograph")}{link.selection.includeVoice ? t(", original voice") : ""}{link.selection.includeCaptions ? t(", captions") : ""}</p>
+            {link.revokedAt ? <p>{t("Revoked")} {new Date(link.revokedAt).toLocaleString(getLocale())}</p> :
+              <button type="button" className="secondary-action" disabled={busy} onClick={() => void revoke(link)}>{t("Revoke family link")}</button>}
           </li>)}
         </ul>
-        {cursor && <button type="button" className="secondary-action" disabled={busy} onClick={() => void load(cursor)}>Load older links</button>}
+        {cursor && <button type="button" className="secondary-action" disabled={busy} onClick={() => void load(cursor)}>{t("Load older links")}</button>}
       </>}
     </section>
   );

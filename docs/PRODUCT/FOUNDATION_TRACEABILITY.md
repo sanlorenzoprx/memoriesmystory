@@ -16,7 +16,7 @@ Use this map to prevent implementation from becoming disconnected from the Livin
 | Voluntary sharing | Human memories naturally move among family and friends. | I-19, I-20, I-21, I-22, I-23, I-24, I-27 | Share preview is deliberate, no private metadata leaks, and no entitlement reward is granted. |
 | Our Living Legacy | Families remember together and differently. | I-07, I-25 | Contributions remain attributed and disagreement survives. |
 | Export and legacy stewardship | Legacy must outlive the product and account. | I-11, I-12, I-30 | Human-readable export and stewardship path are tested. |
-| Multilingual access | Families should not adapt themselves to technology. | I-17, I-18 | Original language is preserved; UI and speech may differ. |
+| Multilingual access | Families should not adapt themselves to technology. | I-17, I-18 | EN/ES controls and public views; language switches retain source bytes/testimony and unsaved edits; new Muse requests use UI language. Automated evidence and human/device limits: `../IMPLEMENTATION/ENGLISH_SPANISH_INTERFACE_2026-11-13.md`. |
 | Offline/cross-device continuation | A memory should not be lost because a device or network changes. | I-10, I-12, I-17 | Progress survives interruption, reload, sign-in, and second-device continuation. |
 | Retrieval and resurfacing | Preserved memories should remain findable and meaningful over time. | I-28, I-30 | Retrieval respects privacy/source scope and resurfacing is attributable to known archive context. |
 

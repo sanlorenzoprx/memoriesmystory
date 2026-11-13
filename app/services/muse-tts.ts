@@ -1,3 +1,4 @@
+import { apiMessageKey } from "../localization/errors";
 export class MuseSpeechError extends Error {
   constructor(message: string, readonly code: string, readonly status: number) {
     super(message);
@@ -37,7 +38,7 @@ export async function loadMuseSpeech({
       error?: { code?: string; message?: string };
     };
     throw new MuseSpeechError(
-      body.error?.message ?? "Muse could not speak right now.",
+      apiMessageKey(body.error?.code, "Muse could not speak right now."),
       body.error?.code ?? "muse_tts_failed",
       response.status
     );

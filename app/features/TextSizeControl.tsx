@@ -1,3 +1,4 @@
+import { t, useLocale } from "../localization/language";
 import { useEffect, useRef, useState } from "react";
 
 type TextSize = "standard" | "large" | "largest";
@@ -21,6 +22,7 @@ function storedSize(): TextSize {
 }
 
 export function TextSizeControl() {
+  useLocale();
   const [size, setSize] = useState<TextSize>(storedSize);
   const [open, setOpen] = useState(true);
   const manuallyOpenedRef = useRef(false);
@@ -56,25 +58,23 @@ export function TextSizeControl() {
       <button
         className="settings-tab"
         type="button"
-        aria-label="Open reading settings"
+        aria-label={t("Open reading settings")}
         onClick={openSettings}
       >
-        <span aria-hidden="true">⚙</span>
-        Settings
-      </button>
+        <span aria-hidden="true">⚙</span>{t("Settings")}</button>
     );
   }
 
   return (
-    <div className="text-size-control" aria-label="Reading settings">
-      <span>Text</span>
+    <div className="text-size-control" aria-label={t("Reading settings")}>
+      <span>{t("Text")}</span>
       {sizes.map((option) => (
         <button
           key={option}
           type="button"
           className={size === option ? "is-selected" : undefined}
           aria-pressed={size === option}
-          aria-label={`Use ${labels[option].toLowerCase()} text`}
+          aria-label={t("Use {size} text", { size: t(labels[option]).toLowerCase() })}
           onClick={() => setSize(option)}
         >
           {option === "standard" ? "A" : option === "large" ? "A+" : "A++"}
@@ -83,7 +83,7 @@ export function TextSizeControl() {
       <button
         className="text-size-close"
         type="button"
-        aria-label="Close reading settings"
+        aria-label={t("Close reading settings")}
         onClick={closeSettings}
       >
         ×

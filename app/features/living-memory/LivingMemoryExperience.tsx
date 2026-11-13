@@ -1,6 +1,8 @@
+import { t, notice, useLocale } from "../../localization/language";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
 
+import { sourceLanguageTag } from "../../localization/locale";
 import type { StoryContextState } from "../../domain";
 import {
   LivingMemoryApiError,
@@ -44,6 +46,7 @@ function apiMessage(error: unknown): string {
 }
 
 export function LivingMemoryExperience() {
+  const locale = useLocale();
   const { draftId = "" } = useParams();
   const navigate = useNavigate();
   const [stage, setStage] = useState<Stage>("loading");
@@ -74,8 +77,13 @@ export function LivingMemoryExperience() {
   );
 
   const shareUrl = useMemo(
-    () => (sharePath ? `${window.location.origin}${sharePath}` : null),
-    [sharePath]
+    () => {
+      if (!sharePath) return null;
+      const url = new URL(sharePath, window.location.origin);
+      url.searchParams.set("lang", locale);
+      return url.toString();
+    },
+    [sharePath, locale]
   );
 
   async function requireSnapshot(): Promise<LivingMemorySnapshot> {
@@ -240,7 +248,7 @@ export function LivingMemoryExperience() {
   }
 
   async function reviewContext() {
-    if (hasUnsentReply && !window.confirm("Finish with the photograph and voice already preserved? Any unsent reply will not be included.")) return;
+    if (hasUnsentReply && !window.confirm(t("Finish with the photograph and voice already preserved? Any unsent reply will not be included."))) return;
     journeyEpoch.current += 1;
     setHasUnsentReply(false);
     setSourceConfirmed(false);
@@ -313,9 +321,7 @@ export function LivingMemoryExperience() {
 
   async function deleteCurrentMemory() {
     if (deleting) return;
-    const confirmed = window.confirm(
-      "Delete this Living Memory, including its preserved photograph, voice, transcript, Muse material and family links? This cannot be undone."
-    );
+    const confirmed = window.confirm(t("Delete this Living Memory, including its preserved photograph, voice, transcript, Muse material and family links? This cannot be undone."));
     if (!confirmed) return;
 
     setDeleting(true);
@@ -345,8 +351,8 @@ export function LivingMemoryExperience() {
     if (typeof nativeShare === "function") {
       try {
         await nativeShare.call(navigator, {
-          title: "A Living Memory",
-          text: "I wanted to share this memory with you.",
+          title: t("A Living Memory"),
+          text: t("I wanted to share this memory with you."),
           url: shareUrl
         });
         return;
@@ -365,7 +371,7 @@ export function LivingMemoryExperience() {
         ) : (
           <div className="centered-state" role="status">
             <div className="soft-loader" aria-hidden="true" />
-            <p>Opening your Living Memory…</p>
+            <p>{t("Opening your Living Memory…")}</p>
           </div>
         )}
       </MemoryPage>
@@ -376,27 +382,22 @@ export function LivingMemoryExperience() {
     return (
       <MemoryPage>
         <section className="living-memory-card">
-          <p className="eyebrow">Your originals are safe</p>
-          <h1>Muse is listening to your story.</h1>
+          <p className="eyebrow">{t("Your originals are safe")}</p>
+          <h1>{t("Muse is listening to your story.")}</h1>
           <MusePresence draftId={draftId} listening />
           <OriginalPair snapshot={snapshot} compact />
-          <p className="capture-lede">
-            We’re turning your recording into readable words so Muse can help you remember.
-            Your real voice remains the original.
-          </p>
+          <p className="capture-lede">{t("We’re turning your recording into readable words so Muse can help you remember. Your real voice remains the original.")}</p>
           <p className="preservation-status" role="status">
             {processing?.state === "failed"
-              ? "The transcript needs another try."
-              : "Your photograph and voice stay protected while this finishes."}
+              ? t("The transcript needs another try.")
+              : t("Your photograph and voice stay protected while this finishes.")}
           </p>
-          {message && <p className="inline-error" role="alert">{message}</p>}
+          {message && <p className="inline-error" role="alert">{notice(message)}</p>}
           {processing?.state === "failed" && (
-            <button className="primary-action" type="button" onClick={() => void retryProcessing()}>
-              Try transcript again
-            </button>
+            <button className="primary-action" type="button" onClick={() => void retryProcessing()}>{t("Try transcript again")}</button>
           )}
-          <p>Transcription is optional. You can preserve your photograph and original voice now.</p>
-          <button className="secondary-action" type="button" onClick={() => void reviewContext()}>Finish for now</button>
+          <p>{t("Transcription is optional. You can preserve your photograph and original voice now.")}</p>
+          <button className="secondary-action" type="button" onClick={() => void reviewContext()}>{t("Finish for now")}</button>
           <DeleteMemoryAction deleting={deleting} onDelete={() => void deleteCurrentMemory()} />
         </section>
       </MemoryPage>
@@ -405,21 +406,21 @@ export function LivingMemoryExperience() {
 
   if (stage === "error") return <MemoryPage>
     <ErrorPanel message={message ?? "Muse could not continue. Your originals remain safe."} />
-    <button className="secondary-action" type="button" onClick={() => void reviewContext()}>Finish for now</button>
+    <button className="secondary-action" type="button" onClick={() => void reviewContext()}>{t("Finish for now")}</button>
   </MemoryPage>;
 
   if (stage === "context") {
     return (
       <MemoryPage>
         <section className="living-memory-card">
-          <p className="eyebrow">Muse helps you remember</p>
-          <h1>Your memory stays yours.</h1>
+          <p className="eyebrow">{t("Muse helps you remember")}</p>
+          <h1>{t("Your memory stays yours.")}</h1>
           <OriginalPair snapshot={snapshot} compact />
           {snapshot.transcript && (
             <details className="memory-transcript">
-              <summary>Read the transcript from your recording</summary>
-              <p>{snapshot.transcript.text}</p>
-              <span>Your recording—not this transcript—is the original testimony.</span>
+              <summary>{t("Read the transcript from your recording")}</summary>
+              <p lang={sourceLanguageTag(snapshot.transcript.locale)}>{snapshot.transcript.text}</p>
+              <span>{t("Your recording—not this transcript—is the original testimony.")}</span>
             </details>
           )}
           {conversation ? (
@@ -435,14 +436,14 @@ export function LivingMemoryExperience() {
               <div className="muse-avatar" aria-hidden="true"><span>M</span></div>
               <div className="muse-presence-copy">
                 <strong>Muse</strong>
-                <p>Muse could not continue the conversation right now. Your story remains safe.</p>
+                <p>{t("Muse could not continue the conversation right now. Your story remains safe.")}</p>
               </div>
             </div>
           )}
-          {message && <p className="inline-error" role="alert">{message}</p>}
-          <p>Optional details can stay unknown or be left out. You decide when your story is ready.</p>
+          {message && <p className="inline-error" role="alert">{notice(message)}</p>}
+          <p>{t("Optional details can stay unknown or be left out. You decide when your story is ready.")}</p>
           <button className="primary-action" type="button" onClick={() => void reviewContext()}>
-            {conversation?.done ? "Review my Living Memory" : "Finish for now"}
+            {conversation?.done ? t("Review my Living Memory") : t("Finish for now")}
           </button>
           <DeleteMemoryAction deleting={deleting} onDelete={() => void deleteCurrentMemory()} />
         </section>
@@ -454,21 +455,17 @@ export function LivingMemoryExperience() {
     return (
       <MemoryPage>
         <section className="living-memory-card">
-          <p className="eyebrow">Before you preserve it</p>
-          <h1>This is your story.</h1>
+          <p className="eyebrow">{t("Before you preserve it")}</p>
+          <h1>{t("This is your story.")}</h1>
           <OriginalPair snapshot={snapshot} />
           <StoryReview draftId={draftId} snapshot={snapshot} onUpdated={refreshReview} onEditingChange={setReviewEditing} />
           <label className="share-option">
             <input type="checkbox" checked={sourceConfirmed} disabled={reviewEditing || stage === "completing"}
-              onChange={(event) => setSourceConfirmed(event.target.checked)} />
-            I want to preserve this photograph and my original voice.
-          </label>
-          {reviewEditing && <p>Save or cancel your detail changes before preserving.</p>}
-          <p className="privacy-promise">
-            Private by default. “Confirm” here means this is what you want attached to your story—not that the platform verified history.
-          </p>
-          {message && <p className="inline-error" role="alert">{message}</p>}
-          {message && !reviewEditing && <button className="secondary-action" type="button" onClick={() => void refreshReview().then(() => setMessage(null)).catch((error: unknown) => setMessage(apiMessage(error)))}>Reopen latest review</button>}
+              onChange={(event) => setSourceConfirmed(event.target.checked)} />{t("I want to preserve this photograph and my original voice.")}</label>
+          {reviewEditing && <p>{t("Save or cancel your detail changes before preserving.")}</p>}
+          <p className="privacy-promise">{t("Private by default. “Confirm” here means this is what you want attached to your story—not that the platform verified history.")}</p>
+          {message && <p className="inline-error" role="alert">{notice(message)}</p>}
+          {message && !reviewEditing && <button className="secondary-action" type="button" onClick={() => void refreshReview().then(() => setMessage(null)).catch((error: unknown) => setMessage(apiMessage(error)))}>{t("Reopen latest review")}</button>}
           <div className="capture-actions">
             <button
               className="primary-action"
@@ -476,11 +473,11 @@ export function LivingMemoryExperience() {
               disabled={stage === "completing" || !sourceConfirmed || reviewEditing}
               onClick={() => void finishLivingMemory()}
             >
-              {stage === "completing" ? "Preserving…" : "Preserve this Living Memory"}
+              {stage === "completing" ? t("Preserving…") : t("Preserve this Living Memory")}
             </button>
             <button className="secondary-action" type="button" disabled={stage === "completing" || reviewEditing}
               onClick={() => { if (snapshot.transcript) void enterContext(); else { setProcessingAttempt((attempt) => attempt + 1); setStage("processing"); } }}>
-              {snapshot.transcript ? "Return to Muse" : "Return to transcript processing"}
+              {snapshot.transcript ? t("Return to Muse") : t("Return to transcript processing")}
             </button>
           </div>
           <DeleteMemoryAction deleting={deleting} onDelete={() => void deleteCurrentMemory()} />
@@ -493,21 +490,19 @@ export function LivingMemoryExperience() {
     return (
       <MemoryPage>
         <section className="living-memory-card completion-card">
-          <p className="eyebrow">Living Memory preserved</p>
-          <h1>This memory is now part of your family's history.</h1>
+          <p className="eyebrow">{t("Living Memory preserved")}</p>
+          <h1>{t("This memory is now part of your family's history.")}</h1>
           <OriginalPair snapshot={snapshot} />
           <div className="durable-status" role="status">
             <span aria-hidden="true">✓</span>
             <div>
-              <strong>Private Living Memory complete</strong>
-              <p>Your original photograph and real voice remain together in your archive.</p>
+              <strong>{t("Private Living Memory complete")}</strong>
+              <p>{t("Your original photograph and real voice remain together in your archive.")}</p>
             </div>
           </div>
           <div className="capture-actions">
-            <button className="primary-action" type="button" disabled={reviewEditing} onClick={() => setStage("share-settings")}>
-              Share with family
-            </button>
-            <Link className="secondary-action" to="/archive">Return to my archive</Link>
+            <button className="primary-action" type="button" disabled={reviewEditing} onClick={() => setStage("share-settings")}>{t("Share with family")}</button>
+            <Link className="secondary-action" to="/archive">{t("Return to my archive")}</Link>
           </div>
           <StoryReview draftId={draftId} snapshot={snapshot} onUpdated={refreshReview} onEditingChange={setReviewEditing} />
           <FamilyLinkManager key={snapshot.livingMemoryId} livingMemoryId={snapshot.livingMemoryId} onRevoked={() => setSharePath(null)} />
@@ -521,12 +516,9 @@ export function LivingMemoryExperience() {
     return (
       <MemoryPage>
         <section className="living-memory-card">
-          <p className="eyebrow">Optional family sharing</p>
-          <h1>You decide what leaves your archive.</h1>
-          <p className="capture-lede">
-            Anyone with this link can open it without signing in. The photograph is included. Your original voice is included by default.
-            Context and other archive details stay private.
-          </p>
+          <p className="eyebrow">{t("Optional family sharing")}</p>
+          <h1>{t("You decide what leaves your archive.")}</h1>
+          <p className="capture-lede">{t("Anyone with this link can open it without signing in. The photograph is included. Your original voice is included by default. Context and other archive details stay private.")}</p>
           <label className="share-option">
             <input
               type="checkbox"
@@ -537,9 +529,7 @@ export function LivingMemoryExperience() {
                   includeVoice: event.target.checked
                 }))
               }
-            />
-            Include my original voice
-          </label>
+            />{t("Include my original voice")}</label>
           <label className="share-option">
             <input
               type="checkbox"
@@ -551,9 +541,7 @@ export function LivingMemoryExperience() {
                   includeCaptions: event.target.checked
                 }))
               }
-            />
-            Include transcript as captions
-          </label>
+            />{t("Include transcript as captions")}</label>
           <label className="share-option">
             <input
               type="checkbox"
@@ -564,11 +552,9 @@ export function LivingMemoryExperience() {
                   includeBrandAttribution: event.target.checked
                 }))
               }
-            />
-            Include Memories: My Story attribution
-          </label>
+            />{t("Include Memories: My Story attribution")}</label>
           <label className="memory-field">
-            <span>Optional note for family</span>
+            <span>{t("Optional note for family")}</span>
             <textarea
               value={shareSelection.caption ?? ""}
               rows={3}
@@ -578,17 +564,13 @@ export function LivingMemoryExperience() {
                   caption: event.target.value || null
                 }))
               }
-              placeholder="A short note you want family to see"
+              placeholder={t("A short note you want family to see")}
             />
           </label>
-          {message && <p className="inline-error" role="alert">{message}</p>}
+          {message && <p className="inline-error" role="alert">{notice(message)}</p>}
           <div className="capture-actions">
-            <button className="primary-action" type="button" onClick={() => void prepareSharePreview()}>
-              Preview what family will see
-            </button>
-            <button className="secondary-action" type="button" onClick={() => setStage("complete")}>
-              Cancel new share
-            </button>
+            <button className="primary-action" type="button" onClick={() => void prepareSharePreview()}>{t("Preview what family will see")}</button>
+            <button className="secondary-action" type="button" onClick={() => setStage("complete")}>{t("Cancel new share")}</button>
           </div>
           <DeleteMemoryAction deleting={deleting} onDelete={() => void deleteCurrentMemory()} />
         </section>
@@ -600,37 +582,29 @@ export function LivingMemoryExperience() {
     return (
       <MemoryPage>
         <section className="living-memory-card">
-          <p className="eyebrow">Share preview</p>
-          <h1>Only this will leave your archive.</h1>
+          <p className="eyebrow">{t("Share preview")}</p>
+          <h1>{t("Only this will leave your archive.")}</h1>
           {sharePreview.caption && <p className="share-preview-caption">{sharePreview.caption}</p>}
           <div className="story-photo-focus">
-            <img src={snapshot.originals.photo.mediaUrl} alt="Photograph in the family share" />
+            <img src={snapshot.originals.photo.mediaUrl} alt={t("Photograph in the family share")} />
           </div>
           {sharePreview.voice && (
-            <audio className="voice-player" controls src={snapshot.originals.audio.mediaUrl}>
-              Your browser cannot play this recording.
-            </audio>
+            <audio className="voice-player" controls src={snapshot.originals.audio.mediaUrl}>{t("Your browser cannot play this recording.")}</audio>
           )}
           {sharePreview.captions && (
             <div className="memory-review-section">
-              <strong>Included captions</strong>
+              <strong>{t("Included captions")}</strong>
               <p>{sharePreview.captions}</p>
             </div>
           )}
           {sharePreview.brandAttribution && (
-            <p className="cross-device-note">Includes: {sharePreview.brandAttribution}</p>
+            <p className="cross-device-note">{t("Includes:")} {sharePreview.brandAttribution}</p>
           )}
-          <p className="privacy-promise">
-            Not included: private context, family relationships, account details, internal IDs, or unrelated archive information.
-          </p>
-          {message && <p className="inline-error" role="alert">{message}</p>}
+          <p className="privacy-promise">{t("Not included: private context, family relationships, account details, internal IDs, or unrelated archive information.")}</p>
+          {message && <p className="inline-error" role="alert">{notice(message)}</p>}
           <div className="capture-actions">
-            <button className="primary-action" type="button" onClick={() => void createFamilyLink()}>
-              Create private family link
-            </button>
-            <button className="secondary-action" type="button" onClick={() => setStage("share-settings")}>
-              Change share
-            </button>
+            <button className="primary-action" type="button" onClick={() => void createFamilyLink()}>{t("Create private family link")}</button>
+            <button className="secondary-action" type="button" onClick={() => setStage("share-settings")}>{t("Change share")}</button>
           </div>
           <DeleteMemoryAction deleting={deleting} onDelete={() => void deleteCurrentMemory()} />
         </section>
@@ -641,31 +615,27 @@ export function LivingMemoryExperience() {
   return (
     <MemoryPage>
       <section className="living-memory-card">
-        <p className="eyebrow">{shareUrl ? "Private family link ready" : "Your family links"}</p>
-        <h1>Share it only when you choose.</h1>
+        <p className="eyebrow">{shareUrl ? t("Private family link ready") : t("Your family links")}</p>
+        <h1>{t("Share it only when you choose.")}</h1>
         <OriginalPair snapshot={snapshot} compact />
         {shareUrl && (
           <label className="memory-field">
-            <span>Your private family link</span>
+            <span>{t("Your private family link")}</span>
             <input readOnly value={shareUrl} />
           </label>
         )}
-        {message && <p className="preservation-status" role="status">{message}</p>}
+        {message && <p className="preservation-status" role="status">{notice(message)}</p>}
         <div className="capture-actions">
-          <button className="primary-action" type="button" disabled={!shareUrl} onClick={() => void handOffShare()}>
-            Share private link
-          </button>
+          <button className="primary-action" type="button" disabled={!shareUrl} onClick={() => void handOffShare()}>{t("Share private link")}</button>
           {shareUrl && (
-            <a className="secondary-action" href={shareUrl} target="_blank" rel="noreferrer">
-              Open family view
-            </a>
+            <a className="secondary-action" href={shareUrl} target="_blank" rel="noreferrer">{t("Open family view")}</a>
           )}
-          <Link className="secondary-action" to="/archive">Return to my archive</Link>
+          <Link className="secondary-action" to="/archive">{t("Return to my archive")}</Link>
         </div>
         <button className="secondary-action" type="button" onClick={() => {
           shareKeyRef.current = `share_${draftId}_${crypto.randomUUID()}`;
           setStage("share-settings");
-        }}>Create another family link</button>
+        }}>{t("Create another family link")}</button>
         <FamilyLinkManager key={snapshot.livingMemoryId} livingMemoryId={snapshot.livingMemoryId} onRevoked={() => setSharePath(null)} />
         <DeleteMemoryAction deleting={deleting} onDelete={() => void deleteCurrentMemory()} />
       </section>
@@ -680,6 +650,7 @@ function DeleteMemoryAction({
   readonly deleting: boolean;
   readonly onDelete: () => void;
 }) {
+  useLocale();
   return (
     <div className="delete-memory-zone">
       <button
@@ -688,7 +659,7 @@ function DeleteMemoryAction({
         disabled={deleting}
         onClick={onDelete}
       >
-        {deleting ? "Deleting…" : "Delete this memory"}
+        {deleting ? t("Deleting…") : t("Delete this memory")}
       </button>
     </div>
   );
@@ -703,25 +674,24 @@ function MusePresence({
   readonly question?: string | null;
   readonly listening?: boolean;
 }) {
-  const spokenText = question ?? (listening ? "I'm listening. Take your time." : null);
+  useLocale();
+  const spokenText = question ?? (listening ? t("I'm listening. Take your time.") : null);
   return (
     <div className="muse-presence" role={listening ? "status" : undefined}>
       <div className="muse-avatar" aria-hidden="true">
         <span>M</span>
       </div>
       <div className="muse-presence-copy">
-        <strong>{listening ? "Muse is listening" : "Muse"}</strong>
+        <strong>{listening ? t("Muse is listening") : "Muse"}</strong>
         {question ? (
           <>
             <p>{question}</p>
-            <span>
-              If that brings something back, add only what feels like yours. Muse helps you remember; it does not decide what is true.
-            </span>
+            <span>{t("If that brings something back, add only what feels like yours. Muse helps you remember; it does not decide what is true.")}</span>
           </>
         ) : listening ? (
-          <p>Your real voice stays the original while Muse listens for one useful question.</p>
+          <p>{t("Your real voice stays the original while Muse listens for one useful question.")}</p>
         ) : (
-          <p>Muse listened. You can keep your story exactly as you told it.</p>
+          <p>{t("Muse listened. You can keep your story exactly as you told it.")}</p>
         )}
         {spokenText && (
           <MuseVoiceButton
@@ -736,6 +706,7 @@ function MusePresence({
 }
 
 function MemoryPage({ children }: { readonly children: React.ReactNode }) {
+  useLocale();
   return (
     <div className="quiet-page living-memory-page" id="main-content">
       <header className="capture-header">
@@ -743,8 +714,8 @@ function MemoryPage({ children }: { readonly children: React.ReactNode }) {
           Memories: <em>My Story</em>
         </Link>
         <div className="capture-header-actions">
-          <Link className="account-link" to="/archive">My account</Link>
-          <span className="capture-step-label">Living Memory</span>
+          <Link className="account-link" to="/archive">{t("My account")}</Link>
+          <span className="capture-step-label">{t("Living Memory")}</span>
         </div>
       </header>
       {children}
@@ -759,14 +730,13 @@ function OriginalPair({
   readonly snapshot: LivingMemorySnapshot;
   readonly compact?: boolean;
 }) {
+  useLocale();
   return (
     <>
       <div className={compact ? "story-photo-focus compact-story-photo" : "story-photo-focus"}>
-        <img src={snapshot.originals.photo.mediaUrl} alt="Your preserved photograph" />
+        <img src={snapshot.originals.photo.mediaUrl} alt={t("Your preserved photograph")} />
       </div>
-      <audio className="voice-player" controls src={snapshot.originals.audio.mediaUrl}>
-        Your browser cannot play your preserved original recording.
-      </audio>
+      <audio className="voice-player" controls src={snapshot.originals.audio.mediaUrl}>{t("Your browser cannot play your preserved original recording.")}</audio>
     </>
   );
 }
@@ -788,6 +758,7 @@ function MuseStoryConversation({
     voiceReplyAssetId?: string
   ) => Promise<void>;
 }) {
+  useLocale();
   const [reply, setReply] = useState("");
   const [voicePending, setVoicePending] = useState(false);
   useEffect(() => { onInputPending(Boolean(reply.trim()) || voicePending); }, [reply, voicePending, onInputPending]);
@@ -800,7 +771,7 @@ function MuseStoryConversation({
   }, [currentQuestionId]);
 
   return (
-    <div className="muse-dialogue" aria-label="Conversation with Muse">
+    <div className="muse-dialogue" aria-label={t("Conversation with Muse")}>
       {conversation.turns.map((turn) =>
         turn.speaker === "muse" ? (
           <div
@@ -830,9 +801,7 @@ function MuseStoryConversation({
                   className="storyteller-voice-reply-player"
                   controls
                   src={turn.voiceReplyMediaUrl}
-                >
-                  Your browser cannot play this preserved voice reply.
-                </audio>
+                >{t("Your browser cannot play this preserved voice reply.")}</audio>
               )}
             </div>
           </div>
@@ -852,17 +821,16 @@ function MuseStoryConversation({
           />
 
           <div className="muse-reply-divider" aria-hidden="true">
-            <span>or type your reply</span>
+            <span>{t("or type your reply")}</span>
           </div>
 
           <label>
-            <span className="sr-only">
-              Your reply to {conversation.currentQuestion.content}
+            <span className="sr-only">{t("Your reply to")}{" "}{conversation.currentQuestion.content}
             </span>
             <input
               value={reply}
               onChange={(event) => setReply(event.target.value)}
-              placeholder="Tell Muse what comes back to you"
+              placeholder={t("Tell Muse what comes back to you")}
             />
           </label>
           <div className="muse-reply-choices">
@@ -871,23 +839,17 @@ function MuseStoryConversation({
               className={approximate ? "is-selected" : undefined}
               disabled={busy}
               onClick={() => setApproximate((value) => !value)}
-            >
-              I'm not completely sure
-            </button>
+            >{t("I'm not completely sure")}</button>
             <button
               type="button"
               disabled={busy}
               onClick={() => void onReply(undefined, "unknown")}
-            >
-              I don't remember
-            </button>
+            >{t("I don't remember")}</button>
             <button
               type="button"
               disabled={busy}
               onClick={() => void onReply(undefined, "omitted")}
-            >
-              Leave this out
-            </button>
+            >{t("Leave this out")}</button>
           </div>
           <button
             className="primary-action muse-reply-submit"
@@ -900,7 +862,7 @@ function MuseStoryConversation({
               )
             }
           >
-            {busy ? "Muse is listening…" : "Tell Muse"}
+            {busy ? t("Muse is listening…") : t("Tell Muse")}
           </button>
         </div>
       )}
@@ -910,10 +872,10 @@ function MuseStoryConversation({
           <div className="muse-avatar small" aria-hidden="true"><span>M</span></div>
           <div className="muse-bubble">
             <strong>Muse</strong>
-            <p>Thank you. Your story has enough context to review now. You can still come back before you preserve it.</p>
+            <p>{t("Thank you. Your story has enough context to review now. You can still come back before you preserve it.")}</p>
             <MuseVoiceButton
               draftId={draftId}
-              text="Thank you. Your story has enough context to review now. You can still come back before you preserve it."
+              text={t("Thank you. Your story has enough context to review now. You can still come back before you preserve it.")}
               autoPlay
             />
           </div>
@@ -924,16 +886,15 @@ function MuseStoryConversation({
 }
 
 function ErrorPanel({ message }: { readonly message: string }) {
+  useLocale();
   return (
     <section className="living-memory-card error-state" role="alert">
-      <p className="eyebrow">Your originals are still safe</p>
-      <h1>The Living Memory needs another try.</h1>
-      <p className="capture-lede">{message}</p>
+      <p className="eyebrow">{t("Your originals are still safe")}</p>
+      <h1>{t("The Living Memory needs another try.")}</h1>
+      <p className="capture-lede">{notice(message)}</p>
       <div className="capture-actions">
-        <button className="primary-action" type="button" onClick={() => window.location.reload()}>
-          Try again
-        </button>
-        <Link className="secondary-action" to="/archive">Return to my archive</Link>
+        <button className="primary-action" type="button" onClick={() => window.location.reload()}>{t("Try again")}</button>
+        <Link className="secondary-action" to="/archive">{t("Return to my archive")}</Link>
       </div>
     </section>
   );

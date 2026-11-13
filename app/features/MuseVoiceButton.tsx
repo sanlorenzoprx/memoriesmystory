@@ -1,3 +1,4 @@
+import { t, useLocale } from "../localization/language";
 import { useEffect, useRef, useState } from "react";
 
 import { loadMuseSpeech } from "../services/muse-tts";
@@ -13,6 +14,7 @@ export function MuseVoiceButton({
   readonly draftToken?: string | null;
   readonly autoPlay?: boolean;
 }) {
+  useLocale();
   const [status, setStatus] = useState<"idle" | "loading" | "playing" | "unavailable">("idle");
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const urlRef = useRef<string | null>(null);
@@ -83,17 +85,17 @@ export function MuseVoiceButton({
       className="muse-voice-action"
       type="button"
       onClick={() => canStop ? stop() : void play()}
-      aria-label={canStop ? "Stop Muse" : "Hear Muse"}
-      title={status === "unavailable" ? "Muse voice is unavailable. You can read the words or try again." : undefined}
+      aria-label={canStop ? t("Stop Muse") : t("Hear Muse")}
+      title={status === "unavailable" ? t("Muse voice is unavailable. You can read the words or try again.") : undefined}
     >
       <span aria-hidden="true">{canStop ? "◼" : "🔊"}</span>
       {status === "loading"
-        ? "Stop loading voice"
+        ? t("Stop loading voice")
         : status === "playing"
-          ? "Stop Muse"
+          ? t("Stop Muse")
           : status === "unavailable"
-            ? "Try Muse voice again"
-            : "Hear Muse"}
+            ? t("Try Muse voice again")
+            : t("Hear Muse")}
     </button>
   );
 }

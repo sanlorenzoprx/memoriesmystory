@@ -1,3 +1,4 @@
+import { t, notice, useLocale, getLocale } from "../../localization/language";
 import {
   useEffect,
   useMemo,
@@ -80,6 +81,7 @@ function photoFromVideo(video: HTMLVideoElement): Promise<Blob> {
 }
 
 export function CaptureExperience() {
+  useLocale();
   const { draftId } = useParams();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -139,7 +141,7 @@ export function CaptureExperience() {
           createLocalDraft({
             id: draftId,
             entryMode,
-            locale: navigator.language,
+            locale: getLocale(),
             draftToken: makeDraftToken()
           });
 
@@ -308,9 +310,7 @@ export function CaptureExperience() {
 
   async function deleteCurrentDraft() {
     if (!draft || deleting) return;
-    const confirmed = window.confirm(
-      "Delete this draft and its preserved photograph and voice? This cannot be undone."
-    );
+    const confirmed = window.confirm(t("Delete this draft and its preserved photograph and voice? This cannot be undone."));
     if (!confirmed) return;
 
     setDeleting(true);
@@ -332,12 +332,12 @@ export function CaptureExperience() {
   return (
     <div className="capture-page" id="main-content">
       <header className="capture-header">
-        <Link className="capture-brand" to="/" aria-label="Memories: My Story, home">
+        <Link className="capture-brand" to="/" aria-label={t("Memories: My Story, home")}>
           Memories: <em>My Story</em>
         </Link>
         <div className="capture-header-actions">
-          <Link className="account-link" to="/auth/protect">My account</Link>
-          <span className="capture-step-label">Photo</span>
+          <Link className="account-link" to="/auth/protect">{t("My account")}</Link>
+          <span className="capture-step-label">{t("Photo")}</span>
         </div>
       </header>
 
@@ -347,57 +347,51 @@ export function CaptureExperience() {
         type="file"
         accept={imageAccept}
         onChange={(event) => void importPhoto(event)}
-        aria-label="Choose a photograph from this device"
+        aria-label={t("Choose a photograph from this device")}
       />
 
       {!isOnline && (
-        <p className="connection-note" role="status">
-          No connection—that’s okay. This step stays on your device.
-        </p>
+        <p className="connection-note" role="status">{t("No connection—that’s okay. This step stays on your device.")}</p>
       )}
 
       {recovered && (
-        <p className="recovery-note" role="status">
-          Your photograph is still here. We returned you to the same step.
-        </p>
+        <p className="recovery-note" role="status">{t("Your photograph is still here. We returned you to the same step.")}</p>
       )}
 
       {step === "loading" && (
         <section className="capture-state centered-state" aria-live="polite">
           <span className="soft-loader" aria-hidden="true" />
-          <p>Bringing back your draft…</p>
+          <p>{t("Bringing back your draft…")}</p>
         </section>
       )}
 
       {step === "intro" && (
         <section className="capture-state capture-intro-state">
-          <Link className="back-link" to="/">
-            ← Back
-          </Link>
-          <p className="eyebrow">First, the photograph</p>
+          <Link className="back-link" to="/">{t("← Back")}</Link>
+          <p className="eyebrow">{t("First, the photograph")}</p>
           <h1 ref={headingRef} tabIndex={-1}>
             {entryMode === "import"
-              ? "Choose the photograph that brings the story back."
-              : "Bring the photograph into the light."}
+              ? t("Choose the photograph that brings the story back.")
+              : t("Bring the photograph into the light.")}
           </h1>
           <p className="capture-lede">
             {entryMode === "import"
-              ? "A favorite picture, a face you miss, or a moment your family should always remember."
-              : "Place the photograph on a flat surface in soft, even light. We’ll ask for camera access only when you open it."}
+              ? t("A favorite picture, a face you miss, or a moment your family should always remember.")
+              : t("Place the photograph on a flat surface in soft, even light. We’ll ask for camera access only when you open it.")}
           </p>
 
-          <div className="capture-guide" aria-label="Photograph guidance">
+          <div className="capture-guide" aria-label={t("Photograph guidance")}>
             <div className="guide-frame" aria-hidden="true">
               <span />
             </div>
             <div>
               <strong>
                 {tipsVisible
-                  ? "Keep all four edges inside the frame."
-                  : "Photo guidance is hidden."}
+                  ? t("Keep all four edges inside the frame.")
+                  : t("Photo guidance is hidden.")}
               </strong>
               {tipsVisible && (
-                <p>We’ll check for glare, shadow, focus, and steadiness afterward.</p>
+                <p>{t("We’ll check for glare, shadow, focus, and steadiness afterward.")}</p>
               )}
             </div>
           </div>
@@ -405,16 +399,12 @@ export function CaptureExperience() {
           <div className="capture-actions">
             {entryMode === "camera" ? (
               <>
-                <button className="primary-action" type="button" onClick={() => void openCamera()}>
-                  Open camera
-                </button>
+                <button className="primary-action" type="button" onClick={() => void openCamera()}>{t("Open camera")}</button>
                 <button
                   className="secondary-action"
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                >
-                  Import a photo instead
-                </button>
+                >{t("Import a photo instead")}</button>
               </>
             ) : (
               <>
@@ -422,12 +412,8 @@ export function CaptureExperience() {
                   className="primary-action"
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                >
-                  Choose a photo
-                </button>
-                <button className="secondary-action" type="button" onClick={() => void openCamera()}>
-                  Use the camera instead
-                </button>
+                >{t("Choose a photo")}</button>
+                <button className="secondary-action" type="button" onClick={() => void openCamera()}>{t("Use the camera instead")}</button>
               </>
             )}
           </div>
@@ -437,37 +423,31 @@ export function CaptureExperience() {
             type="button"
             onClick={() => setTipsVisible((visible) => !visible)}
           >
-            {tipsVisible ? "Skip photo tips" : "Show photo tips"}
+            {tipsVisible ? t("Skip photo tips") : t("Show photo tips")}
           </button>
-          {errorMessage && <p className="inline-error" role="alert">{errorMessage}</p>}
+          {errorMessage && <p className="inline-error" role="alert">{notice(errorMessage)}</p>}
         </section>
       )}
 
       {step === "opening-camera" && (
         <section className="capture-state centered-state" aria-live="polite">
-          <h1 ref={headingRef} tabIndex={-1}>Opening your camera…</h1>
-          <p>Your browser may ask for permission now.</p>
+          <h1 ref={headingRef} tabIndex={-1}>{t("Opening your camera…")}</h1>
+          <p>{t("Your browser may ask for permission now.")}</p>
         </section>
       )}
 
       {step === "camera-live" && (
         <section className="capture-state camera-state">
-          <h1 ref={headingRef} className="visually-hidden" tabIndex={-1}>
-            Photograph camera
-          </h1>
+          <h1 ref={headingRef} className="visually-hidden" tabIndex={-1}>{t("Photograph camera")}</h1>
           <div className="camera-viewport">
-            <video ref={videoRef} playsInline muted aria-label="Live camera preview" />
+            <video ref={videoRef} playsInline muted aria-label={t("Live camera preview")} />
             <div className="camera-edge-guide" aria-hidden="true" />
-            <p className="camera-instruction" aria-live="polite">
-              Keep all four edges inside the frame.
-            </p>
+            <p className="camera-instruction" aria-live="polite">{t("Keep all four edges inside the frame.")}</p>
           </div>
-          {errorMessage && <p className="inline-error" role="alert">{errorMessage}</p>}
+          {errorMessage && <p className="inline-error" role="alert">{notice(errorMessage)}</p>}
           <div className="camera-actions">
             <button className="shutter-action" type="button" onClick={() => void capturePhoto()}>
-              <span aria-hidden="true" />
-              Take photo
-            </button>
+              <span aria-hidden="true" />{t("Take photo")}</button>
             <button
               className="text-action light-text-action"
               type="button"
@@ -476,64 +456,54 @@ export function CaptureExperience() {
                 streamRef.current = null;
                 setStep("intro");
               }}
-            >
-              Cancel camera
-            </button>
+            >{t("Cancel camera")}</button>
           </div>
         </section>
       )}
 
       {step === "camera-denied" && (
         <section className="capture-state capture-intro-state">
-          <p className="eyebrow">Your photograph is still waiting</p>
-          <h1 ref={headingRef} tabIndex={-1}>The camera stayed closed.</h1>
-          <p className="capture-lede">{errorMessage}</p>
+          <p className="eyebrow">{t("Your photograph is still waiting")}</p>
+          <h1 ref={headingRef} tabIndex={-1}>{t("The camera stayed closed.")}</h1>
+          <p className="capture-lede">{notice(errorMessage)}</p>
           <div className="capture-actions">
-            <button className="primary-action" type="button" onClick={() => fileInputRef.current?.click()}>
-              Import a photo
-            </button>
-            <button className="secondary-action" type="button" onClick={() => void openCamera()}>
-              Try camera again
-            </button>
+            <button className="primary-action" type="button" onClick={() => fileInputRef.current?.click()}>{t("Import a photo")}</button>
+            <button className="secondary-action" type="button" onClick={() => void openCamera()}>{t("Try camera again")}</button>
           </div>
           <details className="settings-help">
-            <summary>How to allow the camera</summary>
-            <p>Open this site’s settings in your browser, allow Camera, then return and try again.</p>
+            <summary>{t("How to allow the camera")}</summary>
+            <p>{t("Open this site’s settings in your browser, allow Camera, then return and try again.")}</p>
           </details>
         </section>
       )}
 
       {step === "review" && draft?.photo && photoUrl && (
         <section className="capture-state review-state">
-          <p className="eyebrow">Look it over</p>
-          <h1 ref={headingRef} tabIndex={-1}>Does the photograph feel clear enough?</h1>
+          <p className="eyebrow">{t("Look it over")}</p>
+          <h1 ref={headingRef} tabIndex={-1}>{t("Does the photograph feel clear enough?")}</h1>
           <div className="review-photo-wrap">
-            <img src={photoUrl} alt="Your selected photograph" />
+            <img src={photoUrl} alt={t("Your selected photograph")} />
           </div>
           <div
             className={draft.photo.warning ? "quality-result has-warning" : "quality-result"}
             role="status"
           >
             <strong>
-              {draft.photo.warning ? "One thing may help" : "This photograph looks ready"}
+              {draft.photo.warning ? t("One thing may help") : t("This photograph looks ready")}
             </strong>
             <p>
-              {draft.photo.warning?.message ??
-                "The light and detail look usable. Check that the people and all four edges you want are visible."}
+              {draft.photo.warning ? notice(draft.photo.warning.message) :
+                t("The light and detail look usable. Check that the people and all four edges you want are visible.")}
             </p>
           </div>
-          <p className="manual-choice">
-            You know what matters in this photograph. You can keep it even if our check is unsure.
-          </p>
+          <p className="manual-choice">{t("You know what matters in this photograph. You can keep it even if our check is unsure.")}</p>
           <div className="capture-actions">
             <button className="primary-action" type="button" onClick={() => void acceptPhoto()}>
-              {draft.photo.warning ? "Use this photo anyway" : "Use this photo"}
+              {draft.photo.warning ? t("Use this photo anyway") : t("Use this photo")}
             </button>
-            <button className="secondary-action" type="button" onClick={tryAnother}>
-              Try another photo
-            </button>
+            <button className="secondary-action" type="button" onClick={tryAnother}>{t("Try another photo")}</button>
           </div>
-          {errorMessage && <p className="inline-error" role="alert">{errorMessage}</p>}
+          {errorMessage && <p className="inline-error" role="alert">{notice(errorMessage)}</p>}
         </section>
       )}
 
@@ -548,10 +518,10 @@ export function CaptureExperience() {
 
       {step === "error" && (
         <section className="capture-state capture-intro-state" role="alert">
-          <p className="eyebrow">Nothing was lost or shared</p>
-          <h1 ref={headingRef} tabIndex={-1}>This browser needs a moment.</h1>
-          <p className="capture-lede">{errorMessage}</p>
-          <Link className="secondary-action" to="/">Return to the beginning</Link>
+          <p className="eyebrow">{t("Nothing was lost or shared")}</p>
+          <h1 ref={headingRef} tabIndex={-1}>{t("This browser needs a moment.")}</h1>
+          <p className="capture-lede">{notice(errorMessage)}</p>
+          <Link className="secondary-action" to="/">{t("Return to the beginning")}</Link>
         </section>
       )}
 
@@ -563,7 +533,7 @@ export function CaptureExperience() {
             disabled={deleting}
             onClick={() => void deleteCurrentDraft()}
           >
-            {deleting ? "Deleting…" : "Delete this draft"}
+            {deleting ? t("Deleting…") : t("Delete this draft")}
           </button>
         </div>
       )}

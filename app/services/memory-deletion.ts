@@ -1,3 +1,4 @@
+import { apiMessageKey } from "../localization/errors";
 type DeleteMemoryOptions = {
   readonly draftToken?: string | null;
 };
@@ -29,7 +30,7 @@ export async function deleteMemory(
       error?: { code?: string; message?: string };
     };
     throw new MemoryDeletionError(
-      body.error?.message ?? "The memory could not be deleted.",
+      apiMessageKey(body.error?.code, "The memory could not be deleted."),
       body.error?.code ?? "delete_failed",
       response.status
     );

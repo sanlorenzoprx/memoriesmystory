@@ -1,3 +1,4 @@
+import { t, notice, useLocale, getLocale } from "./localization/language";
 import type { RouteObject } from "react-router";
 import { useState } from "react";
 import {
@@ -14,6 +15,7 @@ import { CaptureExperience } from "./features/capture/CaptureExperience";
 import { IdentityExperience } from "./features/identity/IdentityExperience";
 import { ArchiveExperience } from "./features/archive/ArchiveExperience";
 import { LivingMemoryExperience } from "./features/living-memory/LivingMemoryExperience";
+import { LanguageControl } from "./localization/LanguageControl";
 import { TextSizeControl } from "./features/TextSizeControl";
 import type { CaptureEntryMode } from "./features/capture/local-draft";
 import { beginLocalDraft } from "./services/local-draft-store";
@@ -64,11 +66,11 @@ export function homeLoader(): HomeLoaderData {
 }
 
 function AppShell() {
+  useLocale();
   return (
     <main className="app-shell">
-      <a className="skip-link" href="#main-content">
-        Skip to the story
-      </a>
+      <a className="skip-link" href="#main-content">{t("Skip to the story")}</a>
+      <LanguageControl />
       <TextSizeControl />
       <Outlet />
     </main>
@@ -76,6 +78,7 @@ function AppShell() {
 }
 
 function HomeRoute() {
+  useLocale();
   const data = useLoaderData() as HomeLoaderData;
 
   return (
@@ -83,8 +86,8 @@ function HomeRoute() {
       <header className="site-header">
         <BrandLockup brandName={data.brandName} />
         <div className="header-links">
-          <p className="header-promise">Your stories. Your voice.</p>
-          <Link className="archive-entry" to="/auth/protect">My stories</Link>
+          <p className="header-promise">{t("Your stories. Your voice.")}</p>
+          <Link className="archive-entry" to="/auth/protect">{t("My stories")}</Link>
         </div>
       </header>
 
@@ -94,26 +97,26 @@ function HomeRoute() {
         aria-labelledby="page-title"
       >
         <div className="hero-copy">
-          <p className="eyebrow">{firstExperienceContent.eyebrow}</p>
-          <h1 id="page-title">{firstExperienceContent.headline}</h1>
-          <p className="lede">{firstExperienceContent.supporting}</p>
+          <p className="eyebrow">{t(firstExperienceContent.eyebrow)}</p>
+          <h1 id="page-title">{t(firstExperienceContent.headline)}</h1>
+          <p className="lede">{t(firstExperienceContent.supporting)}</p>
 
           <StartMemoryActions />
 
           <p className="privacy-promise">
             <LockIcon />
-            {firstExperienceContent.privacyPromise}
+            {t(firstExperienceContent.privacyPromise)}
           </p>
         </div>
 
         <MemoryPhotoMoment />
       </section>
 
-      <ol className="memory-journey" aria-label="Your Living Memory journey">
+      <ol className="memory-journey" aria-label={t("Your Living Memory journey")}>
         {firstExperienceContent.journey.map((stage, index) => (
           <li className={index === 0 ? "is-current" : undefined} key={stage}>
             <span className="journey-dot" aria-hidden="true" />
-            <span>{stage}</span>
+            <span>{t(stage)}</span>
           </li>
         ))}
       </ol>
@@ -122,6 +125,7 @@ function HomeRoute() {
 }
 
 function StartMemoryActions() {
+  useLocale();
   const navigate = useNavigate();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [starting, setStarting] = useState<CaptureEntryMode | null>(null);
@@ -131,7 +135,7 @@ function StartMemoryActions() {
     setErrorMessage(null);
 
     try {
-      const draft = await beginLocalDraft(entryMode, navigator.language);
+      const draft = await beginLocalDraft(entryMode, getLocale());
       await navigate(`/capture/${encodeURIComponent(draft.id)}?start=${entryMode}`);
     } catch {
       setErrorMessage(
@@ -143,7 +147,7 @@ function StartMemoryActions() {
 
   return (
     <>
-      <div className="hero-actions" aria-label="Begin your first Living Memory">
+      <div className="hero-actions" aria-label={t("Begin your first Living Memory")}>
         <button
           className="primary-action"
           type="button"
@@ -151,7 +155,7 @@ function StartMemoryActions() {
           onClick={() => void start("camera")}
         >
           <CameraIcon />
-          {starting === "camera" ? "Opening…" : firstExperienceContent.primaryAction}
+          {starting === "camera" ? t("Opening…") : t(firstExperienceContent.primaryAction)}
         </button>
         <button
           className="secondary-action"
@@ -160,17 +164,18 @@ function StartMemoryActions() {
           onClick={() => void start("import")}
         >
           <ImportIcon />
-          {starting === "import" ? "Opening…" : firstExperienceContent.secondaryAction}
+          {starting === "import" ? t("Opening…") : t(firstExperienceContent.secondaryAction)}
         </button>
       </div>
-      {errorMessage && <p className="inline-error" role="alert">{errorMessage}</p>}
+      {errorMessage && <p className="inline-error" role="alert">{notice(errorMessage)}</p>}
     </>
   );
 }
 
 function BrandLockup({ brandName }: { brandName: string }) {
+  useLocale();
   return (
-    <Link className="brand-lockup" to="/" aria-label={`${brandName}, home`}>
+    <Link className="brand-lockup" to="/" aria-label={t("{brand}, home", { brand: brandName })}>
       <svg
         className="brand-mark"
         viewBox="0 0 42 42"
@@ -189,6 +194,7 @@ function BrandLockup({ brandName }: { brandName: string }) {
 }
 
 function MemoryPhotoMoment() {
+  useLocale();
   return (
     <figure className="photo-moment" aria-labelledby="photo-prompt">
       <div className="photo-shadow" aria-hidden="true" />
@@ -202,16 +208,15 @@ function MemoryPhotoMoment() {
           <div className="photo-prompt">
             <PhotoIcon />
             <strong id="photo-prompt">
-              {firstExperienceContent.photoPrompt}
+              {t(firstExperienceContent.photoPrompt)}
             </strong>
-            <span>{firstExperienceContent.photoGuidance}</span>
+            <span>{t(firstExperienceContent.photoGuidance)}</span>
           </div>
         </div>
 
         <figcaption className="voice-keepsake">
           <VoiceWave />
-          <span>
-            Tell the story in <strong>your voice</strong>.
+          <span>{t("Tell the story in")}{" "}<strong>{t("your voice")}</strong>.
           </span>
         </figcaption>
       </div>
@@ -220,24 +225,24 @@ function MemoryPhotoMoment() {
 }
 
 function RouteErrorBoundary() {
+  useLocale();
   const error = useRouteError();
   const message = error instanceof Error ? error.message : "Something went wrong.";
 
   return (
     <div className="quiet-page" id="main-content">
       <section className="capture-introduction error-state" role="alert" aria-labelledby="error-title">
-        <p className="eyebrow">Take your time</p>
-        <h1 id="error-title">The story is not lost.</h1>
-        <p className="lede">{message}</p>
-        <Link className="secondary-action" to="/">
-          Return home
-        </Link>
+        <p className="eyebrow">{t("Take your time")}</p>
+        <h1 id="error-title">{t("The story is not lost.")}</h1>
+        <p className="lede">{notice(message)}</p>
+        <Link className="secondary-action" to="/">{t("Return home")}</Link>
       </section>
     </div>
   );
 }
 
 function CameraIcon() {
+  useLocale();
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
       <path d="M8.5 6.5 10 4.75h4l1.5 1.75H19a2 2 0 0 1 2 2v8.75a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8.5a2 2 0 0 1 2-2h3.5Z" />
@@ -247,6 +252,7 @@ function CameraIcon() {
 }
 
 function ImportIcon() {
+  useLocale();
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
       <rect x="3.5" y="4" width="17" height="16" rx="3" />
@@ -257,6 +263,7 @@ function ImportIcon() {
 }
 
 function PhotoIcon() {
+  useLocale();
   return (
     <svg className="photo-icon" viewBox="0 0 48 48" aria-hidden="true">
       <rect x="5.5" y="7" width="37" height="34" rx="5" />
@@ -267,6 +274,7 @@ function PhotoIcon() {
 }
 
 function LockIcon() {
+  useLocale();
   return (
     <svg viewBox="0 0 20 20" aria-hidden="true">
       <rect x="4" y="8.5" width="12" height="9" rx="3" />
@@ -276,6 +284,7 @@ function LockIcon() {
 }
 
 function VoiceWave() {
+  useLocale();
   const bars = [10, 18, 27, 16, 32, 23, 12, 20, 9];
 
   return (

@@ -21,17 +21,19 @@ Proven through automated tests and live, isolated Cloudflare staging with synthe
 - Owner deletion of R2 media and connected D1 rows with a content-free deletion receipt. Existing code/tests decrement the free completion count after deletion; the earlier claim that deletion does not restore capacity was inaccurate. Resolve the intended entitlement policy explicitly before release.
 - A / A+ / A++ text size; public Legacy Story Starter, `llms.txt`, OpenAPI, and MCP agent surface (ASC-01) with the private archive excluded.
 
-## Review/finish work on the dependent implementation branch
+## Newly merged solo trust controls and bilingual implementation
 
-PR #21 remains an open draft at `be1e85e`, with successful CI. The dependent `feat/storyteller-review-finish` branch adds editable transcript/context review, owner-attributed revision history, atomic stale-version protection, explicit source confirmation and voluntary finish without required Muse turns/context/transcription. It also pins family-link captions so subsequent private corrections cannot expand earlier shares. Additive migration 0008 is required before its matching Worker/client.
+PR #21 merged as `a63c606` with owner family-link inventory/revocation, speech stop/replay cleanup and transcription retry repair. PR #22 was retargeted to main, passed fresh CI/local verification and merged as `b55aaf9`. Main now includes editable transcript/context review, owner-attributed revision history, atomic stale-version protection, explicit source confirmation and voluntary finish without required Muse turns/context/transcription. Family captions stay pinned to the selected revision. Additive migration 0008 is required before deploying this Worker/client baseline.
 
-These are implementation-branch changes, not merged main or fresh live staging/device/human acceptance. See `IMPLEMENTATION/STORYTELLER_REVIEW_FINISH_2026-11-13.md` and the corresponding decision. Keep the pinned-caption reader and schema if pausing edits; never roll back to the old current-transcript sharing reader after private corrections exist.
+The `feat/english-spanish-interface` branch adds the current solo interface in English and Spanish, device-persisted language selection, official Clerk Spanish resources, localized family views/errors and UI-language Muse requests while preserving source testimony and unsaved edits. See `IMPLEMENTATION/ENGLISH_SPANISH_INTERFACE_2026-11-13.md` for verification and limits. This is implementation-branch work pending review/merge and human language acceptance.
+
+No fresh live staging/device/human acceptance or deployment is claimed for these changes. Keep the pinned-caption reader and schema if pausing edits; never roll back to the old current-transcript sharing reader after private corrections exist.
 
 ## Expanded first-release scope
 
 The owner explicitly included archival still capture/scans; Our Living Legacy sessions; Chapters/people/family roles/invitations/contributions; search/timeline/optional resurfacing; complete export/integrity/stewardship; and reviewed derivatives/distribution/paid plans in the same first release. See `DECISIONS/2026-11-13-expanded-first-release.md` and `EXECUTION/EXPANDED_FIRST_RELEASE.md`. These capabilities are required, not post-release deferrals. Their inclusion is a scope decision, not a claim they are implemented.
 
-The current source baseline remains `0d4452e`. The owner-control implementation branch is under review; no new live-provider, physical-device or human proof has been established.
+The current merged source baseline is `b55aaf9`. No new live-provider, physical-device or human proof has been established.
 
 ## Internal solo foundation checkpoint (not yet passed)
 
@@ -80,7 +82,7 @@ Always branch from current `origin/main`. See `DECISIONS/2026-10-01-retire-stale
 
 ## Next
 
-1. Review/integrate PR #21 and the dependent review/finish work; complete EN/ES UI and remaining media/accessibility/operations evidence.
+1. Review/integrate the EN/ES interface branch, then complete Spanish copy, real-device, media/accessibility and operations evidence. PRs #21 and #22 are merged.
 2. Build the complete expanded first-release matrix in dependency order, including all six owner-requested capability groups.
 3. Complete integrated human/device/security/legal/operations evidence and present an exact candidate SHA. Production is a separate decision.
 

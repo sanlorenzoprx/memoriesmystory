@@ -61,22 +61,32 @@
           "branch": "feat/expanded-release-owner-controls",
           "pr": 21,
           "head_sha": "be1e85e98c7e16bb8977879b502906c3b0ff9f30",
-          "status": "draft_ci_passed_unmerged"
+          "status": "merged_local_and_ci_proven",
+          "merge_sha": "a63c6061426e7b7079fe056271be66452c3391ee"
         },
         {
           "packet": "A02/A03",
           "branch": "feat/storyteller-review-finish",
-          "status": "locally_proven_pending_ci_and_review",
+          "status": "merged_local_and_ci_proven",
           "receipt": "docs/IMPLEMENTATION/STORYTELLER_REVIEW_FINISH_2026-11-13.md",
           "local_verification": {
             "unit_integration_tests": 97,
             "phone_chromium_tests": 18,
             "canonical_verify": "passed"
-          }
+          },
+          "pr": 22,
+          "merge_sha": "b55aaf957f6aa896c38331080c89e7e1222c084e"
         },
         {
           "packet": "A04",
-          "status": "pending"
+          "status": "locally_proven_pending_ci_and_review",
+          "branch": "feat/english-spanish-interface",
+          "receipt": "docs/IMPLEMENTATION/ENGLISH_SPANISH_INTERFACE_2026-11-13.md",
+          "local_verification": {
+            "unit_integration_tests": 104,
+            "phone_chromium_tests": 23,
+            "canonical_verify": "passed"
+          }
         },
         {
           "packet": "A05/A07/A08",
@@ -226,7 +236,7 @@
   "week_one_task_graph": "docs/EXECUTION/ONE_WEEK_LIVING_MEMORY_TASK_GRAPH.json",
   "storyteller_sovereignty": "docs/PRODUCT/STORYTELLER_SOVEREIGNTY.md",
   "historical_packet_specification": "docs/IMPLEMENTATION/PHASE_1_SOLO_MEMORY_STORY_BUILD_SPEC.md",
-  "current_checkpoint_sha": "0d4452eb9ffb78ad22758d00ab32df0fdead0367",
+  "current_checkpoint_sha": "b55aaf957f6aa896c38331080c89e7e1222c084e",
   "current_stage": "expanded-first-release-development",
   "current_blockers": [
     "Repeat the real-phone journey on the repaired build: iPhone Safari and Android Chrome",

@@ -1,3 +1,4 @@
+import { apiMessageKey } from "../localization/errors";
 import type { LocalAudio } from "../features/capture/local-draft";
 
 export type MuseVoiceReplyUploadIdentity = {
@@ -39,7 +40,7 @@ async function responseError(response: Response): Promise<MuseVoiceReplyError> {
       error?: { code?: string; message?: string };
     };
     return new MuseVoiceReplyError(
-      body.error?.message ?? "The voice reply could not continue.",
+      apiMessageKey(body.error?.code, "The voice reply could not continue."),
       body.error?.code ?? "muse_voice_reply_failed",
       response.status
     );

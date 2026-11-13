@@ -1,3 +1,4 @@
+import { t, notice, useLocale } from "../../localization/language";
 import { SignIn, SignedIn, SignedOut, useAuth } from "@clerk/clerk-react";
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router";
@@ -8,29 +9,26 @@ import { loadLocalDraft } from "../../services/local-draft-store";
 const clerkConfigured = Boolean(import.meta.env.VITE_CLERK_PUBLISHABLE_KEY);
 
 export function IdentityExperience() {
+  useLocale();
   const [searchParams] = useSearchParams();
   const draftId = searchParams.get("draftId");
 
   if (!clerkConfigured) {
     return (
       <IdentityFrame>
-        <p className="eyebrow">Your story is safe</p>
-        <h1>Carry it with you.</h1>
-        <p className="capture-lede">
-          Sign-in is ready for Clerk configuration. Your photograph and voice remain safely preserved while this environment is connected.
-        </p>
-        {draftId && <Link className="secondary-action" to={`/capture/${encodeURIComponent(draftId)}`}>Return to your preserved story</Link>}
+        <p className="eyebrow">{t("Your story is safe")}</p>
+        <h1>{t("Carry it with you.")}</h1>
+        <p className="capture-lede">{t("Sign-in is ready for Clerk configuration. Your photograph and voice remain safely preserved while this environment is connected.")}</p>
+        {draftId && <Link className="secondary-action" to={`/capture/${encodeURIComponent(draftId)}`}>{t("Return to your preserved story")}</Link>}
       </IdentityFrame>
     );
   }
 
   return (
     <IdentityFrame>
-      <p className="eyebrow">Protected family archive</p>
-      <h1>Your story, wherever you are.</h1>
-      <p className="capture-lede">
-        Sign in to protect this Living Memory and continue on your phone, tablet or computer.
-      </p>
+      <p className="eyebrow">{t("Protected family archive")}</p>
+      <h1>{t("Your story, wherever you are.")}</h1>
+      <p className="capture-lede">{t("Sign in to protect this Living Memory and continue on your phone, tablet or computer.")}</p>
       <SignedOut>
         <div className="clerk-responsive-frame">
           <SignIn routing="hash" />
@@ -44,6 +42,7 @@ export function IdentityExperience() {
 }
 
 function BindIdentity({ draftId }: { readonly draftId: string | null }) {
+  useLocale();
   const { getToken } = useAuth();
   const navigate = useNavigate();
   const [message, setMessage] = useState("Opening your private archive…");
@@ -72,15 +71,16 @@ function BindIdentity({ draftId }: { readonly draftId: string | null }) {
     return () => { active = false; };
   }, [draftId, getToken, navigate]);
 
-  return <p className="preservation-status" role="status">{message}</p>;
+  return <p className="preservation-status" role="status">{notice(message)}</p>;
 }
 
 function IdentityFrame({ children }: { readonly children: React.ReactNode }) {
+  useLocale();
   return (
     <div className="quiet-page identity-page" id="main-content">
       <section className="capture-introduction identity-card">
         {children}
-        <p className="privacy-promise">Private by default. Nothing is shared unless you choose.</p>
+        <p className="privacy-promise">{t("Private by default. Nothing is shared unless you choose.")}</p>
       </section>
     </div>
   );

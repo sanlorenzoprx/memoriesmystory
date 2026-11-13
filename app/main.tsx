@@ -1,6 +1,8 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router";
+import { esMX } from "@clerk/localizations";
+import { useLocale } from "./localization/language";
 import { ClerkProvider } from "@clerk/clerk-react";
 
 import { routes } from "./routes";
@@ -20,13 +22,11 @@ const application = (
 );
 
 const publishableKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
-createRoot(rootElement).render(
-  publishableKey
-    ? (
-        <ClerkProvider publishableKey={publishableKey}>
-          <AccountSessionBridge />
-          {application}
-        </ClerkProvider>
-      )
-    : application
-);
+function ConfiguredApplication() {
+  const locale = useLocale();
+  return <ClerkProvider publishableKey={publishableKey} localization={locale.startsWith("es") ? esMX : undefined}>
+    <AccountSessionBridge />
+    {application}
+  </ClerkProvider>;
+}
+createRoot(rootElement).render(publishableKey ? <ConfiguredApplication /> : application);

@@ -1,3 +1,4 @@
+import { t, notice, useLocale } from "../localization/language";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { phase1Config } from "../../config/phase-1";
@@ -42,6 +43,7 @@ export function MuseVoiceReplyRecorder({
     voiceReplyAssetId: string
   ) => Promise<void>;
 }) {
+  useLocale();
   const [phase, setPhase] = useState<RecorderPhase>("idle");
   useEffect(() => { onActivityChange?.(phase !== "idle"); }, [phase, onActivityChange]);
   const [elapsedMs, setElapsedMs] = useState(0);
@@ -274,28 +276,22 @@ export function MuseVoiceReplyRecorder({
   if (phase === "error" && audio && localAudioUrl) {
     return (
       <div className="muse-voice-reply review">
-        <strong>Your reply is still on this device.</strong>
-        <audio controls src={localAudioUrl}>
-          Your browser cannot play this voice reply.
-        </audio>
-        {message && <p className="muse-voice-note" role="status">{message}</p>}
+        <strong>{t("Your reply is still on this device.")}</strong>
+        <audio controls src={localAudioUrl}>{t("Your browser cannot play this voice reply.")}</audio>
+        {message && <p className="muse-voice-note" role="status">{notice(message)}</p>}
         <div className="muse-voice-reply-actions">
           <button
             className="primary-action"
             type="button"
             disabled={disabled}
             onClick={() => void preserveAndTranscribe()}
-          >
-            Retry preserve
-          </button>
+          >{t("Retry preserve")}</button>
           <button
             className="secondary-action"
             type="button"
             disabled={disabled}
             onClick={recordAgain}
-          >
-            Record again
-          </button>
+          >{t("Record again")}</button>
         </div>
       </div>
     );
@@ -310,10 +306,8 @@ export function MuseVoiceReplyRecorder({
           disabled={disabled}
           onClick={() => void startRecording()}
         >
-          <span aria-hidden="true">●</span>
-          Answer with voice
-        </button>
-        {message && <p className="muse-voice-note" role="status">{message}</p>}
+          <span aria-hidden="true">●</span>{t("Answer with voice")}</button>
+        {message && <p className="muse-voice-note" role="status">{notice(message)}</p>}
       </div>
     );
   }
@@ -321,7 +315,7 @@ export function MuseVoiceReplyRecorder({
   if (phase === "requesting") {
     return (
       <div className="muse-voice-reply" role="status">
-        <p className="muse-voice-note">Opening the microphone…</p>
+        <p className="muse-voice-note">{t("Opening the microphone…")}</p>
       </div>
     );
   }
@@ -332,7 +326,7 @@ export function MuseVoiceReplyRecorder({
       <div className="muse-voice-reply recording" role="status">
         <div className="muse-voice-recording-status">
           <span className="recording-dot" aria-hidden="true" />
-          <strong>Answering Muse</strong>
+          <strong>{t("Answering Muse")}</strong>
           <span>{seconds}s / {phase1Config.entitlements.freeVoiceSecondsPerStory}s</span>
         </div>
         <button
@@ -340,8 +334,7 @@ export function MuseVoiceReplyRecorder({
           type="button"
           onClick={stopRecording}
         >
-          <span aria-hidden="true" /> Stop
-        </button>
+          <span aria-hidden="true" />{t("Stop")}</button>
       </div>
     );
   }
@@ -349,27 +342,21 @@ export function MuseVoiceReplyRecorder({
   if (phase === "review" && audio && localAudioUrl) {
     return (
       <div className="muse-voice-reply review">
-        <strong>Listen before you send it</strong>
-        <audio controls src={localAudioUrl}>
-          Your browser cannot play this voice reply.
-        </audio>
+        <strong>{t("Listen before you send it")}</strong>
+        <audio controls src={localAudioUrl}>{t("Your browser cannot play this voice reply.")}</audio>
         <div className="muse-voice-reply-actions">
           <button
             className="primary-action"
             type="button"
             disabled={disabled}
             onClick={() => void preserveAndTranscribe()}
-          >
-            Use this voice reply
-          </button>
+          >{t("Use this voice reply")}</button>
           <button
             className="secondary-action"
             type="button"
             disabled={disabled}
             onClick={recordAgain}
-          >
-            Record again
-          </button>
+          >{t("Record again")}</button>
         </div>
       </div>
     );
@@ -378,9 +365,7 @@ export function MuseVoiceReplyRecorder({
   if (phase === "uploading") {
     return (
       <div className="muse-voice-reply" role="status">
-        <p className="muse-voice-note">
-          Preserving your real voice, then letting Muse read the words…
-        </p>
+        <p className="muse-voice-note">{t("Preserving your real voice, then letting Muse read the words…")}</p>
       </div>
     );
   }
@@ -388,59 +373,47 @@ export function MuseVoiceReplyRecorder({
   if (phase === "transcription_pending") {
     return (
       <div className="muse-voice-reply">
-        <strong>Your voice reply is safe.</strong>
-        <p className="muse-voice-note">
-          Muse needs another try to read the words. You do not need to record again.
-        </p>
+        <strong>{t("Your voice reply is safe.")}</strong>
+        <p className="muse-voice-note">{t("Muse needs another try to read the words. You do not need to record again.")}</p>
         <button
           className="secondary-action"
           type="button"
           disabled={disabled}
           onClick={() => void retryTranscription()}
-        >
-          Try transcript again
-        </button>
-        {message && <p className="muse-voice-note" role="status">{message}</p>}
+        >{t("Try transcript again")}</button>
+        {message && <p className="muse-voice-note" role="status">{notice(message)}</p>}
       </div>
     );
   }
 
   return (
     <div className="muse-voice-reply transcript-review">
-      <strong>Muse heard:</strong>
+      <strong>{t("Muse heard:")}</strong>
       {localAudioUrl && (
-        <audio controls src={localAudioUrl}>
-          Your browser cannot play this voice reply.
-        </audio>
+        <audio controls src={localAudioUrl}>{t("Your browser cannot play this voice reply.")}</audio>
       )}
       <label>
-        <span className="sr-only">Review the transcript Muse heard</span>
+        <span className="sr-only">{t("Review the transcript Muse heard")}</span>
         <textarea
           rows={3}
           value={transcript}
           onChange={(event) => setTranscript(event.target.value)}
         />
       </label>
-      <span className="muse-voice-note">
-        Correct the words if transcription missed something. Your preserved audio is never changed.
-      </span>
+      <span className="muse-voice-note">{t("Correct the words if transcription missed something. Your preserved audio is never changed.")}</span>
       <label className="muse-approximate-choice">
         <input
           type="checkbox"
           checked={approximate}
           onChange={(event) => setApproximate(event.target.checked)}
-        />
-        I'm not completely sure
-      </label>
+        />{t("I'm not completely sure")}</label>
       <button
         className="primary-action"
         type="button"
         disabled={disabled || !transcript.trim()}
         onClick={() => void sendToMuse()}
-      >
-        Send voice reply to Muse
-      </button>
-      {message && <p className="muse-voice-note" role="status">{message}</p>}
+      >{t("Send voice reply to Muse")}</button>
+      {message && <p className="muse-voice-note" role="status">{notice(message)}</p>}
     </div>
   );
 }
