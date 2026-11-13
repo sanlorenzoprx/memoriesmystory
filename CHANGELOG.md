@@ -1,5 +1,13 @@
 # Foundation Package Changelog
 
+## Storyteller review and voluntary finish — 2026-11-13
+
+- Added attributable transcript/context revisions, original machine transcript and revision history, stale-version protection and retry-safe saves before/after completion.
+- Added voluntary finish after one Muse prompt or without waiting for transcription; require explicit owner confirmation of durable originals instead of completed context fields.
+- Pinned family-share captions to the selected transcript revision, including migration/cutover handling; private corrections cannot expand existing links.
+- Preserved completed state when delayed transcription arrives and corrected revision deletion order. New edits can be paused without discarding history or reverting the safe share reader.
+- Recorded the existing deletion/free-capacity documentation discrepancy without changing economic policy. Live providers, real phones, human acceptance and full bilingual UI remain unproven.
+
 ## Expanded first-release scope and owner controls — 2026-11-13
 
 - Recorded the explicit owner decision to include archival scans, shared sessions, family organization/contributions, retrieval/resurfacing, export/integrity/stewardship, reviewed derivatives/distribution and paid plans in the same first release. Updated release gates and the ordered task ledger without marking unbuilt capabilities complete.

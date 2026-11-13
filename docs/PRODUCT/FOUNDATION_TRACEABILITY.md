@@ -8,6 +8,7 @@ Use this map to prevent implementation from becoming disconnected from the Livin
 | Record authentic voice | Voice carries the person and remains a primary source. | I-02, I-04, I-08 | Original playback is available after durable preservation. |
 | Assemble Living Memory | Photo, voice, context, truth, and provenance must remain connected. | I-01, I-03, I-04, I-09 | `LivingMemory` aggregate validates durable originals and common source binding. |
 | Transcribe and extract context | Search and discovery help families understand without replacing testimony. | I-04, I-05, I-06, I-26 | Generated/structured material stays separate and uncertainty is visible. |
+| Storyteller review and voluntary finish | Optional elicitation cannot block preserving authentic sources; corrections remain additive. | I-03–I-10, I-16, I-19–I-21 | Source-confirmed completion without anchors/Muse/transcription; original transcript retained; stale edits rejected; shared captions pinned to the selected revision. See November 13 review/finish decision and receipt. |
 | Muse follow-up | One thoughtful question can help a memory emerge. | I-16, I-26 | Muse listens first; one relevant question follows; silence is allowed. |
 | Durable preservation | Families must be able to trust “saved.” | I-08, I-09, I-10 | Completion copy appears only after required originals confirm. |
 | First-five-minute Magic Moment | The first experience must prove transformation, not explain features. | I-13, I-14, I-15 | `first_living_memory_completed` occurs only after a valid durable completion path. |

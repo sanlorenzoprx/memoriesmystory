@@ -91,3 +91,22 @@ Observations preserve evidence separately from proposed solutions. Follow `READM
 - **Confidence and contrary evidence:** High for the observed staging paths. A custom Meta development app may later allow bounded tester evidence before public approval, but that path was not completed or claimed here.
 - **Affected experience or invariant:** I-04 continuity across time, I-13 recoverable guidance, I-16 privacy by default, and truthful acceptance evidence.
 - **Related proposal:** Addressed operationally by the Packet 4 preflight's explicit `deferred` state; Facebook remains required by final acceptance.
+
+
+### L-2026-11-13-001 — Private corrections require frozen shared captions
+
+- **Status:** addressed on implementation branch; review/live acceptance pending.
+- **Evidence source:** repository inspection of `worker/sharing.ts` and deterministic review/sharing integration tests.
+- **Observed fact:** the original share reader joined the memory's current transcript. Once owner revisions are introduced, that would silently change text available through an existing link.
+- **Interpretation:** pin a bounded artifact to the selected transcript revision at creation, and pin existing/transitional artifacts before enabling private corrections. Keep that reader on rollback.
+- **Affected invariants:** I-08–I-09, I-19–I-21, I-26.
+- **Related decision:** `../DECISIONS/2026-11-13-storyteller-review-and-voluntary-finish.md`.
+
+### L-2026-11-13-002 — Deletion entitlement behavior differs from prior status wording
+
+- **Status:** new; policy decision required before release.
+- **Evidence source:** `worker/deletion.ts`, migration 0004 and `tests/integration/memory-deletion.test.ts`.
+- **Observed fact:** deletion decrements `free_stories_completed`; the existing test expects zero afterward. Earlier CURRENT_STATE wording claimed capacity was not restored.
+- **Interpretation:** correct the evidence record; do not silently reinterpret trial/paid entitlements while introducing storyteller revisions. Choose the intended behavior explicitly with capacity/retention policy.
+- **Confidence:** high for code/test behavior; no real-account or live-provider behavior asserted.
+- **Affected invariants:** I-09, I-29; paid-capacity and deletion policy.

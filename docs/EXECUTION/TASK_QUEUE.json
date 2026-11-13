@@ -54,7 +54,36 @@
         "packet-3"
       ],
       "title": "Owner share inventory/revoke, editable review, voluntary finish, bilingual UI and resilient speech/retries",
-      "release_required": true
+      "release_required": true,
+      "implementation_packets": [
+        {
+          "packet": "A01",
+          "branch": "feat/expanded-release-owner-controls",
+          "pr": 21,
+          "head_sha": "be1e85e98c7e16bb8977879b502906c3b0ff9f30",
+          "status": "draft_ci_passed_unmerged"
+        },
+        {
+          "packet": "A02/A03",
+          "branch": "feat/storyteller-review-finish",
+          "status": "locally_proven_pending_ci_and_review",
+          "receipt": "docs/IMPLEMENTATION/STORYTELLER_REVIEW_FINISH_2026-11-13.md",
+          "local_verification": {
+            "unit_integration_tests": 97,
+            "phone_chromium_tests": 18,
+            "canonical_verify": "passed"
+          }
+        },
+        {
+          "packet": "A04",
+          "status": "pending"
+        },
+        {
+          "packet": "A05/A07/A08",
+          "status": "partial_or_pending",
+          "note": "Speech/retry repairs on PR #21; broader accessibility/operations and physical-device/human evidence remain"
+        }
+      ]
     },
     {
       "id": "week-one-living-memory-proof",
@@ -206,7 +235,8 @@
     "Packet 4 closeout: email and Google sign-in plus second-device recovery on a real phone (Facebook sign-in is deferred and non-blocking)",
     "All required expanded first-release capabilities need code and matching evidence; see release matrix",
     "Live staging/provider credentials are absent from the current execution environment",
-    "Paid offers/terms and stewardship/contributor legal policies remain unapproved"
+    "Paid offers/terms and stewardship/contributor legal policies remain unapproved",
+    "Resolve deletion entitlement policy: current code/tests restore the free completion count; previous status wording claimed otherwise"
   ],
   "current_state": "docs/CURRENT_STATE.md",
   "next_phase": "docs/EXECUTION/NEXT_PHASE_OUR_LIVING_LEGACY_AND_PHOTO_DIGITIZATION.md",

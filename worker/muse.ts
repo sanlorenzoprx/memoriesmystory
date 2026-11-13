@@ -378,7 +378,7 @@ async function saveContext(
 
   await env.DB.prepare(
     `UPDATE memory_story_drafts
-     SET status = 'review_ready', updated_at = ?, version = version + 1
+     SET status = CASE WHEN status = 'complete' THEN 'complete' ELSE 'review_ready' END, updated_at = ?, version = version + 1
      WHERE id = ? AND owner_user_id = ?`
   ).bind(now, draftId, userId).run();
 

@@ -29,11 +29,13 @@ export function MuseVoiceReplyRecorder({
   draftId,
   replyToTurnId,
   disabled,
+  onActivityChange,
   onSend
 }: {
   readonly draftId: string;
   readonly replyToTurnId: string;
   readonly disabled: boolean;
+  readonly onActivityChange?: (pending: boolean) => void;
   readonly onSend: (
     answer: string,
     state: "stated" | "approximate",
@@ -41,6 +43,7 @@ export function MuseVoiceReplyRecorder({
   ) => Promise<void>;
 }) {
   const [phase, setPhase] = useState<RecorderPhase>("idle");
+  useEffect(() => { onActivityChange?.(phase !== "idle"); }, [phase, onActivityChange]);
   const [elapsedMs, setElapsedMs] = useState(0);
   const [audio, setAudio] = useState<LocalAudio | null>(null);
   const [identity, setIdentity] = useState<MuseVoiceReplyUploadIdentity | null>(null);

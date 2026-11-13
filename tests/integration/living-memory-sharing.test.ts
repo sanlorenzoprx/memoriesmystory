@@ -49,12 +49,16 @@ class TestD1Statement {
 class TestD1 {
   readonly database = new DatabaseSync(":memory:");
 
-  constructor() {
+  constructor(withReview = true) {
     for (const migration of [
       "0001_phase_1_foundation.sql",
       "0002_account_binding_recovery.sql",
       "0003_living_memory_proof.sql",
-      "0004_configurable_story_entitlements.sql"
+      "0004_configurable_story_entitlements.sql",
+      "0005_memory_deletion.sql",
+      "0006_muse_conversation.sql",
+      "0007_muse_voice_replies.sql",
+      ...(withReview ? ["0008_storyteller_review.sql"] : [])
     ]) {
       this.database.exec(
         readFileSync(new URL(`../../migrations/${migration}`, import.meta.url), "utf8")
@@ -229,6 +233,26 @@ describe("bounded Living Memory family sharing", () => {
     cookie = cookieHeader((await createAppSession(env, userId)).cookie);
   });
 
+  it("pins pre-migration captions and shares created by the old Worker during cutover", () => {
+    const legacy = new TestD1(false);
+    seedCompletedLivingMemory(legacy);
+    const add = (suffix: string) => {
+      legacy.database.prepare(`INSERT INTO memory_story_shares
+        (id,memory_story_id,owner_user_id,token_hash,visibility,created_at,updated_at)
+        VALUES (?,?,?,?,'private_link',?,?)`).run(`legacy_share_${suffix}`, storyId, userId, `legacy_hash_${suffix}`, now, now);
+      legacy.database.prepare(`INSERT INTO living_memory_share_artifacts
+        (id,share_id,memory_story_id,owner_user_id,include_photo,include_captions,created_at,updated_at)
+        VALUES (?,?,?,?,1,1,?,?)`).run(`legacy_artifact_${suffix}`, `legacy_share_${suffix}`, storyId, userId, now, now);
+    };
+    add("before");
+    legacy.database.exec(readFileSync(new URL("../../migrations/0008_storyteller_review.sql", import.meta.url), "utf8"));
+    add("during");
+    expect(legacy.database.prepare("SELECT transcript_revision_id FROM living_memory_share_artifacts ORDER BY id").all()).toEqual([
+      { transcript_revision_id: transcriptId }, { transcript_revision_id: transcriptId }
+    ]);
+    expect(() => legacy.database.prepare("UPDATE living_memory_share_artifacts SET transcript_revision_id = NULL").run()).toThrow(/immutable/);
+  });
+
   it("previews only the allowlisted projection and keeps private archive data out by default", async () => {
     const preview = await handleSharingRoute(
       ownerRequest(
@@ -395,7 +419,7 @@ describe("bounded Living Memory family sharing", () => {
         `/resources/living-memories/${storyId}/share-preview`,
         cookie,
         "POST",
-        { includeCaptions: true, includeVoice: false }
+        { includeCaptions: true, includeVoice: false, expectedTranscriptRevisionId: transcriptId }
       ),
       env
     );
@@ -406,7 +430,7 @@ describe("bounded Living Memory family sharing", () => {
         `/resources/living-memories/${storyId}/shares`,
         cookie,
         "POST",
-        { includeCaptions: true, includeVoice: false },
+        { includeCaptions: true, includeVoice: false, expectedTranscriptRevisionId: transcriptId },
         "share_living_memory_002"
       ),
       env
@@ -420,7 +444,7 @@ describe("bounded Living Memory family sharing", () => {
         `/resources/living-memories/${storyId}/shares`,
         cookie,
         "POST",
-        { includeCaptions: true, includeVoice: false },
+        { includeCaptions: true, includeVoice: false, expectedTranscriptRevisionId: transcriptId },
         "share_living_memory_002"
       ),
       env
