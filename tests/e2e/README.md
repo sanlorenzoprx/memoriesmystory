@@ -12,3 +12,5 @@ The committed suite protects the approved first screen, both entry paths, camera
 Chromium automation is a CI gate. Current iPhone Safari and real Android device checks remain explicit release evidence; browser emulation is not a substitute for those checks.
 
 The English/Spanish suite also verifies device language persistence, unchanged original-photo SHA-256 after switching/reload, translated account/error controls, unsaved transcript edits, original testimony that matches a catalog phrase, Spanish source-confirmed finish, and English/Spanish family-link revocation and deletion confirmations. Account/review/share API stubs are synthetic UI evidence; they do not establish live Clerk/provider acceptance.
+
+The archival still suite uses synthetic camera streams and still blobs to verify original SHA-256/dimensions across reload, late-response cancellation, stopped permission grants, and Spanish device-picker recovery with an image-element decode fallback. Native camera/library selection, actual sensor resolution and physical print quality remain real-device evidence.

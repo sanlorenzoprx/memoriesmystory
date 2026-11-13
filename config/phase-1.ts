@@ -31,6 +31,13 @@ export const phase1Config = {
       "audio/ogg"
     ]
   },
+  capture: {
+    previewWidth: 4096,
+    previewHeight: 3072,
+    preferredShortestEdge: 1800,
+    videoJpegQuality: 0.98,
+    stillRequestTimeoutMs: 8_000
+  },
   review: {
     maxTranscriptCharacters: 12_000,
     maxContextCharacters: 1_200,

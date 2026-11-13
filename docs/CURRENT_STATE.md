@@ -25,15 +25,19 @@ Proven through automated tests and live, isolated Cloudflare staging with synthe
 
 PR #21 merged as `a63c606` with owner family-link inventory/revocation, speech stop/replay cleanup and transcription retry repair. PR #22 was retargeted to main, passed fresh CI/local verification and merged as `b55aaf9`. Main now includes editable transcript/context review, owner-attributed revision history, atomic stale-version protection, explicit source confirmation and voluntary finish without required Muse turns/context/transcription. Family captions stay pinned to the selected revision. Additive migration 0008 is required before deploying this Worker/client baseline.
 
-The `feat/english-spanish-interface` branch adds the current solo interface in English and Spanish, device-persisted language selection, official Clerk Spanish resources, localized family views/errors and UI-language Muse requests while preserving source testimony and unsaved edits. See `IMPLEMENTATION/ENGLISH_SPANISH_INTERFACE_2026-11-13.md` for verification and limits. This is implementation-branch work pending review/merge and human language acceptance.
+PR #23 merged as `cb87c56` after CI passed. It adds the current solo interface in English and Spanish, device-persisted language selection, official Clerk Spanish resources, localized family views/errors and UI-language Muse requests while preserving source testimony and unsaved edits. See `IMPLEMENTATION/ENGLISH_SPANISH_INTERFACE_2026-11-13.md` for verification and limits. The code is merged; native Spanish/Puerto Rican copy and human language acceptance remain pending.
 
 No fresh live staging/device/human acceptance or deployment is claimed for these changes. Keep the pinned-caption reader and schema if pausing edits; never roll back to the old current-transcript sharing reader after private corrections exist.
+
+## Archival still acquisition in development
+
+The owner explicitly authorized `feat/archival-still-capture` from merged main while physical-device/human solo acceptance remains pending. The branch adds an explicit device-camera picker, ImageCapture still preference with default retry/bounded waits, a labeled actual-size video-frame fallback, cancellation/late-response guards, unchanged source bytes and additive local acquisition/orientation metadata. See `IMPLEMENTATION/ARCHIVAL_STILL_CAPTURE_2026-11-13.md` for evidence and limits. It does not yet deliver perspective correction or separate durable scan storage. Full R1 and the internal solo checkpoint remain unaccepted.
 
 ## Expanded first-release scope
 
 The owner explicitly included archival still capture/scans; Our Living Legacy sessions; Chapters/people/family roles/invitations/contributions; search/timeline/optional resurfacing; complete export/integrity/stewardship; and reviewed derivatives/distribution/paid plans in the same first release. See `DECISIONS/2026-11-13-expanded-first-release.md` and `EXECUTION/EXPANDED_FIRST_RELEASE.md`. These capabilities are required, not post-release deferrals. Their inclusion is a scope decision, not a claim they are implemented.
 
-The current merged source baseline is `b55aaf9`. No new live-provider, physical-device or human proof has been established.
+The current merged source baseline is `cb87c56`. No new live-provider, physical-device or human proof has been established.
 
 ## Internal solo foundation checkpoint (not yet passed)
 
@@ -82,7 +86,7 @@ Always branch from current `origin/main`. See `DECISIONS/2026-10-01-retire-stale
 
 ## Next
 
-1. Review/integrate the EN/ES interface branch, then complete Spanish copy, real-device, media/accessibility and operations evidence. PRs #21 and #22 are merged.
+1. Review the native-still capture slice and complete separate perspective-corrected scans. PRs #21–#23 are merged; Spanish copy, real-device, human and operations evidence remain pending.
 2. Build the complete expanded first-release matrix in dependency order, including all six owner-requested capability groups.
 3. Complete integrated human/device/security/legal/operations evidence and present an exact candidate SHA. Production is a separate decision.
 

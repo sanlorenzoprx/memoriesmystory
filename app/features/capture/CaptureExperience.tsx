@@ -23,6 +23,7 @@ import {
   makeDraftToken,
   saveLocalDraft
 } from "../../services/local-draft-store";
+import { captureStillPhoto } from "../../services/still-photo-capture";
 import { inspectLocalPhoto } from "../../services/photo-inspection";
 import { deleteMemory } from "../../services/memory-deletion";
 import { OriginalsExperience } from "./OriginalsExperience";
@@ -47,39 +48,6 @@ function stopStream(stream: MediaStream | null): void {
   stream?.getTracks().forEach((track) => track.stop());
 }
 
-function photoFromVideo(video: HTMLVideoElement): Promise<Blob> {
-  if (!video.videoWidth || !video.videoHeight) {
-    return Promise.reject(
-      new Error("The camera is still getting ready. Please try once more.")
-    );
-  }
-
-  const canvas = document.createElement("canvas");
-  canvas.width = video.videoWidth;
-  canvas.height = video.videoHeight;
-  const context = canvas.getContext("2d");
-
-  if (!context) {
-    return Promise.reject(new Error("This browser could not capture the photograph."));
-  }
-
-  context.drawImage(video, 0, 0);
-
-  return new Promise((resolve, reject) => {
-    canvas.toBlob(
-      (blob) => {
-        if (blob) {
-          resolve(blob);
-        } else {
-          reject(new Error("The photograph was not captured. Please try again."));
-        }
-      },
-      "image/jpeg",
-      0.95
-    );
-  });
-}
-
 export function CaptureExperience() {
   useLocale();
   const { draftId } = useParams();
@@ -91,10 +59,16 @@ export function CaptureExperience() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [recovered, setRecovered] = useState(false);
   const [tipsVisible, setTipsVisible] = useState(true);
+  const [capturing, setCapturing] = useState(false);
+  const captureBusy = useRef(false);
+  const cameraEpoch = useRef(0);
+  const captureAbort = useRef<AbortController | null>(null);
+  const alive = useRef(true);
   const [deleting, setDeleting] = useState(false);
   const [isOnline, setIsOnline] = useState(() => navigator.onLine);
   const videoRef = useRef<HTMLVideoElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const deviceCameraRef = useRef<HTMLInputElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
 
@@ -185,11 +159,33 @@ export function CaptureExperience() {
     }
   }, [step]);
 
-  useEffect(() => () => stopStream(streamRef.current), []);
+  useEffect(() => {
+    alive.current = true;
+    return () => {
+      alive.current = false;
+      cameraEpoch.current += 1;
+      captureAbort.current?.abort();
+      stopStream(streamRef.current);
+    };
+  }, [draftId]);
+
+  function closeCamera() {
+    captureAbort.current?.abort();
+    cameraEpoch.current += 1;
+    stopStream(streamRef.current);
+    streamRef.current = null;
+  }
+
+  function chooseDeviceCamera() {
+    closeCamera();
+    setStep("intro");
+    deviceCameraRef.current?.click();
+  }
 
   async function openCamera() {
     setErrorMessage(null);
     setStep("opening-camera");
+    const epoch = ++cameraEpoch.current;
 
     try {
       if (!navigator.mediaDevices?.getUserMedia) {
@@ -200,13 +196,15 @@ export function CaptureExperience() {
         audio: false,
         video: {
           facingMode: { ideal: "environment" },
-          width: { ideal: 1920 },
-          height: { ideal: 1080 }
+          width: { ideal: phase1Config.capture.previewWidth },
+          height: { ideal: phase1Config.capture.previewHeight }
         }
       });
+      if (!alive.current || epoch !== cameraEpoch.current) { stopStream(stream); return; }
       streamRef.current = stream;
       setStep("camera-live");
     } catch (error) {
+      if (!alive.current || epoch !== cameraEpoch.current) return;
       const denied = error instanceof DOMException && error.name === "NotAllowedError";
       setErrorMessage(
         denied
@@ -219,14 +217,17 @@ export function CaptureExperience() {
 
   async function keepPhoto(photo: LocalPhoto) {
     if (!draft) return;
+    const epoch = cameraEpoch.current;
 
     try {
       const updated = attachLocalPhoto(draft, photo);
       await saveLocalDraft(updated);
+      if (!alive.current || epoch !== cameraEpoch.current) return;
       setDraft(updated);
       setRecovered(false);
       setStep("review");
     } catch {
+      if (!alive.current || epoch !== cameraEpoch.current) return;
       setErrorMessage(
         "The photograph could not be kept in this browser. Nothing was uploaded or shared. Please try again."
       );
@@ -235,55 +236,50 @@ export function CaptureExperience() {
   }
 
   async function capturePhoto() {
-    if (!videoRef.current) return;
+    if (!videoRef.current || !streamRef.current || captureBusy.current) return;
+    const epoch = cameraEpoch.current;
+    const controller = new AbortController();
+    captureAbort.current = controller;
+    captureBusy.current = true;
+    setCapturing(true);
     setErrorMessage(null);
-
     try {
-      const blob = await photoFromVideo(videoRef.current);
-      const photo = await inspectLocalPhoto(blob, "camera");
-      stopStream(streamRef.current);
-      streamRef.current = null;
+      const { blob, acquisition } = await captureStillPhoto(videoRef.current, streamRef.current, controller.signal);
+      if (!alive.current || epoch !== cameraEpoch.current) return;
+      const photo = await inspectLocalPhoto(blob, "camera", acquisition);
+      if (!alive.current || epoch !== cameraEpoch.current) return;
+      closeCamera();
       await keepPhoto(photo);
     } catch (error) {
-      setErrorMessage(
-        error instanceof Error
-          ? error.message
-          : "The photograph was not captured. Please try again."
+      if (alive.current && epoch === cameraEpoch.current) setErrorMessage(
+        error instanceof Error ? error.message : "The photograph was not captured. Please try again."
       );
+    } finally {
+      captureBusy.current = false;
+      if (alive.current) setCapturing(false);
     }
   }
 
-  async function importPhoto(event: ChangeEvent<HTMLInputElement>) {
+  async function importPhoto(event: ChangeEvent<HTMLInputElement>, deviceCamera = false) {
     const file = event.target.files?.[0];
     event.target.value = "";
-    if (!file) return;
-
-    const supported = (
-      phase1Config.media.supportedImageMimeTypes as readonly string[]
-    ).includes(file.type);
-
-    if (!supported) {
-      setErrorMessage("Choose a JPEG, PNG, WebP, HEIC, or HEIF photograph.");
-      return;
-    }
-
-    if (file.size > phase1Config.media.maxImageBytes) {
-      setErrorMessage("That photograph is too large. Choose one smaller than 25 MB.");
-      return;
-    }
-
+    if (!file || captureBusy.current) return;
+    closeCamera();
+    const epoch = cameraEpoch.current;
+    captureBusy.current = true;
+    setCapturing(true);
     try {
       setErrorMessage(null);
-      const photo = await inspectLocalPhoto(file, "import");
-      stopStream(streamRef.current);
-      streamRef.current = null;
+      const photo = await inspectLocalPhoto(file, deviceCamera ? "camera" : "import", deviceCamera ? "device_picker" : "file_import");
+      if (!alive.current || epoch !== cameraEpoch.current) return;
       await keepPhoto(photo);
     } catch (error) {
-      setErrorMessage(
-        error instanceof Error
-          ? error.message
-          : "That photograph could not be read. Please choose another."
+      if (alive.current && epoch === cameraEpoch.current) setErrorMessage(
+        error instanceof Error ? error.message : "That photograph could not be read. Please choose another."
       );
+    } finally {
+      captureBusy.current = false;
+      if (alive.current) setCapturing(false);
     }
   }
 
@@ -346,9 +342,14 @@ export function CaptureExperience() {
         className="visually-hidden"
         type="file"
         accept={imageAccept}
+        disabled={capturing}
         onChange={(event) => void importPhoto(event)}
         aria-label={t("Choose a photograph from this device")}
       />
+
+      <input ref={deviceCameraRef} className="visually-hidden" type="file" accept={imageAccept}
+        capture="environment" disabled={capturing} aria-label={t("Take a photo with this device")}
+        onChange={(event) => void importPhoto(event, true)} />
 
       {!isOnline && (
         <p className="connection-note" role="status">{t("No connection—that’s okay. This step stays on your device.")}</p>
@@ -399,7 +400,8 @@ export function CaptureExperience() {
           <div className="capture-actions">
             {entryMode === "camera" ? (
               <>
-                <button className="primary-action" type="button" onClick={() => void openCamera()}>{t("Open camera")}</button>
+                <button className="primary-action" type="button" disabled={capturing} onClick={chooseDeviceCamera}>{t("Use device camera")}</button>
+                <button className="secondary-action" type="button" disabled={capturing} onClick={() => void openCamera()}>{t("Open camera")}</button>
                 <button
                   className="secondary-action"
                   type="button"
@@ -413,11 +415,14 @@ export function CaptureExperience() {
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
                 >{t("Choose a photo")}</button>
-                <button className="secondary-action" type="button" onClick={() => void openCamera()}>{t("Use the camera instead")}</button>
+                <button className="secondary-action" type="button" disabled={capturing} onClick={() => void openCamera()}>{t("Use the camera instead")}</button>
               </>
             )}
           </div>
 
+          {entryMode === "import" && <button className="secondary-action" type="button" disabled={capturing} onClick={chooseDeviceCamera}>{t("Use device camera")}</button>}
+          <p className="cross-device-note">{t("For more detail, use your device camera. Your browser may offer a camera or photo library.")}</p>
+          {capturing && <p role="status">{t("Keeping your photograph on this device…")}</p>}
           <button
             className="text-action"
             type="button"
@@ -433,6 +438,10 @@ export function CaptureExperience() {
         <section className="capture-state centered-state" aria-live="polite">
           <h1 ref={headingRef} tabIndex={-1}>{t("Opening your camera…")}</h1>
           <p>{t("Your browser may ask for permission now.")}</p>
+          <div className="capture-actions">
+            <button className="secondary-action" type="button" onClick={() => { closeCamera(); setStep("intro"); }}>{t("Cancel camera")}</button>
+            <button className="secondary-action" type="button" onClick={() => { closeCamera(); setStep("intro"); fileInputRef.current?.click(); }}>{t("Import a photo")}</button>
+          </div>
         </section>
       )}
 
@@ -446,17 +455,18 @@ export function CaptureExperience() {
           </div>
           {errorMessage && <p className="inline-error" role="alert">{notice(errorMessage)}</p>}
           <div className="camera-actions">
-            <button className="shutter-action" type="button" onClick={() => void capturePhoto()}>
-              <span aria-hidden="true" />{t("Take photo")}</button>
+            <button className="shutter-action" type="button" disabled={capturing} onClick={() => void capturePhoto()}>
+              <span aria-hidden="true" />{capturing ? t("Taking photo…") : t("Take photo")}</button>
             <button
               className="text-action light-text-action"
               type="button"
               onClick={() => {
-                stopStream(streamRef.current);
-                streamRef.current = null;
+                closeCamera();
                 setStep("intro");
               }}
             >{t("Cancel camera")}</button>
+            <button className="text-action light-text-action" type="button" disabled={capturing} onClick={chooseDeviceCamera}>{t("Use device camera")}</button>
+            <button className="text-action light-text-action" type="button" disabled={capturing} onClick={() => { closeCamera(); setStep("intro"); fileInputRef.current?.click(); }}>{t("Import a photo")}</button>
           </div>
         </section>
       )}
@@ -468,7 +478,8 @@ export function CaptureExperience() {
           <p className="capture-lede">{notice(errorMessage)}</p>
           <div className="capture-actions">
             <button className="primary-action" type="button" onClick={() => fileInputRef.current?.click()}>{t("Import a photo")}</button>
-            <button className="secondary-action" type="button" onClick={() => void openCamera()}>{t("Try camera again")}</button>
+            <button className="secondary-action" type="button" disabled={capturing} onClick={() => void openCamera()}>{t("Try camera again")}</button>
+            <button className="secondary-action" type="button" disabled={capturing} onClick={chooseDeviceCamera}>{t("Use device camera")}</button>
           </div>
           <details className="settings-help">
             <summary>{t("How to allow the camera")}</summary>
@@ -484,6 +495,8 @@ export function CaptureExperience() {
           <div className="review-photo-wrap">
             <img src={photoUrl} alt={t("Your selected photograph")} />
           </div>
+          <p className="cross-device-note">{t("Your original photograph is kept unchanged. Any corrected scan will be a separate copy.")}</p>
+          {draft.photo.capture?.method === "video_frame" && <p className="cross-device-note">{t("This photo came from the camera preview. For more detail, try your device camera.")}</p>}
           <div
             className={draft.photo.warning ? "quality-result has-warning" : "quality-result"}
             role="status"

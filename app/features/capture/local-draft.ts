@@ -1,6 +1,9 @@
+import { phase1Config } from "../../../config/phase-1";
 import type { DraftStatus } from "../../domain/memory-story";
 
 export type CaptureEntryMode = "camera" | "import";
+
+export type PhotoAcquisition = "device_picker" | "image_capture" | "video_frame" | "file_import";
 
 export type PhotoQualityKind =
   | "resolution"
@@ -28,6 +31,12 @@ export type LocalPhoto = {
   readonly byteSize: number;
   readonly sha256: string;
   readonly source: CaptureEntryMode;
+  // Optional for earlier recoverable drafts; never infer a capture method retroactively.
+  readonly capture?: {
+    readonly method: PhotoAcquisition;
+    readonly orientation: "portrait" | "landscape" | "square";
+    readonly orientationBasis: "browser_decoded";
+  };
   readonly capturedAt: string;
   readonly inspection: PhotoInspection;
   readonly warning: PhotoQualityWarning | null;
@@ -200,10 +209,10 @@ export function assessPhotoQuality(
 ): PhotoQualityWarning | null {
   const shortestEdge = Math.min(inspection.width, inspection.height);
 
-  if (shortestEdge < 720) {
+  if (shortestEdge < phase1Config.capture.preferredShortestEdge) {
     return {
       kind: "resolution",
-      message: "Move a little closer so the photograph fills more of the frame."
+      message: "For more detail, try your device camera or a larger photo. You can still keep this one."
     };
   }
 

@@ -3,6 +3,14 @@ import type { UiLocale } from "./locale";
 // English message text is the stable catalog key. Only interface copy uses this
 // catalog; personal titles, testimony, transcripts, captions and names do not.
 export const spanishMessages: Readonly<Record<string, string>> = {
+  "For more detail, try your device camera or a larger photo. You can still keep this one.": "Para ver más detalles, prueba la cámara de tu dispositivo o una foto más grande. Puedes conservar esta.",
+  "Take a photo with this device": "Tomar una foto con este dispositivo",
+  "Use device camera": "Usar la cámara del dispositivo",
+  "For more detail, use your device camera. Your browser may offer a camera or photo library.": "Para ver más detalles, usa la cámara de tu dispositivo. El navegador puede ofrecerte la cámara o la biblioteca de fotos.",
+  "Keeping your photograph on this device…": "Guardando tu fotografía en este dispositivo…",
+  "Taking photo…": "Tomando la foto…",
+  "Your original photograph is kept unchanged. Any corrected scan will be a separate copy.": "Tu fotografía original se conserva sin cambios. Cualquier escaneo corregido será una copia aparte.",
+  "This photo came from the camera preview. For more detail, try your device camera.": "Esta foto se tomó de la vista previa de la cámara. Para ver más detalles, prueba la cámara de tu dispositivo.",
   "{seconds} seconds remaining": "Quedan {seconds} segundos",
   "Stop Muse": "Detener a Muse",
   "Hear Muse": "Escuchar a Muse",

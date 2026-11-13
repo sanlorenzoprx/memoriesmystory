@@ -120,3 +120,13 @@ Observations preserve evidence separately from proposed solutions. Follow `READM
 - **Confidence and contrary evidence:** high for tested synthetic paths; native Spanish/Puerto Rican, live account/provider, physical-device and mixed-language human evidence remain pending.
 - **Affected invariants:** I-02–I-06, I-08–I-10, I-17–I-18, I-19–I-21.
 - **Related decision/receipt:** `../DECISIONS/2026-11-13-english-spanish-interface.md`, `../IMPLEMENTATION/ENGLISH_SPANISH_INTERFACE_2026-11-13.md`.
+
+### L-2026-11-13-004 — Preview resolution is not native still provenance
+
+- **Status:** addressed on implementation branch; physical-phone evidence pending.
+- **Evidence source:** synthetic ImageCapture/preview browser fixtures, unit fallback/cancellation tests and prior canvas-only acquisition code.
+- **Observed fact:** a 640×480 preview can return an independent 2400×1800 still. The new path preserves the exact still SHA-256 instead of rasterizing the preview. Device capture hints can open a library, so they do not prove camera origin or sensor resolution.
+- **Interpretation:** prefer returned still blobs, record acquisition method honestly, label video-frame fallbacks, and retain the source unchanged for future separate scans. Decoded orientation is not independently parsed sensor/EXIF metadata.
+- **Confidence and contrary evidence:** high for synthetic byte identity and failure recovery; real iPhone/Android optical quality, orientation, formats and performance still require observed evidence.
+- **Affected invariants:** I-03, I-08–I-10, I-15, I-17–I-18.
+- **Related decision/receipt:** `../DECISIONS/2026-11-13-archival-still-capture.md`, `../IMPLEMENTATION/ARCHIVAL_STILL_CAPTURE_2026-11-13.md`.

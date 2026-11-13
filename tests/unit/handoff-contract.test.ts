@@ -50,6 +50,7 @@ describe("Living Memory execution handoff", () => {
     expect(statusById.get("packet-4")).toBe("paused");
     expect(statusById.get("living-memory-ratification")).toBe("completed");
     expect(statusById.get("week-one-living-memory-proof")).toBe("verification_pending");
-    expect(statusById.get("solo-trust-controls")).toBe("active");
+    expect(statusById.get("solo-trust-controls")).toBe("verification_pending");
+    expect(statusById.get("archival-photo-capture")).toBe("active");
   });
 });

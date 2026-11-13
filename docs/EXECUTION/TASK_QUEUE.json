@@ -2,7 +2,7 @@
   "schema_version": "memoriesmystory_expanded_release_queue_v4",
   "project": "memoriesmystory",
   "campaign": "expanded-first-release",
-  "active_task_id": "solo-trust-controls",
+  "active_task_id": "archival-photo-capture",
   "tasks": [
     {
       "id": "packet-1",
@@ -49,7 +49,7 @@
     },
     {
       "id": "solo-trust-controls",
-      "status": "active",
+      "status": "verification_pending",
       "depends_on": [
         "packet-3"
       ],
@@ -79,14 +79,17 @@
         },
         {
           "packet": "A04",
-          "status": "locally_proven_pending_ci_and_review",
+          "status": "merged_local_and_ci_proven",
           "branch": "feat/english-spanish-interface",
           "receipt": "docs/IMPLEMENTATION/ENGLISH_SPANISH_INTERFACE_2026-11-13.md",
           "local_verification": {
             "unit_integration_tests": 104,
             "phone_chromium_tests": 23,
             "canonical_verify": "passed"
-          }
+          },
+          "pr": 23,
+          "head_sha": "0e6a046b0245178e11eb19c7fe8140556e2e9772",
+          "merge_sha": "cb87c5656c9994ec0b0fabd1ebf93762888cc2ac"
         },
         {
           "packet": "A05/A07/A08",
@@ -116,12 +119,26 @@
     },
     {
       "id": "archival-photo-capture",
-      "status": "pending",
+      "status": "active",
       "depends_on": [
         "solo-trust-controls"
       ],
       "title": "First release: archival still capture, untouched original and separate perspective-corrected scan",
-      "release_required": true
+      "release_required": true,
+      "note": "Owner explicitly authorized preparatory native-still implementation; solo physical-device/human checkpoint remains pending. Full R1 includes separate corrected scans and physical-print acceptance.",
+      "implementation_packets": [
+        {
+          "packet": "R1a",
+          "branch": "feat/archival-still-capture",
+          "status": "locally_proven_pending_ci_and_review",
+          "receipt": "docs/IMPLEMENTATION/ARCHIVAL_STILL_CAPTURE_2026-11-13.md",
+          "local_verification": {
+            "unit_integration_tests": 114,
+            "phone_chromium_tests": 27,
+            "canonical_verify": "passed"
+          }
+        }
+      ]
     },
     {
       "id": "legacy-infrastructure",
@@ -236,7 +253,7 @@
   "week_one_task_graph": "docs/EXECUTION/ONE_WEEK_LIVING_MEMORY_TASK_GRAPH.json",
   "storyteller_sovereignty": "docs/PRODUCT/STORYTELLER_SOVEREIGNTY.md",
   "historical_packet_specification": "docs/IMPLEMENTATION/PHASE_1_SOLO_MEMORY_STORY_BUILD_SPEC.md",
-  "current_checkpoint_sha": "b55aaf957f6aa896c38331080c89e7e1222c084e",
+  "current_checkpoint_sha": "cb87c5656c9994ec0b0fabd1ebf93762888cc2ac",
   "current_stage": "expanded-first-release-development",
   "current_blockers": [
     "Repeat the real-phone journey on the repaired build: iPhone Safari and Android Chrome",

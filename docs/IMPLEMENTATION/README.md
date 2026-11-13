@@ -25,3 +25,5 @@ Each new build slice must produce a human outcome, anti-drift review, test evide
 ## Current bilingual implementation
 
 See [A04 English/Spanish interface receipt](ENGLISH_SPANISH_INTERFACE_2026-11-13.md) for the merged #21/#22 baseline, current locale behavior, automated evidence and remaining human/device acceptance.
+
+See [R1a archival still acquisition](ARCHIVAL_STILL_CAPTURE_2026-11-13.md) for untouched still bytes, fallback/recovery behavior, the #23 merge record and remaining separate-scan/physical-print work.
