@@ -22,6 +22,7 @@ export function participantsAllowRecording(
 }
 export type LegacySessionView = {
   id: string;
+  memoryId?:string;
   mode: LegacyMode;
   status: "draft" | "live" | "paused" | "ready" | "closed";
   version: number;
@@ -32,4 +33,32 @@ export type LegacySessionView = {
   photoUrl: string;
   participants: LegacyParticipant[];
   canRecord: boolean;
+};
+
+export type LegacyRecordingReceipt = {
+  recordingId: string;
+  status: "durable";
+  sha256: string;
+  byteSize: number;
+  durationMs: number;
+  interrupted: boolean;
+  capturedByParticipantId: string;
+  photoAssetId: string;
+  consentEpoch: number;
+  durableAt: string;
+};
+export type LegacySpeakerClaim = {
+  id: string;
+  recordingId: string;
+  participantId: string;
+  startMs: number;
+  endMs: number;
+  note: string;
+  attributionType: "self_identified";
+  displayName: string;
+};
+export type LegacyRecording = LegacyRecordingReceipt & {
+  mediaUrl: string;
+  attribution: "unconfirmed";
+  claims: LegacySpeakerClaim[];
 };

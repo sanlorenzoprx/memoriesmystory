@@ -148,3 +148,13 @@ Observations preserve evidence separately from proposed solutions. Follow `READM
 - Confidence and contrary evidence: automated boundary evidence only; no live two-device/provider or legal acceptance evidence.
 - Affected experience/invariant: authentic human attribution, private originals, deliberate boundary crossing.
 - Related decision: `../DECISIONS/2026-11-13-private-legacy-session-boundary.md`; no Foundation change proposed.
+
+### L-2026-11-13-legacy-recording — Recovery must distinguish active, partial and durable audio
+
+- Status: addressed on D02 implementation branch; physical/human acceptance remains pending.
+- Evidence source: `../IMPLEMENTATION/OUR_LIVING_LEGACY_RECORDING_2026-11-13.md` and deterministic device-storage/R2 interruption tests.
+- Observed fact: a recorder can have persisted a playable prefix while still producing later original chunks. Device quota failure can leave later bytes only in memory. Deletion can race an in-flight upload.
+- Interpretation: use a native per-take browser lock, label recovered prefixes partial, keep volatile bytes protected while their page remains open, and verify consent/storage before durable confirmation. Whole-memory deletion needs both server intent/late-object cleanup and device cleanup.
+- Confidence and contrary evidence: high for synthetic transaction/browser outcomes; no physical-phone storage pressure, real shared conversation or legal retention conclusions are established.
+- Invariants: immutable real voice, truthful save status, separate attribution, deliberate privacy boundaries and recoverable interruptions.
+- Related decision: `../DECISIONS/2026-11-13-legacy-original-recording.md`; no Foundation amendment.

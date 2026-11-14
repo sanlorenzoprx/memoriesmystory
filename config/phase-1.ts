@@ -46,6 +46,9 @@ export const phase1Config = {
     guestAccessDays: 7,
     maxNameCharacters: 60,
     maxRecordingSeconds: 600,
+    recordingUploadHours: 24,
+    recordingChunkMs: 1000,
+    maxSpeakerNoteCharacters: 2000,
     pollIntervalMs: 1500
   },
   scans: {

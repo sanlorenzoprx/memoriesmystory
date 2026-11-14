@@ -197,19 +197,33 @@
       ],
       "title": "First release: in-person then remote two-person sessions, consent, attribution, recording, scoped joining and replay",
       "release_required": true,
-      "note": "D01 private two-person source/session/invitation/consent boundary in implementation; in-person recording/replay and remote provider work follow. No Jitsi or external-room fallback. Live provider configuration and final consent/retention policy remain separate gates.",
+      "note": "D01 merged with CI proof. D02 shared original recording/recovery/private replay/self-attribution is locally proven and awaiting CI/integration. D03 remote media/provider preflight follows. Physical/human acceptance stays pending per owner direction. No Jitsi fallback.",
       "implementation_packets": [
         {
           "packet": "D01",
           "branch": "feat/our-living-legacy-session-contracts",
-          "status": "locally_proven_pending_ci_and_review",
+          "status": "merged_local_and_ci_proven",
           "receipt": "docs/IMPLEMENTATION/OUR_LIVING_LEGACY_SESSIONS_2026-11-13.md",
           "local_verification": {
             "unit_integration_tests": 131,
             "phone_chromium_tests": 34,
             "typecheck_lint_schema_build_dry_run": "passed"
           },
-          "note": "Session/access/consent boundary only; recording/replay and remote media transport remain next slices."
+          "note": "Session/access/consent boundary only; recording/replay and remote media transport remain next slices.",
+          "pr": 26,
+          "head_sha": "788f8b994c82b08e6836ccc3e326f8ab98fe5468",
+          "merge_sha": "bac2415ab7d93e4489bc1e638be4666f722c70fd"
+        },
+        {
+          "packet": "D02",
+          "branch": "feat/legacy-original-recording",
+          "status": "locally_proven_pending_ci_and_review",
+          "receipt": "docs/IMPLEMENTATION/OUR_LIVING_LEGACY_RECORDING_2026-11-13.md",
+          "local_verification": {
+            "unit_integration_tests": 138,
+            "phone_chromium_tests": 43,
+            "canonical_verify": "passed"
+          }
         }
       ]
     },
