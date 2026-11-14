@@ -21,3 +21,7 @@ A successful API proof does not establish live browser joining, delivered/playin
 ## Invariants / anti-drift
 
 I-10, I-19, I-25 and I-30: no source assets or family testimony are used. Restricted permissions and explicit unrecorded flags keep this staging experiment separate from future recording consent. Recovery is explicit and cleanup confirmation must succeed before a passing result. This strengthens the privacy/reliability boundary for connecting family voices; it changes no Foundation rule, price, retention policy or consumer identity flow.
+
+## Live API result
+
+[Run 43593728473](https://github.com/sanlorenzoprx/memoriesmystory/actions/runs/43593728473) passed on November 14 after PR #31 merged. It reported all five API checks passed and `cleanupConfirmed: true`. The designated app and restricted preset now exist in Cloudflare; no browser/media/recording/deployment claim follows from this API result. The browser experiment is documented separately in `REALTIMEKIT_BROWSER_PROOF_2026-11-14.md`.

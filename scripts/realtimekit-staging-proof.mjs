@@ -150,7 +150,7 @@ function assertGrant(token, meeting, participant, expires) {
 }
 
 /** Explicit operator action: fixed staging resources only; no media, recording or billing activation. */
-export async function runStagingProof(env, fetcher = globalThis.fetch) {
+export async function runStagingProof(env, fetcher = globalThis.fetch, exerciseMeeting) {
   if (
     !/^[a-f0-9]{32}$/iu.test(env.REALTIMEKIT_ACCOUNT_ID ?? "") ||
     !env.REALTIMEKIT_API_TOKEN ||
@@ -167,6 +167,7 @@ export async function runStagingProof(env, fetcher = globalThis.fetch) {
   let meetingAllocationAttempted = false,
     peerAllocationUncertain = false;
   const peers = [];
+  const grants = [];
   async function request(path, method = "GET", body) {
     const response = await fetcher(`${base}${path}`, {
       method,
@@ -271,8 +272,17 @@ export async function runStagingProof(env, fetcher = globalThis.fetch) {
         { expires_on: expires },
       );
       assertGrant(refreshed?.token, meeting.id, peer.id, expires);
+      grants.push({ role, authToken: refreshed.token, participantId: peer.id });
     }
     checks.push("two_scoped_short_lived_participant_grants_verified");
+    if (exerciseMeeting) {
+      stage = "exercise_browser_call";
+      await exerciseMeeting({ grants, revokeGuest: async () => {
+        const guest = grants.find(grant => grant.role === "guest");
+        await request(`${meetingPath}/participants/${segment(guest.participantId)}`, "DELETE");
+      } });
+      checks.push("browser_media_delivery_verified");
+    }
   } catch (error) {
     failed = {
       ok: false,
@@ -298,7 +308,8 @@ export async function runStagingProof(env, fetcher = globalThis.fetch) {
           if (!peers.includes(segment(peer.id))) peers.push(segment(peer.id));
       }
       for (const peer of peers) {
-        await request(`${meetingPath}/participants/${peer}`, "DELETE");
+        try { await request(`${meetingPath}/participants/${peer}`, "DELETE"); }
+        catch (error) { if (!(error instanceof ProbeError) || error.httpStatus !== 404) throw error; }
         // Verify record absence; this is an API assertion, not a browser rejection test.
         try {
           await request(`${meetingPath}/participants/${peer}`);
