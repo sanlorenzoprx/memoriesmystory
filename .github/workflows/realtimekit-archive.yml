@@ -17,7 +17,7 @@ jobs:
       - name: Check out reviewed archive candidate
         uses: actions/checkout@v4
         with:
-          ref: 87dab436581a945f474e131cee7e354569ad3147
+          ref: b0bd4acce90380dee5b6f6439b1f4a0cd8d37285
           path: call-candidate
           persist-credentials: false
       - uses: actions/setup-node@v4
