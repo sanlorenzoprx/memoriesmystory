@@ -63,3 +63,7 @@ Packet 4 identity staging uses `npm run preflight:identity:staging`. The command
 ## Remote Our Living Legacy provider gate
 
 `npm run preflight:legacy:staging` reports only configuration shape and makes no network request. `REALTIME_SFU_APP_ID` is an environment-specific identifier; `REALTIME_SFU_APP_SECRET` is backend-only runtime authorization and must never be shipped in the browser. These names prepare D03 and do not yet enable live video. See `../OPERATIONS/REMOTE_VIDEO_STAGING_SETUP.md` for bootstrap access, generated configuration, provider proof and the recorded missing-credential gate. Core verification remains independent of these values.
+
+## RealtimeKit Actions access alternative — November 14, 2026
+
+For the owner-authorized read-only access probe, use repository Actions secret `REALTIMEKIT_API_TOKEN` and repository variable `REALTIMEKIT_ACCOUNT_ID`. The manually dispatched `realtimekit-access.yml` workflow consumes these inside its runner; the assistant cannot retrieve secret values. It outputs constant statuses only and makes no resource/media/billing changes. This is independent of full deployment credentials, guest identity and the historical raw-SFU configuration above. See `../IMPLEMENTATION/REALTIMEKIT_ACTIONS_ACCESS_2026-11-14.md`. Runtime meeting access still requires the matching managed RealtimeKit app/preset and existing private application sessions.
