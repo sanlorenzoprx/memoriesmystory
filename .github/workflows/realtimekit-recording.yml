@@ -2,6 +2,14 @@ name: RealtimeKit synthetic recording outputs
 
 on:
   workflow_dispatch:
+    inputs:
+      mode:
+        description: Verify outputs or inspect existing synthetic metadata without recording again
+        type: choice
+        options:
+          - verify
+          - inspect
+        default: verify
 
 permissions:
   contents: read
@@ -19,6 +27,7 @@ jobs:
         with:
           persist-credentials: false
       - name: Check out reviewed call candidate
+        if: inputs.mode != 'inspect'
         uses: actions/checkout@v4
         with:
           ref: d90afd5f184469e636b50f721d567973b077de1e
@@ -28,15 +37,19 @@ jobs:
         with:
           node-version: 22
       - name: Install candidate dependencies
+        if: inputs.mode != 'inspect'
         working-directory: call-candidate
         run: npm ci
       - name: Install Chromium
+        if: inputs.mode != 'inspect'
         working-directory: call-candidate
         run: npx playwright install --with-deps chromium
       - name: Build candidate
+        if: inputs.mode != 'inspect'
         working-directory: call-candidate
         run: npm run build
       - name: Install media inspection tool
+        if: inputs.mode != 'inspect'
         run: |
           if ! command -v ffprobe > /dev/null; then
             sudo apt-get update
@@ -45,6 +58,12 @@ jobs:
           ffprobe -version > /dev/null
       - name: Record and verify synthetic provider outputs
         env:
+          RECORDING_PROBE_MODE: ${{ inputs.mode }}
           REALTIMEKIT_ACCOUNT_ID: ${{ vars.REALTIMEKIT_ACCOUNT_ID }}
           REALTIMEKIT_API_TOKEN: ${{ secrets.REALTIMEKIT_API_TOKEN }}
-        run: node scripts/realtimekit-recording-proof.mjs
+        run: |
+          if [ "$RECORDING_PROBE_MODE" = "inspect" ]; then
+            node scripts/inspect-realtimekit-recording-metadata.mjs
+          else
+            node scripts/realtimekit-recording-proof.mjs
+          fi

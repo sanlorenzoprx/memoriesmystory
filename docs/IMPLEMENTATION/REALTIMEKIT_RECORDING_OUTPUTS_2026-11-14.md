@@ -17,3 +17,7 @@ Next within D03: implement the consumer recording consent/state/recovery boundar
 ## First live attempt — runner dependency, not provider evidence
 
 Run 43597324010 stopped at the media-inspection precondition because the hosted Ubuntu runner did not include ffprobe. The credential-bearing recording step was skipped, so recording/media API availability was NOT_RUN. The workflow now installs the official Ubuntu ffmpeg package when absent before injecting provider credentials. This is a scoped runner fix; no application behavior or API contract is relaxed.
+
+## Recorder concurrency verified; attribution mapping under investigation
+
+Corrected runner run 43597614897 started both track/composite recorders concurrently, stopped them and reached uploaded outputs. It failed before download at the participant-output mapping step; cleanup was confirmed. This is partial provider evidence, not passing archival or speaker-attribution acceptance. A read-only metadata-structure mode now inspects existing synthetic outputs without another recording. It returns only field/container types and bounded counts, not filenames, IDs, signed URLs or source contents. A deterministic redaction test covers that diagnostic. Do not broaden speaker matching without a verified identifier link.
