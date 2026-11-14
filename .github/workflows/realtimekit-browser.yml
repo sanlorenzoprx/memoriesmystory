@@ -1,0 +1,43 @@
+name: RealtimeKit synthetic browser proof
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: realtimekit-staging-setup
+  cancel-in-progress: false
+
+jobs:
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Check out reviewed call candidate
+        uses: actions/checkout@v4
+        with:
+          ref: d90afd5f184469e636b50f721d567973b077de1e
+          path: call-candidate
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install candidate dependencies
+        working-directory: call-candidate
+        run: npm ci
+      - name: Install Chromium
+        working-directory: call-candidate
+        run: npx playwright install --with-deps chromium
+      - name: Build candidate
+        working-directory: call-candidate
+        run: npm run build
+      - name: Exercise real Cloudflare media using synthetic devices
+        env:
+          REALTIMEKIT_ACCOUNT_ID: ${{ vars.REALTIMEKIT_ACCOUNT_ID }}
+          REALTIMEKIT_API_TOKEN: ${{ secrets.REALTIMEKIT_API_TOKEN }}
+        run: node scripts/realtimekit-browser-proof.mjs
