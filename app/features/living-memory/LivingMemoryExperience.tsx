@@ -322,7 +322,7 @@ export function LivingMemoryExperience() {
 
   async function deleteCurrentMemory() {
     if (deleting) return;
-    const confirmed = window.confirm(t("Delete this Living Memory, including its preserved photograph, voice, transcript, Muse material and family links? This cannot be undone."));
+    const confirmed = window.confirm(t("Delete this Living Memory, including its photograph, voice, private shared conversations, speaker notes, transcript, Muse material and family links? This cannot be undone."));
     if (!confirmed) return;
 
     setDeleting(true);

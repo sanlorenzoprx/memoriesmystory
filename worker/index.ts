@@ -1,4 +1,5 @@
 import { appIdentity } from "../config/app-identity";
+import { handleLegacyRecordingRoute } from "./legacy-recordings";
 import { handleLegacySessionRoute } from "./legacy-sessions";
 import { handleAgentRoute } from "./agent-routes";
 import { handleAuthRoute } from "./auth-routes";
@@ -58,6 +59,9 @@ const handler: ExportedHandler<Env, TranscriptionQueueMessage> = {
 
     const authResponse = await handleAuthRoute(request, env);
     if (authResponse) return authResponse;
+
+    const recordingResponse = await handleLegacyRecordingRoute(request, env);
+    if(recordingResponse)return recordingResponse;
 
     const legacyResponse = await handleLegacySessionRoute(request, env);
     if (legacyResponse) return legacyResponse;

@@ -1,3 +1,4 @@
+import { LegacyRecordingPanel } from "./LegacyRecordingPanel";
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router";
 import { phase1Config } from "../../../config/phase-1";
@@ -238,6 +239,7 @@ export function LegacySessionExperience() {
   useEffect(() => {
     let active = true,
       pending = false;
+    setView(null);setError(null);setAgreed(false);
     async function refresh() {
       if (!active || pending) return;
       pending = true;
@@ -355,7 +357,7 @@ export function LegacySessionExperience() {
                   p.role === "guest" &&
                   !p.revoked && (
                     <button
-                      className="light-text-action"
+                      className="secondary-action"
                       type="button"
                       disabled={busy}
                       onClick={() => void revoke(p.id)}
@@ -431,6 +433,7 @@ export function LegacySessionExperience() {
               </button>
             )}
           </section>
+          <LegacyRecordingPanel key={`${view.id}:${view.actorId}`} view={view} healthy={!error}/>
           <p role="status">
             {view.canRecord
               ? t("Both of you have agreed to recording.")

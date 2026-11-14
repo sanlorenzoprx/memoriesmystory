@@ -31,3 +31,5 @@ Instrument the loop with the canonical product events in `app/domain/product-eve
 Native-still acquisition and honest fallback evidence are recorded in `../IMPLEMENTATION/ARCHIVAL_STILL_CAPTURE_2026-11-13.md` (I-03, I-08–I-10, I-15, I-17–I-18). Full archival-scan and physical-device acceptance remain pending.
 
 Separate scan provenance/durability, source-safe retakes and digital steadiness assistance (I-03–I-10, I-15, I-17–I-21) are mapped in `../IMPLEMENTATION/ARCHIVAL_SCANS_STEADINESS_2026-11-13.md`. Owner-confirmed MVP v0.5 includes the full V2 handoff, including two-person Our Living Legacy; physical camera testing follows that implementation milestone.
+
+Our Living Legacy session and shared-original recording evidence (I-02–I-10, I-17–I-19, I-25): `../IMPLEMENTATION/OUR_LIVING_LEGACY_SESSIONS_2026-11-13.md` and `../IMPLEMENTATION/OUR_LIVING_LEGACY_RECORDING_2026-11-13.md`. Automated proof remains separate from physical two-person and legal/retention acceptance.

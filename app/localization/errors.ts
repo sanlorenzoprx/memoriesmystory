@@ -1,6 +1,10 @@
 // API codes select presentation copy; workflow decisions continue to use codes/status.
 // Never display an arbitrary provider/server message as translated interface copy.
 const messages: Readonly<Record<string, string>> = {
+  legacy_recording_pending: "This recording's backup was not confirmed. Keep your device copy and try again.",
+  legacy_recording_invalid: "This recording's backup was not confirmed. Keep your device copy and try again.",
+  legacy_host_required: "This conversation is not available with your current access.",
+  legacy_in_person_only: "This recording's backup was not confirmed. Keep your device copy and try again.",
   legacy_invite_unavailable: "This private invitation has expired or is no longer available. Ask the host for a new conversation.",
   legacy_invite_used: "This invitation has already been used. Reopen your joined conversation on the same device.",
   legacy_self_required: "Only you can choose your recording consent.",

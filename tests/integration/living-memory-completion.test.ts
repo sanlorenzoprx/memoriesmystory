@@ -62,6 +62,9 @@ class TestD1 {
       "0006_muse_conversation.sql",
       "0007_muse_voice_replies.sql",
       "0008_storyteller_review.sql"
+    ,
+      "0010_legacy_sessions.sql",
+      "0011_legacy_recordings.sql",
     ]) {
       this.database.exec(
         readFileSync(new URL(`../../migrations/${migration}`, import.meta.url), "utf8")

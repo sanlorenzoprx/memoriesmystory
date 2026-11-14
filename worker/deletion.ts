@@ -129,6 +129,7 @@ async function deleteMemory(
     "SELECT id, status FROM memory_stories WHERE id = ?"
   ).bind(draftId).first<StoryRow>();
 
+  if(story)await env.DB.prepare("UPDATE legacy_sessions SET status='closed',deletion_requested_at=COALESCE(deletion_requested_at,?),consent_epoch=consent_epoch+1,version=version+1 WHERE memory_story_id=? AND deletion_requested_at IS NULL").bind(new Date().toISOString(),story.id).run();
   const assets = await env.DB.prepare(
     "SELECT id, r2_key FROM media_assets WHERE draft_id = ? ORDER BY created_at DESC"
   ).bind(draftId).all<AssetRow>();
@@ -137,7 +138,8 @@ async function deleteMemory(
         "SELECT id, r2_key FROM muse_voice_reply_assets WHERE memory_story_id = ? ORDER BY created_at DESC"
       ).bind(story.id).all<AssetRow>()
     : { results: [] as AssetRow[] };
-  const allAssets = [...assets.results, ...voiceReplies.results];
+  const recordings=story ? await env.DB.prepare("SELECT r.id,m.r2_key FROM legacy_recordings r JOIN legacy_recording_media m ON m.recording_id=r.id WHERE r.session_id IN (SELECT id FROM legacy_sessions WHERE memory_story_id=?)").bind(story.id).all<AssetRow>() : {results:[] as AssetRow[]};
+  const allAssets = [...assets.results, ...voiceReplies.results,...recordings.results];
   const revisions = story ? await env.DB.prepare(
     "SELECT id, parent_revision_id FROM transcript_revisions WHERE memory_story_id = ?"
   ).bind(story.id).all<{ id: string; parent_revision_id: string | null }>() : { results: [] };
@@ -249,7 +251,7 @@ async function deleteMemory(
       story?.id ?? null,
       authorization.ownerUserId,
       authorization.actorType,
-      assets.results.length + voiceReplies.results.length,
+      allAssets.length,
       deletedAt
     )
   );

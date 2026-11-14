@@ -19,6 +19,10 @@ for (const locale of ["en-US", "es-PR"] as const) {
     await page.route("**/resources/legacy-sessions/**", async (route) => {
       const request = route.request(),
         path = new URL(request.url()).pathname;
+      if (path.endsWith("/recordings")) {
+        await route.fulfill({ json: { recordings: [] } });
+        return;
+      }
       if (path.endsWith("/join")) {
         expect(request.postDataJSON()).toMatchObject({
           inviteToken: token,

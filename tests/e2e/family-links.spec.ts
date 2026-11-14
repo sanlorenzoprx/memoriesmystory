@@ -43,7 +43,7 @@ test(`${locale}: owner returns to a completed memory, cancels then confirms link
   await expect(page.getByRole("button", { name: copy("Revoke family link"), exact: true })).toHaveCount(0);
   expect(deletes).toBe(1);
   page.once("dialog", async (dialog) => {
-    expect(dialog.message()).toBe(copy("Delete this Living Memory, including its preserved photograph, voice, transcript, Muse material and family links? This cannot be undone."));
+    expect(dialog.message()).toBe(copy("Delete this Living Memory, including its photograph, voice, private shared conversations, speaker notes, transcript, Muse material and family links? This cannot be undone."));
     await dialog.dismiss();
   });
   await page.getByRole("button", { name: copy("Delete this memory"), exact: true }).click();

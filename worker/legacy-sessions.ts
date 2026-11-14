@@ -20,6 +20,7 @@ export type SessionRow = {
   owner_user_id: string;
   mode: LegacyMode;
   status: string;
+  deletion_requested_at?:string|null;
   consent_epoch: number;
   version: number;
 };
@@ -156,6 +157,7 @@ export async function legacyAccess(
     .bind(id)
     .first<SessionRow>();
   if (!session) legacyFail(404, "legacy_not_found");
+  if(session.deletion_requested_at)legacyFail(404,"legacy_not_found");
   const rows = (
     await env.DB.prepare(
       "SELECT * FROM legacy_participants WHERE session_id=? ORDER BY created_at,id",
@@ -450,6 +452,7 @@ export async function handleLegacySessionRoute(
     if (!match[2] && request.method === "GET")
       return legacyJson({
         id: session.id,
+        ...(actor.role==="host"?{memoryId:session.memory_story_id}:{}),
         mode: session.mode,
         status: session.status,
         version: session.version,

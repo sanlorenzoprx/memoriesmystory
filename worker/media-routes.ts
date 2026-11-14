@@ -156,7 +156,7 @@ function extensionFor(contentType: string): string {
   return extension;
 }
 
-function hasMediaSignature(bytes: Uint8Array, contentType: string): boolean {
+export function hasMediaSignature(bytes: Uint8Array, contentType: string): boolean {
   const text = (start: number, length: number) =>
     String.fromCharCode(...bytes.slice(start, start + length));
 

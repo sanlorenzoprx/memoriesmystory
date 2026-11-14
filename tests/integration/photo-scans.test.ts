@@ -71,6 +71,9 @@ class TestD1 {
       "0007_muse_voice_replies.sql",
       "0008_storyteller_review.sql",
       "0009_archival_scans.sql",
+
+      "0010_legacy_sessions.sql",
+      "0011_legacy_recordings.sql",
     ])
       this.database.exec(
         readFileSync(
