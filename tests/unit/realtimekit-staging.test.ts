@@ -247,4 +247,28 @@ describe("isolated RealtimeKit staging API proof", () => {
     }
   });
 
+  it("cleans up native-coordinator recorders after callback failure without exposing their identities",async()=>{
+    for(const failStop of [false,true]){
+      const s=mock(),original=s.fetch.getMockImplementation()!;
+      let status="RECORDING";
+      s.fetch.mockImplementation(async(input:string,init:RequestInit)=>{
+        const path=new URL(input).pathname;
+        if(path.endsWith("/recordings"))return Response.json({success:true,data:[{id:"recording_external_001",status}]});
+        if(path.endsWith("/recordings/recording_external_001")){
+          if(init.method==="PUT"){
+            if(failStop)return Response.json({success:false},{status:500});
+            status="UPLOADED";
+          }
+          return Response.json({success:true,data:{id:"recording_external_001",status}});
+        }
+        return original(input,init);
+      });
+      const result=await runStagingProof(env,s.fetch,async({recording}:{recording:{requireSyntheticMeetingCleanup:(synthetic:boolean)=>void}})=>{
+        recording.requireSyntheticMeetingCleanup(true);throw new Error("PRIVATE_ARCHIVE_CANARY");
+      });
+      expect(result).toMatchObject({ok:false,cleanupConfirmed:!failStop});expect(s.peers.size).toBe(0);
+      expect(JSON.stringify(result)).not.toMatch(/CANARY|recording_external/);
+    }
+  });
+
 });

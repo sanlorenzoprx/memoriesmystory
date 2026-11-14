@@ -117,7 +117,11 @@ export async function handleRemoteRecordingRoute(
         });
         headers.set("Content-Length", String(object.size));
         let status = 200;
-        if (object.range && "offset" in object.range) {
+        if (
+          request.headers.has("Range") &&
+          object.range &&
+          "offset" in object.range
+        ) {
           const offset = object.range.offset ?? 0,
             length = object.range.length ?? object.size;
           headers.set(

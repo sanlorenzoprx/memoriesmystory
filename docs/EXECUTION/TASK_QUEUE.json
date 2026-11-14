@@ -279,13 +279,24 @@
         {
           "packet": "D03-recording-archive",
           "branch": "feat/remote-source-archive",
-          "status": "implemented_local_proven_live_pending",
+          "status": "merged_local_and_ci_proven_live_pending",
           "receipt": "docs/IMPLEMENTATION/REMOTE_RECORDING_ARCHIVE_2026-11-14.md",
           "note": "Consent-controlled composite and separate microphone originals; native workerd/D1/R2 and private-route evidence. Flag defaults off. Pending deployed integrated recording/archive acceptance; no complete V2 claim.",
           "local_verification": {
+            "unit_integration_tests": 190,
             "phone_chromium_tests": 47,
             "typecheck_lint_schema_build_dry_run": "passed"
-          }
+          },
+          "pr": 36,
+          "merge_sha": "87dab436581a945f474e131cee7e354569ad3147",
+          "ci_run": 43607683913
+        },
+        {
+          "packet": "D03-native-archive-proof",
+          "branch": "feat/remote-archive-live-proof",
+          "status": "implemented_live_verification_pending",
+          "receipt": "docs/IMPLEMENTATION/REALTIMEKIT_NATIVE_ARCHIVE_PROOF_2026-11-14.md",
+          "note": "Actual server routes and automatic native alarms with real generated provider media into ephemeral native D1/R2. Separate from deployed permanent archive and human/device acceptance."
         }
       ]
     },
