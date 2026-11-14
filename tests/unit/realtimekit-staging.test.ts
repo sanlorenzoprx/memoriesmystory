@@ -217,4 +217,34 @@ describe("isolated RealtimeKit staging API proof", () => {
     expect(JSON.stringify(result)).not.toMatch(/CANARY/);
   });
 
+  it("stops probe recordings after callback failure and still closes peers when recorder cleanup fails", async () => {
+    for (const failStop of [false,true]) {
+      const s=mock(), original=s.fetch.getMockImplementation()!;
+      const states=new Map<string,string>();
+      s.fetch.mockImplementation(async(input:string,init:RequestInit)=>{
+        const path=new URL(input).pathname;
+        if(path.includes("/recordings")) {
+          if(init.method==="POST") {
+            const id=path.endsWith("/track")?"recording_track_001":"recording_composite_001";
+            states.set(id,"RECORDING");return Response.json({success:true,data:{recording:{id}}});
+          }
+          const id=path.split("/").at(-1)!;
+          if(init.method==="PUT") {
+            if(failStop)return Response.json({success:false},{status:500});
+            states.set(id,"UPLOADED");
+          }
+          return Response.json({success:true,data:{id,status:states.get(id)}});
+        }
+        return original(input,init);
+      });
+      const result=await runStagingProof(env,s.fetch,async({recording}: {recording:{startSyntheticPair:(v:boolean)=>Promise<unknown>}})=>{
+        await recording.startSyntheticPair(true);throw new Error("PRIVATE_CAPTURE_CANARY");
+      });
+      expect(result).toMatchObject({ok:false,cleanupConfirmed:!failStop});
+      expect(s.peers.size).toBe(0);
+      expect(s.fetch.mock.calls.some(([url,init])=>url.endsWith("/meeting_test001")&&init.method==="PATCH")).toBe(true);
+      expect(JSON.stringify(result)).not.toMatch(/CANARY/);
+    }
+  });
+
 });

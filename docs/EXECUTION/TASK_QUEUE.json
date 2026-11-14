@@ -118,6 +118,15 @@
       "release_required": true
     },
     {
+      "id": "muse-evaluation",
+      "status": "pending",
+      "depends_on": [
+        "solo-trust-controls"
+      ],
+      "title": "V2 B01\u2013B03: measured multilingual/source-grounded Muse evaluation and evidence-based improvement or no-change decision",
+      "release_required": true
+    },
+    {
       "id": "archival-photo-capture",
       "status": "verification_pending",
       "depends_on": [
@@ -258,6 +267,13 @@
             "candidate_sha": "d90afd5f184469e636b50f721d567973b077de1e",
             "scope": "two Chromium contexts on one runner; real Cloudflare media; synthetic application session/photo fixtures; no recording or deployment"
           }
+        },
+        {
+          "packet": "D03-recording-outputs",
+          "branch": "feat/realtimekit-recording-proof",
+          "status": "implemented_live_verification_pending",
+          "receipt": "docs/IMPLEMENTATION/REALTIMEKIT_RECORDING_OUTPUTS_2026-11-14.md",
+          "note": "Generated sources only. Provider output proof, not consumer recording consent or durable archive acceptance."
         }
       ]
     },
@@ -322,7 +338,8 @@
         "derivative-storytelling",
         "growth-engine",
         "paid-plans",
-        "packet-4"
+        "packet-4",
+        "muse-evaluation"
       ],
       "title": "Accept the complete expanded first release and lock its RC SHA; production remains separately authorized",
       "release_required": true
@@ -341,7 +358,7 @@
     "Human confirmation that people can tell their own testimony apart from Muse assistance",
     "Packet 4 closeout: email and Google sign-in plus second-device recovery on a real phone (Facebook sign-in is deferred and non-blocking)",
     "All required expanded first-release capabilities need code and matching evidence; see release matrix",
-    "Live staging/provider credentials are absent from the current execution environment",
+    "RealtimeKit access is verified inside GitHub Actions; full application deployment/R2/AI/billing staging access has not yet been restored",
     "Paid offers/terms and stewardship/contributor legal policies remain unapproved",
     "Resolve deletion entitlement policy: current code/tests restore the free completion count; previous status wording claimed otherwise"
   ],
@@ -349,5 +366,6 @@
   "next_phase": "docs/EXECUTION/NEXT_PHASE_OUR_LIVING_LEGACY_AND_PHOTO_DIGITIZATION.md",
   "scope_decision": "docs/DECISIONS/2026-11-13-expanded-first-release.md",
   "release_matrix": "docs/EXECUTION/EXPANDED_FIRST_RELEASE.md",
-  "mvp_testing_milestone": "docs/EXECUTION/MVP_V0_5.md"
+  "mvp_testing_milestone": "docs/EXECUTION/MVP_V0_5.md",
+  "handoff_cross_reference": "docs/IMPLEMENTATION/V2_HANDOFF_RECONCILIATION_2026-11-14.md"
 }

@@ -168,6 +168,8 @@ export async function runStagingProof(env, fetcher = globalThis.fetch, exerciseM
     peerAllocationUncertain = false;
   const peers = [];
   const grants = [];
+  const recordingIds = new Set();
+  let recordingAllocationUncertain = false;
   async function request(path, method = "GET", body) {
     const response = await fetcher(`${base}${path}`, {
       method,
@@ -277,11 +279,43 @@ export async function runStagingProof(env, fetcher = globalThis.fetch, exerciseM
     checks.push("two_scoped_short_lived_participant_grants_verified");
     if (exerciseMeeting) {
       stage = "exercise_browser_call";
-      await exerciseMeeting({ grants, revokeGuest: async () => {
+      await exerciseMeeting({ grants, appId, meetingId: meeting.id,
+        recording: {
+          async startSyntheticPair(syntheticSources) {
+            if (syntheticSources !== true) throw new ProbeError("synthetic_source_authorization_required");
+            const result = {};
+            for (const kind of ["track", "composite"]) {
+              recordingAllocationUncertain = true;
+              const data = await request(`/${appId}/recordings${kind === "track" ? "/track" : ""}`, "POST", {
+                meeting_id: meeting.id,
+                ...(kind === "track" ? { layers: { default: { media_kind: "audio", file_name_prefix: "memoriesmystory" } } } : {
+                  allow_multiple_recordings: true, max_seconds: 60,
+                  video_config: { codec: "H264", width: 640, height: 480 },
+                  file_name_prefix: "memoriesmystory",
+                }),
+              });
+              const record = data?.recording ?? data;
+              const id = segment(record?.id);
+              recordingIds.add(id); recordingAllocationUncertain = false;
+              result[kind] = id;
+            }
+            return result;
+          },
+          async get(id) {
+            if (!recordingIds.has(id)) throw new ProbeError("unknown_probe_recording");
+            const data = await request(`/${appId}/recordings/${segment(id)}`);
+            return data?.recording ?? data;
+          },
+          async stop(id) {
+            if (!recordingIds.has(id)) throw new ProbeError("unknown_probe_recording");
+            await request(`/${appId}/recordings/${segment(id)}`, "PUT", { action: "stop" });
+          },
+        },
+        revokeGuest: async () => {
         const guest = grants.find(grant => grant.role === "guest");
         await request(`${meetingPath}/participants/${segment(guest.participantId)}`, "DELETE");
       } });
-      checks.push("browser_media_delivery_verified");
+      checks.push("live_exercise_verified");
     }
   } catch (error) {
     failed = {
@@ -297,6 +331,22 @@ export async function runStagingProof(env, fetcher = globalThis.fetch, exerciseM
   let cleanupConfirmed = !meetingAllocationAttempted;
   if (meetingPath) {
     try {
+      let recordingCleanupConfirmed = true;
+      try {
+      if (recordingAllocationUncertain) {
+        const active = await request(`/${appId}/recordings/active-recording/${segment(meetingPath.split("/").at(-1))}`);
+        const rows = Array.isArray(active) ? active : Array.isArray(active?.recordings) ? active.recordings : active?.id ? [active] : active?.recording ? [active.recording] : null;
+        if (!rows) throw new ProbeError("recording_cleanup_uncertain");
+        for (const row of rows) recordingIds.add(segment(row.id));
+      }
+      for (const id of recordingIds) {
+        const data = await request(`/${appId}/recordings/${id}`);
+        const record = data?.recording ?? data;
+        if (["INVOKED", "RECORDING", "PAUSED"].includes(record?.status)) {
+          await request(`/${appId}/recordings/${id}`, "PUT", { action: "stop" });
+        } else if (!["UPLOADING", "UPLOADED", "ERRORED"].includes(record?.status)) throw new ProbeError("recording_cleanup_uncertain");
+      }
+      } catch { recordingCleanupConfirmed = false; }
       await request(meetingPath, "PATCH", { status: "INACTIVE" });
       if (peerAllocationUncertain) {
         const allocated = await request(
@@ -322,7 +372,7 @@ export async function runStagingProof(env, fetcher = globalThis.fetch, exerciseM
       const stored = await request(meetingPath);
       if (stored?.status !== "INACTIVE")
         throw new ProbeError("meeting_still_active");
-      cleanupConfirmed = true;
+      cleanupConfirmed = recordingCleanupConfirmed;
       checks.push("meeting_closed_and_participant_records_removed");
     } catch {
       cleanupConfirmed = false;
