@@ -58,7 +58,12 @@ function modules() {
   });
   return result;
 }
-async function setup(uncertainStart = false, partialTrack = false) {
+async function setup(
+  uncertainStart = false,
+  partialTrack = false,
+  ambiguousStart = false,
+  stopUnconfirmed = false,
+) {
   const fixture = await setupLegacyFixture("remote");
   try {
     const created = await fixture.create(),
@@ -150,7 +155,9 @@ async function setup(uncertainStart = false, partialTrack = false) {
           id,
           status: "RECORDING",
           meeting_id: "meeting-runtime-test",
-          output_file_name: `memoriesmystory_${recordingId.slice(-24)}`,
+          output_file_name: ambiguousStart
+            ? "unconfirmed_source"
+            : `memoriesmystory_${recordingId.slice(-24)}`,
           download_url: track
             ? { opaque: [{ download_urls: urls }] }
             : "https://archive.cloudflarestorage.com/composite.mp4",
@@ -197,8 +204,11 @@ async function setup(uncertainStart = false, partialTrack = false) {
       .reply((options) => {
         stops++;
         const id = String(options.path).split("/").pop()!;
-        records.get(id)!.status =
-          partialTrack && id === "track-runtime-test" ? "ERRORED" : "UPLOADED";
+        if (!stopUnconfirmed)
+          records.get(id)!.status =
+            partialTrack && id === "track-runtime-test"
+              ? "ERRORED"
+              : "UPLOADED";
         return {
           statusCode: 200,
           data: JSON.stringify({ success: true, data: {} }),
@@ -442,5 +452,40 @@ describe("alarm-backed recording with native workerd D1 and private R2", () => {
     });
     await s.tick();
     expect(s.cleanupCounts()).toEqual({ closedAdmission: 2, removedPeers: 4 });
+  }, 30000);
+  it("closes an ambiguously allocated recorder and never invents an archived replacement", async () => {
+    const s = await setup(true, false, true);
+    await s.tick();
+    expect(await s.group()).toMatchObject({ phase: "allocating_track" });
+    for (let i = 0; i < 4; i++) await s.tick();
+    expect(await s.group()).toMatchObject({
+      phase: "needs_review",
+      capture_stopped: 1,
+      failure_code: "recording_allocation_unconfirmed",
+    });
+    expect(s.counts()).toEqual({ allocations: 1, stops: 1 });
+    expect(s.cleanupCounts()).toEqual({ closedAdmission: 1, removedPeers: 2 });
+    expect(
+      (await (await s.runtime.getR2Bucket("MEDIA_BUCKET")).list()).objects,
+    ).toHaveLength(0);
+  }, 30000);
+  it("removes media publishers when a requested stop remains unconfirmed and never reports it stopped", async () => {
+    const s = await setup(false, false, false, true);
+    for (let i = 0; i < 3; i++) await s.tick();
+    await s.db
+      .prepare(
+        "UPDATE legacy_remote_recordings SET stop_requested_at=? WHERE id=?",
+      )
+      .bind(new Date(Date.now() - 20000).toISOString(), s.recordingId)
+      .run();
+    await s.tick();
+    expect(s.cleanupCounts()).toEqual({ closedAdmission: 1, removedPeers: 2 });
+    expect(await s.group()).toMatchObject({
+      phase: "stopping",
+      capture_stopped: 0,
+    });
+    expect(
+      (await (await s.runtime.getR2Bucket("MEDIA_BUCKET")).list()).objects,
+    ).toHaveLength(0);
   }, 30000);
 });

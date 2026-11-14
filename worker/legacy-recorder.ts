@@ -251,6 +251,7 @@ export class LegacyRecorder {
     }
     if (["allocating_track", "allocating_composite"].includes(group.phase)) {
       // This phase on alarm entry means the last allocation outcome was uncertain.
+      if (group.stop_requested_at) await this.closeAdmission(group);
       const rows = await realtimeKitRequest<ProviderRecording[]>(
         this.env,
         `/recordings?meeting_id=${recordingSegment(group.provider_meeting_id)}&per_page=100`,
@@ -281,13 +282,19 @@ export class LegacyRecorder {
       }
       // Never repeat an uncertain start. Stop every recorder scoped to this private meeting.
       let stopped = true;
-      for (const record of rows)
-        if (!(await stopProviderRecording(this.env, record.id)))
+      for (const record of rows) {
+        try {
+          if (!(await stopProviderRecording(this.env, record.id)))
+            stopped = false;
+        } catch {
           stopped = false;
+        }
+      }
       await this.closeAdmission(group);
       await this.update(group, lease, {
         phase: "needs_review",
         capture_stopped: stopped ? 1 : 0,
+        stop_requested_at: group.stop_requested_at ?? new Date().toISOString(),
         failure_code: "recording_allocation_unconfirmed",
       });
       return;
@@ -364,19 +371,52 @@ export class LegacyRecorder {
       return;
     }
     if (group.phase === "stopping") {
+      const uncertain =
+        group.failure_code === "recording_allocation_unconfirmed";
+      const ids = new Set(
+        [group.provider_track_id, group.provider_composite_id].filter(
+          (id): id is string => Boolean(id),
+        ),
+      );
+      if (uncertain) {
+        const rows = await realtimeKitRequest<ProviderRecording[]>(
+          this.env,
+          `/recordings?meeting_id=${recordingSegment(group.provider_meeting_id)}&per_page=100`,
+        );
+        if (!Array.isArray(rows) || rows.length >= 100)
+          throw new Error("recording_cleanup_unconfirmed");
+        for (const record of rows) ids.add(record.id);
+      }
       let stopped = true;
-      for (const id of [group.provider_track_id, group.provider_composite_id])
-        if (id && !(await stopProviderRecording(this.env, id))) stopped = false;
-      if (!stopped) return;
+      for (const id of ids) {
+        try {
+          if (!(await stopProviderRecording(this.env, id))) stopped = false;
+        } catch {
+          stopped = false;
+        }
+      }
+      if (!stopped) {
+        // If recorder stops cannot be confirmed promptly, stop their media sources too.
+        if (
+          group.stop_requested_at &&
+          Date.now() >= Date.parse(group.stop_requested_at) + 15000
+        )
+          await this.closeAdmission(group);
+        return;
+      }
       await this.state.storage.delete("captureWatchdog");
       await this.update(group, lease, {
         capture_stopped: 1,
         phase: deletion
           ? "discarded"
-          : !consent
+          : !consent || uncertain
             ? "needs_review"
             : "processing",
-        failure_code: deletion || consent ? null : "recording_consent_changed",
+        failure_code: uncertain
+          ? "recording_allocation_unconfirmed"
+          : deletion || consent
+            ? null
+            : "recording_consent_changed",
       });
       return;
     }
@@ -550,35 +590,14 @@ export class LegacyRecorder {
     if (!confirmed) throw new Error("recording_cleanup_unconfirmed");
   }
   private async closeAdmission(group: RemoteRecordingRow) {
-    await this.env.DB.prepare(
-      "UPDATE legacy_remote_calls SET state='failed',updated_at=? WHERE session_id=?",
-    )
-      .bind(new Date().toISOString(), group.session_id)
-      .run();
-    await realtimeKitRequest(
-      this.env,
-      `/meetings/${recordingSegment(group.provider_meeting_id)}`,
-      "PATCH",
-      { status: "INACTIVE" },
-    );
-    const peers = (
+    try {
       await this.env.DB.prepare(
-        "SELECT provider_participant_id FROM legacy_remote_participants WHERE session_id=?",
+        "UPDATE legacy_remote_calls SET state='failed',updated_at=? WHERE session_id=?",
       )
-        .bind(group.session_id)
-        .all<{ provider_participant_id: string }>()
-    ).results;
-    for (const peer of peers) {
-      try {
-        await realtimeKitRequest(
-          this.env,
-          `/meetings/${recordingSegment(group.provider_meeting_id)}/participants/${recordingSegment(peer.provider_participant_id)}`,
-          "DELETE",
-        );
-      } catch (error) {
-        if (!(error instanceof RealtimeKitError) || error.status !== 404)
-          throw error;
-      }
+        .bind(new Date().toISOString(), group.session_id)
+        .run();
+    } finally {
+      await this.forceCloseWithoutDatabase(group.provider_meeting_id);
     }
   }
 }
