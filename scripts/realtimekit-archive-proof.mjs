@@ -133,6 +133,7 @@ async function exercise(context) {
       context,
       credentials: process.env,
       runtimeFactory,
+      includeFamilyArchive: process.env.ARCHIVE_VERIFY_CHAPTERS === "true",
     });
     checks.push(
       "actual_routes_require_two_consents_and_replay_start_idempotently",
@@ -170,6 +171,13 @@ async function exercise(context) {
     checks.push("guest_stop_confirmed_before_private_source_preservation");
     stage = "private_playback_and_integrity";
     let originals = await archive.verifyOriginals();
+    if (process.env.ARCHIVE_VERIFY_CHAPTERS === "true") {
+      await archive.verifyChapters();
+      originals = await archive.verifyOriginals();
+      checks.push(
+        "private_chapter_retry_and_removal_preserve_all_recording_originals",
+      );
+    }
     if (cloudMode) {
       await archive.restart();
       originals = await archive.verifyOriginals();

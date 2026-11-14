@@ -330,13 +330,17 @@
         {
           "packet": "E01",
           "branch": "feat/private-family-chapters",
-          "status": "implemented_local_proven_ci_and_cloud_pending",
+          "status": "merged_local_and_ci_proven_cloud_pending",
           "receipt": "docs/IMPLEMENTATION/PRIVATE_CHAPTERS_2026-11-14.md",
           "local_verification": {
             "unit_integration_tests": 211,
             "phone_chromium_tests": 49,
             "typecheck_lint_schema_build_dry_run": "passed"
-          }
+          },
+          "pr": 40,
+          "head_sha": "3bbb1096b1291fefa5cc0fee80a69519904801fb",
+          "merge_sha": "5519350bd4316b4ec0e89a9c3a85ccfacf5bd261",
+          "ci_run": 43633691702
         }
       ]
     },

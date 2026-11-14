@@ -123,6 +123,7 @@ it("exercises actual consent/start/guest stop/private source routes through auto
       recording: { requireSyntheticMeetingCleanup: cleanup },
     },
     fetchMock: mock,
+    includeFamilyArchive: true,
   });
   dispose = proof.dispose;
   async function until(phase: string) {
@@ -165,6 +166,8 @@ it("exercises actual consent/start/guest stop/private source routes through auto
   await until("preserved");
   const originals = await proof.verifyOriginals();
   expect(originals).toHaveLength(3);
+  expect(await proof.verifyChapters()).toBe(true);
+  expect(await proof.verifyOriginals()).toEqual(originals);
   expect(
     originals.filter(
       (source: { kind: string }) => source.kind === "participant_audio",

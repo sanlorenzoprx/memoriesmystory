@@ -25,3 +25,11 @@ The browser tests preserve unsaved bilingual notes after a simulated failed save
 Clean-install CI and real-cloud Chapter route verification remain to be recorded against the committed candidate. No production/full-application staging deployment, family invitation/contribution scope, human acceptance or completed V2/MVP v0.5 is claimed. Apply migration 0014 before matching Worker/client deployment. The existing large bundle warning remains.
 
 Anti-drift: human organization strengthens retrieval without changing original testimony; no generated facts, identity guesses, relationships or historical dates; private by default with owner-scoped retrieval; no new sharing or reward; originals remain immutable; retry/version recovery is explicit; export can follow references without duplicated source bytes. Next within Family Archive is E02 human-entered people/relationship references, after the E01 verification receipt.
+
+## Merged candidate and cloud-verification preparation
+
+PR #40 merged as `5519350bd4316b4ec0e89a9c3a85ccfacf5bd261` after clean-install CI run 43633691702 passed. The reviewed application candidate is `3bbb1096b1291fefa5cc0fee80a69519904801fb`; the operator workflow pins that complete immutable commit rather than the older recording-only candidate.
+
+The follow-up operator check optionally compiles the actual private Chapter handler into the existing isolated archive proof. After real recording preservation it denies archive enumeration/mutation to anonymous and conversation-guest sessions, creates two Chapters referencing the same existing synthetic complete memory, verifies cover membership, successful retry and stale-write rejection, then removes organization. It compares every recording source's receipt, independently read bytes, hash and length before/after, checks the underlying memory remains complete, and repeats the actual private playback/integrity check. Existing cloud restart, private-bucket policy and resource cleanup checks remain in force. The test uses synthetic material and existing owner-authorized temporary resources; it does not deploy the full staging application or change production.
+
+Real-cloud Chapter evidence is pending the explicitly dispatched `storage=isolated-cloud, verify_chapters=true` run. This paragraph describes the candidate check, not a successful provider result.
