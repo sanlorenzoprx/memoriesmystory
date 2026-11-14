@@ -36,8 +36,13 @@ jobs:
       - name: Build candidate
         working-directory: call-candidate
         run: npm run build
-      - name: Check media inspection tool
-        run: ffprobe -version > /dev/null
+      - name: Install media inspection tool
+        run: |
+          if ! command -v ffprobe > /dev/null; then
+            sudo apt-get update
+            sudo apt-get install --no-install-recommends -y ffmpeg
+          fi
+          ffprobe -version > /dev/null
       - name: Record and verify synthetic provider outputs
         env:
           REALTIMEKIT_ACCOUNT_ID: ${{ vars.REALTIMEKIT_ACCOUNT_ID }}

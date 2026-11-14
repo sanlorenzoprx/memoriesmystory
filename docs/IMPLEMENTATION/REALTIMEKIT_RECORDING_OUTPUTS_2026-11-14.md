@@ -13,3 +13,7 @@ The public docs currently describe track recording as audio-only and managed-buc
 Local focused verification: typecheck, lint, 14 targeted tests across the staging lifecycle and output parser/download checks. Full CI and the real workflow outcome must be recorded separately. No recording availability, simultaneous-output support, exact billing mapping or private R2 archival durability is claimed until actually verified. This step computes hashes of downloaded provider outputs; it is **not** the family's durable archive.
 
 Next within D03: implement the consumer recording consent/state/recovery boundary and private immutable R2 ingestion/receipts/replay once actual output behavior is established. The uploaded handoff cross-reference is `V2_HANDOFF_RECONCILIATION_2026-11-14.md`; the one execution queue remains unchanged in authority.
+
+## First live attempt — runner dependency, not provider evidence
+
+Run 43597324010 stopped at the media-inspection precondition because the hosted Ubuntu runner did not include ffprobe. The credential-bearing recording step was skipped, so recording/media API availability was NOT_RUN. The workflow now installs the official Ubuntu ffmpeg package when absent before injecting provider credentials. This is a scoped runner fix; no application behavior or API contract is relaxed.
