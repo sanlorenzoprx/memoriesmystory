@@ -238,13 +238,19 @@
         {
           "packet": "D03-calling",
           "branch": "feat/realtimekit-legacy",
-          "status": "local_verified_hosted_configuration_pending",
+          "status": "local_and_ci_verified_hosted_configuration_pending",
           "receipt": "docs/IMPLEMENTATION/REALTIMEKIT_CALLING_2026-11-14.md",
           "note": "One managed Cloudflare provider; no Jitsi; no remote recording or deployment claim.",
           "local_verification": {
             "unit_integration_tests": 152,
             "phone_chromium_tests": 45,
             "typecheck_lint_schema_build_dry_run": "passed"
+          },
+          "pr": 29,
+          "head_sha": "d47dc237ff8f2a9cc9356d2d43287ebefb00cb84",
+          "ci": {
+            "run_id": 43585811285,
+            "conclusion": "success"
           }
         }
       ]

@@ -41,3 +41,11 @@ This is an **unrecorded** call slice. Existing D02 in-person originals/recovery/
 No isolated runtime credentials are attached, so hosted media/token/removal semantics are **not verified**. Keep this as a reviewable development slice; no MVP, deployment, latency, reliable-save or physical-device completion claim. Follow the current section of [the staging runbook](../OPERATIONS/REMOTE_VIDEO_STAGING_SETUP.md).
 
 Next required slice: validate the hosted call, then integrate consent-controlled composite video and separate speaker audio with confirmed output/billing behavior, private immutable R2 ingestion, checksums, partial/interrupted recovery, private replay/export and truthful archival receipts. Voice recognition remains a separate optional consented application feature. Full expanded-release scope remains active in `../EXECUTION/TASK_QUEUE.json`.
+
+## Follow-up verification — November 14
+
+GitHub CI [run 43585811285](https://github.com/sanlorenzoprx/memoriesmystory/actions/runs/43585811285) passed for implementation head `d47dc237ff8f2a9cc9356d2d43287ebefb00cb84`. [PR #29](https://github.com/sanlorenzoprx/memoriesmystory/pull/29) remains a draft; no merge/deployment is claimed.
+
+A fresh redacted calling preflight still reports all seven configuration fields missing. Managed environment status also reports no attached secrets. There is no callable shared-browser inspection tool in this turn, so an existing Cloudflare browser session could not be inspected. No user device or unrelated secret store was searched.
+
+The active D03 hosted gate requires private Cloudflare staging access. Per `../EXECUTION/AUTHORITY_AND_STOP_RULES.md` ("a required credential is missing at the packet that owns it"), pause hosted validation here rather than claiming mock-only readiness or starting another active packet. Restore authorized staging account/API access privately; routine app/preset/session configuration can then be prepared without adding guest registration or a new identity system. Do not paste secrets into chat.
