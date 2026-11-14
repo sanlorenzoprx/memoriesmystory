@@ -42,7 +42,18 @@ function modules() {
     type: "ESModule",
     path: "runtime-test.js",
     contents: `import { LegacyRecorder } from './worker/legacy-recorder.js';
- export class TestRecorder extends LegacyRecorder { async fetch(request){if(new URL(request.url).pathname==='/tick'){await this.alarm();return new Response('ok');}return super.fetch(request);} }
+ export class TestRecorder extends LegacyRecorder {
+ constructor(state,env){
+  const flags={fail:false};
+  super(state,{...env,DB:new Proxy(env.DB,{get(target,key){if(key==='prepare'&&flags.fail)return()=>{throw new Error('synthetic_d1_outage');};const value=Reflect.get(target,key,target);return typeof value==='function'?value.bind(target):value;}})});
+  this.testState=state;this.testFlags=flags;
+ }
+ async fetch(request){const path=new URL(request.url).pathname;
+  if(path==='/tick'){await this.alarm();return new Response('ok');}
+  if(path==='/simulate-outage'){this.testFlags.fail=true;await this.testState.storage.put('captureWatchdog',{meetingId:'meeting-runtime-test',deadline:0});return new Response('ok');}
+  return super.fetch(request);
+ }
+ }
  export default {fetch(){return new Response('test');}};`,
   });
   return result;
@@ -124,6 +135,9 @@ async function setup(uncertainStart = false, partialTrack = false) {
     >();
     let allocations = 0,
       stops = 0;
+    let cleanupOutage = false,
+      closedAdmission = 0,
+      removedPeers = 0;
     const prefix = `/client/v4/accounts/account_test/realtime/kit/app_test`;
     mock
       .get("https://api.cloudflare.com")
@@ -156,6 +170,16 @@ async function setup(uncertainStart = false, partialTrack = false) {
       .reply((options) => {
         const path = String(options.path),
           id = path.split("/").pop()!;
+        if (path.includes("/participants?"))
+          return {
+            statusCode: 200,
+            data: JSON.stringify({
+              success: true,
+              data: snapshot.map((person) => ({ id: person.providerId })),
+            }),
+          };
+        if (cleanupOutage && path.includes("/recordings?"))
+          return { statusCode: 503, data: "{}" };
         return {
           statusCode: 200,
           data: JSON.stringify({
@@ -173,7 +197,30 @@ async function setup(uncertainStart = false, partialTrack = false) {
       .reply((options) => {
         stops++;
         const id = String(options.path).split("/").pop()!;
-        records.get(id)!.status = partialTrack && id === "track-runtime-test" ? "ERRORED" : "UPLOADED";
+        records.get(id)!.status =
+          partialTrack && id === "track-runtime-test" ? "ERRORED" : "UPLOADED";
+        return {
+          statusCode: 200,
+          data: JSON.stringify({ success: true, data: {} }),
+        };
+      })
+      .persist();
+    mock
+      .get("https://api.cloudflare.com")
+      .intercept({ path: /.*/, method: "PATCH" })
+      .reply(() => {
+        closedAdmission++;
+        return {
+          statusCode: 200,
+          data: JSON.stringify({ success: true, data: {} }),
+        };
+      })
+      .persist();
+    mock
+      .get("https://api.cloudflare.com")
+      .intercept({ path: /.*/, method: "DELETE" })
+      .reply(() => {
+        removedPeers++;
         return {
           statusCode: 200,
           data: JSON.stringify({ success: true, data: {} }),
@@ -259,6 +306,13 @@ async function setup(uncertainStart = false, partialTrack = false) {
       tick,
       group,
       counts: () => ({ allocations, stops }),
+      simulateOutage: async () => {
+        cleanupOutage = true;
+        await recorder.fetch("https://test/simulate-outage", {
+          method: "POST",
+        });
+      },
+      cleanupCounts: () => ({ closedAdmission, removedPeers }),
       files,
     };
   } finally {
@@ -348,13 +402,45 @@ describe("alarm-backed recording with native workerd D1 and private R2", () => {
       capture_stopped: 1,
     });
   }, 30000);
-  it("preserves available originals with an explicit partial state when participant audio fails",async()=>{
-    const s=await setup(false,true);for(let i=0;i<3;i++)await s.tick();
-    await s.db.prepare("UPDATE legacy_remote_recordings SET stop_requested_at=? WHERE id=?").bind(new Date().toISOString(),s.recordingId).run();
-    for(let i=0;i<6;i++)await s.tick();
-    expect(await s.group()).toMatchObject({phase:"partial_preserved",capture_stopped:1});
-    const sources=(await s.db.prepare("SELECT kind,durability_status FROM legacy_remote_sources WHERE recording_id=?").bind(s.recordingId).all()).results;
-    expect(sources).toEqual([{kind:"composite_video",durability_status:"durable"}]);
-  },30000);
+  it("preserves available originals with an explicit partial state when participant audio fails", async () => {
+    const s = await setup(false, true);
+    for (let i = 0; i < 3; i++) await s.tick();
+    await s.db
+      .prepare(
+        "UPDATE legacy_remote_recordings SET stop_requested_at=? WHERE id=?",
+      )
+      .bind(new Date().toISOString(), s.recordingId)
+      .run();
+    for (let i = 0; i < 6; i++) await s.tick();
+    expect(await s.group()).toMatchObject({
+      phase: "partial_preserved",
+      capture_stopped: 1,
+    });
+    const sources = (
+      await s.db
+        .prepare(
+          "SELECT kind,durability_status FROM legacy_remote_sources WHERE recording_id=?",
+        )
+        .bind(s.recordingId)
+        .all()
+    ).results;
+    expect(sources).toEqual([
+      { kind: "composite_video", durability_status: "durable" },
+    ]);
+  }, 30000);
 
+  it("still removes publishing participants when D1 and recorder cleanup endpoints fail", async () => {
+    const s = await setup();
+    for (let i = 0; i < 3; i++) await s.tick();
+    await s.simulateOutage();
+    await s.tick();
+    expect(s.cleanupCounts()).toEqual({ closedAdmission: 1, removedPeers: 2 });
+    // D1 never received a false stopped or saved confirmation during the outage.
+    expect(await s.group()).toMatchObject({
+      phase: "recording",
+      capture_stopped: 0,
+    });
+    await s.tick();
+    expect(s.cleanupCounts()).toEqual({ closedAdmission: 2, removedPeers: 4 });
+  }, 30000);
 });

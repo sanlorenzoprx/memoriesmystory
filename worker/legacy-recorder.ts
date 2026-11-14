@@ -121,7 +121,14 @@ export class LegacyRecorder {
           "source_signature_invalid",
           "source_too_large",
         ].includes(error.message);
-      if (group && lease && group.capture_stopped && (permanent || group.failure_count >= phase1Config.legacy.remotePreservationRetryLimit - 1))
+      if (
+        group &&
+        lease &&
+        group.capture_stopped &&
+        (permanent ||
+          group.failure_count >=
+            phase1Config.legacy.remotePreservationRetryLimit - 1)
+      )
         await this.update(group, lease, {
           phase: "needs_review",
           failure_code: "recording_source_review_required",
@@ -489,39 +496,58 @@ export class LegacyRecorder {
     });
   }
   private async forceCloseWithoutDatabase(meetingId: string) {
-    // Persistent deadline protection still works if D1 is temporarily unavailable.
-    await realtimeKitRequest(
-      this.env,
-      `/meetings/${recordingSegment(meetingId)}`,
-      "PATCH",
-      { status: "INACTIVE" },
-    );
-    const records = await realtimeKitRequest<ProviderRecording[]>(
-      this.env,
-      `/recordings?meeting_id=${recordingSegment(meetingId)}&per_page=100`,
-    );
-    if (!Array.isArray(records) || records.length >= 100)
-      throw new Error("recording_cleanup_unconfirmed");
-    for (const record of records)
-      await stopProviderRecording(this.env, record.id);
-    const peers = await realtimeKitRequest<{ id: string }[]>(
-      this.env,
-      `/meetings/${recordingSegment(meetingId)}/participants?per_page=100`,
-    );
-    if (!Array.isArray(peers) || peers.length >= 100)
-      throw new Error("recording_cleanup_unconfirmed");
-    for (const peer of peers) {
-      try {
-        await realtimeKitRequest(
-          this.env,
-          `/meetings/${recordingSegment(meetingId)}/participants/${recordingSegment(peer.id)}`,
-          "DELETE",
-        );
-      } catch (error) {
-        if (!(error instanceof RealtimeKitError) || error.status !== 404)
-          throw error;
-      }
+    // Every cleanup branch runs even if another provider endpoint is unavailable.
+    let confirmed = true;
+    try {
+      await realtimeKitRequest(
+        this.env,
+        `/meetings/${recordingSegment(meetingId)}`,
+        "PATCH",
+        { status: "INACTIVE" },
+      );
+    } catch {
+      confirmed = false;
     }
+    try {
+      const records = await realtimeKitRequest<ProviderRecording[]>(
+        this.env,
+        `/recordings?meeting_id=${recordingSegment(meetingId)}&per_page=100`,
+      );
+      if (!Array.isArray(records) || records.length >= 100)
+        throw new Error("recording_cleanup_unconfirmed");
+      for (const record of records) {
+        try {
+          await stopProviderRecording(this.env, record.id);
+        } catch {
+          confirmed = false;
+        }
+      }
+    } catch {
+      confirmed = false;
+    }
+    try {
+      const peers = await realtimeKitRequest<{ id: string }[]>(
+        this.env,
+        `/meetings/${recordingSegment(meetingId)}/participants?per_page=100`,
+      );
+      if (!Array.isArray(peers) || peers.length >= 100)
+        throw new Error("recording_cleanup_unconfirmed");
+      for (const peer of peers) {
+        try {
+          await realtimeKitRequest(
+            this.env,
+            `/meetings/${recordingSegment(meetingId)}/participants/${recordingSegment(peer.id)}`,
+            "DELETE",
+          );
+        } catch (error) {
+          if (!(error instanceof RealtimeKitError) || error.status !== 404)
+            confirmed = false;
+        }
+      }
+    } catch {
+      confirmed = false;
+    }
+    if (!confirmed) throw new Error("recording_cleanup_unconfirmed");
   }
   private async closeAdmission(group: RemoteRecordingRow) {
     await this.env.DB.prepare(
