@@ -1,6 +1,6 @@
 import { afterEach, expect, it, vi } from "vitest";
 import { createFetchMock } from "miniflare";
-import { mkdtemp, rm } from "node:fs/promises";
+import { mkdtemp, rm, cp, mkdir } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 // @ts-expect-error Trusted operator module is shared with manual Actions.
@@ -93,8 +93,23 @@ it("exercises actual consent/start/guest stop/private source routes through auto
     .persist();
   temporary = await mkdtemp(join(tmpdir(), "native-archive-harness-test-"));
   const cleanup = vi.fn();
+  // Mirror the nested Actions checkout rather than relying on candidate === cwd.
+  const candidate = join(temporary, "call-candidate");
+  await mkdir(candidate);
+  for (const directory of [
+    "worker",
+    "config",
+    "app/domain",
+    "migrations",
+    "tests/helpers",
+  ]) {
+    await mkdir(join(candidate, directory), { recursive: true });
+    await cp(resolve(directory), join(candidate, directory), {
+      recursive: true,
+    });
+  }
   const proof = await createNativeArchiveProof({
-    candidate: resolve("."),
+    candidate,
     directory: temporary,
     credentials: {
       REALTIMEKIT_ACCOUNT_ID: "account_test",

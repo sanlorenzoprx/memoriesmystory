@@ -296,7 +296,11 @@
           "branch": "feat/remote-archive-live-proof",
           "status": "implemented_live_verification_pending",
           "receipt": "docs/IMPLEMENTATION/REALTIMEKIT_NATIVE_ARCHIVE_PROOF_2026-11-14.md",
-          "note": "Actual server routes and automatic native alarms with real generated provider media into ephemeral native D1/R2. Separate from deployed permanent archive and human/device acceptance."
+          "note": "First live run stopped at native virtual-module root initialization before recording, provider cleanup confirmed. Nested-checkout path fix and read-only permanent archive access probe in progress; no integrated archive success claimed.",
+          "pr": 37,
+          "merge_sha": "bb061b16eeed20be3911f870dd347950a9981379",
+          "ci_run": 43609667361,
+          "first_live_run": 43609943002
         }
       ]
     },
