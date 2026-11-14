@@ -204,3 +204,11 @@ Observations preserve evidence separately from proposed solutions. Follow `READM
 - Interpretation: select full/partial HTTP response status from the request and validate returned byte bounds; retain native R2 playback checks alongside route mocks.
 - Limits: actual provider-to-native integration and permanent deployed R2 are separate evidence gates.
 - Receipt: `../IMPLEMENTATION/REALTIMEKIT_NATIVE_ARCHIVE_PROOF_2026-11-14.md`. No Foundation change.
+
+### L-2026-11-14-005 — Organization must preserve source identity and bounded transactional edits
+
+- Status: addressed in the E01 candidate; cloud route/human acceptance pending.
+- Evidence: private Chapter integration tests, 120-reference native workerd/D1/R2 transaction test, and English/Spanish phone journeys.
+- Observed fact: many-to-many references preserve original object keys/ETags across Chapter/album removal. One JSON membership parameter and a fixed small batch handle 120 references without one SQL parameter or statement per memory. Conditional receipts reject stale edits and retain the same retry identity after network failure.
+- Interpretation: organization is metadata over Living Memories, not a second media store or competing product object. Keep missing-object availability distinct from durable historical receipts, and preserve human titles/unsaved notes through language changes.
+- Limits: synthetic local/native/UI evidence; no remote Chapter or human acceptance inferred. Receipt: `../IMPLEMENTATION/PRIVATE_CHAPTERS_2026-11-14.md`. No Foundation change.

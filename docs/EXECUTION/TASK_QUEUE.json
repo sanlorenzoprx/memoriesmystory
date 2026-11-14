@@ -2,7 +2,7 @@
   "schema_version": "memoriesmystory_expanded_release_queue_v4",
   "project": "memoriesmystory",
   "campaign": "expanded-first-release",
-  "active_task_id": "our-living-legacy",
+  "active_task_id": "family-archive",
   "tasks": [
     {
       "id": "packet-1",
@@ -200,13 +200,13 @@
     },
     {
       "id": "our-living-legacy",
-      "status": "active",
+      "status": "implemented_cloud_proven_human_acceptance_pending",
       "depends_on": [
         "archival-photo-capture"
       ],
       "title": "First release: in-person then remote two-person sessions, consent, attribution, recording, scoped joining and replay",
       "release_required": true,
-      "note": "D01/D02 and unrecorded RealtimeKit calling merged. Provider recording outputs verified in run 43601378648. Consent-controlled recording and immutable private archive candidate implemented locally; deployment, integrated real staging, phone/cross-region and human acceptance remain pending.",
+      "note": "D01/D02/D03 technical implementation and real generated-media cloud persistence proof passed (43628170649). Owner deferred physical/human acceptance until MVP implementation. Release/device/legal gates remain open; implementation advances to E01.",
       "implementation_packets": [
         {
           "packet": "D01",
@@ -306,21 +306,39 @@
         {
           "packet": "D03-cloud-archive-proof",
           "branch": "feat/private-cloud-archive-proof",
-          "status": "implemented_live_verification_pending",
+          "status": "real_cloud_archive_verified",
           "receipt": "docs/IMPLEMENTATION/REALTIMEKIT_CLOUD_ARCHIVE_PROOF_2026-11-14.md",
           "read_access_run": 43626942755,
-          "note": "Owner added separate archive token; Worker/D1/R2 metadata access verified. Isolated real-cloud storage/persistence/cleanup candidate; no production or complete V2 claim."
+          "note": "Actual routes/alarms with real generated media on isolated cloud Worker/D1/private R2, source integrity/private replay and persistence after verified redeployment passed. Provider/cloud cleanup confirmed. No production, long-term or human/device acceptance claim.",
+          "pr": 39,
+          "merge_sha": "2896e5c17ccec4ca64fe8e4b6a7fbd3ae260b424",
+          "ci_run": 43627914312,
+          "live_run": 43628170649
         }
       ]
     },
     {
       "id": "family-archive",
-      "status": "pending",
+      "status": "active",
       "depends_on": [
         "our-living-legacy"
       ],
       "title": "People, relationships, Chapters, and Family Archive",
-      "release_required": true
+      "release_required": true,
+      "note": "E01 owner-private Chapters implemented and locally verified (211 tests,49 phone checks); CI/cloud Chapter verification pending. E02 people and E03 family authorization remain required. Deferred human/device gates remain open.",
+      "implementation_packets": [
+        {
+          "packet": "E01",
+          "branch": "feat/private-family-chapters",
+          "status": "implemented_local_proven_ci_and_cloud_pending",
+          "receipt": "docs/IMPLEMENTATION/PRIVATE_CHAPTERS_2026-11-14.md",
+          "local_verification": {
+            "unit_integration_tests": 211,
+            "phone_chromium_tests": 49,
+            "typecheck_lint_schema_build_dry_run": "passed"
+          }
+        }
+      ]
     },
     {
       "id": "family-contributions",

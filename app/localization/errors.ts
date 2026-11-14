@@ -1,6 +1,11 @@
 // API codes select presentation copy; workflow decisions continue to use codes/status.
 // Never display an arbitrary provider/server message as translated interface copy.
 const messages: Readonly<Record<string, string>> = {
+ family_archive_invalid:"Check the Chapter details and try again.",
+ family_archive_not_found:"This private Chapter or archive is not available with your access.",
+ family_archive_conflict:"These details changed elsewhere. Your edits are still here. Reopen the latest version before saving.",
+ family_archive_limit:"The current archive organization limit has been reached.",
+ family_archive_unavailable:"Your private archive is unavailable right now. Please try again.",
   legacy_remote_recording_unavailable: "Recording is unavailable right now. Your call can continue without recording.",
   legacy_recording_review_required: "This recording needs review before preservation can be retried.",
   legacy_recording_busy: "Another conversation recording is still being handled. Please wait.",
