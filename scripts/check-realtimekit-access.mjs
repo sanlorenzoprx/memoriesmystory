@@ -3,7 +3,7 @@ import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 /** Read-only account-scoped probe. Never return supplied values or upstream bodies. */
-export async function checkRealtimeKitAccess(env, fetcher = fetch) {
+export async function checkRealtimeKitAccess(env, fetcher = globalThis.fetch) {
   const account = env.REALTIMEKIT_ACCOUNT_ID ?? "";
   const token = env.REALTIMEKIT_API_TOKEN ?? "";
   if (!/^[a-f0-9]{32}$/iu.test(account) || !token || /\s/u.test(token))
@@ -14,7 +14,7 @@ export async function checkRealtimeKitAccess(env, fetcher = fetch) {
       {
         headers: { Authorization: `Bearer ${token}`, Accept: "application/json" },
         redirect: "error",
-        signal: AbortSignal.timeout(20000),
+        signal: globalThis.AbortSignal.timeout(20000),
       },
     );
     if (!response.ok)
