@@ -5,6 +5,7 @@ import { pathToFileURL } from "node:url";
 import { createHash, randomUUID } from "node:crypto";
 import ts from "typescript";
 import { Miniflare } from "miniflare";
+import { verifyPrivateChapters } from "./private-chapters-proof.mjs";
 
 // Trusted operator-only fixture compiler. Never added to the deployed Worker.
 async function graph(root, entry, extension, output = []) {
@@ -42,6 +43,7 @@ export async function createNativeArchiveProof({
   credentials,
   fetchMock,
   runtimeFactory,
+  includeFamilyArchive = false,
 }) {
   const compiled = await mkdtemp(join(directory, "fixture-"));
   let fixture, runtime;
@@ -122,6 +124,8 @@ export async function createNativeArchiveProof({
       ".js",
       modules,
     );
+    if (includeFamilyArchive)
+      await graph(candidate, "worker/archive-routes.ts", ".js", modules);
     modules.unshift({
       type: "ESModule",
       path: "native-archive-proof.js",
@@ -132,7 +136,8 @@ export async function createNativeArchiveProof({
     phase1Config.legacy.remoteSourceMaximumBytes=64*1024*1024;
     import { handleRemoteRecordingRoute } from './worker/legacy-remote-recording-route.js';
     import { handleLegacySessionRoute } from './worker/legacy-sessions.js';
-    export default {async fetch(request,env){return await handleRemoteRecordingRoute(request,env)??await handleLegacySessionRoute(request,env)??new Response(null,{status:404});}};
+    ${includeFamilyArchive ? "import { handleArchiveRoute } from './worker/archive-routes.js';" : ""}
+    export default {async fetch(request,env){return ${includeFamilyArchive ? "await handleArchiveRoute(request,env)??" : ""}await handleRemoteRecordingRoute(request,env)??await handleLegacySessionRoute(request,env)??new Response(null,{status:404});}};
   `,
     });
     // Module paths otherwise resolve against the caller's cwd, which differs
@@ -254,6 +259,17 @@ export async function createNativeArchiveProof({
       guest,
       host: fixture.owner,
       sessionId,
+      async verifyChapters() {
+        if (!includeFamilyArchive) throw new Error("chapter_proof_disabled");
+        return verifyPrivateChapters({
+          runtime,
+          db,
+          bucket,
+          owner: fixture.owner,
+          guest,
+          memoryId: fixture.memory,
+        });
+      },
       async restart() {
         if (runtime.restart) await runtime.restart();
       },

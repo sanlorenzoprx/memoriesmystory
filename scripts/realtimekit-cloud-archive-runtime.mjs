@@ -309,8 +309,8 @@ export async function createCloudArchiveRuntime(
       },
     };
     async function waitForGeneration() {
-      const deadline=Date.now()+60000;
-      for (let i = 0; i < 30 && Date.now()<deadline; i++) {
+      const deadline = Date.now() + 60000;
+      for (let i = 0; i < 30 && Date.now() < deadline; i++) {
         try {
           if (
             (await workerProof("/__archive-proof/generation", {}))
@@ -333,7 +333,10 @@ export async function createCloudArchiveRuntime(
         const url = new URL(input);
         if (
           url.origin !== "https://example.test" ||
-          !url.pathname.startsWith("/resources/legacy-sessions/")
+          !(
+            url.pathname.startsWith("/resources/legacy-sessions/") ||
+            /^\/resources\/family-archives(?:\/|$)/.test(url.pathname)
+          )
         )
           throw new CloudArchiveError("archive_cloud_route_invalid");
         return fetcher(origin + url.pathname + url.search, {

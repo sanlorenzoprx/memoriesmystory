@@ -9,6 +9,10 @@ on:
           - native
           - isolated-cloud
         default: native
+      verify_chapters:
+        description: Verify owner-private Chapter routes and unchanged source bytes
+        type: boolean
+        default: false
 permissions:
   contents: read
 concurrency:
@@ -25,7 +29,7 @@ jobs:
       - name: Check out reviewed archive candidate
         uses: actions/checkout@v4
         with:
-          ref: b0bd4acce90380dee5b6f6439b1f4a0cd8d37285
+          ref: 3bbb1096b1291fefa5cc0fee80a69519904801fb
           path: call-candidate
           persist-credentials: false
       - uses: actions/setup-node@v4
@@ -53,6 +57,7 @@ jobs:
       - name: Verify real recording into native private archive
         env:
           ARCHIVE_STORAGE_MODE: ${{ inputs.storage }}
+          ARCHIVE_VERIFY_CHAPTERS: ${{ inputs.verify_chapters }}
           CLOUDFLARE_API_TOKEN: ${{ inputs.storage == 'isolated-cloud' && secrets.CLOUDFLARE_API_TOKEN || '' }}
           REALTIMEKIT_ACCOUNT_ID: ${{ vars.REALTIMEKIT_ACCOUNT_ID }}
           REALTIMEKIT_API_TOKEN: ${{ secrets.REALTIMEKIT_API_TOKEN }}
