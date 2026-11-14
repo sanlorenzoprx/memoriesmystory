@@ -9,6 +9,11 @@ describe("recording outputs and bounded private download",()=>{
   it("maps each participant's original audio separately from the composite",()=>{
     expect(outputs.recordingOutputs(composite,track,people).map((x:{kind:string;role?:string})=>[x.kind,x.role])).toEqual([["composite_video",undefined],["participant_audio","host"],["participant_audio","guest"]]);
   });
+  it("accepts the single validated layer-list wrapper observed from Cloudflare and rejects ambiguous wrappers",()=>{
+    const result=outputs.recordingOutputs(composite,{...track,download_url:{provider_wrapper:track.download_url}},people);
+    expect(result).toHaveLength(3);
+    expect(()=>outputs.recordingOutputs(composite,{...track,download_url:{first:track.download_url,second:track.download_url}},people)).toThrow();
+  });
   it("refuses incomplete, missing or unconfirmed attribution rather than guessing speakers",()=>{
     expect(()=>outputs.recordingOutputs({...composite,status:"UPLOADING"},track,people)).toThrow();
     expect(()=>outputs.recordingOutputs(composite,track,[...people,{participantId:"person_unknown_001",role:"guest"}])).toThrow();

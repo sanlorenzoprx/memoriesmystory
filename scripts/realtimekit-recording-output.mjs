@@ -5,8 +5,16 @@ export function recordingOutputs(composite, track, participants) {
   if (composite?.status !== "UPLOADED" || track?.status !== "UPLOADED") throw new Error("outputs_not_uploaded");
   if (typeof composite.download_url !== "string") throw new Error("composite_output_missing");
   const output = [{ kind: "composite_video", url: composite.download_url }];
-  if (!Array.isArray(track.download_url)) throw new Error("track_manifest_missing");
-  for (const layer of track.download_url) {
+  let layers = track.download_url;
+  // Observed live API: one opaque wrapper field contains the layer array.
+  // Do not infer a participant from wrapper names or accept ambiguous lists.
+  if (layers && !Array.isArray(layers) && typeof layers === "object") {
+    const candidates = Object.values(layers).filter(Array.isArray);
+    if (candidates.length !== 1) throw new Error("track_manifest_missing");
+    layers = candidates[0];
+  }
+  if (!Array.isArray(layers)) throw new Error("track_manifest_missing");
+  for (const layer of layers) {
     for (const [filename, value] of Object.entries(layer.download_urls ?? {})) {
       if (!filename.endsWith(".webm") || typeof value?.download_url !== "string") throw new Error("invalid_track_output");
       const owners = participants.filter(p => filename.includes(`_${p.participantId}_`));

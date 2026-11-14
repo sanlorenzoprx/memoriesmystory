@@ -10,6 +10,7 @@ import { recordingOutputs, downloadRecordingBytes } from "./realtimekit-recordin
 
 const candidate = resolve("call-candidate"), origin = "http://127.0.0.1:4173";
 const directory = await mkdtemp(join(tmpdir(), "memoriesmystory-recording-"));
+let probeFailureCode;
 const checks = [], outputMetadata = [];let stage = "prepare_synthetic_sources", browser, server;
 const wait = ms => new Promise(r => globalThis.setTimeout(r, ms));
 function tone() {
@@ -74,10 +75,13 @@ async function exercise({grants,recording}) {
 let result;
 try{
   result=await runStagingProof(process.env,globalThis.fetch,async context=>{
-    try{await exercise(context);}finally{await browser?.close().catch(()=>{});server?.kill();}
+    try{await exercise(context);}catch(error){
+      const allowed = new Set(["outputs_not_uploaded","composite_output_missing","track_manifest_missing","invalid_track_output","track_attribution_unconfirmed","participant_output_missing","unapproved_download_origin","download_failed","download_too_large","empty_output","invalid_output","video_output_missing","unexpected_video_track","provider_recording_errored","provider_recording_timeout"]);
+      probeFailureCode=allowed.has(error?.message)?error.message:"probe_execution_failed";throw error;
+    }finally{await browser?.close().catch(()=>{});server?.kill();}
   });
 }finally{await browser?.close().catch(()=>{});server?.kill();await rm(directory,{recursive:true,force:true});}
-const report={...result,recordingProbeStage:stage,recordingOutputChecks:checks,outputMetadata};
+const report={...result,recordingProbeStage:stage,recordingOutputChecks:checks,outputMetadata,...(probeFailureCode?{probeFailureCode}:{})};
 console.log(JSON.stringify(report));
 if(process.env.GITHUB_STEP_SUMMARY)await appendFile(process.env.GITHUB_STEP_SUMMARY,`## Synthetic RealtimeKit recording-output proof\n\n\`\`\`json\n${JSON.stringify(report,null,2)}\n\`\`\`\n\nGenerated audio/video only. Separate provider-output verification, not a consumer consent UI test or private archive durability proof. Temporary downloads are removed; credentials, participant JWTs, signed URLs, media and provider bodies are not exported. This bounded run uses calling/export minutes; no plan activation or production deployment.\n`);
 if(!result.ok)process.exitCode=1;
