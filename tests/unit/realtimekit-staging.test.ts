@@ -204,4 +204,17 @@ describe("isolated RealtimeKit staging API proof", () => {
     });
     expect(fetch).not.toHaveBeenCalled();
   });
+  it("keeps browser grants private and cleans up even if a browser exercise fails", async () => {
+    const s = mock();
+    const exercise = vi.fn(async ({grants}: {grants:{role:string;authToken:string}[]}) => {
+      expect(grants.map(grant=>grant.role)).toEqual(["host","guest"]);
+      expect(grants.every(grant=>grant.authToken.includes("PRIVATE_SIGNATURE_CANARY"))).toBe(true);
+      throw new Error("PRIVATE_BROWSER_ERROR_CANARY");
+    });
+    const result = await runStagingProof(env,s.fetch,exercise);
+    expect(result).toMatchObject({ok:false,stage:"exercise_browser_call",cleanupConfirmed:true});
+    expect(s.peers.size).toBe(0);
+    expect(JSON.stringify(result)).not.toMatch(/CANARY/);
+  });
+
 });
