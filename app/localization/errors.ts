@@ -1,6 +1,10 @@
 // API codes select presentation copy; workflow decisions continue to use codes/status.
 // Never display an arbitrary provider/server message as translated interface copy.
 const messages: Readonly<Record<string, string>> = {
+  legacy_remote_recording_unavailable: "Recording is unavailable right now. Your call can continue without recording.",
+  legacy_recording_review_required: "This recording needs review before preservation can be retried.",
+  legacy_recording_busy: "Another conversation recording is still being handled. Please wait.",
+  legacy_recording_daily_limit: "The conversation recording limit for today has been reached.",
   legacy_call_unavailable: "Your call is not available yet. Please try again shortly.",
   legacy_call_waiting: "Ask the host to open the call, then try again.",
   legacy_recording_pending: "This recording's backup was not confirmed. Keep your device copy and try again.",

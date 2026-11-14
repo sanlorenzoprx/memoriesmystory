@@ -13,8 +13,11 @@
   },
   "vars": {
     "APP_NAME": "memoriesmystory",
-    "PUBLIC_BRAND_NAME": "Memories: My Story"
+    "PUBLIC_BRAND_NAME": "Memories: My Story",
+    "LEGACY_REMOTE_RECORDING_ENABLED": "false"
   },
+  "durable_objects": { "bindings": [{ "name": "LEGACY_RECORDERS", "class_name": "LegacyRecorder" }] },
+  "migrations": [{ "tag": "v1-legacy-recorder", "new_sqlite_classes": ["LegacyRecorder"] }],
   "d1_databases": [
     {
       "binding": "DB",

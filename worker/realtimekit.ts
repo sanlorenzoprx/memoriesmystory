@@ -36,7 +36,7 @@ export async function realtimeKitRequest<T>(
     },
     ...(body === undefined ? {} : { body: JSON.stringify(body) }),
     signal: AbortSignal.timeout(15000),
-    redirect: "error",
+    redirect: "manual",
   });
   if (!response.ok) throw new RealtimeKitError(response.status);
   const result = (await response.json()) as { success?: boolean; data?: T };

@@ -42,6 +42,9 @@ export const phase1Config = {
     stillRequestTimeoutMs: 8_000
   },
   legacy: {
+    remoteSourceMaximumBytes: 512 * 1024 * 1024,
+    remoteRecordingDailyLimit: 3,
+    remotePreservationRetryLimit: 12,
     remoteTokenLifetimeSeconds: 900,
     inviteLifetimeHours: 24,
     guestAccessDays: 7,

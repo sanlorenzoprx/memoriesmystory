@@ -1,3 +1,4 @@
+import { requestRemoteRecordingStop } from "./legacy-remote-recording-data";
 import { closeLegacyRemoteCall } from "./legacy-remote";
 import type { RealtimeKitEnv } from "./realtimekit";
 import { phase1Config } from "../config/phase-1";
@@ -451,7 +452,8 @@ export async function handleLegacySessionRoute(
         },
       });
     }
-    if (!match[2] && request.method === "GET")
+    if (!match[2] && request.method === "GET") {
+      const remoteRecording=session.mode==="remote"?await env.DB.prepare("SELECT id,phase,capture_stopped FROM legacy_remote_recordings WHERE session_id=? ORDER BY created_at DESC,id DESC LIMIT 1").bind(id).first<{id:string;phase:string;capture_stopped:number}>():null;
       return legacyJson({
         id: session.id,
         ...(actor.role==="host"?{memoryId:session.memory_story_id}:{}),
@@ -460,6 +462,7 @@ export async function handleLegacySessionRoute(
         version: session.version,
         consentEpoch: session.consent_epoch,
         consentVersion: legacyConsentVersion,
+        ...(remoteRecording?{remoteRecording:{id:remoteRecording.id,phase:remoteRecording.phase,captureStopped:Boolean(remoteRecording.capture_stopped)}}:{}),
         actorId: actor.id,
         actorRole: actor.role,
         photoUrl: `/resources/legacy-sessions/${id}/photo${actor.role === "guest" ? "?as=guest" : ""}`,
@@ -468,6 +471,7 @@ export async function handleLegacySessionRoute(
           session.status !== "closed" &&
           participantsAllowRecording(participants(rows)),
       });
+    }
     legacyMutation(request);
     if (request.method !== "POST") legacyFail(405, "method");
     const body = await legacyBody(request),
@@ -506,6 +510,7 @@ export async function handleLegacySessionRoute(
           "UPDATE legacy_sessions SET consent_epoch=consent_epoch+1,version=version+1,updated_at=?,status=CASE WHEN status='live' THEN 'paused' ELSE status END WHERE id=?",
         ).bind(now, id),
       ]);
+      if(!body.agree)await requestRemoteRecordingStop(env,id);
       return legacyJson({ ok: true });
     }
     if (match[2] === "revoke") {
@@ -515,6 +520,7 @@ export async function handleLegacySessionRoute(
       );
       if (!target) legacyFail(404, "legacy_not_found");
       if (target.revoked_at) return legacyJson({ ok: true, replayed: true });
+      await requestRemoteRecordingStop(env,id);
       await closeLegacyRemoteCall(env, id);
       await env.DB.batch([
         env.DB.prepare(

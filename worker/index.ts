@@ -1,3 +1,5 @@
+import { handleRemoteRecordingRoute } from "./legacy-remote-recording-route";
+export { LegacyRecorder } from "./legacy-recorder";
 import { handleLegacyRemoteRoute } from "./legacy-remote";
 import type { RealtimeKitEnv } from "./realtimekit";
 import { appIdentity } from "../config/app-identity";
@@ -23,6 +25,8 @@ import {
 import type { TranscriptionQueueMessage } from "../app/domain";
 
 export interface Env extends RealtimeKitEnv {
+  LEGACY_RECORDERS?: DurableObjectNamespace;
+  LEGACY_REMOTE_RECORDING_ENABLED?: string;
   ASSETS: Fetcher;
   DB: D1Database;
   MEDIA_BUCKET: R2Bucket;
@@ -61,6 +65,9 @@ const handler: ExportedHandler<Env, TranscriptionQueueMessage> = {
 
     const authResponse = await handleAuthRoute(request, env);
     if (authResponse) return authResponse;
+
+    const remoteRecordingResponse = await handleRemoteRecordingRoute(request, env);
+    if (remoteRecordingResponse) return remoteRecordingResponse;
 
     const remoteResponse = await handleLegacyRemoteRoute(request, env);
     if (remoteResponse) return remoteResponse;

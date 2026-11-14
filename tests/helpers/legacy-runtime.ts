@@ -156,8 +156,11 @@ export class TestR2 {
   readonly objects = new Map<string, StoredObject>();
   failNextPut = false;
 
-  async delete(key: string) {
-    this.objects.delete(key);
+  async delete(key: string|string[]) {
+    for(const value of Array.isArray(key)?key:[key])this.objects.delete(value);
+  }
+  async list(options?:{prefix?:string}){
+    return {objects:[...this.objects.entries()].filter(([key])=>key.startsWith(options?.prefix??"")).map(([key,value])=>({key,size:value.body.length})),truncated:false};
   }
 
   async head(key: string): Promise<R2Object | null> {

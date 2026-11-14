@@ -11,7 +11,11 @@ Owner-approved November 14 direction uses Cloudflare RealtimeKit managed calling
 
 Repository Actions credentials now work; no need to resend them or require guest Clerk accounts. The fixed staging app/restricted preset are configured. Read access run 43592575231, staging meeting/token API run 43593728473 and real-media browser run 43594590337 passed. The latter used two isolated Chromium contexts with synthetic app session/photo fixtures and real Cloudflare media: decoded video/nonzero audio/playback, camera-off audio, leave/rejoin, active guest removal and cleanup passed. See `IMPLEMENTATION/REALTIMEKIT_BROWSER_PROOF_2026-11-14.md` for exact scope. The application source is the reviewed PR #29 candidate; operational workflows are merged separately in PRs #30–#32.
 
-No application deployment, physical-phone/cross-region acceptance, remote recording, verified archival originals or completed MVP v0.5 is claimed. Consent-controlled composite/per-speaker recording and private archive ingestion remain next. Direct workspace credentials remain absent; use the manual Actions workflows for authorized provider operations.
+Provider recording output run 43601378648 now passes for generated sources: simultaneous composite video and two exactly mapped audio sources, decoded media, hashes, durations and cleanup. This is provider evidence, not the family's permanent archive.
+
+The consent-controlled recording/private archive candidate is implemented on `feat/remote-source-archive`: independent agreements and either-person stop, persistent coordination/recovery, immutable composite and microphone-specific sources, private R2 read-back hash verification, partial-source states, own-voice claims, scoped replay/deletion and EN/ES controls. See `IMPLEMENTATION/REMOTE_RECORDING_ARCHIVE_2026-11-14.md`. Migration 0013 and the Durable Object migration are required before deploying matching code. Feature activation defaults off.
+
+No application deployment, physical-phone/cross-region acceptance, integrated real recording-to-deployed-archive acceptance or completed MVP v0.5 is claimed. Direct workspace credentials remain absent; existing RealtimeKit Actions secrets work and must not be requested again.
 
 ## What works today
 
