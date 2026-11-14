@@ -59,3 +59,7 @@ Packet 4 identity staging uses `npm run preflight:identity:staging`. The command
 - ElevenLabs Scribe v2 is the first transcription provider. Keep the provider boundary narrow; do not add a second transcription provider without evidence that one is needed.
 - English and Spanish are both acceptance-blocking.
 - Staging credentials and resources are isolated from production.
+
+## Remote Our Living Legacy provider gate
+
+`npm run preflight:legacy:staging` reports only configuration shape and makes no network request. `REALTIME_SFU_APP_ID` is an environment-specific identifier; `REALTIME_SFU_APP_SECRET` is backend-only runtime authorization and must never be shipped in the browser. These names prepare D03 and do not yet enable live video. See `../OPERATIONS/REMOTE_VIDEO_STAGING_SETUP.md` for bootstrap access, generated configuration, provider proof and the recorded missing-credential gate. Core verification remains independent of these values.
