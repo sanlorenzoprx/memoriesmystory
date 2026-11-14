@@ -1,10 +1,12 @@
+import { closeLegacyRemoteCall } from "./legacy-remote";
+import type { RealtimeKitEnv } from "./realtimekit";
 import {
   authenticateAppSession,
   sha256Text,
   type AuthSessionEnv
 } from "./auth-session";
 
-export type DeletionEnv = AuthSessionEnv & {
+export type DeletionEnv = AuthSessionEnv & RealtimeKitEnv & {
   readonly MEDIA_BUCKET: R2Bucket;
 };
 
@@ -130,6 +132,10 @@ async function deleteMemory(
   ).bind(draftId).first<StoryRow>();
 
   if(story)await env.DB.prepare("UPDATE legacy_sessions SET status='closed',deletion_requested_at=COALESCE(deletion_requested_at,?),consent_epoch=consent_epoch+1,version=version+1 WHERE memory_story_id=? AND deletion_requested_at IS NULL").bind(new Date().toISOString(),story.id).run();
+  if (story) {
+    const calls = await env.DB.prepare("SELECT id FROM legacy_sessions WHERE memory_story_id=?").bind(story.id).all<{id:string}>();
+    for (const call of calls.results) await closeLegacyRemoteCall(env, call.id);
+  }
   const assets = await env.DB.prepare(
     "SELECT id, r2_key FROM media_assets WHERE draft_id = ? ORDER BY created_at DESC"
   ).bind(draftId).all<AssetRow>();

@@ -1,5 +1,47 @@
 # Remote Our Living Legacy staging setup
 
+## Current direction — November 14, 2026
+
+The owner selected Cloudflare as the starting direction after developer-experience and cost research. [The decision](../DECISIONS/2026-11-14-realtimekit-managed-calling.md) selects **RealtimeKit managed calling**, rather than building a meeting layer on raw SFU for the first slice. The older raw-SFU/bootstrap plan below is historical and superseded for calling.
+
+The initial call is deliberately unrecorded. Existing invitations redeem to the existing HTTP-only guest cookie; host authentication remains the application's existing concern. A guest does not need Clerk, a Cloudflare login, or recording consent. Microphone and camera start off, with separate explicit controls. The photograph remains central.
+
+### Minimal runtime configuration
+
+Configure these privately on the isolated staging Worker (and locally in the ignored operator environment when running the preflight):
+
+- `REALTIMEKIT_ACCOUNT_ID`, `REALTIMEKIT_APP_ID`: isolated RealtimeKit account/app identifiers.
+- `REALTIMEKIT_API_TOKEN`: server-only token scoped to the app operations used by this integration. Never use a `VITE_` variable.
+- `REALTIMEKIT_CALL_PRESET`, `REALTIMEKIT_CALL_PRESET_ID`: matching preset name and ID.
+- Existing `SESSION_SECRET`, DB and private media bindings. `MEMORIES_STAGING_ORIGIN` is used by the operator shape check.
+
+The shared Video preset must allow normal audio/video joining and disable `can_record`, `can_livestream`, `can_change_participant_permissions`, `kick_participant`, `transcription_enabled`; `recorder_type` must be `NONE`. The backend verifies these fields before issuing any grant. Use ordinary guest permissions, not an admin preset. Verify waiting-room behavior allows both people to join without an administrator. Validate meeting/app AI defaults in staging; automatic recording, livestream, post-meeting transcription and summaries are explicitly disabled in meeting creation.
+
+`npm run preflight:legacy:staging` makes no requests and prints no values. Clerk keys and deployment/provisioning credentials are **not required by this calling check**. Full application deployment/host identity readiness is separate; use the existing deployment runbook for it. The staging deploy script preserves existing Worker secrets; it does not automatically upload these new secrets from the local environment. Set the runtime values through the existing private Wrangler secret mechanism before a live call.
+
+Apply additive migration **0012** after 0011, before deploying matching Worker/client code. No additional Durable Object or binding is introduced. No deployment was performed by this slice.
+
+### Allocation, recovery and removal
+
+Only the host allocates the meeting. A D1 claim serializes creation; guest-first attempts ask the host to open the call. Allocate two stable provider identities, one per existing session participant. Tokens stay in browser memory, never URL/local storage or D1. Grants expire after the centrally configured 15 minutes, bounded by guest access expiry. Later attempts refresh the actor's mapped token. Refresh does not invalidate earlier tokens; deleting the provider participant invalidates all its tokens and removes an active peer, per current participant documentation. Mapping contains provider identifiers, no media or credentials.
+
+An uncertain allocation stays `failed`/`provisioning` and is never automatically repeated. Reconcile in the isolated RealtimeKit dashboard using the content-free session ID in the meeting title. Do not simply reset the row and risk orphan rooms. The host may create a fresh conversation while retaining the original photograph/session record; identify and close the old allocation as operational cleanup.
+
+Removing guest access closes the entire provider call (deactivate admission, then delete both provider participant identities), retaining the mapping until confirmation. Memory deletion closes session access first and confirms provider closure before removing the mapping. Failed cleanup stays retryable and does not claim success. Live acceptance must verify participant deletion, retry/idempotency and existing-token denial; this is not proven by mocks. The schema rejects allocations inserted after deletion closes the session.
+
+### Remaining live gates
+
+- Two devices/networks, iOS Safari/Android Chrome, distant endpoints, permissions, audible remote playback, autoplay recovery and controls.
+- Network interruption and SDK reconnect; poor-connection camera disable with continued audio. Disabling a camera does not imply cheaper audio-only billing.
+- Same identity across tabs, token refresh/revocation, guest-access expiry, host removal and deletion during allocation/active calls. Multiple-device limits and token validity must be verified before release.
+- Participant deletion when the meeting is empty and already-deleted participant retries; do not convert an unverified error response into successful cleanup.
+- Separate participant audio + composite video, confirmed pricing/concurrent-output support, optional voice references, consent withdrawal, original integrity, private archive replay/export and partial recording recovery remain the next recording slice.
+
+There is no live call/recording/latency/cost or physical-device proof yet. The shape check currently reports missing isolated configuration. Do not describe this as a completed MVP.
+
+## Historical D03 preflight receipt — superseded setup assumptions
+
+
 D02 shared original recording/recovery/replay is merged in PR #27 (`942d9808e51de24ccdd5978a8d5be4d830274ace`), with 138 unit/integration tests, 43 phone browser tests and CI run 43539395845 passing. Migration 0011 has not been deployed by this work. D03 owns the next remote-media/provider experiment; this document is a concrete configuration handoff, not a working-video claim.
 
 ## Actual missing access

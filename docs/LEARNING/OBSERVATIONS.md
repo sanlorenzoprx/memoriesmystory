@@ -167,3 +167,13 @@ Observations preserve evidence separately from proposed solutions. Follow `READM
 - Interpretation: request only actual account/test identity access from the owner; generate ordinary app/session configuration after that access is available. Do not substitute an external meeting room or mock production behavior.
 - Confidence/limits: redacted configuration and deterministic-test evidence only. No live provider, physical-device, cost or legal acceptance is established.
 - Governing controls: `../EXECUTION/AUTHORITY_AND_STOP_RULES.md` and `../SECURITY/SECRETS_AND_CONFIGURATION.md`; no Foundation change.
+
+### L-2026-11-14-001 — Managed calling is separate from guest registration and archival proof
+
+- Status: addressed in implementation; live evidence pending.
+- Evidence source: owner's Cloudflare/cost direction and instruction to continue; Cloudflare RealtimeKit participant, quickstart, track recording and pricing documentation, November 14 review.
+- Observed fact: managed participant tokens admit invitation-authorized guests without requiring Clerk accounts. Refresh does not revoke old tokens. Separate participant audio is documented; separate video tracks and exact track-output billing cannot be assumed from composite recording prices.
+- Interpretation: reuse our session/guest boundary and managed calling; keep the first call explicitly unrecorded until archive outputs and consent/recovery are proven.
+- Confidence and contrary evidence: current public API documentation and local mocked integration tests; no hosted media or physical-device reproduction yet. Cloudflare AI's cost totals and production-readiness labels are not independent evidence.
+- Affected experience or invariant: I-10, I-15, I-17–I-19, I-25, I-30.
+- Decision: `../DECISIONS/2026-11-14-realtimekit-managed-calling.md`; receipt: `../IMPLEMENTATION/REALTIMEKIT_CALLING_2026-11-14.md`.

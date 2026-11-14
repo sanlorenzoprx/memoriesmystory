@@ -4,12 +4,13 @@ import { describe, expect, it, vi, afterEach } from "vitest";
 // @ts-expect-error The operator .mjs file has no TypeScript declaration.
 import { legacyStagingPreflight } from "../../scripts/preflight-legacy-staging.mjs";
 const synthetic = {
-  CLOUDFLARE_ACCOUNT_ID: "a".repeat(32),
-  CLOUDFLARE_API_TOKEN: "TOKEN_CANARY_DO_NOT_PRINT_".repeat(2),
+  REALTIMEKIT_ACCOUNT_ID: "a".repeat(32),
+  REALTIMEKIT_API_TOKEN: "TOKEN_CANARY_DO_NOT_PRINT_".repeat(2),
   CLERK_SECRET_KEY: "sk_test_SECRET_CANARY_DO_NOT_PRINT",
   VITE_CLERK_PUBLISHABLE_KEY: "pk_test_SYNTHETIC_PUBLISHABLE",
-  REALTIME_SFU_APP_ID: "synthetic_sfu_app_001",
-  REALTIME_SFU_APP_SECRET: "SFU_CANARY_DO_NOT_PRINT_".repeat(2),
+  REALTIMEKIT_APP_ID: "synthetic_sfu_app_001",
+  REALTIMEKIT_CALL_PRESET_ID: "synthetic_preset_001",
+  REALTIMEKIT_CALL_PRESET: "family_call",
   SESSION_SECRET: "SESSION_CANARY_DO_NOT_PRINT_".repeat(2),
   MEMORIES_STAGING_ORIGIN: "https://memoriesmystory-staging.example.test",
 };
@@ -24,13 +25,11 @@ describe("remote Legacy staging preflight", () => {
     });
     expect(fetch).not.toHaveBeenCalled();
   });
-  it("distinguishes restorable configuration from access and rejects live identity keys or unsafe origins", () => {
+  it("distinguishes restorable configuration from access and rejects unsafe origins without requiring Clerk for video", () => {
     expect(
-      legacyStagingPreflight({ ...synthetic, REALTIME_SFU_APP_SECRET: "" }),
+      legacyStagingPreflight({ ...synthetic, REALTIMEKIT_CALL_PRESET_ID: "" }),
     ).toMatchObject({ status: "blocked_configuration", shapeReady: false });
     for (const override of [
-      { CLERK_SECRET_KEY: "sk_live_UNAPPROVED_PRODUCTION_INSTANCE" },
-      { VITE_CLERK_PUBLISHABLE_KEY: "pk_live_UNAPPROVED_PRODUCTION_INSTANCE" },
       { MEMORIES_STAGING_ORIGIN: "http://staging.example.test" },
       { MEMORIES_STAGING_ORIGIN: "https://user:password@staging.example.test" },
       { MEMORIES_STAGING_ORIGIN: "https://staging.example.test/path" },
@@ -40,6 +39,13 @@ describe("remote Legacy staging preflight", () => {
       ).toBe(false);
   });
   it("reports only configuration shape and keeps all values out of CLI output", () => {
+    expect(
+      legacyStagingPreflight({
+        ...synthetic,
+        CLERK_SECRET_KEY: "",
+        VITE_CLERK_PUBLISHABLE_KEY: "",
+      }).shapeReady,
+    ).toBe(true);
     expect(legacyStagingPreflight(synthetic)).toMatchObject({
       status: "shape_ready_live_proof_pending",
       shapeReady: true,

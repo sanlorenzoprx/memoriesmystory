@@ -19,61 +19,53 @@ const noWhitespace = (value) =>
   [...value].every((character) => character.charCodeAt(0) >= 32);
 const checks = [
   {
-    name: "CLOUDFLARE_ACCOUNT_ID",
+    name: "REALTIMEKIT_ACCOUNT_ID",
     group: "bootstrap",
     secret: false,
-    purpose: "isolated staging account",
+    purpose: "Cloudflare account hosting the isolated RealtimeKit app",
     valid: (value) => /^[a-f0-9]{32}$/iu.test(value),
   },
   {
-    name: "CLOUDFLARE_API_TOKEN",
+    name: "REALTIMEKIT_API_TOKEN",
     group: "bootstrap",
     secret: true,
-    purpose: "authorized staging provisioning/deployment",
+    purpose:
+      "backend-only RealtimeKit access, separate from deployment credentials",
     valid: (value) => value.length >= 20 && noWhitespace(value),
   },
   {
-    name: "CLERK_SECRET_KEY",
-    group: "bootstrap",
-    secret: true,
-    purpose: "separate Clerk test/staging instance",
-    valid: (value) =>
-      value.startsWith("sk_test_") && value.length >= 20 && noWhitespace(value),
-  },
-  {
-    name: "VITE_CLERK_PUBLISHABLE_KEY",
-    group: "bootstrap",
-    secret: false,
-    purpose: "matching Clerk test browser instance",
-    valid: (value) =>
-      value.startsWith("pk_test_") && value.length >= 20 && noWhitespace(value),
-  },
-  {
-    name: "REALTIME_SFU_APP_ID",
+    name: "REALTIMEKIT_APP_ID",
     group: "provider",
     secret: false,
-    purpose: "isolated Cloudflare Realtime SFU app",
+    purpose: "isolated RealtimeKit app (not a raw SFU app)",
     valid: (value) => /^[A-Za-z0-9_-]{16,128}$/u.test(value),
   },
   {
-    name: "REALTIME_SFU_APP_SECRET",
+    name: "REALTIMEKIT_CALL_PRESET",
     group: "provider",
-    secret: true,
-    purpose: "backend-only SFU authorization",
-    valid: (value) => value.length >= 20 && noWhitespace(value),
+    secret: false,
+    purpose: "unrecorded video call preset shared by host and guest",
+    valid: (value) => /^[A-Za-z0-9_-]{1,128}$/u.test(value),
+  },
+  {
+    name: "REALTIMEKIT_CALL_PRESET_ID",
+    group: "provider",
+    secret: false,
+    purpose: "preset ID for server-side permission verification",
+    valid: (value) => /^[A-Za-z0-9_-]{8,128}$/u.test(value),
   },
   {
     name: "SESSION_SECRET",
     group: "runtime",
     secret: true,
-    purpose: "private application/participant sessions",
+    purpose: "existing application/participant sessions",
     valid: (value) => value.length >= 32,
   },
   {
     name: "MEMORIES_STAGING_ORIGIN",
     group: "runtime",
     secret: false,
-    purpose: "exact isolated HTTPS origin",
+    purpose: "exact isolated HTTPS application origin",
     valid: httpsOrigin,
   },
 ];
@@ -116,7 +108,7 @@ if (
     console.log(`${check.name}: ${check.status} — ${check.purpose}`);
   console.log(`Result: ${report.status}.`);
   console.log(
-    "Bootstrap credentials must be attached privately. App/session configuration can then be provisioned for isolated staging; never use an external-room fallback.",
+    "RealtimeKit credentials stay server-side. Guests use the existing invitation; Clerk and deployment credentials are separate application concerns. No external-room fallback.",
   );
   if (!report.shapeReady) process.exitCode = 1;
 }

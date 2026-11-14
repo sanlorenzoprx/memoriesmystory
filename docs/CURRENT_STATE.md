@@ -1,9 +1,13 @@
 # Current State
 
-**As of:** 2026-11-13
+**As of:** 2026-11-14
 **Canonical line:** `main`. The Week-One product line (`integration/lm-week-one`) was promoted into `main` on 2026-09-30.
 
 This page is the single current-status record. It replaces earlier audits and function inventories. When it disagrees with an older status document, this page wins; when it disagrees with Foundation or an accepted decision record, those win and this page must be corrected.
+
+## RealtimeKit call slice in development
+
+Owner-approved November 14 direction uses Cloudflare RealtimeKit managed calling. The current branch adds invitation-scoped, explicitly unrecorded two-person calling with opt-in microphone/camera, reconnect status, audio continuation and EN/ES controls. Existing consent is separate from joining. Additive migration 0012 is required; no deployment or hosted/device proof is claimed. The provider mapping does not store tokens. Recording/attribution/archive ingestion remains the next slice; full V2/MVP v0.5 is not complete. See `IMPLEMENTATION/REALTIMEKIT_CALLING_2026-11-14.md` and the superseding section in `OPERATIONS/REMOTE_VIDEO_STAGING_SETUP.md`. Clerk is not a guest calling prerequisite.
 
 ## What works today
 
@@ -92,7 +96,7 @@ Always branch from current `origin/main`. See `DECISIONS/2026-10-01-retire-stale
 
 ## Next
 
-1. PRs #21–#26 are merged, including separate scans/steadiness and the first private session boundary. D02 recording/replay is also merged. D03 remote-media work is at its missing-credential gate; restore isolated staging access using `OPERATIONS/REMOTE_VIDEO_STAGING_SETUP.md`, then run the hosted/peer experiment. Continue two-person Our Living Legacy and the full V2 handoff toward MVP v0.5; collect deferred physical-camera/human and operations evidence on that candidate.
+1. PRs #21–#26 are merged, including separate scans/steadiness and the first private session boundary. D02 recording/replay is also merged. D03 now implements the RealtimeKit unrecorded call slice; configure isolated runtime access using `OPERATIONS/REMOTE_VIDEO_STAGING_SETUP.md`, then verify hosted calling and complete the recording slice. Continue two-person Our Living Legacy and the full V2 handoff toward MVP v0.5; collect deferred physical-camera/human and operations evidence on that candidate.
 2. Build the complete expanded first-release matrix in dependency order, including all six owner-requested capability groups.
 3. Complete integrated human/device/security/legal/operations evidence and present an exact candidate SHA. Production is a separate decision.
 
