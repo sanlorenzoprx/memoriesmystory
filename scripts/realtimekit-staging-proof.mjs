@@ -170,6 +170,7 @@ export async function runStagingProof(env, fetcher = globalThis.fetch, exerciseM
   const grants = [];
   const recordingIds = new Set();
   let recordingAllocationUncertain = false;
+  let externallyCoordinatedRecordings = false;
   async function request(path, method = "GET", body) {
     const response = await fetcher(`${base}${path}`, {
       method,
@@ -279,8 +280,12 @@ export async function runStagingProof(env, fetcher = globalThis.fetch, exerciseM
     checks.push("two_scoped_short_lived_participant_grants_verified");
     if (exerciseMeeting) {
       stage = "exercise_browser_call";
-      await exerciseMeeting({ grants, appId, meetingId: meeting.id,
+      await exerciseMeeting({ grants, appId, presetId, meetingId: meeting.id,
         recording: {
+          requireSyntheticMeetingCleanup(syntheticSources) {
+            if(syntheticSources!==true)throw new ProbeError("synthetic_source_authorization_required");
+            externallyCoordinatedRecordings=true;
+          },
           async startSyntheticPair(syntheticSources) {
             if (syntheticSources !== true) throw new ProbeError("synthetic_source_authorization_required");
             const result = {};
@@ -333,11 +338,10 @@ export async function runStagingProof(env, fetcher = globalThis.fetch, exerciseM
     try {
       let recordingCleanupConfirmed = true;
       try {
-      if (recordingAllocationUncertain) {
-        const active = await request(`/${appId}/recordings/active-recording/${segment(meetingPath.split("/").at(-1))}`);
-        const rows = Array.isArray(active) ? active : Array.isArray(active?.recordings) ? active.recordings : active?.id ? [active] : active?.recording ? [active.recording] : null;
-        if (!rows) throw new ProbeError("recording_cleanup_uncertain");
-        for (const row of rows) recordingIds.add(segment(row.id));
+      if (recordingAllocationUncertain || externallyCoordinatedRecordings) {
+        const rows=await request(`/${appId}/recordings?meeting_id=${segment(meetingPath.split("/").at(-1))}&per_page=100`);
+        if(!Array.isArray(rows)||rows.length>=100)throw new ProbeError("recording_cleanup_uncertain");
+        for(const row of rows)recordingIds.add(segment(row.id));
       }
       for (const id of recordingIds) {
         const data = await request(`/${appId}/recordings/${id}`);

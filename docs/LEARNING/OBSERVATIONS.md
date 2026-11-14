@@ -195,3 +195,12 @@ Observations preserve evidence separately from proposed solutions. Follow `READM
 - Interpretation: maintain separate provider, native-runtime, consumer-UI, deployed-storage and human/device evidence. Preserve recovery after browsers close with persistent alarms; never infer a human speaker from a microphone identifier.
 - Limits: native-runtime archive tests simulate provider HTTP responses. The real provider probe uses generated media. Neither is complete real deployed consent-to-archive acceptance.
 - Decision/receipt: `../DECISIONS/2026-11-14-remote-recording-coordinator.md`, `../IMPLEMENTATION/REMOTE_RECORDING_ARCHIVE_2026-11-14.md`. No Foundation rule is changed.
+
+### L-2026-11-14-004 — Native source playback needs explicit Range request detection
+
+- Status: fixed in the integrated archive proof candidate.
+- Evidence: actual-route/automatic-alarm native archive harness with simulated provider outputs.
+- Observed fact: native R2 can return normalized range metadata for a full object read. Treating metadata presence as evidence that the caller requested a range incorrectly returned 206 for a full playback request; the simplified route fixture did not reproduce that behavior.
+- Interpretation: select full/partial HTTP response status from the request and validate returned byte bounds; retain native R2 playback checks alongside route mocks.
+- Limits: actual provider-to-native integration and permanent deployed R2 are separate evidence gates.
+- Receipt: `../IMPLEMENTATION/REALTIMEKIT_NATIVE_ARCHIVE_PROOF_2026-11-14.md`. No Foundation change.
