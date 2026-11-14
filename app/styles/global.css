@@ -2190,3 +2190,11 @@ h1 {
   max-block-size: min(32dvh, 18rem);
   object-fit: contain;
 }
+
+.family-archive-panel { overflow-wrap: anywhere; }
+.family-archive-panel input:not([type="checkbox"]),
+.family-archive-panel textarea,
+.family-archive-panel select { display: block; width: 100%; box-sizing: border-box; margin-block: .4rem 1rem; }
+.family-archive-panel .archive-list button { width: 100%; text-align: start; display: flex; flex-direction: column; gap: .4rem; }
+.family-archive-panel fieldset { min-width: 0; margin-block: 1rem; }
+.family-archive-panel li { margin-block: .75rem; }

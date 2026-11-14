@@ -1,12 +1,13 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
-type TaskStatus = "active" | "pending" | "completed" | "paused" | "verification_pending";
+type TaskStatus = "active" | "pending" | "completed" | "paused" | "verification_pending" | "implemented_cloud_proven_human_acceptance_pending";
 
 type Task = {
   id: string;
   status: TaskStatus;
   depends_on: string[];
+  implementation_packets?:{packet:string;status:string;live_run?:number;receipt?:string}[];
 };
 
 type Queue = {
@@ -52,6 +53,9 @@ describe("Living Memory execution handoff", () => {
     expect(statusById.get("week-one-living-memory-proof")).toBe("verification_pending");
     expect(statusById.get("solo-trust-controls")).toBe("verification_pending");
     expect(statusById.get("archival-photo-capture")).toBe("verification_pending");
-    expect(statusById.get("our-living-legacy")).toBe("active");
+    expect(statusById.get("our-living-legacy")).toBe("implemented_cloud_proven_human_acceptance_pending");
+    expect(statusById.get("family-archive")).toBe("active");
+    const cloud=queue.tasks.find(task=>task.id==="our-living-legacy")?.implementation_packets?.find(packet=>packet.packet==="D03-cloud-archive-proof");
+    expect(cloud).toMatchObject({status:"real_cloud_archive_verified",live_run:43628170649,receipt:"docs/IMPLEMENTATION/REALTIMEKIT_CLOUD_ARCHIVE_PROOF_2026-11-14.md"});
   });
 });

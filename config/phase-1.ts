@@ -1,6 +1,7 @@
 const mebibyte = 1024 * 1024;
 
 export const phase1Config = {
+  familyArchive: {maximumArchives:20,maximumChapters:100,maximumMemoriesPerChapter:500,titleCharacters:160,descriptionCharacters:2000,listingPageSize:10,maximumRequestBytes:65536},
   entitlements: {
     freeStoryLimit: 1,
     initiallyUnlockedStories: 1,

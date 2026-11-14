@@ -26,6 +26,10 @@ try {
     .all();
   const names = new Set(objects.map((object) => object.name));
   const requiredObjects = [
+    "family_archives","family_chapters","family_chapter_memories","family_memory_labels",
+    "family_archive_owner_immutable","family_chapter_move_scope","family_chapter_member_scope",
+    "family_chapter_member_identity","family_chapter_cover_scope","family_chapter_cover_insert",
+    "family_chapter_remove_cover","family_memory_label_scope","family_memory_label_owner",
     "legacy_remote_recordings",
     "legacy_remote_sources",
     "legacy_remote_source_claims",

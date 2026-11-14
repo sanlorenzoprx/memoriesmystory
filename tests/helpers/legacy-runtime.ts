@@ -38,8 +38,8 @@ class TestD1Statement {
   }
 
   async run<T = Record<string, unknown>>(): Promise<D1Result<T>> {
-    this.statement().run(...this.values);
-    return { success: true, results: [], meta: {} as D1Result<T>["meta"] };
+    const result=this.statement().run(...this.values);
+    return { success: true, results: [], meta: {changes:Number(result.changes)} as D1Result<T>["meta"] };
   }
 
   async all<T = Record<string, unknown>>(): Promise<D1Result<T>> {

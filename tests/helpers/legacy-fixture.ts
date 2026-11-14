@@ -102,3 +102,58 @@ export async function setupLegacyFixture(
   }
   return { db, bucket, env, owner, memory, call, create, join };
 }
+
+/** A second intentionally synthetic owned memory for organization/reference tests. */
+export async function addSyntheticMemory(
+  fixture: Awaited<ReturnType<typeof setupLegacyFixture>>,
+  id = "memory_family_second",
+  owner = "owner_legacy_test",
+) {
+  const sql = fixture.db.database,
+    now = new Date().toISOString();
+  sql
+    .prepare(
+      "INSERT INTO story_entitlements(user_id,updated_at) VALUES(?,?) ON CONFLICT(user_id) DO NOTHING",
+    )
+    .run(owner, now);
+  sql
+    .prepare(
+      "UPDATE story_entitlements SET free_story_limit=free_story_limit+1,free_stories_unlocked=free_stories_unlocked+1 WHERE user_id=?",
+    )
+    .run(owner);
+  sql
+    .prepare(
+      "INSERT INTO memory_story_drafts(id,owner_user_id,status,ui_locale,created_at,updated_at,expires_at) VALUES(?,?,'complete','en-US',?,?,'2099-01-01T00:00:00Z')",
+    )
+    .run(id, owner, now, now);
+  sql
+    .prepare(
+      "INSERT INTO memory_stories(id,owner_user_id,status,created_at,updated_at) VALUES(?,?,'draft',?,?)",
+    )
+    .run(id, owner, now, now);
+  for (const role of ["original_photo", "original_audio"]) {
+    const assetId = `asset_${id}_${role}`,
+      original = fixture.bucket.objects.get(`asset_legacy_${role}`)!;
+    await fixture.bucket.put(assetId, original.body.slice().buffer);
+    sql
+      .prepare(
+        "INSERT INTO media_assets(id,draft_id,memory_story_id,role,r2_key,content_type,byte_size,sha256,r2_etag,durability_status,created_at) VALUES(?,?,?,?,?,?,4,?,'etag','durable',?)",
+      )
+      .run(
+        assetId,
+        id,
+        id,
+        role,
+        assetId,
+        role === "original_photo" ? "image/png" : "audio/webm",
+        "a".repeat(64),
+        now,
+      );
+  }
+  sql
+    .prepare(
+      "UPDATE memory_stories SET status='complete',completed_at=?,primary_photo_asset_id=?,primary_audio_asset_id=? WHERE id=?",
+    )
+    .run(now, `asset_${id}_original_photo`, `asset_${id}_original_audio`, id);
+  return id;
+}
