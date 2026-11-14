@@ -1,5 +1,12 @@
 # Foundation Package Changelog
 
+## RealtimeKit unrecorded Our Living Legacy calling — 2026-11-14
+
+- Added a managed Cloudflare call slice on existing private invitations, with optional microphone/camera, reconnect status, audio continuation and English/Spanish controls. Joining remains independent of recording consent.
+- Kept auto-recording, transcription, summaries and livestreaming disabled; verified restricted preset permissions server-side. Provider mappings serialize allocation and preserve uncertain failures for reconciliation; tokens remain in memory with short validity.
+- Closed provider admission and deleted participant identities on access removal/deletion. Added migration 0012 and replaced raw-SFU/Clerk calling preflight assumptions with minimal RealtimeKit configuration.
+- Hosted media, recording/archive integration and physical-device acceptance remain pending; no deployment or full MVP completion is claimed.
+
 ## Storyteller review and voluntary finish — 2026-11-13
 
 - Added attributable transcript/context revisions, original machine transcript and revision history, stale-version protection and retry-safe saves before/after completion.

@@ -197,7 +197,7 @@
       ],
       "title": "First release: in-person then remote two-person sessions, consent, attribution, recording, scoped joining and replay",
       "release_required": true,
-      "note": "D01/D02 merged with local/CI proof. D03 remote provider preflight is blocked on absent staging credentials; account/test identity inputs have been requested privately. Physical/human acceptance is still deferred to the owner milestone. No production/live video claim.",
+      "note": "D01/D02 merged. D03 RealtimeKit staging app/preset and synthetic two-browser real-media proof passed through Actions. Guest registration is not required. PR29 call candidate is verified; consent-controlled remote recording/archive ingestion, full deployed auth/phone/cross-region proof and full MVP v0.5 remain pending.",
       "implementation_packets": [
         {
           "packet": "D01",
@@ -231,9 +231,33 @@
         {
           "packet": "D03-preflight",
           "branch": "chore/legacy-remote-staging-preflight",
-          "status": "blocked_on_staging_credentials",
+          "status": "superseded_by_verified_actions_access",
           "receipt": "docs/OPERATIONS/REMOTE_VIDEO_STAGING_SETUP.md",
-          "note": "No Cloudflare/Clerk bootstrap access is attached. Core local checks remain runnable; hosted provider/media proof requires configured isolated credentials. No Jitsi fallback."
+          "note": "Historical raw-SFU/local-credential setup is superseded by PR30 Actions read access and PR31/32 staging/live-media proof. Credentials are available inside Actions; no need to resend or require guest Clerk registration."
+        },
+        {
+          "packet": "D03-calling",
+          "branch": "feat/realtimekit-legacy",
+          "status": "synthetic_live_media_verified",
+          "receipt": "docs/IMPLEMENTATION/REALTIMEKIT_CALLING_2026-11-14.md",
+          "note": "One managed Cloudflare provider; no Jitsi; no remote recording or deployment claim.",
+          "local_verification": {
+            "unit_integration_tests": 152,
+            "phone_chromium_tests": 45,
+            "typecheck_lint_schema_build_dry_run": "passed"
+          },
+          "pr": 29,
+          "head_sha": "d47dc237ff8f2a9cc9356d2d43287ebefb00cb84",
+          "ci": {
+            "run_id": 43585811285,
+            "conclusion": "success"
+          },
+          "live_proof": {
+            "api_run": 43593728473,
+            "browser_run": 43594590337,
+            "candidate_sha": "d90afd5f184469e636b50f721d567973b077de1e",
+            "scope": "two Chromium contexts on one runner; real Cloudflare media; synthetic application session/photo fixtures; no recording or deployment"
+          }
         }
       ]
     },

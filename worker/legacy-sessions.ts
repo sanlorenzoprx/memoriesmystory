@@ -1,3 +1,5 @@
+import { closeLegacyRemoteCall } from "./legacy-remote";
+import type { RealtimeKitEnv } from "./realtimekit";
 import { phase1Config } from "../config/phase-1";
 import {
   legacyConsentVersion,
@@ -12,7 +14,7 @@ import {
   type AuthSessionEnv,
 } from "./auth-session";
 import { readBoundedText } from "./request-body";
-export type LegacyEnv = AuthSessionEnv & { MEDIA_BUCKET: R2Bucket };
+export type LegacyEnv = AuthSessionEnv & RealtimeKitEnv & { MEDIA_BUCKET: R2Bucket };
 export type SessionRow = {
   id: string;
   memory_story_id: string;
@@ -513,6 +515,7 @@ export async function handleLegacySessionRoute(
       );
       if (!target) legacyFail(404, "legacy_not_found");
       if (target.revoked_at) return legacyJson({ ok: true, replayed: true });
+      await closeLegacyRemoteCall(env, id);
       await env.DB.batch([
         env.DB.prepare(
           "UPDATE legacy_participants SET revoked_at=?,consent='declined',access_hash=NULL WHERE id=?",

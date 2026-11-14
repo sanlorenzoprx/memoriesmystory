@@ -1,6 +1,8 @@
 // API codes select presentation copy; workflow decisions continue to use codes/status.
 // Never display an arbitrary provider/server message as translated interface copy.
 const messages: Readonly<Record<string, string>> = {
+  legacy_call_unavailable: "Your call is not available yet. Please try again shortly.",
+  legacy_call_waiting: "Ask the host to open the call, then try again.",
   legacy_recording_pending: "This recording's backup was not confirmed. Keep your device copy and try again.",
   legacy_recording_invalid: "This recording's backup was not confirmed. Keep your device copy and try again.",
   legacy_host_required: "This conversation is not available with your current access.",

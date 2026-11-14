@@ -167,3 +167,22 @@ Observations preserve evidence separately from proposed solutions. Follow `READM
 - Interpretation: request only actual account/test identity access from the owner; generate ordinary app/session configuration after that access is available. Do not substitute an external meeting room or mock production behavior.
 - Confidence/limits: redacted configuration and deterministic-test evidence only. No live provider, physical-device, cost or legal acceptance is established.
 - Governing controls: `../EXECUTION/AUTHORITY_AND_STOP_RULES.md` and `../SECURITY/SECRETS_AND_CONFIGURATION.md`; no Foundation change.
+
+### L-2026-11-14-001 — Managed calling is separate from guest registration and archival proof
+
+- Status: addressed in implementation; live evidence pending.
+- Evidence source: owner's Cloudflare/cost direction and instruction to continue; Cloudflare RealtimeKit participant, quickstart, track recording and pricing documentation, November 14 review.
+- Observed fact: managed participant tokens admit invitation-authorized guests without requiring Clerk accounts. Refresh does not revoke old tokens. Separate participant audio is documented; separate video tracks and exact track-output billing cannot be assumed from composite recording prices.
+- Interpretation: reuse our session/guest boundary and managed calling; keep the first call explicitly unrecorded until archive outputs and consent/recovery are proven.
+- Confidence and contrary evidence: current public API documentation and local mocked integration tests; no hosted media or physical-device reproduction yet. Cloudflare AI's cost totals and production-readiness labels are not independent evidence.
+- Affected experience or invariant: I-10, I-15, I-17–I-19, I-25, I-30.
+- Decision: `../DECISIONS/2026-11-14-realtimekit-managed-calling.md`; receipt: `../IMPLEMENTATION/REALTIMEKIT_CALLING_2026-11-14.md`.
+
+### L-2026-11-14-002 — Managed two-person media confirmed through the actual call UI
+
+- Status: corroborated within synthetic scope.
+- Evidence: live API run 43593728473 and browser run 43594590337; immutable candidate d90afd5. Owner authorized staging work after supplying Actions credentials.
+- Observed fact: two Chromium contexts received decoded video/nonzero audio with SDK playback active; camera-off audio, leave/rejoin, active guest removal and provider cleanup passed. No early device requests or recording agreement required for joining. No recording was started.
+- Interpretation: the managed RealtimeKit call slice is a working basis for the next consent-controlled archival recording slice; extra guest identity infrastructure is unnecessary.
+- Confidence/limits: genuine Cloudflare transport with synthetic device media and synthetic app authorization/photo routes, one runner. This does not establish physical-phone, global latency, application deployment or recording durability.
+- Invariants: I-10, I-17–I-19, I-25, I-30. Receipt: `../IMPLEMENTATION/REALTIMEKIT_BROWSER_PROOF_2026-11-14.md`.

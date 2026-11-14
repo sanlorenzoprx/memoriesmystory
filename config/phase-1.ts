@@ -42,6 +42,7 @@ export const phase1Config = {
     stillRequestTimeoutMs: 8_000
   },
   legacy: {
+    remoteTokenLifetimeSeconds: 900,
     inviteLifetimeHours: 24,
     guestAccessDays: 7,
     maxNameCharacters: 60,

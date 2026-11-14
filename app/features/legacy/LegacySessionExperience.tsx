@@ -1,3 +1,4 @@
+import { LegacyRemoteCall } from "./LegacyRemoteCall";
 import { LegacyRecordingPanel } from "./LegacyRecordingPanel";
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router";
@@ -433,6 +434,7 @@ export function LegacySessionExperience() {
               </button>
             )}
           </section>
+          {view.mode === "remote" && <LegacyRemoteCall key={`${view.id}:${view.actorId}:call`} view={view} healthy={!error} />}
           <LegacyRecordingPanel key={`${view.id}:${view.actorId}`} view={view} healthy={!error}/>
           <p role="status">
             {view.canRecord

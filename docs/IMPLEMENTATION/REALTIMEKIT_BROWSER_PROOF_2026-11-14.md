@@ -26,3 +26,9 @@ This is two browser contexts on one Linux runner. It cannot establish physical i
 Local type/lint checks and the staging-probe tests include private grant delivery to the browser callback and guaranteed cleanup after callback failure. Full CI and the manual live workflow result must be recorded separately before reporting a passing real-call result. No conditional skip converts missing credentials or transport failure into a pass.
 
 I-10, I-17–I-19, I-25 and I-30: synthetic source only, no false preservation claim, no new guest account, no second provider, no recording without consent, and explicit interruption/release evidence. This extends the same active D03 gate; no locked product behavior changes.
+
+## Live result — November 14
+
+[Run 43594590337](https://github.com/sanlorenzoprx/memoriesmystory/actions/runs/43594590337) **passed** against candidate `d90afd5f184469e636b50f721d567973b077de1e`. The result reported `browserStage: complete`, `cleanupConfirmed: true` and all six browser assertions passed: joining with recording declined and no early device requests; bidirectional decoded video/nonzero audio with SDK playback running; audio after camera disable; track release on leave; media after guest rejoin; active guest removal/track release through provider deletion. Provider meeting cleanup and absence of both participant records also passed.
+
+The application candidate is live-media proven within the synthetic boundary described above. It is not a deployed application or physical/cross-region acceptance. The SDK, app and Worker sources remain unchanged when bringing the candidate up to current main; operational workflows/docs are added separately. No recording, original archive asset or production resource was created by this experiment.
