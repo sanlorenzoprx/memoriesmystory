@@ -313,9 +313,15 @@ export async function createNativeArchiveProof({
         return verified;
       },
       async dispose() {
-        await runtime.dispose();
-        fixture.db.close();
-        await rm(compiled, { recursive: true, force: true });
+        try {
+          await runtime.dispose();
+        } finally {
+          try {
+            fixture.db.close();
+          } finally {
+            await rm(compiled, { recursive: true, force: true });
+          }
+        }
       },
     };
   } catch (error) {

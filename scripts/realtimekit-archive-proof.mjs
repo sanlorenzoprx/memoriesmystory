@@ -18,6 +18,7 @@ let browser,
   archive,
   stage = "prepare",
   failureCode;
+let nativeCleanupConfirmed = false;
 const checks = [],
   mediaMetadata = [];
 const wait = (ms) => new Promise((done) => globalThis.setTimeout(done, ms));
@@ -184,9 +185,49 @@ async function exercise(context) {
         !(Number(info.format?.duration) > 0)
       )
         throw new Error("archive_media_decode_failed");
+      const decoded = await promisify(execFile)(
+        "ffmpeg",
+        [
+          "-nostdin",
+          "-v",
+          "error",
+          "-protocol_whitelist",
+          "file,pipe",
+          "-i",
+          file,
+          "-map",
+          "0:a:0",
+          "-t",
+          "60",
+          "-f",
+          "s16le",
+          "-ac",
+          "1",
+          "-ar",
+          "8000",
+          "pipe:1",
+        ],
+        {
+          timeout: 30000,
+          maxBuffer: 2 * 1024 * 1024,
+          encoding: "buffer",
+          env: cleanEnv,
+        },
+      );
+      const pcm = decoded.stdout;
+      let energy = 0,
+        samples = 0;
+      for (let offset = 0; offset + 1 < pcm.length; offset += 2) {
+        const sample = pcm.readInt16LE(offset);
+        energy += sample * sample;
+        samples++;
+      }
+      if (!samples || energy / samples <= 64)
+        throw new Error("archive_audio_signal_missing");
       mediaMetadata.push({
         kind: source.kind,
         audioDecoded: true,
+        audioHasSignal: true,
         videoDecoded: types.includes("video"),
         durationKnown: true,
       });
@@ -202,7 +243,10 @@ async function exercise(context) {
     // Provider cleanup runs in the enclosing staging operator even if native state failed.
     await browser?.close().catch(() => {});
     server?.kill();
-    await archive?.dispose().catch(() => {});
+    if (archive) {
+      await archive.dispose();
+      nativeCleanupConfirmed = true;
+    }
   }
 }
 let result;
@@ -226,6 +270,7 @@ try {
           "archive_integrity_failed",
           "archive_attribution_failed",
           "archive_media_decode_failed",
+          "archive_audio_signal_missing",
         ]);
         failureCode = allowed.has(error?.message)
           ? error.message
@@ -244,6 +289,7 @@ const report = {
   archiveProbeStage: stage,
   archiveChecks: checks,
   mediaMetadata,
+  nativeCleanupConfirmed,
   syntheticMaximumSeconds: 60,
   storageScope: "ephemeral_native_workerd_r2_d1",
   ...(failureCode ? { failureCode } : {}),

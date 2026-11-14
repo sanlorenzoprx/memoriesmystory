@@ -36,11 +36,12 @@ jobs:
         run: npm run build
       - name: Install media inspection tool
         run: |
-          if ! command -v ffprobe > /dev/null; then
+          if ! command -v ffprobe > /dev/null || ! command -v ffmpeg > /dev/null; then
             sudo apt-get update
             sudo apt-get install --no-install-recommends -y ffmpeg
           fi
           ffprobe -version > /dev/null
+          ffmpeg -version > /dev/null
       - name: Verify real recording into native private archive
         env:
           REALTIMEKIT_ACCOUNT_ID: ${{ vars.REALTIMEKIT_ACCOUNT_ID }}
