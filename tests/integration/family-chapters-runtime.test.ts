@@ -39,11 +39,12 @@ function modules() {
     });
   }
   add(resolve("worker/archive-routes.ts"));
+  add(resolve("worker/people-routes.ts"));
   result.unshift({
     type: "ESModule",
     path: "family-runtime-test.js",
     contents:
-      "import {handleArchiveRoute} from './worker/archive-routes.js'; export default {fetch(request,env){return handleArchiveRoute(request,env);}};",
+      "import {handleArchiveRoute} from './worker/archive-routes.js'; import {handlePeopleRoute} from './worker/people-routes.js'; export default {async fetch(request,env){return await handlePeopleRoute(request,env)??await handleArchiveRoute(request,env);}};",
   });
   return result;
 }
@@ -173,6 +174,74 @@ describe("private Chapter metadata on native workerd/D1/R2", () => {
       expect(
         (await call(`/chapters/${c.id}`, "DELETE", { version: 2 })).status,
       ).toBe(200);
+      const peopleUrl = `https://example.test/resources/family-people/person?archiveId=${a.id}`;
+      const personBody = {
+        document: {
+          label: "Same-name relative",
+          notes: "Human-entered",
+          dateText: "around 1940",
+          datePrecision: "approximate",
+          memoryIds: [fixture.memory],
+        },
+      };
+      const requestOptions = {
+        method: "POST",
+        headers: {
+          Cookie: fixture.owner,
+          "X-Memories-Request": "family-v1",
+          "X-Idempotency-Key": "native_people_retry",
+        },
+        body: JSON.stringify(personBody),
+      };
+      const createdPerson = await runtime!.dispatchFetch(
+        peopleUrl,
+        requestOptions,
+      );
+      expect(createdPerson.status).toBe(201);
+      const person = (await createdPerson.json()) as { id: string };
+      expect(
+        await (await runtime!.dispatchFetch(peopleUrl, requestOptions)).json(),
+      ).toMatchObject({ id: person.id, replayed: true });
+      const editUrl = `https://example.test/resources/family-people/person/${person.id}?archiveId=${a.id}`;
+      const editOptions = {
+        ...requestOptions,
+        method: "PATCH",
+        headers: {
+          ...requestOptions.headers,
+          "X-Idempotency-Key": "native_people_edit",
+        },
+        body: JSON.stringify({
+          version: 1,
+          document: { ...personBody.document, label: "Human correction" },
+        }),
+      };
+      expect((await runtime!.dispatchFetch(editUrl, editOptions)).status).toBe(
+        200,
+      );
+      expect(
+        (
+          await runtime!.dispatchFetch(editUrl, {
+            ...editOptions,
+            headers: {
+              ...editOptions.headers,
+              "X-Idempotency-Key": "native_people_stale",
+            },
+          })
+        ).status,
+      ).toBe(409);
+      const history = await db
+        .prepare(
+          "SELECT version,document_json FROM family_people_history WHERE record_id=? ORDER BY version",
+        )
+        .bind(person.id)
+        .all<{ version: number; document_json: string }>();
+      expect(history.results).toHaveLength(2);
+      expect(JSON.parse(history.results[0].document_json).label).toBe(
+        "Same-name relative",
+      );
+      expect(JSON.parse(history.results[1].document_json).label).toBe(
+        "Human correction",
+      );
       expect(
         (await bucket.list()).objects.map((object) => ({
           key: object.key,

@@ -212,3 +212,13 @@ Observations preserve evidence separately from proposed solutions. Follow `READM
 - Observed fact: many-to-many references preserve original object keys/ETags across Chapter/album removal. One JSON membership parameter and a fixed small batch handle 120 references without one SQL parameter or statement per memory. Conditional receipts reject stale edits and retain the same retry identity after network failure.
 - Interpretation: organization is metadata over Living Memories, not a second media store or competing product object. Keep missing-object availability distinct from durable historical receipts, and preserve human titles/unsaved notes through language changes.
 - Limits: synthetic local/native/UI evidence; no remote Chapter or human acceptance inferred. Receipt: `../IMPLEMENTATION/PRIVATE_CHAPTERS_2026-11-14.md`. No Foundation change.
+
+### L-2026-11-14-006 — Person identity stays a human reference
+
+- Status: corroborated.
+- Evidence source: E02 route/native tests and bilingual phone journeys; `IMPLEMENTATION/HUMAN_PEOPLE_REFERENCES_2026-11-14.md`.
+- Observed fact: identical names can remain independent records while uncertainty, prior versions and explicit removable links are preserved without touching source media.
+- Interpretation: record identity must not be inferred from a matching label. A manual link can express the owner's understanding without destructive merging or rewriting earlier recollections.
+- Confidence and contrary evidence: technical evidence only; older-adult and real-family acceptance remains owner-deferred.
+- Affected experience or invariant: I-05–I-09, I-19, I-25.
+- Related proposal: implements the owner-approved V2 E02 scope; no Foundation amendment.
