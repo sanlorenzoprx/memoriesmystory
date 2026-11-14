@@ -17,3 +17,13 @@ Limits: this fixture has actual server authorization/consent state transitions a
 Anti-drift: original bytes and receipts remain immutable; source identity is participant-microphone provenance, not inferred human identity; human testimony and derivative content stay separate; no new provider or guest registration; no wider archive access or public artifact; no claim of save from provider status alone.
 
 Initial clean-install CI 43609354017 passed 192 tests and 47 phone-browser tests. Before the paid synthetic run, the operator was additionally tightened to require nonzero decoded PCM audio in every preserved source and to fail on native-storage disposal errors. ffmpeg/ffprobe children continue to omit provider credentials. The amended operator needs its own passing CI; application candidate `b0bd4ac` remains pinned because these changes affect only the trusted operator and fixture disposal.
+
+## First real integrated attempt — runner path failure, no archive claim
+
+PR #37 merged as `bb061b16eeed20be3911f870dd347950a9981379` after amended CI 43609667361 passed (192 tests and 47 phone checks). Real workflow 43609943002 then stopped at native runtime initialization before the recording routes ran: relative virtual module paths resolved against the operator cwd rather than the nested pinned candidate, causing workerd's module-root escape error. Both synthetic call identities/meeting were cleaned up; recording/archive checks remained empty. This is not successful integrated archival evidence.
+
+The runtime now resolves virtual Worker module paths absolutely under the candidate root. Its local integration fixture copies source into a nested candidate folder so this runner layout is exercised without changing production code, bypassing consent, manually ticking alarms or relaxing playback checks.
+
+A separate read-only staging capability workflow checks whether the existing token can list Worker, D1 and R2 metadata. It emits only HTTP/access status and bounded matching-resource counts, never resource names/IDs/settings, secrets or private content. Read capability is separate from write/deployment permission; a completed check does not claim archive access. This avoids asking the owner to configure capabilities already present. Results remain pending.
+
+Nested-checkout actual-route/alarm integration and all three read-only access/redaction tests passed locally, with typecheck and lint. The immutable application candidate remains `b0bd4ac`; the fix changes operator path resolution only. Clean-install CI and a corrected real run must still pass.

@@ -112,6 +112,9 @@ export async function createNativeArchiveProof({
     export default {async fetch(request,env){return await handleRemoteRecordingRoute(request,env)??await handleLegacySessionRoute(request,env)??new Response(null,{status:404});}};
   `,
     });
+    // Module paths otherwise resolve against the caller's cwd, which differs
+    // from the immutable candidate checkout in Actions.
+    for (const module of modules) module.path = resolve(candidate, module.path);
     runtime = new Miniflare({
       fetchMock,
       modules,
