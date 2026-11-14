@@ -1,5 +1,11 @@
 # Remote Our Living Legacy staging setup
 
+## Verified Actions access and staging — November 14, 2026
+
+The owner supplied repository Actions secret `REALTIMEKIT_API_TOKEN` and variable `REALTIMEKIT_ACCOUNT_ID`; read access run 43592575231 passed. Manual `RealtimeKit staging API proof` run 43593728473 configured/reused `memoriesmystory-staging` and `memoriesmystory-unrecorded`, verified two scoped short-lived grants/refresh and provider cleanup. Manual `RealtimeKit synthetic browser proof` run 43594590337 passed with real Cloudflare media through the PR #29 UI and synthetic application session/photo fixtures. See `../IMPLEMENTATION/REALTIMEKIT_BROWSER_PROOF_2026-11-14.md`.
+
+Do not ask the owner to resend credentials. They are usable inside Actions, not retrievable by the assistant. These workflows are manually dispatched with no arbitrary shell/ref inputs; the browser workflow pins the reviewed candidate SHA. App/preset identifiers in their job summaries are non-secret configuration. No app deployment, physical/distant endpoint, recording/archive, or production proof follows. The older missing-credential statement below is retained as historical build evidence and is superseded by these successful Actions runs.
+
 ## Current direction — November 14, 2026
 
 The owner selected Cloudflare as the starting direction after developer-experience and cost research. [The decision](../DECISIONS/2026-11-14-realtimekit-managed-calling.md) selects **RealtimeKit managed calling**, rather than building a meeting layer on raw SFU for the first slice. The older raw-SFU/bootstrap plan below is historical and superseded for calling.
@@ -37,7 +43,7 @@ Removing guest access closes the entire provider call (deactivate admission, the
 - Participant deletion when the meeting is empty and already-deleted participant retries; do not convert an unverified error response into successful cleanup.
 - Separate participant audio + composite video, confirmed pricing/concurrent-output support, optional voice references, consent withdrawal, original integrity, private archive replay/export and partial recording recovery remain the next recording slice.
 
-There is no live call/recording/latency/cost or physical-device proof yet. The shape check currently reports missing isolated configuration. Do not describe this as a completed MVP.
+A synthetic real-media call is now verified as described above. Physical-device/cross-region, recording/archive, actual cost and deployed-application proof remain pending. The shell-only shape check still reports missing local configuration because credentials are deliberately confined to Actions. Do not describe this as a completed MVP.
 
 ## Historical D03 preflight receipt — superseded setup assumptions
 

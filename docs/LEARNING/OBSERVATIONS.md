@@ -177,3 +177,12 @@ Observations preserve evidence separately from proposed solutions. Follow `READM
 - Confidence and contrary evidence: current public API documentation and local mocked integration tests; no hosted media or physical-device reproduction yet. Cloudflare AI's cost totals and production-readiness labels are not independent evidence.
 - Affected experience or invariant: I-10, I-15, I-17–I-19, I-25, I-30.
 - Decision: `../DECISIONS/2026-11-14-realtimekit-managed-calling.md`; receipt: `../IMPLEMENTATION/REALTIMEKIT_CALLING_2026-11-14.md`.
+
+### L-2026-11-14-002 — Managed two-person media confirmed through the actual call UI
+
+- Status: corroborated within synthetic scope.
+- Evidence: live API run 43593728473 and browser run 43594590337; immutable candidate d90afd5. Owner authorized staging work after supplying Actions credentials.
+- Observed fact: two Chromium contexts received decoded video/nonzero audio with SDK playback active; camera-off audio, leave/rejoin, active guest removal and provider cleanup passed. No early device requests or recording agreement required for joining. No recording was started.
+- Interpretation: the managed RealtimeKit call slice is a working basis for the next consent-controlled archival recording slice; extra guest identity infrastructure is unnecessary.
+- Confidence/limits: genuine Cloudflare transport with synthetic device media and synthetic app authorization/photo routes, one runner. This does not establish physical-phone, global latency, application deployment or recording durability.
+- Invariants: I-10, I-17–I-19, I-25, I-30. Receipt: `../IMPLEMENTATION/REALTIMEKIT_BROWSER_PROOF_2026-11-14.md`.
