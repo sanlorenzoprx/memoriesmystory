@@ -31,13 +31,13 @@ No fresh live staging/device/human acceptance or deployment is claimed for these
 
 ## Archival capture and separate scans
 
-PR #24 merged as `6af7a94` with native-still preference, device picker, labeled preview fallback, cancellation guards and untouched source-byte recovery. The next `feat/archival-scans-steady-capture` branch adds manual perspective correction/rotation, separate private scan storage/provenance/retry/replay/deletion, optional three-shot/short-delay steadiness assistance and retake source isolation. See `IMPLEMENTATION/ARCHIVAL_SCANS_STEADINESS_2026-11-13.md` for exact evidence and limits. Migration 0009 is required before its matching Worker/client.
+PR #24 merged as `6af7a94` with native-still preference, device picker, labeled preview fallback, cancellation guards and untouched source-byte recovery. PR #25 merged as `3c50c49` and adds manual perspective correction/rotation, separate private scan storage/provenance/retry/replay/deletion, optional three-shot/short-delay steadiness assistance and retake source isolation. See `IMPLEMENTATION/ARCHIVAL_SCANS_STEADINESS_2026-11-13.md` for exact evidence and limits. Migration 0009 is required before its matching Worker/client.
 
 The owner will test physical cameras after the MVP v0.5 implementation milestone; no optical, physical-device, older-user or internal solo-checkpoint acceptance is implied. The owner confirmed v0.5 includes two-person Our Living Legacy and the full V2 handoff scope; the expanded implementation target remains required. See `EXECUTION/MVP_V0_5.md`.
 
 ## Our Living Legacy engineering slices
 
-D01 PR #26 merged as `bac2415` after CI passed: private two-person sessions, a pinned owned source photo, scoped one-use invitations, individual recording choice, revocation and English/Spanish controls. D02 recording/recovery/replay and separate self-attribution are in implementation on `feat/legacy-original-recording`; evidence and limitations are in `IMPLEMENTATION/OUR_LIVING_LEGACY_RECORDING_2026-11-13.md`. This is not a claim of live video, physical/uncoached acceptance, or full MVP v0.5 completion. No Jitsi fallback is permitted.
+D01 PR #26 merged as `bac2415` after CI passed: private two-person sessions, a pinned owned source photo, scoped one-use invitations, individual recording choice, revocation and English/Spanish controls. D02 PR #27 merged as `942d980` after CI run 43539395845 passed: shared original recording, recovery, private replay and separate self-attribution; evidence and limitations are in `IMPLEMENTATION/OUR_LIVING_LEGACY_RECORDING_2026-11-13.md`. This is not a claim of live video, physical/uncoached acceptance, or full MVP v0.5 completion. No Jitsi fallback is permitted.
 
 ## Expanded first-release scope
 
@@ -92,7 +92,7 @@ Always branch from current `origin/main`. See `DECISIONS/2026-10-01-retire-stale
 
 ## Next
 
-1. PRs #21–#26 are merged, including separate scans/steadiness and the first private session boundary. Complete/integrate D02 recording/replay, then the remote two-person prototype. Continue two-person Our Living Legacy and the full V2 handoff toward MVP v0.5; collect deferred physical-camera/human and operations evidence on that candidate.
+1. PRs #21–#26 are merged, including separate scans/steadiness and the first private session boundary. D02 recording/replay is also merged. D03 remote-media work is at its missing-credential gate; restore isolated staging access using `OPERATIONS/REMOTE_VIDEO_STAGING_SETUP.md`, then run the hosted/peer experiment. Continue two-person Our Living Legacy and the full V2 handoff toward MVP v0.5; collect deferred physical-camera/human and operations evidence on that candidate.
 2. Build the complete expanded first-release matrix in dependency order, including all six owner-requested capability groups.
 3. Complete integrated human/device/security/legal/operations evidence and present an exact candidate SHA. Production is a separate decision.
 

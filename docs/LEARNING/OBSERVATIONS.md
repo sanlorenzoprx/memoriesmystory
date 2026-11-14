@@ -158,3 +158,12 @@ Observations preserve evidence separately from proposed solutions. Follow `READM
 - Confidence and contrary evidence: high for synthetic transaction/browser outcomes; no physical-phone storage pressure, real shared conversation or legal retention conclusions are established.
 - Invariants: immutable real voice, truthful save status, separate attribution, deliberate privacy boundaries and recoverable interruptions.
 - Related decision: `../DECISIONS/2026-11-13-legacy-original-recording.md`; no Foundation amendment.
+
+### L-2026-11-13-remote-preflight — GitHub access does not restore provider credentials
+
+- Status: corroborated; remote provider proof waits for privately configured bootstrap access.
+- Evidence: `../OPERATIONS/REMOTE_VIDEO_STAGING_SETUP.md` and the networkless `preflight:legacy:staging` command.
+- Observed fact: the repo and CI are accessible while the managed runtime contains no Cloudflare/Clerk staging configuration. A shape check can remain safe and deterministic without claiming authentication, media delivery or a working call.
+- Interpretation: request only actual account/test identity access from the owner; generate ordinary app/session configuration after that access is available. Do not substitute an external meeting room or mock production behavior.
+- Confidence/limits: redacted configuration and deterministic-test evidence only. No live provider, physical-device, cost or legal acceptance is established.
+- Governing controls: `../EXECUTION/AUTHORITY_AND_STOP_RULES.md` and `../SECURITY/SECRETS_AND_CONFIGURATION.md`; no Foundation change.

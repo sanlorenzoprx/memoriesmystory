@@ -20,7 +20,8 @@
     "verify": "npm run verify:core && npm run test:e2e",
     "deploy:dry-run": "npm run build && wrangler deploy --dry-run",
     "deploy": "npm run build && wrangler deploy",
-    "deploy:staging": "node --env-file-if-exists=.env.staging.local scripts/deploy-staging.mjs"
+    "deploy:staging": "node --env-file-if-exists=.env.staging.local scripts/deploy-staging.mjs",
+    "preflight:legacy:staging": "node --env-file-if-exists=.env.staging.local scripts/preflight-legacy-staging.mjs"
   },
   "dependencies": {
     "@clerk/backend": "^3.11.6",

@@ -23,3 +23,8 @@ ELEVENLABS_API_KEY=
 # Muse speech: requires ElevenLabs voices_read + text_to_speech permissions.
 ELEVENLABS_MUSE_VOICE_ID=
 ELEVENLABS_TTS_MODEL_ID=eleven_multilingual_v2
+
+# D03 remote-video staging preflight; backend-only provider configuration.
+# These names prepare the provider gate; they do not enable a live call yet.
+REALTIME_SFU_APP_ID=
+REALTIME_SFU_APP_SECRET=

@@ -197,7 +197,7 @@
       ],
       "title": "First release: in-person then remote two-person sessions, consent, attribution, recording, scoped joining and replay",
       "release_required": true,
-      "note": "D01 merged with CI proof. D02 shared original recording/recovery/private replay/self-attribution is locally proven and awaiting CI/integration. D03 remote media/provider preflight follows. Physical/human acceptance stays pending per owner direction. No Jitsi fallback.",
+      "note": "D01/D02 merged with local/CI proof. D03 remote provider preflight is blocked on absent staging credentials; account/test identity inputs have been requested privately. Physical/human acceptance is still deferred to the owner milestone. No production/live video claim.",
       "implementation_packets": [
         {
           "packet": "D01",
@@ -217,13 +217,23 @@
         {
           "packet": "D02",
           "branch": "feat/legacy-original-recording",
-          "status": "locally_proven_pending_ci_and_review",
+          "status": "merged_local_and_ci_proven",
           "receipt": "docs/IMPLEMENTATION/OUR_LIVING_LEGACY_RECORDING_2026-11-13.md",
           "local_verification": {
             "unit_integration_tests": 138,
             "phone_chromium_tests": 43,
             "canonical_verify": "passed"
-          }
+          },
+          "pr": 27,
+          "head_sha": "5353d9178c20d661d491707d25980548cda487bc",
+          "merge_sha": "942d9808e51de24ccdd5978a8d5be4d830274ace"
+        },
+        {
+          "packet": "D03-preflight",
+          "branch": "chore/legacy-remote-staging-preflight",
+          "status": "blocked_on_staging_credentials",
+          "receipt": "docs/OPERATIONS/REMOTE_VIDEO_STAGING_SETUP.md",
+          "note": "No Cloudflare/Clerk bootstrap access is attached. Core local checks remain runnable; hosted provider/media proof requires configured isolated credentials. No Jitsi fallback."
         }
       ]
     },
