@@ -294,13 +294,22 @@
         {
           "packet": "D03-native-archive-proof",
           "branch": "feat/remote-archive-live-proof",
-          "status": "implemented_live_verification_pending",
+          "status": "real_provider_to_native_archive_verified",
           "receipt": "docs/IMPLEMENTATION/REALTIMEKIT_NATIVE_ARCHIVE_PROOF_2026-11-14.md",
-          "note": "First live run stopped at native virtual-module root initialization before recording, provider cleanup confirmed. Nested-checkout path fix and read-only permanent archive access probe in progress; no integrated archive success claimed.",
+          "note": "Actual consent/start/guest stop routes and automatic alarms passed with real generated provider media into ephemeral native D1/R2; private full/ranged replay, hashes, nonzero decoded audio and cleanup verified. Permanent cloud verification remains separate.",
           "pr": 37,
           "merge_sha": "bb061b16eeed20be3911f870dd347950a9981379",
           "ci_run": 43609667361,
-          "first_live_run": 43609943002
+          "first_live_run": 43609943002,
+          "live_run": 43610597090
+        },
+        {
+          "packet": "D03-cloud-archive-proof",
+          "branch": "feat/private-cloud-archive-proof",
+          "status": "implemented_live_verification_pending",
+          "receipt": "docs/IMPLEMENTATION/REALTIMEKIT_CLOUD_ARCHIVE_PROOF_2026-11-14.md",
+          "read_access_run": 43626942755,
+          "note": "Owner added separate archive token; Worker/D1/R2 metadata access verified. Isolated real-cloud storage/persistence/cleanup candidate; no production or complete V2 claim."
         }
       ]
     },

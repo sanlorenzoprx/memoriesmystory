@@ -27,3 +27,9 @@ The runtime now resolves virtual Worker module paths absolutely under the candid
 A separate read-only staging capability workflow checks whether the existing token can list Worker, D1 and R2 metadata. It emits only HTTP/access status and bounded matching-resource counts, never resource names/IDs/settings, secrets or private content. Read capability is separate from write/deployment permission; a completed check does not claim archive access. This avoids asking the owner to configure capabilities already present. Results remain pending.
 
 Nested-checkout actual-route/alarm integration and all three read-only access/redaction tests passed locally, with typecheck and lint. The immutable application candidate remains `b0bd4ac`; the fix changes operator path resolution only. Clean-install CI and a corrected real run must still pass.
+
+## Corrected real integrated run passed
+
+Run [43610597090](https://github.com/sanlorenzoprx/memoriesmystory/actions/runs/43610597090) passed the actual-route/automatic-alarm pipeline with real Cloudflare generated-media recordings. All three originals matched private playback, D1 hashes and an independent R2 read; unauthorized denial and full/ranged replay passed; composite video and all source audio decoded with nonzero signal. Provider and native-storage cleanup were confirmed. Storage remained ephemeral native bindings. The real-cloud candidate is documented separately in `REALTIMEKIT_CLOUD_ARCHIVE_PROOF_2026-11-14.md`.
+
+Read-only access run 43610596966 confirmed the old token could not read D1/R2. After the owner added a separate archive token, run 43626942755 verified all three metadata capabilities. No token was copied into chat or local workspace; the updated workflow selects the archive token while preserving the separate RealtimeKit token.

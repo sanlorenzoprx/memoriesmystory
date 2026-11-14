@@ -8,16 +8,20 @@ import { pathToFileURL } from "node:url";
 import { runStagingProof } from "./realtimekit-staging-proof.mjs";
 import { createNativeArchiveProof } from "./realtimekit-archive-runtime.mjs";
 
+const cloudMode = process.env.ARCHIVE_STORAGE_MODE === "isolated-cloud";
 const candidate = resolve("call-candidate"),
   origin = "http://127.0.0.1:4173",
   directory = await mkdtemp(join(tmpdir(), "memoriesmystory-native-archive-"));
 const cleanEnv = { ...process.env };
 delete cleanEnv.REALTIMEKIT_API_TOKEN;
+delete cleanEnv.CLOUDFLARE_API_TOKEN;
 let browser,
   server,
   archive,
   stage = "prepare",
-  failureCode;
+  failureCode,
+  failureHttpStatus,
+  failureProviderCodes;
 let nativeCleanupConfirmed = false;
 const checks = [],
   mediaMetadata = [];
@@ -112,12 +116,23 @@ async function exercise(context) {
         await globalThis.__syntheticArchiveClient.join();
       }, grant.authToken);
     }
-    stage = "native_consent_and_start";
+    stage = cloudMode
+      ? "cloud_resources_and_consent"
+      : "native_consent_and_start";
+    const runtimeFactory = cloudMode
+      ? async (options) => {
+          const { createCloudArchiveRuntime } = await import(
+            "./realtimekit-cloud-archive-runtime.mjs"
+          );
+          return createCloudArchiveRuntime(options, process.env);
+        }
+      : undefined;
     archive = await createNativeArchiveProof({
       candidate,
       directory,
       context,
       credentials: process.env,
+      runtimeFactory,
     });
     checks.push(
       "actual_routes_require_two_consents_and_replay_start_idempotently",
@@ -136,7 +151,9 @@ async function exercise(context) {
       }
       throw new Error("archive_processing_timeout");
     }
-    stage = "wait_for_native_recorders";
+    stage = cloudMode
+      ? "wait_for_cloud_recorders"
+      : "wait_for_native_recorders";
     await until(["recording"], 45);
     checks.push("persistent_alarms_started_both_real_provider_recorders");
     await wait(10000);
@@ -148,11 +165,16 @@ async function exercise(context) {
       {},
     );
     if (stop.status !== 202) throw new Error("archive_route_check_failed");
-    stage = "native_preservation";
+    stage = cloudMode ? "cloud_preservation" : "native_preservation";
     await until(["preserved"]);
     checks.push("guest_stop_confirmed_before_private_source_preservation");
     stage = "private_playback_and_integrity";
-    const originals = await archive.verifyOriginals();
+    let originals = await archive.verifyOriginals();
+    if (cloudMode) {
+      await archive.restart();
+      originals = await archive.verifyOriginals();
+      checks.push("cloud_originals_and_receipts_survive_worker_redeployment");
+    }
     for (let i = 0; i < originals.length; i++) {
       const source = originals[i],
         file = join(directory, `private-source-${i}.media`);
@@ -271,10 +293,31 @@ try {
           "archive_attribution_failed",
           "archive_media_decode_failed",
           "archive_audio_signal_missing",
+          "archive_cloud_configuration_missing",
+          "archive_cloud_subdomain_unavailable",
+          "archive_cloud_bucket_privacy_unconfirmed",
+          "archive_cloud_request_failed",
+          "archive_cloud_response_invalid",
+          "archive_cloud_query_unconfirmed",
+          "archive_cloud_object_unconfirmed",
+          "archive_cloud_module_path_invalid",
+          "archive_cloud_worker_unavailable",
+          "archive_cloud_route_invalid",
+          "archive_cloud_cleanup_unconfirmed",
         ]);
         failureCode = allowed.has(error?.message)
           ? error.message
           : "archive_probe_execution_failed";
+        if (
+          Number.isInteger(error?.httpStatus) &&
+          error.httpStatus >= 100 &&
+          error.httpStatus <= 599
+        )
+          failureHttpStatus = error.httpStatus;
+        if (Array.isArray(error?.providerCodes))
+          failureProviderCodes = error.providerCodes
+            .filter((code) => Number.isSafeInteger(code) && code >= 0)
+            .slice(0, 8);
         throw error;
       }
     },
@@ -289,15 +332,20 @@ const report = {
   archiveProbeStage: stage,
   archiveChecks: checks,
   mediaMetadata,
-  nativeCleanupConfirmed,
+  storageCleanupConfirmed: nativeCleanupConfirmed,
+  ...(!cloudMode ? { nativeCleanupConfirmed } : {}),
   syntheticMaximumSeconds: 60,
-  storageScope: "ephemeral_native_workerd_r2_d1",
+  storageScope: cloudMode
+    ? "isolated_cloud_worker_d1_private_r2"
+    : "ephemeral_native_workerd_r2_d1",
   ...(failureCode ? { failureCode } : {}),
+  ...(failureHttpStatus ? { failureHttpStatus } : {}),
+  ...(failureProviderCodes?.length ? { failureProviderCodes } : {}),
 };
 console.log(JSON.stringify(report));
 if (process.env.GITHUB_STEP_SUMMARY)
   await appendFile(
     process.env.GITHUB_STEP_SUMMARY,
-    `## Generated-media recording to private native archive\n\n\`\`\`json\n${JSON.stringify(report, null, 2)}\n\`\`\`\n\nReal Cloudflare recording and generated sources; actual application consent/start/stop/replay routes and persistent native alarms; ephemeral workerd D1/R2. This is not deployed permanent cloud storage, physical devices, human consent or Clerk acceptance. No participant JWT, provider download URL, credential, media, source body or private filename is exported. All native storage and media files are removed.\n`,
+    `## Generated-media recording to private native archive\n\n\`\`\`json\n${JSON.stringify(report, null, 2)}\n\`\`\`\n\nReal Cloudflare recording and generated sources; actual application consent/start/stop/replay routes and persistent alarms. Storage scope is recorded above; isolated cloud mode additionally checks persistence across Worker redeployment. This is not production, long-term retention, physical-device, human consent or Clerk acceptance. No participant JWT, provider download URL, credential, media, source body or private filename is exported. All native storage and media files are removed.\n`,
   );
 if (!result.ok) process.exitCode = 1;
