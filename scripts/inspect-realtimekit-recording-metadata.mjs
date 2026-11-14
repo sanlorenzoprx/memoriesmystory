@@ -1,6 +1,14 @@
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
+const schemaKeys=new Set(["default","layer_name","download_url","download_urls","url","urls","layers","files","file","audio","video","data","recording","recordings","user_id","peer_id","filename","file_name","output_file_name","media_kind","stream_kind","type","items"]);
+function safeTree(value,depth=0){
+  if(value===null)return {kind:"null"};
+  if(depth>=5)return {kind:Array.isArray(value)?"array":typeof value};
+  if(Array.isArray(value))return {kind:"array",length:value.length,first:value.length?safeTree(value[0],depth+1):null};
+  if(typeof value==="object")return {kind:"object",fields:Object.entries(value).slice(0,10).map(([key,v])=>({key:schemaKeys.has(key)?key:"opaque_key",shape:safeTree(v,depth+1)}))};
+  return {kind:typeof value,...(typeof value==="string"?{https:value.startsWith("https://")}:{} )};
+}
 /** Return structure only: no identifiers, filenames, signed URLs, tokens or provider text. */
 export function recordingMetadataShape(record) {
   const value=record?.download_url;
@@ -13,6 +21,7 @@ export function recordingMetadataShape(record) {
     type:["TRACK","COMPOSITE"].includes(record?.type)?record.type:"other_or_absent",
     uploaded:record?.status==="UPLOADED",
     downloadValueType:Array.isArray(value)?"array":typeof value,
+    downloadStructure:safeTree(value),
     jsonEncoded:encoded,
     layerCount:layers.length,
     layers:layers.slice(0,5).map(layer=>{
@@ -38,7 +47,13 @@ export async function inspectExistingRecordingMetadata(env,fetcher=globalThis.fe
     if(matches.length!==1||!/^[A-Za-z0-9_-]{8,128}$/u.test(matches[0].id))throw new Error("staging_app_uncertain");
     const rows=await get(`/${matches[0].id}/recordings?per_page=10&sort_order=DESC`);
     if(!Array.isArray(rows))throw new Error("listing_shape");
-    return {ok:true,status:"recording_metadata_structure_inspected",records:rows.slice(0,10).map(recordingMetadataShape)};
+    const records=[];
+    for(const row of rows.slice(0,10)){
+      if(!/^[A-Za-z0-9_-]{8,128}$/u.test(row.id))throw new Error("record_identity");
+      const detail=await get(`/${matches[0].id}/recordings/${row.id}`);
+      records.push(recordingMetadataShape(detail?.recording??detail));
+    }
+    return {ok:true,status:"recording_metadata_structure_inspected",records};
   }catch{return {ok:false,status:"recording_metadata_inspection_failed"};}
 }
 if(process.argv[1]&&resolve(process.argv[1])===fileURLToPath(import.meta.url)){
