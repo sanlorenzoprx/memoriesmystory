@@ -1,4 +1,5 @@
 import { handleArchiveRoute } from "./archive-routes";
+import { handlePeopleRoute } from "./people-routes";
 import { handleRemoteRecordingRoute } from "./legacy-remote-recording-route";
 export { LegacyRecorder } from "./legacy-recorder";
 import { handleLegacyRemoteRoute } from "./legacy-remote";
@@ -69,6 +70,8 @@ const handler: ExportedHandler<Env, TranscriptionQueueMessage> = {
 
     const archiveResponse=await handleArchiveRoute(request,env);
     if(archiveResponse)return archiveResponse;
+    const peopleResponse=await handlePeopleRoute(request,env);
+    if(peopleResponse)return peopleResponse;
 
     const remoteRecordingResponse = await handleRemoteRecordingRoute(request, env);
     if (remoteRecordingResponse) return remoteRecordingResponse;

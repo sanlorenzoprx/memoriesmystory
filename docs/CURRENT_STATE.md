@@ -17,9 +17,11 @@ PR #36 merged as `87dab43` after CI 43607683913 passed (190 tests and 47 phone-b
 
 No application deployment, physical-phone/cross-region acceptance, full-application hosted identity/device acceptance or completed MVP v0.5 is claimed. Direct workspace credentials remain absent; existing RealtimeKit Actions secrets work and must not be requested again.
 
-## Private Chapter organization candidate
+## Private Chapters and human people references
 
-E01 on `feat/private-family-chapters` adds private archives/Chapters, ordered references to existing complete Living Memories, covers, separate human memory names and moves within the same owner's archives. Removing organization preserves underlying memories and media. Owner/session/CSRF/idempotence/version guards and EN/ES draft recovery are locally proven: 211 tests, native D1/R2 120-reference preservation, and all 49 phone-browser checks passed with core/schema/build/dry-run verification. CI and real-cloud Chapter verification remain pending. Migration 0014 is required before matching deployment. See `IMPLEMENTATION/PRIVATE_CHAPTERS_2026-11-14.md`; people/roles/contributions and the remaining V2 groups are still required.
+E01 merged through PR #40 (`5519350`) with clean-install CI 43633691702 (211 unit/integration tests and 49 phone checks). PR #41 (`2d226f5`, CI 43634182315) extends the isolated-cloud proof; real run **43634180628 passed**, including guest denial, Chapter retry/removal with unchanged recording originals, private playback, redeployment persistence and confirmed provider/storage cleanup. Apply migration 0014 before matching deployment. See `IMPLEMENTATION/PRIVATE_CHAPTERS_2026-11-14.md`.
+
+E02 on `feat/human-entered-people` adds optional human-entered people, uncertainty/date wording, owned-memory references, separately attributed relationship statements and reversible links. Source media remains immutable; removed people retain attributed history and can be explicitly restored. Six route tests, native workerd/D1/R2 correction/history checks, malformed-success protection and both EN/ES phone journeys passed; all 51 phone-browser checks passed. Clean-install CI is pending. Migration 0015 is required. See `IMPLEMENTATION/HUMAN_PEOPLE_REFERENCES_2026-11-14.md`. Roles/invitations, contributions and remaining V2 groups remain required; no complete release or full staging application deployment is claimed.
 
 ## What works today
 

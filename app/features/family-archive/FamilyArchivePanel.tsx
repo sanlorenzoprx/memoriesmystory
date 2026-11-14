@@ -1,3 +1,4 @@
+import { PeoplePanel } from "./PeoplePanel";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router";
 import { phase1Config } from "../../../config/phase-1";
@@ -25,9 +26,16 @@ export function FamilyArchivePanel() {
   const key = useRef<string | null>(null),
     archiveKey = useRef(newKey()),
     archiveTitle = useRef(t("My family archive")),
-    dirtyRef = useRef(false);
+    dirtyRef = useRef(false),
+    chapterDirtyRef = useRef(false),
+    peopleDirtyRef = useRef(false);
   const setCurrentDirty = useCallback((value: boolean) => {
-    dirtyRef.current = value;
+    chapterDirtyRef.current = value;
+    dirtyRef.current = value || peopleDirtyRef.current;
+  }, []);
+  const setPeopleDirty = useCallback((value: boolean) => {
+    peopleDirtyRef.current = value;
+    dirtyRef.current = value || chapterDirtyRef.current;
   }, []);
   useEffect(() => {
     let active = true;
@@ -244,6 +252,14 @@ export function FamilyArchivePanel() {
                 ))}
               </select>
             </label>
+          )}
+          {view.archiveId && (
+            <PeoplePanel
+              key={view.archiveId}
+              archiveId={view.archiveId}
+              memories={view.memories}
+              onDirty={setPeopleDirty}
+            />
           )}
           {!editing && (
             <form onSubmit={(event) => void create(event)}>

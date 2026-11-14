@@ -330,7 +330,7 @@
         {
           "packet": "E01",
           "branch": "feat/private-family-chapters",
-          "status": "merged_local_and_ci_proven_cloud_pending",
+          "status": "merged_local_ci_and_real_cloud_proven_human_acceptance_pending",
           "receipt": "docs/IMPLEMENTATION/PRIVATE_CHAPTERS_2026-11-14.md",
           "local_verification": {
             "unit_integration_tests": 211,
@@ -340,7 +340,21 @@
           "pr": 40,
           "head_sha": "3bbb1096b1291fefa5cc0fee80a69519904801fb",
           "merge_sha": "5519350bd4316b4ec0e89a9c3a85ccfacf5bd261",
-          "ci_run": 43633691702
+          "ci_run": 43633691702,
+          "cloud_proof_run": 43634180628,
+          "cloud_proof_pr": 41
+        },
+        {
+          "packet": "E02",
+          "branch": "feat/human-entered-people",
+          "status": "implemented_local_proven_ci_pending",
+          "note": "Human-entered labels, uncertainty, private relationship references, additive history and reversible explicit links; no identity inference.",
+          "receipt": "docs/IMPLEMENTATION/HUMAN_PEOPLE_REFERENCES_2026-11-14.md",
+          "local_verification": {
+            "unit_integration_tests": 218,
+            "phone_chromium_tests": 51,
+            "typecheck_lint_schema_build_dry_run": "passed"
+          }
         }
       ]
     },
