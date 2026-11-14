@@ -41,6 +41,7 @@ export async function createNativeArchiveProof({
   context,
   credentials,
   fetchMock,
+  runtimeFactory,
 }) {
   const compiled = await mkdtemp(join(directory, "fixture-"));
   let fixture, runtime;
@@ -69,7 +70,29 @@ export async function createNativeArchiveProof({
       pathToFileURL(join(compiled, "tests/helpers/legacy-fixture.mjs")).href
     );
     fixture = await setupLegacyFixture("remote");
-    const created = await fixture.create(),
+    // Deployed synthetic sessions use a fresh secret, never the public test default.
+    fixture.env.SESSION_SECRET = randomUUID() + randomUUID();
+    const { createAppSession } = await import(
+      pathToFileURL(join(compiled, "worker/auth-session.mjs")).href
+    );
+    const ownerId = fixture.db.database
+      .prepare("SELECT owner_user_id FROM memory_story_drafts WHERE id=?")
+      .get(fixture.memory).owner_user_id;
+    fixture.owner = (await createAppSession(fixture.env, ownerId)).cookie.split(
+      ";",
+    )[0];
+    const creation = await fixture.call(
+      "",
+      "POST",
+      {
+        memoryId: fixture.memory,
+        displayName: "Synthetic host",
+        mode: "remote",
+      },
+      fixture.owner,
+    );
+    if (creation.status !== 201) throw new Error("archive_fixture_invalid");
+    const created = await creation.json(),
       joined = await fixture.join(created.sessionId, created.joinPath),
       guest = joined.headers.get("Set-Cookie").split(";")[0],
       sessionId = created.sessionId;
@@ -115,7 +138,7 @@ export async function createNativeArchiveProof({
     // Module paths otherwise resolve against the caller's cwd, which differs
     // from the immutable candidate checkout in Actions.
     for (const module of modules) module.path = resolve(candidate, module.path);
-    runtime = new Miniflare({
+    const options = {
       fetchMock,
       modules,
       modulesRoot: candidate,
@@ -134,7 +157,10 @@ export async function createNativeArchiveProof({
         REALTIMEKIT_CALL_PRESET: "memoriesmystory-unrecorded",
         REALTIMEKIT_CALL_PRESET_ID: context.presetId,
       },
-    });
+    };
+    runtime = runtimeFactory
+      ? await runtimeFactory(options)
+      : new Miniflare(options);
     await runtime.ready;
     const db = await runtime.getD1Database("DB"),
       bucket = await runtime.getR2Bucket("MEDIA_BUCKET");
@@ -228,6 +254,9 @@ export async function createNativeArchiveProof({
       guest,
       host: fixture.owner,
       sessionId,
+      async restart() {
+        if (runtime.restart) await runtime.restart();
+      },
       async state() {
         return db
           .prepare(
