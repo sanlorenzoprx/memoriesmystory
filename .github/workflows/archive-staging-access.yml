@@ -19,6 +19,7 @@ jobs:
           node-version: 22
       - name: Inspect existing token metadata permissions only
         env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           REALTIMEKIT_ACCOUNT_ID: ${{ vars.REALTIMEKIT_ACCOUNT_ID }}
           REALTIMEKIT_API_TOKEN: ${{ secrets.REALTIMEKIT_API_TOKEN }}
         run: node scripts/check-archive-staging-access.mjs

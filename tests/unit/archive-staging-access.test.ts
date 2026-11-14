@@ -69,4 +69,10 @@ describe("read-only archive staging capability preflight", () => {
       /CANARY|unrelated|other-project|memoriesmystory-staging/,
     );
   });
+ it("uses the separate archive token without disclosing either credential",async()=>{
+  const fetch=vi.fn(async(_input:string,init:RequestInit)=>{expect(new Headers(init.headers).get("Authorization")).toBe("Bearer ARCHIVE_CANARY");return Response.json({success:true,result:[]});});
+  const result=await checkArchiveStagingAccess({...env,CLOUDFLARE_API_TOKEN:"ARCHIVE_CANARY"},fetch);
+  expect(result.credentialSource).toBe("archive_deployment_token");expect(JSON.stringify(result)).not.toMatch(/CANARY/);
+ });
+
 });

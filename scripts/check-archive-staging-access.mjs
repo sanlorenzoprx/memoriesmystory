@@ -8,7 +8,7 @@ export async function checkArchiveStagingAccess(
   fetcher = globalThis.fetch,
 ) {
   const account = env.REALTIMEKIT_ACCOUNT_ID ?? "",
-    token = env.REALTIMEKIT_API_TOKEN ?? "";
+    token = env.CLOUDFLARE_API_TOKEN || env.REALTIMEKIT_API_TOKEN || "";
   if (!/^[a-f0-9]{32}$/iu.test(account) || !token || /\s/u.test(token))
     return { ok: false, status: "missing_or_invalid_configuration" };
   const endpoints = {
@@ -72,6 +72,7 @@ export async function checkArchiveStagingAccess(
   return {
     ok: true,
     status: "read_only_archive_capability_check_complete",
+    credentialSource:env.CLOUDFLARE_API_TOKEN?"archive_deployment_token":"realtimekit_token",
     checks,
     scope: "metadata_read_only_no_content_or_configuration_changes",
     deploymentWriteAccess: "not_tested",
