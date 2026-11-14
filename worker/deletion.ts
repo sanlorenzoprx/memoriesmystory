@@ -1,3 +1,4 @@
+import { requestRemoteRecordingStop, type RemoteRecordingEnv } from "./legacy-remote-recording-data";
 import { closeLegacyRemoteCall } from "./legacy-remote";
 import type { RealtimeKitEnv } from "./realtimekit";
 import {
@@ -6,7 +7,7 @@ import {
   type AuthSessionEnv
 } from "./auth-session";
 
-export type DeletionEnv = AuthSessionEnv & RealtimeKitEnv & {
+export type DeletionEnv = AuthSessionEnv & RealtimeKitEnv & Pick<RemoteRecordingEnv,"LEGACY_RECORDERS"> & {
   readonly MEDIA_BUCKET: R2Bucket;
 };
 
@@ -134,7 +135,12 @@ async function deleteMemory(
   if(story)await env.DB.prepare("UPDATE legacy_sessions SET status='closed',deletion_requested_at=COALESCE(deletion_requested_at,?),consent_epoch=consent_epoch+1,version=version+1 WHERE memory_story_id=? AND deletion_requested_at IS NULL").bind(new Date().toISOString(),story.id).run();
   if (story) {
     const calls = await env.DB.prepare("SELECT id FROM legacy_sessions WHERE memory_story_id=?").bind(story.id).all<{id:string}>();
-    for (const call of calls.results) await closeLegacyRemoteCall(env, call.id);
+    for (const call of calls.results) {
+      await requestRemoteRecordingStop(env,call.id);
+      await closeLegacyRemoteCall(env,call.id);
+    }
+    const pending=await env.DB.prepare("SELECT r.id FROM legacy_remote_recordings r JOIN legacy_sessions s ON s.id=r.session_id WHERE s.memory_story_id=? AND (r.capture_stopped=0 OR r.phase NOT IN ('preserved','partial_preserved','needs_review','failed','discarded') OR (r.lease_token IS NOT NULL AND r.lease_expires_at>?)) LIMIT 1").bind(story.id,new Date().toISOString()).first();
+    if(pending)throw new DeletionRouteError(409,"recording_cleanup_pending","Recording cleanup is still being confirmed. Please retry deletion shortly.");
   }
   const assets = await env.DB.prepare(
     "SELECT id, r2_key FROM media_assets WHERE draft_id = ? ORDER BY created_at DESC"
@@ -145,7 +151,9 @@ async function deleteMemory(
       ).bind(story.id).all<AssetRow>()
     : { results: [] as AssetRow[] };
   const recordings=story ? await env.DB.prepare("SELECT r.id,m.r2_key FROM legacy_recordings r JOIN legacy_recording_media m ON m.recording_id=r.id WHERE r.session_id IN (SELECT id FROM legacy_sessions WHERE memory_story_id=?)").bind(story.id).all<AssetRow>() : {results:[] as AssetRow[]};
-  const allAssets = [...assets.results, ...voiceReplies.results,...recordings.results];
+  const remoteSources=story?await env.DB.prepare("SELECT x.id,x.r2_key FROM legacy_remote_sources x JOIN legacy_remote_recordings r ON r.id=x.recording_id JOIN legacy_sessions s ON s.id=r.session_id WHERE s.memory_story_id=? AND x.r2_key IS NOT NULL").bind(story.id).all<AssetRow>():{results:[] as AssetRow[]};
+  const sourceSessions=story?await env.DB.prepare("SELECT DISTINCT s.id FROM legacy_sessions s JOIN legacy_remote_recordings r ON r.session_id=s.id WHERE s.memory_story_id=?").bind(story.id).all<{id:string}>():{results:[] as {id:string}[]};
+  const allAssets = [...assets.results, ...voiceReplies.results,...recordings.results,...remoteSources.results];
   const revisions = story ? await env.DB.prepare(
     "SELECT id, parent_revision_id FROM transcript_revisions WHERE memory_story_id = ?"
   ).bind(story.id).all<{ id: string; parent_revision_id: string | null }>() : { results: [] };
@@ -174,6 +182,15 @@ async function deleteMemory(
     for (const asset of allAssets) {
       await env.MEDIA_BUCKET.delete(asset.r2_key);
     }
+    // Include unreferenced, unconfirmed attempt objects, scoped to these owned sessions.
+    for(const session of sourceSessions.results){
+      let cursor:string|undefined;
+      do{
+        const page=await env.MEDIA_BUCKET.list({prefix:`legacy/${session.id}/sources/`,...(cursor?{cursor}:{})});
+        if(page.objects.length)await env.MEDIA_BUCKET.delete(page.objects.map(object=>object.key));
+        cursor=page.truncated?page.cursor:undefined;
+      }while(cursor);
+    }
   } catch {
     throw new DeletionRouteError(
       503,
@@ -199,6 +216,9 @@ async function deleteMemory(
       "DELETE FROM transcript_revisions WHERE id = ? AND memory_story_id = ?"
     ).bind(revisionId, story.id));
     statements.push(
+      env.DB.prepare("DELETE FROM legacy_remote_source_claims WHERE source_id IN (SELECT x.id FROM legacy_remote_sources x JOIN legacy_remote_recordings r ON r.id=x.recording_id JOIN legacy_sessions s ON s.id=r.session_id WHERE s.memory_story_id=?)").bind(story.id),
+      env.DB.prepare("DELETE FROM legacy_remote_sources WHERE recording_id IN (SELECT r.id FROM legacy_remote_recordings r JOIN legacy_sessions s ON s.id=r.session_id WHERE s.memory_story_id=?)").bind(story.id),
+      env.DB.prepare("DELETE FROM legacy_remote_recordings WHERE session_id IN (SELECT id FROM legacy_sessions WHERE memory_story_id=?)").bind(story.id),
       env.DB.prepare(
         "DELETE FROM operation_receipts WHERE scope_id IN (SELECT id FROM muse_voice_reply_assets WHERE memory_story_id = ?)"
       ).bind(story.id),

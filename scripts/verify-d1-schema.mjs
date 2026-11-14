@@ -26,6 +26,16 @@ try {
     .all();
   const names = new Set(objects.map((object) => object.name));
   const requiredObjects = [
+    "legacy_remote_recordings",
+    "legacy_remote_sources",
+    "legacy_remote_source_claims",
+    "legacy_remote_recording_usage",
+    "legacy_remote_recording_create_scope",
+    "legacy_remote_recording_preserved",
+    "legacy_remote_recording_partial_preserved",
+    "legacy_remote_source_durable_consent",
+    "legacy_remote_source_receipt_immutable",
+    "legacy_remote_recording_daily_limit",
     "archival_scan_provenance",
     "archival_scan_source_scope",
     "archival_scan_provenance_immutable",

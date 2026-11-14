@@ -1,3 +1,4 @@
+import type { RemoteRecordingPhase } from "./legacy-remote-recording";
 export type LegacyMode = "in_person" | "remote";
 export type LegacyConsent = "pending" | "accepted" | "declined";
 export const legacyConsentVersion = "legacy-recording-v1";
@@ -33,6 +34,7 @@ export type LegacySessionView = {
   photoUrl: string;
   participants: LegacyParticipant[];
   canRecord: boolean;
+  remoteRecording?: {id:string;phase:RemoteRecordingPhase;captureStopped:boolean};
 };
 
 export type LegacyRecordingReceipt = {

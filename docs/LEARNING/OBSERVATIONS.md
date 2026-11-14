@@ -186,3 +186,12 @@ Observations preserve evidence separately from proposed solutions. Follow `READM
 - Interpretation: the managed RealtimeKit call slice is a working basis for the next consent-controlled archival recording slice; extra guest identity infrastructure is unnecessary.
 - Confidence/limits: genuine Cloudflare transport with synthetic device media and synthetic app authorization/photo routes, one runner. This does not establish physical-phone, global latency, application deployment or recording durability.
 - Invariants: I-10, I-17–I-19, I-25, I-30. Receipt: `../IMPLEMENTATION/REALTIMEKIT_BROWSER_PROOF_2026-11-14.md`.
+
+### L-2026-11-14-003 — Native runtime evidence is necessary for remote archival coordination
+
+- Status: addressed in the recording/archive candidate; deployed acceptance pending.
+- Evidence: generated-source provider recording run 43601378648; native workerd/D1/R2 integration tests in `tests/integration/legacy-recorder-runtime.test.ts` and `original-source-storage.test.ts`.
+- Observed fact: provider uploads are temporary and do not establish a private durable archive. Native workerd rejects fetch `redirect: error`, which Node-only route fixtures did not catch. Both managed recorders and strict participant mapping work with synthetic media; archival confirmation additionally needs actual-byte private storage verification and an authorized D1 commit.
+- Interpretation: maintain separate provider, native-runtime, consumer-UI, deployed-storage and human/device evidence. Preserve recovery after browsers close with persistent alarms; never infer a human speaker from a microphone identifier.
+- Limits: native-runtime archive tests simulate provider HTTP responses. The real provider probe uses generated media. Neither is complete real deployed consent-to-archive acceptance.
+- Decision/receipt: `../DECISIONS/2026-11-14-remote-recording-coordinator.md`, `../IMPLEMENTATION/REMOTE_RECORDING_ARCHIVE_2026-11-14.md`. No Foundation rule is changed.

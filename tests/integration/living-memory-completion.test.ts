@@ -65,6 +65,8 @@ class TestD1 {
     ,
       "0010_legacy_sessions.sql",
       "0011_legacy_recordings.sql",
+      "0012_legacy_remote_calls.sql",
+      "0013_remote_recording_sources.sql",
     ]) {
       this.database.exec(
         readFileSync(new URL(`../../migrations/${migration}`, import.meta.url), "utf8")

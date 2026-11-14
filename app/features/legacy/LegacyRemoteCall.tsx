@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type RefObject } from "react";
 import type RealtimeKitClient from "@cloudflare/realtimekit";
 import type { RTKParticipant, RTKSelf } from "@cloudflare/realtimekit";
 import type { LegacySessionView } from "../../domain/our-living-legacy";
@@ -56,9 +56,15 @@ function CallVideo({
 export function LegacyRemoteCall({
   view,
   healthy,
+  captureMayBeActive = false,
+  withdrawalPending = false,
+  pauseMediaRef,
 }: {
   view: LegacySessionView;
   healthy: boolean;
+  captureMayBeActive?: boolean;
+  withdrawalPending?: boolean;
+  pauseMediaRef?: RefObject<(() => Promise<void>) | null>;
 }) {
   useLocale();
   const guest = view.actorRole === "guest";
@@ -74,6 +80,35 @@ export function LegacyRemoteCall({
   const [video, setVideo] = useState(false);
   const generation = useRef(0);
   const listeners = useRef<(() => void) | null>(null);
+  const [providerCapture, setProviderCapture] = useState(false);
+  const mediaGeneration = useRef(0);
+  const captureActive = captureMayBeActive || providerCapture;
+  const mine = view.participants.find((person) => person.id === view.actorId);
+  const mediaBlocked =
+    withdrawalPending || (captureActive && mine?.consent !== "accepted");
+  const mediaBlockedRef = useRef(mediaBlocked);
+  mediaBlockedRef.current = mediaBlocked;
+  async function pauseMedia() {
+    mediaGeneration.current++;
+    const current = meetingRef.current;
+    if (!current) return;
+    const results = await Promise.allSettled([
+      current.self.disableAudio(),
+      current.self.disableVideo(),
+    ]);
+    setAudio(false);
+    setVideo(false);
+    if (results.some((result) => result.status === "rejected")) await leave();
+  }
+  useEffect(() => {
+    if (pauseMediaRef) pauseMediaRef.current = pauseMedia;
+    return () => {
+      if (pauseMediaRef) pauseMediaRef.current = null;
+    };
+  }, [pauseMediaRef]);
+  useEffect(() => {
+    if (mediaBlocked) void pauseMedia();
+  }, [mediaBlocked]);
   const mayJoin = healthy && view.status !== "closed";
 
   async function leave() {
@@ -85,6 +120,7 @@ export function LegacyRemoteCall({
     if (mounted.current) {
       setMeeting(null);
       setPeers([]);
+      setProviderCapture(false);
       setStatus("You have left the call.");
     }
     if (current) {
@@ -150,7 +186,7 @@ export function LegacyRemoteCall({
             ["failed", "reconnecting", "disconnected"].includes(state),
           )
             ? "Connection interrupted. Trying to reconnect…"
-            : "You are connected. This call is not being recorded.",
+            : "You are connected.",
         );
       };
       const lost = () => {
@@ -169,6 +205,17 @@ export function LegacyRemoteCall({
         if (state === "connected") connected();
         else setStatus("Connection interrupted. Trying to reconnect…");
       };
+      const recordingChanged = () => {
+        if (mounted.current && meetingRef.current === current)
+          setProviderCapture(
+            current.recording.recordingState !== "IDLE" ||
+              current.recording.recordings.some(
+                (record) => record.state !== "IDLE",
+              ),
+          );
+      };
+      current.recording.on("recordingUpdate", recordingChanged);
+      recordingChanged();
       current.participants.joined.on("participantsUpdate", changed);
       current.self.on("audioUpdate", changed);
       current.self.on("videoUpdate", changed);
@@ -178,6 +225,7 @@ export function LegacyRemoteCall({
       current.meta.on("poorConnection", poor);
       current.meta.on("socketConnectionUpdate", socket);
       listeners.current = () => {
+        current.recording.removeListener("recordingUpdate", recordingChanged);
         current.participants.joined.removeListener(
           "participantsUpdate",
           changed,
@@ -216,6 +264,12 @@ export function LegacyRemoteCall({
   async function toggle(kind: "audio" | "video") {
     const current = meetingRef.current;
     if (!current || busy) return;
+    const enabling =
+      kind === "audio"
+        ? !current.self.audioEnabled
+        : !current.self.videoEnabled;
+    if (enabling && mediaBlockedRef.current) return;
+    const attempt = mediaGeneration.current;
     setBusy(true);
     setError(null);
     try {
@@ -226,7 +280,12 @@ export function LegacyRemoteCall({
         if (current.self.videoEnabled) await current.self.disableVideo();
         else await current.self.enableVideo();
       }
-      if (!mounted.current || meetingRef.current !== current) {
+      if (
+        !mounted.current ||
+        meetingRef.current !== current ||
+        attempt !== mediaGeneration.current ||
+        mediaBlockedRef.current
+      ) {
         await Promise.allSettled([
           current.self.disableAudio(),
           current.self.disableVideo(),
@@ -251,7 +310,9 @@ export function LegacyRemoteCall({
       <h2>{t("Talk around this photograph")}</h2>
       <p>
         {t(
-          "Joining does not give recording consent. This call is not being recorded.",
+          captureActive
+            ? "Recording may be active. You can stop it at any time."
+            : "Joining does not give recording consent. This call is not being recorded.",
         )}
       </p>
       <p role="status">{t(status)}</p>
@@ -277,7 +338,7 @@ export function LegacyRemoteCall({
           <button
             type="button"
             className="secondary-action"
-            disabled={busy}
+            disabled={busy || (!audio && mediaBlocked)}
             onClick={() => void toggle("audio")}
           >
             {audio ? t("Mute microphone") : t("Turn on microphone")}
@@ -285,7 +346,7 @@ export function LegacyRemoteCall({
           <button
             type="button"
             className="secondary-action"
-            disabled={busy}
+            disabled={busy || (!video && mediaBlocked)}
             onClick={() => void toggle("video")}
           >
             {video ? t("Turn off camera") : t("Turn on camera")}

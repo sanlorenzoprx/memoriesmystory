@@ -1,6 +1,7 @@
+import { RemoteRecordingPanel } from "./RemoteRecordingPanel";
 import { LegacyRemoteCall } from "./LegacyRemoteCall";
 import { LegacyRecordingPanel } from "./LegacyRecordingPanel";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router";
 import { phase1Config } from "../../../config/phase-1";
 import type {
@@ -222,6 +223,10 @@ export function LegacySessionExperience() {
     [error, setError] = useState<string | null>(null),
     [busy, setBusy] = useState(false),
     [agreed, setAgreed] = useState(false);
+  const pauseRemoteMedia=useRef<(()=>Promise<void>)|null>(null);
+  const [remoteCaptureActive,setRemoteCaptureActive]=useState(false);
+  const [withdrawalPending,setWithdrawalPending]=useState(false);
+  const captureChanged=useCallback((active:boolean)=>setRemoteCaptureActive(active),[]);
   const [joinPath, setJoinPath] = useState<string | null>(null);
   useEffect(() => {
     let active = true;
@@ -284,6 +289,7 @@ export function LegacySessionExperience() {
     if (!view || busy) return;
     setBusy(true);
     try {
+      if(!agree){setWithdrawalPending(true);await pauseRemoteMedia.current?.();}
       await legacyRequest(legacyPath(sessionId, guest, "/consent"), "POST", {
         agree,
         version: view.consentVersion,
@@ -297,7 +303,7 @@ export function LegacySessionExperience() {
           : "Our Living Legacy could not continue. Please try again.",
       );
     } finally {
-      setBusy(false);
+      setBusy(false);setWithdrawalPending(false);
     }
   }
   async function revoke(participantId: string) {
@@ -434,8 +440,8 @@ export function LegacySessionExperience() {
               </button>
             )}
           </section>
-          {view.mode === "remote" && <LegacyRemoteCall key={`${view.id}:${view.actorId}:call`} view={view} healthy={!error} />}
-          <LegacyRecordingPanel key={`${view.id}:${view.actorId}`} view={view} healthy={!error}/>
+          {view.mode === "remote" && <LegacyRemoteCall key={`${view.id}:${view.actorId}:call`} view={view} healthy={!error} captureMayBeActive={remoteCaptureActive||Boolean(view.remoteRecording&&!view.remoteRecording.captureStopped)} withdrawalPending={withdrawalPending} pauseMediaRef={pauseRemoteMedia} />}
+          {view.mode==="remote"?<RemoteRecordingPanel key={`${view.id}:${view.actorId}`} view={view} healthy={!error} onCaptureChange={captureChanged}/>:<LegacyRecordingPanel key={`${view.id}:${view.actorId}`} view={view} healthy={!error}/>}
           <p role="status">
             {view.canRecord
               ? t("Both of you have agreed to recording.")

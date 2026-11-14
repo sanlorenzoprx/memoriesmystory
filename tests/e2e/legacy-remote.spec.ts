@@ -32,7 +32,7 @@ for (const locale of ["en-US", "es-PR"] as const) {
           path: "tests/fixtures/synthetic-family-photo.png",
           contentType: "image/png",
         });
-      if (path.endsWith("/recordings"))
+      if (path.endsWith("/recordings")||path.endsWith("/remote-recordings"))
         return route.fulfill({ json: { recordings: [] } });
       return route.fulfill({
         json: {
