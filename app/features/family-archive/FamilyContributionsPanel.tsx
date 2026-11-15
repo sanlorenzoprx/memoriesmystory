@@ -12,6 +12,7 @@ import {
   type LocalContributionPhoto,
 } from "../../services/family-contributions";
 import { ContributionVoiceRecorder } from "./ContributionVoiceRecorder";
+import { ContributionWrittenWords } from "./ContributionWrittenWords";
 import type { LocalAudio } from "../capture/local-draft";
 import { t, notice, useLocale } from "../../localization/language";
 import { phase1Config } from "../../../config/phase-1";
@@ -70,6 +71,7 @@ export function FamilyContributionsPanel({
     [voiceSaved, setVoiceSaved] = useState(false),
     [photo, setPhoto] = useState<LocalContributionPhoto | null>(null),
     [photoSaved, setPhotoSaved] = useState(false),
+    [wordsSaved, setWordsSaved] = useState(false),
     [storageError, setStorageError] = useState(false),
     [deleted, setDeleted] = useState(false),
     [history, setHistory] = useState<{
@@ -80,7 +82,9 @@ export function FamilyContributionsPanel({
   // One key per recording, reused on retry so a repeated send cannot store it twice.
   const voiceKey = useRef<string | null>(null),
     photoKey = useRef<string | null>(null),
-    photoInput = useRef<HTMLInputElement | null>(null);
+    photoInput = useRef<HTMLInputElement | null>(null),
+    // Same words for the same recording reuse one key, so a retry cannot save twice.
+    wordsKeys = useRef<Record<string, { text: string; key: string }>>({});
   const photoPreview = useMemo(
     () => (photo ? URL.createObjectURL(photo.blob) : null),
     [photo],
@@ -174,6 +178,7 @@ export function FamilyContributionsPanel({
     setSaved(false);
     setVoiceSaved(false);
     setPhotoSaved(false);
+    setWordsSaved(false);
     try {
       await work();
     } catch (e) {
@@ -287,6 +292,57 @@ export function FamilyContributionsPanel({
     setDraft((previous) => ({ ...previous, agree: false, requestKey: null }));
     setPhotoSaved(true);
   }
+  async function writeWords(contribution: FamilyContribution, words: string) {
+    const remembered = wordsKeys.current[contribution.id],
+      key =
+        remembered?.text === words
+          ? remembered.key
+          : `contribution_words_${crypto.randomUUID()}`;
+    wordsKeys.current[contribution.id] = { text: words, key };
+    await contributionRequest(
+      memoryId,
+      grantId,
+      `/${contribution.id}/transcript`,
+      "POST",
+      {
+        version: contribution.version,
+        text: words,
+        agree: true,
+        agreementVersion: limits.agreementVersion,
+      },
+      key,
+    );
+    const canonical = await contributionRequest<{
+      contribution: FamilyContribution;
+    }>(memoryId, grantId, `/${contribution.id}`);
+    if (canonical.contribution?.writtenWords?.latest?.text !== words.trim())
+      throw new Error(
+        "Family recollections could not be opened. Please try again.",
+      );
+    await refresh();
+    if (deletion.current) return;
+    delete wordsKeys.current[contribution.id];
+    setWordsSaved(true);
+  }
+  async function decideWords(
+    contribution: FamilyContribution,
+    include: boolean,
+    transcriptId?: string,
+  ) {
+    await contributionRequest(
+      memoryId,
+      grantId,
+      `/${contribution.id}/transcript-assembly`,
+      "POST",
+      {
+        version: contribution.version,
+        include,
+        ...(include ? { transcriptId } : {}),
+      },
+      `contribution_words_assembly_${crypto.randomUUID()}`,
+    );
+    await refresh();
+  }
   async function decide(contribution: FamilyContribution, include: boolean) {
     await contributionRequest(
       memoryId,
@@ -324,6 +380,13 @@ export function FamilyContributionsPanel({
         <p role="status">
           {t(
             "Your recollection is saved for review. It has not automatically been shared with family.",
+          )}
+        </p>
+      )}
+      {wordsSaved && (
+        <p role="status">
+          {t(
+            "Your written words are saved for review. They have not automatically been shared with family.",
           )}
         </p>
       )}
@@ -382,6 +445,23 @@ export function FamilyContributionsPanel({
                         item.id,
                         grantId,
                       )}
+                    />
+                    <ContributionWrittenWords
+                      item={item}
+                      busy={busy}
+                      onWrite={async (words) => {
+                        let saved = false;
+                        await action(async () => {
+                          await writeWords(item, words);
+                          saved = true;
+                        });
+                        return saved;
+                      }}
+                      onDecide={(include, transcriptId) =>
+                        void action(() =>
+                          decideWords(item, include, transcriptId),
+                        )
+                      }
                     />
                   </>
                 ) : item.revision.sourceKind === "human_photo" ? (

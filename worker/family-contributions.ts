@@ -83,7 +83,7 @@ export async function handleFamilyContributionRoute(
 ): Promise<Response | null> {
   const url = new URL(request.url),
     match = url.pathname.match(
-      /^\/resources\/family-contributions\/([^/]+)(?:\/([^/]+)(?:\/(revise|assembly|withdraw|history|voice|photo))?)?$/,
+      /^\/resources\/family-contributions\/([^/]+)(?:\/([^/]+)(?:\/(revise|assembly|withdraw|history|voice|photo|transcript|transcript-assembly))?)?$/,
     );
   if (!match) return null;
   try {
@@ -129,7 +129,10 @@ export async function handleFamilyContributionRoute(
       !canRead &&
       !withdrawing &&
       !(
-        (action === "history" || action === "voice" || action === "photo") &&
+        (action === "history" ||
+          action === "voice" ||
+          action === "photo" ||
+          (action === "transcript" && request.method === "GET")) &&
         current?.author_user_id === user
       )
     )
@@ -170,6 +173,38 @@ export async function handleFamilyContributionRoute(
           nextCursor:
             rows.length > limits.pageSize
               ? rows[limits.pageSize - 1]!.id
+              : null,
+        });
+      }
+      if (action === "transcript" && current) {
+        // Earlier written words are private source history for the speaker and owner.
+        if (!isOwner && current.author_user_id !== user)
+          fail(403, "family_contribution_denied");
+        const after = Number(url.searchParams.get("after") ?? 0);
+        if (!Number.isSafeInteger(after) || after < 0) fail(400);
+        const rows = (
+          await env.DB.prepare(
+            "SELECT rowid AS seq,id,written_text,created_at FROM family_contribution_voice_transcripts WHERE contribution_id=? AND rowid>? ORDER BY rowid LIMIT ?",
+          )
+            .bind(current.id, after, limits.pageSize + 1)
+            .all<{
+              seq: number;
+              id: string;
+              written_text: string;
+              created_at: string;
+            }>()
+        ).results;
+        return json({
+          id: current.id,
+          version: current.version,
+          transcripts: rows.slice(0, limits.pageSize).map((row) => ({
+            id: row.id,
+            text: row.written_text,
+            createdAt: row.created_at,
+          })),
+          nextCursor:
+            rows.length > limits.pageSize
+              ? String(rows[limits.pageSize - 1]!.seq)
               : null,
         });
       }
@@ -275,6 +310,29 @@ export async function handleFamilyContributionRoute(
         .first();
       if (!authorized) fail(403, "family_contribution_denied");
       const page = rows.slice(0, limits.pageSize);
+      const spoken = page
+        .filter((c) => c.source_kind === "human_voice")
+        .map((c) => c.id);
+      const words = spoken.length
+        ? (
+            await env.DB.prepare(
+              `SELECT t.id,t.contribution_id,t.written_text,t.created_at,p.transcript_id AS pinned,CASE WHEN t.rowid=(SELECT max(rowid) FROM family_contribution_voice_transcripts x WHERE x.contribution_id=t.contribution_id) THEN 1 ELSE 0 END AS latest FROM family_contribution_voice_transcripts t LEFT JOIN family_contribution_transcript_pins p ON p.contribution_id=t.contribution_id WHERE t.contribution_id IN (${spoken.map(() => "?").join(",")}) AND (t.id=p.transcript_id OR t.rowid=(SELECT max(rowid) FROM family_contribution_voice_transcripts x WHERE x.contribution_id=t.contribution_id))`,
+            )
+              .bind(...spoken)
+              .all<{
+                id: string;
+                contribution_id: string;
+                written_text: string;
+                created_at: string;
+                pinned: string | null;
+                latest: number;
+              }>()
+          ).results
+        : [];
+      const wordsView = (row?: (typeof words)[number]) =>
+        row
+          ? { id: row.id, text: row.written_text, createdAt: row.created_at }
+          : null;
       const contributions = page.map((c) => ({
         id: c.id,
         memoryId,
@@ -306,6 +364,29 @@ export async function handleFamilyContributionRoute(
         photo:
           c.source_kind === "human_photo"
             ? { contentType: c.voice_content_type }
+            : null,
+        // The speaker's own written words. Family receives only the owner-pinned
+        // version, and only while the voice itself is family-visible.
+        writtenWords:
+          c.source_kind === "human_voice"
+            ? {
+                latest:
+                  isOwner || c.author_user_id === user
+                    ? wordsView(
+                        words.find(
+                          (w) => w.contribution_id === c.id && w.latest,
+                        ),
+                      )
+                    : null,
+                included:
+                  isOwner || c.author_user_id === user || c.family_visible
+                    ? wordsView(
+                        words.find(
+                          (w) => w.contribution_id === c.id && w.pinned === w.id,
+                        ),
+                      )
+                    : null,
+              }
             : null,
       }));
       if (contributionId) {
@@ -538,6 +619,9 @@ export async function handleFamilyContributionRoute(
       fail(400);
     }
     if (
+      (action === "transcript-assembly" && !isOwner) ||
+      (action === "transcript" &&
+        (current?.author_user_id !== user || !canWrite)) ||
       (action === "assembly" && !isOwner) ||
       (action === "revise" && current?.author_user_id !== user) ||
       (action === "withdraw" && !withdrawing)
@@ -647,6 +731,77 @@ export async function handleFamilyContributionRoute(
       mutation = env.DB.prepare(
         "UPDATE family_contributions SET author_state='withdrawn',included_revision_id=NULL,version=version+1,updated_at=? WHERE id=? AND author_user_id=? AND version=?",
       ).bind(now, sourceId, user, expected);
+    } else if (action === "transcript" && current) {
+      if (
+        body.agree !== true ||
+        body.agreementVersion !== limits.agreementVersion
+      )
+        fail(400, "family_contribution_consent");
+      const written = text(body.text, limits.textCharacters);
+      if (current.author_state !== "submitted")
+        fail(409, "family_contribution_conflict");
+      const spokenSource = await env.DB.prepare(
+        "SELECT 1 AS ok FROM family_contribution_voice_sources WHERE contribution_id=? AND author_user_id=?",
+      )
+        .bind(sourceId, user)
+        .first();
+      if (!spokenSource) fail(409, "family_contribution_words_voice_only");
+      const previous = await env.DB.prepare(
+        "SELECT id FROM family_contribution_voice_transcripts WHERE contribution_id=? ORDER BY rowid DESC LIMIT 1",
+      )
+        .bind(sourceId)
+        .first<{ id: string }>();
+      const transcriptId = `contribution_words_${(await sha256Text(`${receiptKey}:words`)).slice(0, 40)}`;
+      event = "revised";
+      selectedRevision = transcriptId;
+      mutation = env.DB.prepare(
+        `UPDATE family_contributions SET version=version+1,updated_at=? WHERE id=? AND author_user_id=? AND version=? AND author_state='submitted' AND ${permission}`,
+      ).bind(now, sourceId, user, expected, ...guardParams);
+      revision = env.DB.prepare(
+        "INSERT INTO family_contribution_voice_transcripts(id,contribution_id,author_user_id,previous_transcript_id,written_text,agreement_version,created_at) SELECT ?,?,?,?,?,?,? WHERE EXISTS(SELECT 1 FROM operation_receipts WHERE idempotency_key=? AND request_hash=?) AND EXISTS(SELECT 1 FROM family_contributions WHERE id=? AND version=?)",
+      ).bind(
+        transcriptId,
+        sourceId,
+        user,
+        previous?.id ?? null,
+        written,
+        limits.agreementVersion,
+        now,
+        receiptKey,
+        requestHash,
+        sourceId,
+        nextVersion,
+      );
+    } else if (action === "transcript-assembly" && current) {
+      if (body.include !== true && body.include !== false) fail(400);
+      const chosen = body.include ? id(body.transcriptId) : null;
+      if (
+        chosen &&
+        !(await env.DB.prepare(
+          "SELECT id FROM family_contribution_voice_transcripts WHERE id=? AND contribution_id=?",
+        )
+          .bind(chosen, sourceId)
+          .first())
+      )
+        fail(404, "family_contribution_not_found");
+      // Written words enter family view only alongside an included voice.
+      if (
+        chosen &&
+        (current.author_state !== "submitted" || !current.included_revision_id)
+      )
+        fail(409, "family_contribution_conflict");
+      event = chosen ? "included" : "excluded";
+      selectedRevision = chosen;
+      mutation = env.DB.prepare(
+        `UPDATE family_contributions SET version=version+1,updated_at=? WHERE id=? AND owner_user_id=? AND version=? AND ${permission} AND (? IS NULL OR (author_state='submitted' AND included_revision_id IS NOT NULL))`,
+      ).bind(now, sourceId, user, expected, ...guardParams, chosen);
+      revision = chosen
+        ? env.DB.prepare(
+            "INSERT INTO family_contribution_transcript_pins(contribution_id,transcript_id,pinned_by_user_id,pinned_at) SELECT ?,?,?,? WHERE EXISTS(SELECT 1 FROM operation_receipts WHERE idempotency_key=? AND request_hash=?) ON CONFLICT(contribution_id) DO UPDATE SET transcript_id=excluded.transcript_id,pinned_by_user_id=excluded.pinned_by_user_id,pinned_at=excluded.pinned_at",
+          ).bind(sourceId, chosen, user, now, receiptKey, requestHash)
+        : env.DB.prepare(
+            "DELETE FROM family_contribution_transcript_pins WHERE contribution_id=? AND EXISTS(SELECT 1 FROM operation_receipts WHERE idempotency_key=? AND request_hash=?)",
+          ).bind(sourceId, receiptKey, requestHash);
     } else if (action === "assembly" && current) {
       if (body.include !== true && body.include !== false) fail(400);
       const selected = body.include ? id(body.revisionId) : null;

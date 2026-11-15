@@ -31,9 +31,13 @@ E03 on `feat/scoped-family-invitations` adds verified-recipient expiring invitat
 
 E04a on `feat/attributed-family-contributions` adds independently attributed human text, immutable revision lineage and versioned review intent, author-only revision/withdrawal, owner selection of a specific family-visible version, source-grant rechecks and recoverable on-device writing. Two EN/ES browser journeys, ten route cases, native D1/R2 source/receipt/lineage checks and draft cleanup/API boundary checks passed. Local core passed 238 tests with 88 schema objects and all 55 phone-browser checks passed. PR #44 merged as `d0a550b` after main CI 43692868082 passed. Migration 0017 is required. This is text only; E04 voice/photo sources and each author's transcript review remain required. See `IMPLEMENTATION/ATTRIBUTED_FAMILY_TEXT_2026-11-15.md`.
 
-## Supplementary family photographs — implemented locally; CI pending
+## Speaker's written words for a voice recollection — implemented locally; CI pending
 
-E04c lets an owner or invited contributor add their own photograph (for example the back of a print) as an immutable, separately attributed contribution that never replaces the memory's original. It reuses the voice path: private R2 original confirmed by read-back hash before any record exists, owner review before invited family sees it, withdrawal, no in-place revision, and removal with the memory. Local core passed 248 tests with 100 schema objects; 53 phone-browser checks passed locally and the nine `legacy-recording.spec.ts` checks could not launch in the review sandbox. Migration 0019 is required. See `IMPLEMENTATION/ATTRIBUTED_FAMILY_PHOTO_2026-11-15.md`.
+E04d lets the person who recorded a voice recollection write and revise the words they said. Every version is kept; only the speaker writes; invited family sees only the version the owner includes, beside an included voice. Excluding or withdrawing the voice clears it. No machine transcript of a contributor's voice is made: that needs an approved consent wording first. Local core passed 251 tests with 108 schema objects; 55 phone-browser checks passed locally and the nine `legacy-recording.spec.ts` checks could not launch in the review sandbox. Migration 0020 is required. See `IMPLEMENTATION/SPEAKER_WRITTEN_WORDS_2026-11-15.md`.
+
+## Supplementary family photographs — merged; device and human acceptance pending
+
+E04c lets an owner or invited contributor add their own photograph (for example the back of a print) as an immutable, separately attributed contribution that never replaces the memory's original. It reuses the voice path: private R2 original confirmed by read-back hash before any record exists, owner review before invited family sees it, withdrawal, no in-place revision, and removal with the memory. PR #46 merged as `8d03ab0` after CI 43699777117 passed. Migration 0019 is required. See `IMPLEMENTATION/ATTRIBUTED_FAMILY_PHOTO_2026-11-15.md`.
 
 ## Family voice recollections — merged; device and human acceptance pending
 

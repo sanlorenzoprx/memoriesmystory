@@ -40,3 +40,11 @@ Apply after 0018 and before the matching Worker and client. It adds the immutabl
 `family_contribution_photo_sources` table and its guards, and drops and recreates
 the read-only `family_contribution_sources` view to include photographs. No stored
 row is changed.
+
+## 0020 — speaker's written words
+
+Apply after 0019 and before the matching Worker and client. It adds the append-only
+`family_contribution_voice_transcripts` table, the owner's
+`family_contribution_transcript_pins`, and their guards. A trigger on
+`family_contributions` removes a pin when the voice is excluded or withdrawn.
+No stored row is changed.
