@@ -1,5 +1,11 @@
 # Foundation Package Changelog
 
+## Portable archive export — 2026-11-15
+
+- Added an owner export built on the device: every original is downloaded, re-hashed and compared with the preserved original before being packaged into a ZIP with a hash manifest and a readable index. Human testimony, machine transcripts and Muse questions are labelled separately.
+- The export states what it does not include and is marked incomplete whenever anything is missing. Our Living Legacy recordings and consent records are not yet exported; withdrawn recollections are left out.
+- No migration. Restore, encryption, server-built export, fixity maintenance and stewardship remain pending; no deployment is claimed.
+
 ## Timeline from the storyteller's own words — 2026-11-15
 
 - Added an owner timeline ordered by the year the storyteller named, showing their words unchanged. Approximate, year-less and unknown dates are kept as such; nothing is inferred or placed on a date they did not give.

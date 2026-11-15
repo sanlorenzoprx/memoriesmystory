@@ -2,7 +2,7 @@
   "schema_version": "memoriesmystory_expanded_release_queue_v4",
   "project": "memoriesmystory",
   "campaign": "expanded-first-release",
-  "active_task_id": "retrieval-timeline",
+  "active_task_id": "legacy-infrastructure",
   "tasks": [
     {
       "id": "packet-1",
@@ -168,12 +168,28 @@
     },
     {
       "id": "legacy-infrastructure",
-      "status": "pending",
+      "status": "active",
       "depends_on": [
         "solo-trust-controls"
       ],
       "title": "First release: complete export, integrity/restore maintenance and policy-approved stewardship; extend export with group/family sources before acceptance",
-      "release_required": true
+      "release_required": true,
+      "note": "F01a portable export implemented and locally proven, CI pending: verified originals, hash manifest and readable index for solo, scan, transcript, context, Muse, family-contribution and organization sources. Our Living Legacy recordings/consent records, restore, encryption, server-built export, fixity maintenance (F03) and policy-approved stewardship (F02) remain required.",
+      "implementation_packets": [
+        {
+          "packet": "F01a",
+          "branch": "claude/wonderful-einstein-lhk453",
+          "status": "implemented_local_proven_ci_pending",
+          "note": "Owner export built on the device with per-file SHA-256 verification; states what is not included; no schema change.",
+          "receipt": "docs/IMPLEMENTATION/PORTABLE_ARCHIVE_EXPORT_2026-11-15.md",
+          "local_verification": {
+            "unit_integration_tests": 271,
+            "phone_chromium_tests_passed_locally": 63,
+            "phone_chromium_tests_not_run_locally": 9,
+            "typecheck_lint_schema_build_dry_run": "passed"
+          }
+        }
+      ]
     },
     {
       "id": "growth-engine",
@@ -455,14 +471,14 @@
     },
     {
       "id": "retrieval-timeline",
-      "status": "active",
+      "status": "verification_pending",
       "depends_on": [
         "family-archive",
         "family-contributions"
       ],
       "title": "First release: privacy-scoped metadata search and honest approximate/unknown timeline",
       "release_required": true,
-      "note": "E05a search merged through PR48. E06a storyteller timeline implemented and locally proven, CI pending. Opt-in resurfacing needs an owner decision on delivery channel and cadence; draft/recent discovery remains.",
+      "note": "E05a search (PR48) and E06a timeline (PR49) merged. Opt-in resurfacing needs an owner decision on delivery channel and cadence; draft/recent discovery remains.",
       "implementation_packets": [
         {
           "packet": "E05a",
@@ -483,7 +499,7 @@
         {
           "packet": "E06a",
           "branch": "claude/wonderful-einstein-lhk453",
-          "status": "implemented_local_proven_ci_pending",
+          "status": "merged_local_and_ci_proven_human_acceptance_pending",
           "note": "Owner timeline ordered only by a year the storyteller wrote; approximate, year-less and unknown kept as such; no schema change.",
           "receipt": "docs/IMPLEMENTATION/STORYTELLER_TIMELINE_2026-11-15.md",
           "local_verification": {
@@ -491,7 +507,10 @@
             "phone_chromium_tests_passed_locally": 61,
             "phone_chromium_tests_not_run_locally": 9,
             "typecheck_lint_schema_build_dry_run": "passed"
-          }
+          },
+          "pr": 49,
+          "merge_sha": "344a96f6609d20e5ab908979e43de3bccccc6600",
+          "ci_run": 43726079674
         }
       ]
     },

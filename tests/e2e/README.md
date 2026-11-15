@@ -28,3 +28,5 @@ The written-words suite (`family-written-words.spec.ts`) uses stubbed routes wit
 The search suite (`family-search.spec.ts`) uses stubbed routes in English and Spanish for the owner's archive page and an invitation view. It verifies a recoverable failed search, the normalized query, named sources with "approximately", the no-results state, and that a member search is bound to its invitation and offers no links into a private archive. Authorization and matching are proven against the Worker in the integration suite.
 
 The timeline suite (`family-timeline.spec.ts`) uses stubbed routes in English and Spanish. It verifies a recoverable failure, ascending years taken from the storyteller's words, approximate wording, and separate sections for memories remembered without a year and with no known date.
+
+The export suite (`archive-export.spec.ts`) uses stubbed routes and synthetic bytes in English and Spanish. It downloads the real ZIP, reads it with an independent parser, and verifies that a same-length wrong-bytes file is left out with the export marked incomplete, and that a second run round-trips every original to its manifest hash.
