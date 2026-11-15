@@ -31,9 +31,13 @@ E03 on `feat/scoped-family-invitations` adds verified-recipient expiring invitat
 
 E04a on `feat/attributed-family-contributions` adds independently attributed human text, immutable revision lineage and versioned review intent, author-only revision/withdrawal, owner selection of a specific family-visible version, source-grant rechecks and recoverable on-device writing. Two EN/ES browser journeys, ten route cases, native D1/R2 source/receipt/lineage checks and draft cleanup/API boundary checks passed. Local core passed 238 tests with 88 schema objects and all 55 phone-browser checks passed. PR #44 merged as `d0a550b` after main CI 43692868082 passed. Migration 0017 is required. This is text only; E04 voice/photo sources and each author's transcript review remain required. See `IMPLEMENTATION/ATTRIBUTED_FAMILY_TEXT_2026-11-15.md`.
 
-## Speaker's written words for a voice recollection — implemented locally; CI pending
+## Authorized search — implemented locally; CI pending
 
-E04d lets the person who recorded a voice recollection write and revise the words they said. Every version is kept; only the speaker writes; invited family sees only the version the owner includes, beside an included voice. Excluding or withdrawing the voice clears it. No machine transcript of a contributor's voice is made: that needs an approved consent wording first. Local core passed 251 tests with 108 schema objects; 55 phone-browser checks passed locally and the nine `legacy-recording.spec.ts` checks could not launch in the review sandbox. Migration 0020 is required. See `IMPLEMENTATION/SPEAKER_WRITTEN_WORDS_2026-11-15.md`.
+E05a adds literal, accent-insensitive search over human-entered words. The owner searches memory names, Chapters, named people, the storyteller's current context, recollections and speaker-written words; invited family searches only inside their invitation and only names plus owner-included words. Every match names its source and keeps "approximately". Revocation, scope changes and deletion apply on the next search. No migration, model or vector store. Local core passed 260 tests; 59 phone-browser checks passed locally and the nine `legacy-recording.spec.ts` checks could not launch in the review sandbox. Timeline and resurfacing (E06) remain. See `IMPLEMENTATION/AUTHORIZED_FAMILY_SEARCH_2026-11-15.md`.
+
+## Speaker's written words for a voice recollection — merged; device and human acceptance pending
+
+E04d lets the person who recorded a voice recollection write and revise the words they said. Every version is kept; only the speaker writes; invited family sees only the version the owner includes, beside an included voice. Excluding or withdrawing the voice clears it. No machine transcript of a contributor's voice is made: that needs an approved consent wording first. PR #47 merged as `3106d9d` after CI 43700841112 passed. Migration 0020 is required. See `IMPLEMENTATION/SPEAKER_WRITTEN_WORDS_2026-11-15.md`.
 
 ## Supplementary family photographs — merged; device and human acceptance pending
 

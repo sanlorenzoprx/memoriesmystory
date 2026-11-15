@@ -1,5 +1,11 @@
 # Foundation Package Changelog
 
+## Authorized family archive search — 2026-11-15
+
+- Added literal, accent-insensitive search over human-entered words: memory names, Chapters, named people, the storyteller's current context, recollections and speaker-written words. Every match names its source and keeps "approximately".
+- Invited family searches only inside their invitation and only names plus owner-included words. Revocation, scope changes and deletion apply on the next search.
+- No migration, model call or vector store. Timeline and resurfacing remain pending; no deployment is claimed.
+
 ## Speaker's written words for a voice recollection — 2026-11-15
 
 - The person who recorded a voice recollection can write and revise the words they said. Every version is kept and only the speaker can write them. Migration 0020 adds the append-only table, the owner's pinned version and guards.
