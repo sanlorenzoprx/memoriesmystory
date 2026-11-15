@@ -1,5 +1,6 @@
 import { FamilyArchivePanel } from "../family-archive/FamilyArchivePanel";
 import { FamilySearchPanel } from "../family-archive/FamilySearchPanel";
+import { FamilyTimelinePanel } from "../family-archive/FamilyTimelinePanel";
 import { t, notice, useLocale, getLocale } from "../../localization/language";
 import { useEffect, useState } from "react";
 import { useClerk } from "@clerk/clerk-react";
@@ -39,6 +40,7 @@ function ArchiveIndex() {
         {drafts === null && !error && <p className="preservation-status" role="status">{t("Gathering your stories…")}</p>}
         {drafts?.length === 0 && <p className="capture-lede">{t("Your first protected Living Memory will appear here.")}</p>}
         {drafts?.some(draft=>draft.status==="complete")&&<FamilySearchPanel/>}
+        {drafts?.some(draft=>draft.status==="complete")&&<FamilyTimelinePanel/>}
         {drafts?.some(draft=>draft.status==="complete")&&<FamilyArchivePanel/>}
         {drafts && drafts.length > 0 && (
           <ul className="archive-list">

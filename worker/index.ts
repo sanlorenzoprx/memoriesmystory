@@ -1,5 +1,6 @@
 import { handleFamilyContributionRoute } from './family-contributions';
 import { handleFamilySearchRoute } from "./family-search";
+import { handleFamilyTimelineRoute } from "./family-timeline";
 import { handleFamilyAccessRoute } from './family-access-routes';
 import { handleArchiveRoute } from "./archive-routes";
 import { handlePeopleRoute } from "./people-routes";
@@ -75,6 +76,8 @@ const handler: ExportedHandler<Env, TranscriptionQueueMessage> = {
     if(archiveResponse)return archiveResponse;
     const familyContributionResponse=await handleFamilyContributionRoute(request,env);
     if(familyContributionResponse)return familyContributionResponse;
+    const familyTimelineResponse = await handleFamilyTimelineRoute(request, env);
+    if (familyTimelineResponse) return familyTimelineResponse;
     const familySearchResponse = await handleFamilySearchRoute(request, env);
     if (familySearchResponse) return familySearchResponse;
     const familyAccessResponse=await handleFamilyAccessRoute(request,env);

@@ -11,6 +11,7 @@ const messages: Readonly<Record<string, string>> = {
  "family_search_invalid":"Type at least two characters to search.",
  "family_search_denied":"This search is not available with your access.",
  "family_search_unavailable":"The search could not be completed. Please try again.",
+ "family_timeline_unavailable":"The timeline could not be opened. Please try again.",
  "family_contribution_voice_format":"That recording format is not supported. Please record again.",
  "family_contribution_voice_length":"Keep a voice recollection to 30 seconds or less.",
  "family_contribution_voice_unconfirmed":"Your recording could not be confirmed as saved. It is still here; please try again.",

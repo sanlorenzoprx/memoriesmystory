@@ -31,9 +31,13 @@ E03 on `feat/scoped-family-invitations` adds verified-recipient expiring invitat
 
 E04a on `feat/attributed-family-contributions` adds independently attributed human text, immutable revision lineage and versioned review intent, author-only revision/withdrawal, owner selection of a specific family-visible version, source-grant rechecks and recoverable on-device writing. Two EN/ES browser journeys, ten route cases, native D1/R2 source/receipt/lineage checks and draft cleanup/API boundary checks passed. Local core passed 238 tests with 88 schema objects and all 55 phone-browser checks passed. PR #44 merged as `d0a550b` after main CI 43692868082 passed. Migration 0017 is required. This is text only; E04 voice/photo sources and each author's transcript review remain required. See `IMPLEMENTATION/ATTRIBUTED_FAMILY_TEXT_2026-11-15.md`.
 
-## Authorized search — implemented locally; CI pending
+## Timeline — implemented locally; CI pending
 
-E05a adds literal, accent-insensitive search over human-entered words. The owner searches memory names, Chapters, named people, the storyteller's current context, recollections and speaker-written words; invited family searches only inside their invitation and only names plus owner-included words. Every match names its source and keeps "approximately". Revocation, scope changes and deletion apply on the next search. No migration, model or vector store. Local core passed 260 tests; 59 phone-browser checks passed locally and the nine `legacy-recording.spec.ts` checks could not launch in the review sandbox. Timeline and resurfacing (E06) remain. See `IMPLEMENTATION/AUTHORIZED_FAMILY_SEARCH_2026-11-15.md`.
+E06a gives the owner a timeline ordered by the year the storyteller named, showing their own words and keeping approximate, year-less and unknown dates as such; nothing is inferred or placed on a date they did not give. No migration. Local core passed 263 tests; 61 phone-browser checks passed locally and the nine `legacy-recording.spec.ts` checks could not launch in the review sandbox. Opt-in resurfacing is not built and needs an owner decision on channel and cadence. See `IMPLEMENTATION/STORYTELLER_TIMELINE_2026-11-15.md`.
+
+## Authorized search — merged; device and human acceptance pending
+
+E05a adds literal, accent-insensitive search over human-entered words. The owner searches memory names, Chapters, named people, the storyteller's current context, recollections and speaker-written words; invited family searches only inside their invitation and only names plus owner-included words. Every match names its source and keeps "approximately". Revocation, scope changes and deletion apply on the next search. No migration, model or vector store. PR #48 merged as `d71d181` after CI 43725506954 passed. See `IMPLEMENTATION/AUTHORIZED_FAMILY_SEARCH_2026-11-15.md`.
 
 ## Speaker's written words for a voice recollection — merged; device and human acceptance pending
 
