@@ -193,3 +193,7 @@ Everything else in the handoff's status tables that could be checked against the
 - **Invariants touched by findings:** creator-controlled sharing (F1); private-by-default and explicit permissions (F2, F3); separately attributed recollections and contributor rights (F5); "Saved only after durable confirmation" was checked and holds in the code read.
 - **Anti-drift:** no product behaviour, copy, Foundation document or decision record was changed by this review.
 - **Evidence level:** local automated checks and local `workerd` reproduction only. Nothing here is staging, device or human evidence.
+
+## 7. Follow-up — 2026-11-15
+
+F1 was applied on the owner's instruction: `assets.run_worker_first` is set in `wrangler.jsonc` and `tests/e2e/worker-navigation.spec.ts` covers browser navigation. See `SHARE_LINK_NAVIGATION_2026-11-15.md`. F4 was applied for `CURRENT_STATE.md` and `TASK_QUEUE.json`. The F7 `npm audit fix` attempt failed inside npm and changed nothing. All other findings remain open.

@@ -386,12 +386,15 @@
       ],
       "title": "Separately attributed family recollections and contributions",
       "release_required": true,
-      "note": "E04a source-attributed text/revisions and owner assembly in progress. E04 voice/photo originals, each author transcript review and final policy/device acceptance remain required.",
+      "note": "E04a source-attributed text/revisions and owner assembly merged through PR44. E04 voice/photo originals, each author transcript review and final policy/device acceptance remain required.",
       "implementation_packets": [
         {
           "packet": "E04a",
           "branch": "feat/attributed-family-contributions",
-          "status": "implemented_local_proven_ci_pending",
+          "pr": 44,
+          "merge_sha": "d0a550b0a9cd7b6920f3cdfb8d1f5307917d75da",
+          "main_ci_run": 43692868082,
+          "status": "merged_local_and_ci_proven_human_acceptance_pending",
           "note": "Human text, own revisions, source lineage, explicit review inclusion, withdrawal and current-source permission; not whole E04 completion.",
           "receipt": "docs/IMPLEMENTATION/ATTRIBUTED_FAMILY_TEXT_2026-11-15.md",
           "local_verification": {

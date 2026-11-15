@@ -1,5 +1,11 @@
 # Foundation Package Changelog
 
+## Family share links open in a browser — 2026-11-15
+
+- Listed every Worker-served path in `assets.run_worker_first` so browser navigations to family share links, shared media, resource and public API addresses reach the Worker instead of the app shell.
+- Added a navigation browser suite covering the share page, shared media, a resource address, health and application deep links.
+- Recorded a repository and V2 handoff review receipt. No Foundation document, migration or product behaviour changed; no deployment is claimed.
+
 ## RealtimeKit unrecorded Our Living Legacy calling — 2026-11-14
 
 - Added a managed Cloudflare call slice on existing private invitations, with optional microphone/camera, reconnect status, audio continuation and English/Spanish controls. Joining remains independent of recording consent.
