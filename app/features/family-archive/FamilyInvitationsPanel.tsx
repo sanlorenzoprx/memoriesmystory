@@ -160,7 +160,7 @@ export function FamilyInvitationsPanel({
                 {t("One Chapter")}
               </option>
               <option value="archive">
-                {t("Memories in this archive’s Chapters")}
+                {t("Memories in this album’s Chapters")}
               </option>
             </select>
           </label>
@@ -200,7 +200,7 @@ export function FamilyInvitationsPanel({
           {scope !== "memory" && (
             <p>
               {t(
-                "Memories you add to this Chapter or archive later will also be available to this person.",
+                "Memories you add to this Chapter or album later will also be available to this person.",
               )}
             </p>
           )}
@@ -272,7 +272,7 @@ export function FamilyInvitationsPanel({
                     ? "One Living Memory"
                     : grant.scopeKind === "chapter"
                       ? "One Chapter"
-                      : "Memories in this archive’s Chapters",
+                      : "Memories in this album’s Chapters",
                 )}
               </p>
               <p>

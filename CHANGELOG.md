@@ -1,5 +1,10 @@
 # Foundation Package Changelog
 
+## Albums that hold Chapters — 2026-11-15
+
+- By owner decision, the family archive is organized as Album → Chapter → Living Memory. The container that already held Chapters is now labelled Album in English and Spanish, with starter name ideas that create nothing until the person saves. No stored data, route or migration changed.
+- Added "Album" to the Product Language and accepted the albums, reminders and export decision record with the owner's answers. No deployment is claimed.
+
 ## Shared conversations in the archive export — 2026-11-15
 
 - The owner export now includes Our Living Legacy recordings (in-person recording; remote composite video and each participant's microphone source) as verified originals, with participants, every consent choice, the consent in force at each recording, and speaker identification only where a participant identified their own voice.
