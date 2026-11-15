@@ -31,9 +31,13 @@ E03 on `feat/scoped-family-invitations` adds verified-recipient expiring invitat
 
 E04a on `feat/attributed-family-contributions` adds independently attributed human text, immutable revision lineage and versioned review intent, author-only revision/withdrawal, owner selection of a specific family-visible version, source-grant rechecks and recoverable on-device writing. Two EN/ES browser journeys, ten route cases, native D1/R2 source/receipt/lineage checks and draft cleanup/API boundary checks passed. Local core passed 238 tests with 88 schema objects and all 55 phone-browser checks passed. PR #44 merged as `d0a550b` after main CI 43692868082 passed. Migration 0017 is required. This is text only; E04 voice/photo sources and each author's transcript review remain required. See `IMPLEMENTATION/ATTRIBUTED_FAMILY_TEXT_2026-11-15.md`.
 
-## Timeline — implemented locally; CI pending
+## Portable archive export — implemented locally; CI pending
 
-E06a gives the owner a timeline ordered by the year the storyteller named, showing their own words and keeping approximate, year-less and unknown dates as such; nothing is inferred or placed on a date they did not give. No migration. Local core passed 263 tests; 61 phone-browser checks passed locally and the nine `legacy-recording.spec.ts` checks could not launch in the review sandbox. Opt-in resurfacing is not built and needs an owner decision on channel and cadence. See `IMPLEMENTATION/STORYTELLER_TIMELINE_2026-11-15.md`.
+F01a lets the owner export a ZIP of their archive built on their device: every original is downloaded, re-hashed and compared with the preserved original before it is packaged, alongside a hash manifest and a readable index. Transcripts, storyteller context with history, the Muse conversation, family contributions, Chapters and people are included, with human, machine and Muse material labelled separately. The export states what it does not include and is marked incomplete whenever anything is missing: Our Living Legacy recordings and consent records are not yet exported, and withdrawn recollections are left out. No migration. Local core passed 271 tests; 63 phone-browser checks passed locally and the nine `legacy-recording.spec.ts` checks could not launch in the review sandbox. Restore, encryption and server-built export for large archives remain. See `IMPLEMENTATION/PORTABLE_ARCHIVE_EXPORT_2026-11-15.md`.
+
+## Timeline — merged; device and human acceptance pending
+
+E06a gives the owner a timeline ordered by the year the storyteller named, showing their own words and keeping approximate, year-less and unknown dates as such; nothing is inferred or placed on a date they did not give. No migration. PR #49 merged as `344a96f` after CI 43726079674 passed. Opt-in resurfacing is not built and needs an owner decision on channel and cadence. See `IMPLEMENTATION/STORYTELLER_TIMELINE_2026-11-15.md`.
 
 ## Authorized search — merged; device and human acceptance pending
 

@@ -56,7 +56,8 @@ describe("Living Memory execution handoff", () => {
     expect(statusById.get("our-living-legacy")).toBe("implemented_cloud_proven_human_acceptance_pending");
     expect(statusById.get("family-archive")).toBe("verification_pending");
     expect(statusById.get("family-contributions")).toBe("verification_pending");
-    expect(statusById.get("retrieval-timeline")).toBe("active");
+    expect(statusById.get("retrieval-timeline")).toBe("verification_pending");
+    expect(statusById.get("legacy-infrastructure")).toBe("active");
     const cloud=queue.tasks.find(task=>task.id==="our-living-legacy")?.implementation_packets?.find(packet=>packet.packet==="D03-cloud-archive-proof");
     expect(cloud).toMatchObject({status:"real_cloud_archive_verified",live_run:43628170649,receipt:"docs/IMPLEMENTATION/REALTIMEKIT_CLOUD_ARCHIVE_PROOF_2026-11-14.md"});
   });
