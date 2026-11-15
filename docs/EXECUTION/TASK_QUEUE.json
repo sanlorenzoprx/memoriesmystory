@@ -2,7 +2,7 @@
   "schema_version": "memoriesmystory_expanded_release_queue_v4",
   "project": "memoriesmystory",
   "campaign": "expanded-first-release",
-  "active_task_id": "family-contributions",
+  "active_task_id": "retrieval-timeline",
   "tasks": [
     {
       "id": "packet-1",
@@ -380,13 +380,13 @@
     },
     {
       "id": "family-contributions",
-      "status": "active",
+      "status": "verification_pending",
       "depends_on": [
         "family-archive"
       ],
       "title": "Separately attributed family recollections and contributions",
       "release_required": true,
-      "note": "E04a text (PR44), E04b voice (PR45) and E04c photographs (PR46) merged. E04d speaker-written words implemented and locally proven, CI pending. Machine-drafted contributor transcripts need an approved consent wording; hosted identity, policy and device/human acceptance remain required.",
+      "note": "E04a text (PR44), E04b voice (PR45), E04c photographs (PR46) and E04d speaker-written words (PR47) merged. Machine-drafted contributor transcripts need an approved consent wording; hosted identity, contributor-rights policy and device/human acceptance remain required.",
       "implementation_packets": [
         {
           "packet": "E04a",
@@ -438,7 +438,7 @@
         {
           "packet": "E04d",
           "branch": "claude/wonderful-einstein-lhk453",
-          "status": "implemented_local_proven_ci_pending",
+          "status": "merged_local_and_ci_proven_human_acceptance_pending",
           "note": "Speaker-written, append-only words for a voice recollection with owner pinning; no machine transcript of contributor voices.",
           "receipt": "docs/IMPLEMENTATION/SPEAKER_WRITTEN_WORDS_2026-11-15.md",
           "local_verification": {
@@ -446,19 +446,38 @@
             "phone_chromium_tests_passed_locally": 55,
             "phone_chromium_tests_not_run_locally": 9,
             "typecheck_lint_schema_build_dry_run": "passed"
-          }
+          },
+          "pr": 47,
+          "merge_sha": "3106d9d58c7d78d514f3ec660f3adac9b2dd42f4",
+          "ci_run": 43700841112
         }
       ]
     },
     {
       "id": "retrieval-timeline",
-      "status": "pending",
+      "status": "active",
       "depends_on": [
         "family-archive",
         "family-contributions"
       ],
       "title": "First release: privacy-scoped metadata search and honest approximate/unknown timeline",
-      "release_required": true
+      "release_required": true,
+      "note": "E05a authorized literal search implemented and locally proven, CI pending. Draft/recent discovery, timeline with approximate/unknown dates and opt-in resurfacing (E06) remain required.",
+      "implementation_packets": [
+        {
+          "packet": "E05a",
+          "branch": "claude/wonderful-einstein-lhk453",
+          "status": "implemented_local_proven_ci_pending",
+          "note": "Permission-scoped literal search with source attribution; no schema change, model or vector store.",
+          "receipt": "docs/IMPLEMENTATION/AUTHORIZED_FAMILY_SEARCH_2026-11-15.md",
+          "local_verification": {
+            "unit_integration_tests": 260,
+            "phone_chromium_tests_passed_locally": 59,
+            "phone_chromium_tests_not_run_locally": 9,
+            "typecheck_lint_schema_build_dry_run": "passed"
+          }
+        }
+      ]
     },
     {
       "id": "derivative-storytelling",

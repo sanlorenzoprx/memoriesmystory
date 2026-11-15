@@ -1,4 +1,5 @@
 import { FamilyContributionsPanel } from './FamilyContributionsPanel';
+import { FamilySearchPanel } from './FamilySearchPanel';
 import { useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router";
 import type {
@@ -223,6 +224,7 @@ export function FamilyAccessExperience() {
       {selected && (
         <section aria-label={t("Shared family memories")}>
           <h2>{t("Shared family memories")}</h2>
+          <FamilySearchPanel grantId={selected.id} />
           {!memories.length && (
             <p>
               {t(

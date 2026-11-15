@@ -2225,3 +2225,10 @@ h1 {
   width: 100%;
 }
 
+/* A person's own words are the content; keep them at full reading size. */
+.memory-review-section .human-recollection-text {
+  font-size: 1rem;
+  color: inherit;
+  margin-top: 0.15rem;
+}
+
