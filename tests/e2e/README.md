@@ -22,3 +22,5 @@ The navigation suite (`worker-navigation.spec.ts`) uses real browser navigations
 The family voice suite (`family-voice-contributions.spec.ts`) uses a synthetic oscillator microphone and stubbed contribution routes in English and Spanish. It verifies record, listen, a failed send that keeps the recording without a saved claim, a same-key retry with identical bytes, and that a spoken original offers no revise control. Real microphones, real storage and real voices remain device and human evidence.
 
 The family photograph suite (`family-photo-contributions.spec.ts`) chooses the synthetic fixture image with stubbed contribution routes in English and Spanish. It verifies that the bytes sent equal the chosen file's SHA-256 (no resize or re-encode), that a failed send keeps the photograph without a saved claim, and that the retry reuses the same key.
+
+The written-words suite (`family-written-words.spec.ts`) uses stubbed routes with separate speaker and owner contexts in English and Spanish. It verifies that a failed save keeps the typed words without a saved claim, that the retry reuses the same key, and that the owner can include but not edit the speaker's words.

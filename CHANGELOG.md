@@ -1,5 +1,11 @@
 # Foundation Package Changelog
 
+## Speaker's written words for a voice recollection — 2026-11-15
+
+- The person who recorded a voice recollection can write and revise the words they said. Every version is kept and only the speaker can write them. Migration 0020 adds the append-only table, the owner's pinned version and guards.
+- Invited family sees only the version the owner includes, beside an included voice; excluding or withdrawing the voice clears it. The recording never changes.
+- No machine transcript of a contributor's voice is created; that requires an approved consent wording. Device and human acceptance remain pending; no deployment is claimed.
+
 ## Supplementary family photographs — 2026-11-15
 
 - Added a relative's own photograph (for example the back of a print) as an immutable, separately attributed contribution reviewed by the owner before invited family sees it. It never replaces the Living Memory's original photograph. Migration 0019 adds the photo-source table and guards and recreates the read-only source view.

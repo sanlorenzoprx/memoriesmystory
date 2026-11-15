@@ -20,4 +20,13 @@ export type FamilyContribution = {
   voice?: { durationMs: number; contentType: string } | null;
   /** Present only for a supplementary photograph added by a relative. */
   photo?: { contentType: string } | null;
+  /**
+   * The speaker's own typed words for a voice recollection (never a machine
+   * transcript). `latest` is private to the speaker and owner; `included` is the
+   * version the owner chose for invited family.
+   */
+  writtenWords?: {
+    latest: { id: string; text: string; createdAt: string } | null;
+    included: { id: string; text: string; createdAt: string } | null;
+  } | null;
 };

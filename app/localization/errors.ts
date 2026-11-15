@@ -16,6 +16,7 @@ const messages: Readonly<Record<string, string>> = {
  "family_contribution_photo_size":"That photograph is too large to add here. Choose a smaller photograph.",
  "family_contribution_photo_unconfirmed":"Your photograph could not be confirmed as saved. It is still here; please try again.",
  "family_contribution_photo_fixed":"An added photograph stays exactly as provided. To replace it, withdraw it and add another.",
+ "family_contribution_words_voice_only":"Written words can be added only to your own voice recollection.",
 
   "family_access_invalid":"Check the family invitation details and try again.",
   "family_access_not_found":"This family invitation has expired or is not available with your access.",

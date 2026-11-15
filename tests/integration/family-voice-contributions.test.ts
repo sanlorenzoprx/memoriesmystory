@@ -456,3 +456,175 @@ describe("independently attributed supplementary family photographs", () => {
     expect(s.voiceKeys()).toEqual([]);
   });
 });
+
+describe("the speaker's own written words for a voice recollection", () => {
+  type Words = { id: string; text: string } | null;
+  type WithWords = FamilyContribution & {
+    writtenWords: { latest: Words; included: Words } | null;
+  };
+  async function started() {
+    const s = await setup(),
+      { id } = (await (await s.record("contributor_a")).json()) as { id: string };
+    const item = async (actor = "owner") =>
+      ((await s.list(actor)) as WithWords[]).find((c) => c.id === id);
+    const write = (actor: string, version: number, text: string, extra = {}) =>
+      s.call(actor, `/${id}/transcript`, "POST", {
+        version,
+        text,
+        agree: true,
+        agreementVersion: agreement,
+        ...extra,
+      });
+    return { s, id, item, write };
+  }
+
+  it("only the speaker writes them; every version is kept; family sees only the owner-pinned version beside an included voice", async () => {
+    const { s, id, item, write } = await started();
+    expect((await write("owner", 1, "Owner's words for her voice")).status).toBe(403);
+    expect((await write("contributor_b", 1, "Someone else's words")).status).toBe(403);
+    expect((await write("contributor_a", 1, "First I said it was May.", { agree: false })).status).toBe(400);
+    expect((await write("contributor_a", 1, "First I said it was May.")).status).toBe(200);
+    expect((await write("contributor_a", 1, "Stale write")).status).toBe(409);
+
+    const first = (await item())!;
+    expect(first.writtenWords).toMatchObject({
+      latest: { text: "First I said it was May." },
+      included: null,
+    });
+    // Words cannot enter family view before the voice itself is included.
+    expect(
+      (
+        await s.call("owner", `/${id}/transcript-assembly`, "POST", {
+          version: first.version,
+          include: true,
+          transcriptId: first.writtenWords!.latest!.id,
+        })
+      ).status,
+    ).toBe(409);
+    await s.call("owner", `/${id}/assembly`, "POST", {
+      version: first.version,
+      include: true,
+      revisionId: first.revision.id,
+    });
+    expect((await item("viewer_family"))!.writtenWords).toEqual({
+      latest: null,
+      included: null,
+    });
+    const included = (await item())!;
+    expect(
+      (
+        await s.call("contributor_a", `/${id}/transcript-assembly`, "POST", {
+          version: included.version,
+          include: true,
+          transcriptId: first.writtenWords!.latest!.id,
+        })
+      ).status,
+    ).toBe(403);
+    expect(
+      (
+        await s.call("owner", `/${id}/transcript-assembly`, "POST", {
+          version: included.version,
+          include: true,
+          transcriptId: first.writtenWords!.latest!.id,
+        })
+      ).status,
+    ).toBe(200);
+    expect((await item("viewer_family"))!.writtenWords!.included!.text).toBe(
+      "First I said it was May.",
+    );
+
+    // A later version stays private until the owner reviews it.
+    const pinned = (await item())!;
+    expect((await write("contributor_a", pinned.version, "It may have been June.")).status).toBe(200);
+    expect((await item("viewer_family"))!.writtenWords!.included!.text).toBe(
+      "First I said it was May.",
+    );
+    expect((await item("contributor_a"))!.writtenWords).toMatchObject({
+      latest: { text: "It may have been June." },
+      included: { text: "First I said it was May." },
+    });
+    const history = await s.call("contributor_a", `/${id}/transcript`);
+    expect(
+      ((await history.json()) as { transcripts: { text: string }[] }).transcripts.map((t) => t.text),
+    ).toEqual(["First I said it was May.", "It may have been June."]);
+    expect((await s.call("viewer_family", `/${id}/transcript`)).status).toBe(403);
+    expect((await s.call("contributor_b", `/${id}/transcript`)).status).toBe(403);
+    expect(() =>
+      s.db.database.exec("UPDATE family_contribution_voice_transcripts SET written_text='Changed'"),
+    ).toThrow(/family_contribution_source_immutable/);
+    // The recording itself is untouched by any written words.
+    expect(s.voiceKeys()).toHaveLength(1);
+  });
+
+  it("excluding or withdrawing the voice removes its written words from family view until a fresh owner choice", async () => {
+    const { s, id, item, write } = await started();
+    await write("contributor_a", 1, "What I said that day.");
+    let now = (await item())!;
+    await s.call("owner", `/${id}/assembly`, "POST", { version: now.version, include: true, revisionId: now.revision.id });
+    now = (await item())!;
+    await s.call("owner", `/${id}/transcript-assembly`, "POST", {
+      version: now.version,
+      include: true,
+      transcriptId: now.writtenWords!.latest!.id,
+    });
+    expect((await item("viewer_family"))!.writtenWords!.included).not.toBeNull();
+    now = (await item())!;
+    await s.call("owner", `/${id}/assembly`, "POST", { version: now.version, include: false });
+    expect(await item("viewer_family")).toBeUndefined();
+    now = (await item())!;
+    await s.call("owner", `/${id}/assembly`, "POST", { version: now.version, include: true, revisionId: now.revision.id });
+    expect((await item("viewer_family"))!.writtenWords).toEqual({ latest: null, included: null });
+    expect((await item())!.writtenWords!.latest!.text).toBe("What I said that day.");
+
+    now = (await item())!;
+    const replayKey = { "X-Idempotency-Key": "written_words_retry_0001" };
+    const body = { version: now.version, text: "Said again.", agree: true, agreementVersion: agreement };
+    expect((await s.call("contributor_a", `/${id}/transcript`, "POST", body, replayKey)).status).toBe(200);
+    const replay = await s.call("contributor_a", `/${id}/transcript`, "POST", body, replayKey);
+    expect(((await replay.json()) as { replayed?: boolean }).replayed).toBe(true);
+    expect(
+      s.db.database.prepare("SELECT count(*) AS n FROM family_contribution_voice_transcripts").get(),
+    ).toEqual({ n: 2 });
+    now = (await item())!;
+    await s.call("contributor_a", `/${id}/withdraw`, "POST", { version: now.version });
+    expect((await write("contributor_a", now.version + 1, "After withdrawal")).status).toBe(409);
+  });
+
+  it("written and photographed contributions cannot carry speaker words, and they are deleted with the memory", async () => {
+    const s = await setup(),
+      photo = (await (await s.addPhoto("contributor_a")).json()) as { id: string },
+      voice = (await (await s.record("contributor_a")).json()) as { id: string };
+    expect(
+      (
+        await s.call("contributor_a", `/${photo.id}/transcript`, "POST", {
+          version: 1,
+          text: "Words for a photograph",
+          agree: true,
+          agreementVersion: agreement,
+        })
+      ).status,
+    ).toBe(409);
+    expect(
+      (
+        await s.call("contributor_a", `/${voice.id}/transcript`, "POST", {
+          version: 1,
+          text: "Words for my voice",
+          agree: true,
+          agreementVersion: agreement,
+        })
+      ).status,
+    ).toBe(200);
+    const deletion = await handleDeletionRoute(
+      new Request(`https://example.test/resources/drafts/${s.memory}`, {
+        method: "DELETE",
+        headers: { Cookie: s.owner, "X-Memories-Request": "deletion-v1" },
+      }),
+      s.env,
+    );
+    expect(deletion!.status).toBe(200);
+    expect(
+      s.db.database.prepare("SELECT count(*) AS n FROM family_contribution_voice_transcripts").get(),
+    ).toEqual({ n: 0 });
+  });
+});
+

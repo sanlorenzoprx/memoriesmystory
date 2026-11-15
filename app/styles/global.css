@@ -2200,13 +2200,15 @@ h1 {
 .family-archive-panel li { margin-block: .75rem; }
 
 /* Family recollection form: one field per line so labels stay readable at large text sizes. */
-.memory-review-section form label {
+.memory-review-section form label,
+.memory-review-section li details label {
   display: block;
   margin-top: 0.75rem;
 }
 
 .memory-review-section form input:not([type="checkbox"]),
-.memory-review-section form textarea {
+.memory-review-section form textarea,
+.memory-review-section li details textarea {
   display: block;
   width: 100%;
   max-width: 100%;
@@ -2214,7 +2216,8 @@ h1 {
   margin-top: 0.25rem;
 }
 
-.memory-review-section form textarea {
+.memory-review-section form textarea,
+.memory-review-section li details textarea {
   min-height: 6rem;
 }
 
