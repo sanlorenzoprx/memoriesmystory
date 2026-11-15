@@ -26,3 +26,5 @@ The family photograph suite (`family-photo-contributions.spec.ts`) chooses the s
 The written-words suite (`family-written-words.spec.ts`) uses stubbed routes with separate speaker and owner contexts in English and Spanish. It verifies that a failed save keeps the typed words without a saved claim, that the retry reuses the same key, and that the owner can include but not edit the speaker's words.
 
 The search suite (`family-search.spec.ts`) uses stubbed routes in English and Spanish for the owner's archive page and an invitation view. It verifies a recoverable failed search, the normalized query, named sources with "approximately", the no-results state, and that a member search is bound to its invitation and offers no links into a private archive. Authorization and matching are proven against the Worker in the integration suite.
+
+The timeline suite (`family-timeline.spec.ts`) uses stubbed routes in English and Spanish. It verifies a recoverable failure, ascending years taken from the storyteller's words, approximate wording, and separate sections for memories remembered without a year and with no known date.

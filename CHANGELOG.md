@@ -1,5 +1,10 @@
 # Foundation Package Changelog
 
+## Timeline from the storyteller's own words — 2026-11-15
+
+- Added an owner timeline ordered by the year the storyteller named, showing their words unchanged. Approximate, year-less and unknown dates are kept as such; nothing is inferred or placed on a date they did not give.
+- No migration or model call. Opt-in resurfacing is not built and needs an owner decision on channel and cadence; no deployment is claimed.
+
 ## Authorized family archive search — 2026-11-15
 
 - Added literal, accent-insensitive search over human-entered words: memory names, Chapters, named people, the storyteller's current context, recollections and speaker-written words. Every match names its source and keeps "approximately".
