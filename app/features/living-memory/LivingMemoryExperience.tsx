@@ -1,3 +1,4 @@
+import { FamilyContributionsPanel } from '../family-archive/FamilyContributionsPanel';
 import { t, notice, useLocale } from "../../localization/language";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
@@ -508,6 +509,7 @@ export function LivingMemoryExperience() {
           </div>
           <StoryReview draftId={draftId} snapshot={snapshot} onUpdated={refreshReview} onEditingChange={setReviewEditing} />
           <FamilyLinkManager key={snapshot.livingMemoryId} livingMemoryId={snapshot.livingMemoryId} onRevoked={() => setSharePath(null)} />
+          <FamilyContributionsPanel key={snapshot.livingMemoryId} memoryId={snapshot.livingMemoryId}/>
           <DeleteMemoryAction deleting={deleting} onDelete={() => void deleteCurrentMemory()} />
         </section>
       </MemoryPage>

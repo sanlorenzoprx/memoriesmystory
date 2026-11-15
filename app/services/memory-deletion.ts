@@ -1,3 +1,4 @@
+import { removeLocalContributionDrafts } from "./family-contributions";
 import { removeLegacyMemoryRecordings } from "./legacy-recording-store";
 import { apiMessageKey } from "../localization/errors";
 type DeleteMemoryOptions = {
@@ -44,9 +45,10 @@ export async function deleteMemory(
   }
   try {
     await removeLegacyMemoryRecordings(draftId);
+    removeLocalContributionDrafts(draftId);
   } catch {
     throw new MemoryDeletionError(
-      "The archive record was deleted, but device recording cleanup needs another try.",
+      "The archive record was deleted, but device draft cleanup needs another try.",
       "local_recording_cleanup",
       503,
     );

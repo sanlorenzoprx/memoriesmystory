@@ -1,6 +1,7 @@
 const mebibyte = 1024 * 1024;
 
 export const phase1Config = {
+  familyContributions: {agreementVersion:"family-contribution-review-v1",maximumPerMemory:100,textCharacters:8000,attributionCharacters:120,maximumRequestBytes:32768,pageSize:10},
   familyAccess: {maximumGrants:200,pageSize:50,memoriesPageSize:10,invitationHours:72,maximumRequestBytes:8192},
   familyPeople: {maximumRecords:1000,maximumMemoryReferences:100,labelCharacters:160,notesCharacters:2000,dateCharacters:120,pageSize:50,historyPageSize:50,maximumRequestBytes:65536},
   familyArchive: {maximumArchives:20,maximumChapters:100,maximumMemoriesPerChapter:500,titleCharacters:160,descriptionCharacters:2000,listingPageSize:10,maximumRequestBytes:65536},

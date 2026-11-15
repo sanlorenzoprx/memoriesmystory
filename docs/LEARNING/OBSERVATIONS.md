@@ -232,3 +232,13 @@ Observations preserve evidence separately from proposed solutions. Follow `READM
 - Confidence and contrary evidence: native/fixture/browser evidence; hosted Clerk and physical/human proof remain open.
 - Affected experience or invariant: I-08–I-10, I-19, I-21, I-25.
 - Related proposal: implements approved V2.1 E03; no Foundation amendment.
+
+### L-2026-11-15-002 — Owner assembly selects a source; it does not rewrite it
+
+- Status: corroborated.
+- Evidence source: E04a route/native and bilingual browser tests; `IMPLEMENTATION/ATTRIBUTED_FAMILY_TEXT_2026-11-15.md`.
+- Observed fact: independent dates remain separately attributed, author revisions preserve original text/lineage, and an included revision stays pinned until the owner reviews another. Revocation at batch time creates no source/receipt; later withdrawal hides the assembly while preserving private source history. Device drafts need explicit whole-memory cleanup in addition to server deletion.
+- Interpretation: authorship, source revision, current permission and family inclusion are distinct state transitions. A mutable assembled view must never become permission to rewrite another person's source.
+- Confidence and contrary evidence: synthetic local/native/browser evidence; hosted identity, voice/photo contribution and operative contributor policy remain open.
+- Affected experience or invariant: I-05–I-10, I-19, I-25.
+- Related proposal: implements approved V2.1 E04; no Foundation amendment.

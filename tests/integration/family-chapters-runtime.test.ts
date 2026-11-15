@@ -42,11 +42,12 @@ function modules() {
   add(resolve("worker/archive-routes.ts"));
   add(resolve("worker/people-routes.ts"));
   add(resolve("worker/family-access-routes.ts"));
+  add(resolve("worker/family-contributions.ts"));
   result.unshift({
     type: "ESModule",
     path: "family-runtime-test.js",
     contents:
-      "import {handleFamilyAccessRoute} from './worker/family-access-routes.js'; import {handleArchiveRoute} from './worker/archive-routes.js'; import {handlePeopleRoute} from './worker/people-routes.js'; export default {async fetch(request,env){return await handleFamilyAccessRoute(request,env,async(_env,user)=>user==='family_native_member')??await handlePeopleRoute(request,env)??await handleArchiveRoute(request,env);}};",
+      "import {handleFamilyContributionRoute} from './worker/family-contributions.js'; import {handleFamilyAccessRoute} from './worker/family-access-routes.js'; import {handleArchiveRoute} from './worker/archive-routes.js'; import {handlePeopleRoute} from './worker/people-routes.js'; export default {async fetch(request,env){return await handleFamilyContributionRoute(request,env)??await handleFamilyAccessRoute(request,env,async(_env,user)=>user==='family_native_member')??await handlePeopleRoute(request,env)??await handleArchiveRoute(request,env);}};",
   });
   return result;
 }
@@ -259,7 +260,7 @@ describe("private Chapter metadata on native workerd/D1/R2", () => {
             scopeKind: "memory",
             scopeId: fixture.memory,
             targetEmail: "native@example.test",
-            role: "viewer",
+            role: "contributor",
           }),
         },
       );
@@ -311,6 +312,84 @@ describe("private Chapter metadata on native workerd/D1/R2", () => {
       expect(new Uint8Array(await partial.arrayBuffer())).toEqual(
         originalBytes.slice(0, 4),
       );
+      const contributionBase = `https://example.test/resources/family-contributions/${fixture.memory}`;
+      const submitted = await runtime!.dispatchFetch(
+        `${contributionBase}?grantId=${invite.id}`,
+        {
+          method: "POST",
+          headers: {
+            ...accessHeaders,
+            Cookie: member,
+            "X-Idempotency-Key": "native_contribution_submit",
+          },
+          body: JSON.stringify({
+            attribution: "Synthetic family member",
+            text: "I remember around 1950",
+            agree: true,
+            agreementVersion: "family-contribution-review-v1",
+          }),
+        },
+      );
+      expect(submitted.status).toBe(201);
+      const contribution = (await submitted.json()) as { id: string };
+      const own = (await (
+        await runtime!.dispatchFetch(
+          `${contributionBase}/${contribution.id}?grantId=${invite.id}`,
+          { headers: { Cookie: member } },
+        )
+      ).json()) as { contribution: { revision: { id: string } } };
+      expect(
+        (
+          await runtime!.dispatchFetch(
+            `${contributionBase}/${contribution.id}/assembly`,
+            {
+              method: "POST",
+              headers: {
+                ...accessHeaders,
+                "X-Idempotency-Key": "native_contribution_include",
+              },
+              body: JSON.stringify({
+                version: 1,
+                include: true,
+                revisionId: own.contribution.revision.id,
+              }),
+            },
+          )
+        ).status,
+      ).toBe(200);
+      expect(
+        (
+          await runtime!.dispatchFetch(
+            `${contributionBase}/${contribution.id}/revise?grantId=${invite.id}`,
+            {
+              method: "POST",
+              headers: {
+                ...accessHeaders,
+                Cookie: member,
+                "X-Idempotency-Key": "native_contribution_revision",
+              },
+              body: JSON.stringify({
+                version: 2,
+                attribution: "Synthetic family member",
+                text: "I remember around 1951",
+                agree: true,
+                agreementVersion: "family-contribution-review-v1",
+              }),
+            },
+          )
+        ).status,
+      ).toBe(200);
+      const lineage = await db
+        .prepare(
+          "SELECT human_text,previous_revision_id FROM family_contribution_revisions WHERE contribution_id=?",
+        )
+        .bind(contribution.id)
+        .all<{ human_text: string; previous_revision_id: string | null }>();
+      expect(lineage.results).toHaveLength(2);
+      expect(
+        lineage.results.find((v) => v.human_text === "I remember around 1951")
+          ?.previous_revision_id,
+      ).toBe(own.contribution.revision.id);
       expect(
         (
           await runtime!.dispatchFetch(

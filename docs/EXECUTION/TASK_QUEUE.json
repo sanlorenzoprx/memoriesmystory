@@ -2,7 +2,7 @@
   "schema_version": "memoriesmystory_expanded_release_queue_v4",
   "project": "memoriesmystory",
   "campaign": "expanded-first-release",
-  "active_task_id": "family-archive",
+  "active_task_id": "family-contributions",
   "tasks": [
     {
       "id": "packet-1",
@@ -319,13 +319,13 @@
     },
     {
       "id": "family-archive",
-      "status": "active",
+      "status": "verification_pending",
       "depends_on": [
         "our-living-legacy"
       ],
       "title": "People, relationships, Chapters, and Family Archive",
       "release_required": true,
-      "note": "E01 owner-private Chapters implemented and locally verified (211 tests,49 phone checks); CI/cloud Chapter verification pending. E02 people and E03 family authorization remain required. Deferred human/device gates remain open.",
+      "note": "E01/E02/E03 merged through PR43; Chapters have native and real-cloud proof, people/invitations have CI/native/browser evidence. Hosted Clerk/full-app and owner-deferred physical/human acceptance remain open; implementation proceeds to E04 without marking those gates complete.",
       "implementation_packets": [
         {
           "packet": "E01",
@@ -363,25 +363,44 @@
         {
           "packet": "E03",
           "branch": "feat/scoped-family-invitations",
-          "status": "implemented_local_proven_ci_pending",
+          "status": "merged_local_and_ci_proven_hosted_identity_pending",
           "note": "Verified-recipient expiring invitations, viewer/contributor roles, explicit source scope and revocable private media. No guest-call account requirement.",
           "receipt": "docs/IMPLEMENTATION/SCOPED_FAMILY_INVITATIONS_2026-11-15.md",
           "local_verification": {
             "unit_integration_tests": 226,
             "phone_chromium_tests": 53,
             "typecheck_lint_schema_build_dry_run": "passed"
-          }
+          },
+          "pr": 43,
+          "head_sha": "24d9873fbfa5a9e432e10bcd3bc4d5d3514e32d2",
+          "merge_sha": "9d184044153ab65d504053f81809acb63f2b0ca6",
+          "ci_run": 43689344069
         }
       ]
     },
     {
       "id": "family-contributions",
-      "status": "pending",
+      "status": "active",
       "depends_on": [
         "family-archive"
       ],
       "title": "Separately attributed family recollections and contributions",
-      "release_required": true
+      "release_required": true,
+      "note": "E04a source-attributed text/revisions and owner assembly in progress. E04 voice/photo originals, each author transcript review and final policy/device acceptance remain required.",
+      "implementation_packets": [
+        {
+          "packet": "E04a",
+          "branch": "feat/attributed-family-contributions",
+          "status": "implemented_local_proven_ci_pending",
+          "note": "Human text, own revisions, source lineage, explicit review inclusion, withdrawal and current-source permission; not whole E04 completion.",
+          "receipt": "docs/IMPLEMENTATION/ATTRIBUTED_FAMILY_TEXT_2026-11-15.md",
+          "local_verification": {
+            "unit_integration_tests": 238,
+            "phone_chromium_tests": 55,
+            "typecheck_lint_schema_build_dry_run": "passed"
+          }
+        }
+      ]
     },
     {
       "id": "retrieval-timeline",
