@@ -16,6 +16,10 @@ const agreement = "family-contribution-review-v1";
 function syntheticVoice(seed: number) {
   return new Uint8Array([0x1a, 0x45, 0xdf, 0xa3, 1, 2, 3, 4, 5, 6, 7, seed]);
 }
+// Synthetic JPEG header bytes; no real family photograph is used in tests.
+function syntheticPhoto(seed: number) {
+  return new Uint8Array([0xff, 0xd8, 0xff, 0xe0, 0, 16, 74, 70, 73, 70, 0, seed]);
+}
 const sha = (bytes: Uint8Array) =>
   createHash("sha256").update(bytes).digest("hex");
 
@@ -103,6 +107,30 @@ async function setup() {
       s.env,
     ))!;
   }
+  async function addPhoto(
+    actor: string,
+    bytes = syntheticPhoto(1),
+    overrides: Record<string, string> = {},
+  ) {
+    return (await handleFamilyContributionRoute(
+      new Request(url(actor, "/photo"), {
+        method: "POST",
+        headers: {
+          Cookie: cookies[actor] ?? "",
+          "Content-Type": "image/jpeg",
+          "X-Memories-Request": "family-v1",
+          "X-Idempotency-Key": `photo_test_key_${crypto.randomUUID()}`,
+          "X-Content-SHA256": sha(bytes),
+          "X-Contribution-Attribution": encodeURIComponent(`Tío ${actor}`),
+          "X-Contribution-Agree": "true",
+          "X-Agreement-Version": agreement,
+          ...overrides,
+        },
+        body: bytes,
+      }),
+      s.env,
+    ))!;
+  }
   async function list(actor = "owner") {
     const response = await call(actor);
     expect(response.status).toBe(200);
@@ -113,7 +141,7 @@ async function setup() {
     [...s.bucket.objects.keys()].filter((key) =>
       key.startsWith("contributions/"),
     );
-  return { ...s, grants, call, record, list, voiceKeys };
+  return { ...s, grants, call, record, addPhoto, list, voiceKeys };
 }
 
 describe("independently attributed family voice recollections", () => {
@@ -321,5 +349,110 @@ describe("independently attributed family voice recollections", () => {
         .prepare("SELECT count(*) AS n FROM family_contribution_voice_sources")
         .get(),
     ).toEqual({ n: 0 });
+  });
+});
+
+describe("independently attributed supplementary family photographs", () => {
+  it("preserves the exact photograph privately until the owner includes it, without touching the memory's own original", async () => {
+    const s = await setup(),
+      before = JSON.stringify(
+        [...s.bucket.objects].filter(([key]) => !key.startsWith("contributions/")),
+      ),
+      bytes = syntheticPhoto(4),
+      created = await s.addPhoto("contributor_a", bytes);
+    expect(created.status).toBe(201);
+    const { id } = (await created.json()) as { id: string };
+    expect([...s.bucket.objects.get(s.voiceKeys()[0])!.body]).toEqual([...bytes]);
+    const [pending] = await s.list();
+    expect(pending.revision).toMatchObject({
+      sourceKind: "human_photo",
+      attribution: "Tío contributor_a",
+      text: "",
+    });
+    expect(pending.photo).toEqual({ contentType: "image/jpeg" });
+    expect(pending.voice).toBeNull();
+    expect(await s.list("viewer_family")).toEqual([]);
+    expect((await s.call("viewer_family", `/${id}/photo`)).status).toBe(403);
+    // A photograph is not reachable through the voice address, or the reverse.
+    expect((await s.call("contributor_a", `/${id}/voice`)).status).toBe(404);
+    const own = await s.call("contributor_a", `/${id}/photo`);
+    expect(own.status).toBe(200);
+    expect(own.headers.get("Content-Type")).toBe("image/jpeg");
+    expect(own.headers.get("X-Content-SHA256")).toBe(sha(bytes));
+    await s.call("owner", `/${id}/assembly`, "POST", {
+      version: pending.version,
+      include: true,
+      revisionId: pending.revision.id,
+    });
+    const seen = await s.call("viewer_family", `/${id}/photo`);
+    expect(seen.status).toBe(200);
+    expect([...new Uint8Array(await seen.arrayBuffer())]).toEqual([...bytes]);
+    expect(
+      JSON.stringify(
+        [...s.bucket.objects].filter(([key]) => !key.startsWith("contributions/")),
+      ),
+    ).toBe(before);
+  });
+
+  it("stores nothing for viewers, missing consent, wrong checksums, non-images or forged requests, and replays retries", async () => {
+    const s = await setup(),
+      bytes = syntheticPhoto(2);
+    const refused: [Response, number][] = [
+      [await s.addPhoto("viewer_family"), 403],
+      [await s.addPhoto("contributor_a", bytes, { "X-Contribution-Agree": "false" }), 400],
+      [await s.addPhoto("contributor_a", bytes, { "X-Content-SHA256": "0".repeat(64) }), 400],
+      [await s.addPhoto("contributor_a", bytes, { "Content-Type": "audio/webm" }), 415],
+      [await s.addPhoto("contributor_a", syntheticVoice(1), { "X-Content-SHA256": sha(syntheticVoice(1)) }), 415],
+      [await s.addPhoto("contributor_a", bytes, { "X-Memories-Request": "other" }), 403],
+      [await s.addPhoto("contributor_a", bytes, { Cookie: "" }), 401],
+    ];
+    for (const [response, status] of refused)
+      expect(response.status).toBe(status);
+    expect(s.voiceKeys()).toEqual([]);
+    const key = "photo_retry_key_0001";
+    expect((await s.addPhoto("contributor_a", bytes, { "X-Idempotency-Key": key })).status).toBe(201);
+    expect((await s.addPhoto("contributor_a", bytes, { "X-Idempotency-Key": key })).status).toBe(200);
+    expect((await s.addPhoto("contributor_a", syntheticPhoto(3), { "X-Idempotency-Key": key })).status).toBe(409);
+    expect(s.voiceKeys()).toHaveLength(1);
+  });
+
+  it("cannot be revised or rewritten, hides on revocation, and is removed with the memory", async () => {
+    const s = await setup(),
+      { id } = (await (await s.addPhoto("contributor_a")).json()) as { id: string },
+      [item] = await s.list();
+    expect(
+      (
+        await s.call("contributor_a", `/${id}/revise`, "POST", {
+          version: item.version,
+          attribution: "contributor_a",
+          text: "Typed over my photograph",
+          agree: true,
+          agreementVersion: agreement,
+        })
+      ).status,
+    ).toBe(409);
+    expect(() =>
+      s.db.database.exec("UPDATE family_contribution_photo_sources SET attribution='Changed'"),
+    ).toThrow(/family_contribution_source_immutable/);
+    await s.call("owner", `/${id}/assembly`, "POST", {
+      version: item.version,
+      include: true,
+      revisionId: item.revision.id,
+    });
+    expect((await s.call("viewer_family", `/${id}/photo`)).status).toBe(200);
+    s.db.database
+      .prepare("UPDATE family_access_grants SET state='revoked',version=version+1 WHERE id=?")
+      .run(s.grants.contributor_a);
+    expect((await s.call("viewer_family", `/${id}/photo`)).status).toBe(403);
+    expect((await s.call("owner", `/${id}/photo`)).status).toBe(200);
+    const deletion = await handleDeletionRoute(
+      new Request(`https://example.test/resources/drafts/${s.memory}`, {
+        method: "DELETE",
+        headers: { Cookie: s.owner, "X-Memories-Request": "deletion-v1" },
+      }),
+      s.env,
+    );
+    expect(deletion!.status).toBe(200);
+    expect(s.voiceKeys()).toEqual([]);
   });
 });

@@ -158,7 +158,12 @@ async function deleteMemory(
         "SELECT v.id, v.r2_key FROM family_contribution_voice_sources v JOIN family_contributions c ON c.id = v.contribution_id WHERE c.memory_story_id = ?"
       ).bind(story.id).all<AssetRow>()
     : { results: [] as AssetRow[] };
-  const allAssets = [...assets.results, ...voiceReplies.results,...recordings.results,...remoteSources.results, ...contributionVoices.results];
+  const contributionPhotos = story
+    ? await env.DB.prepare(
+        "SELECT v.id, v.r2_key FROM family_contribution_photo_sources v JOIN family_contributions c ON c.id = v.contribution_id WHERE c.memory_story_id = ?"
+      ).bind(story.id).all<AssetRow>()
+    : { results: [] as AssetRow[] };
+  const allAssets = [...assets.results, ...voiceReplies.results,...recordings.results,...remoteSources.results, ...contributionVoices.results, ...contributionPhotos.results];
   const revisions = story ? await env.DB.prepare(
     "SELECT id, parent_revision_id FROM transcript_revisions WHERE memory_story_id = ?"
   ).bind(story.id).all<{ id: string; parent_revision_id: string | null }>() : { results: [] };
@@ -187,7 +192,7 @@ async function deleteMemory(
     for (const asset of allAssets) {
       await env.MEDIA_BUCKET.delete(asset.r2_key);
     }
-    // Include unreferenced family-voice attempt objects for this memory.
+    // Include unreferenced family voice/photo attempt objects for this memory.
     if (story) {
       let cursor: string | undefined;
       do {

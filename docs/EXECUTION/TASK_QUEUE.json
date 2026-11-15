@@ -386,7 +386,7 @@
       ],
       "title": "Separately attributed family recollections and contributions",
       "release_required": true,
-      "note": "E04a text merged through PR44. E04b voice recollections implemented and locally proven, CI pending. Supplementary-photo contributions, each author transcript review and final policy/device acceptance remain required.",
+      "note": "E04a text (PR44) and E04b voice (PR45) merged. E04c supplementary photographs implemented and locally proven, CI pending. Each author's transcript review and final policy/device acceptance remain required.",
       "implementation_packets": [
         {
           "packet": "E04a",
@@ -406,12 +406,28 @@
         {
           "packet": "E04b",
           "branch": "claude/wonderful-einstein-lhk453",
-          "status": "implemented_local_proven_ci_pending",
+          "status": "merged_local_and_ci_proven_human_acceptance_pending",
           "note": "Immutable attributed voice original with read-back hash, owner inclusion, author withdrawal, scoped playback and deletion cleanup; not whole E04 completion.",
           "receipt": "docs/IMPLEMENTATION/ATTRIBUTED_FAMILY_VOICE_2026-11-15.md",
           "local_verification": {
             "unit_integration_tests": 245,
             "phone_chromium_tests_passed_locally": 51,
+            "phone_chromium_tests_not_run_locally": 9,
+            "typecheck_lint_schema_build_dry_run": "passed"
+          },
+          "pr": 45,
+          "merge_sha": "a9cc1c7ddbdc5065385fef2c28ddb7810a601ef2",
+          "ci_run": 43698985207
+        },
+        {
+          "packet": "E04c",
+          "branch": "claude/wonderful-einstein-lhk453",
+          "status": "implemented_local_proven_ci_pending",
+          "note": "Immutable attributed supplementary photograph through the shared original-upload path; never replaces the memory original; not whole E04 completion.",
+          "receipt": "docs/IMPLEMENTATION/ATTRIBUTED_FAMILY_PHOTO_2026-11-15.md",
+          "local_verification": {
+            "unit_integration_tests": 248,
+            "phone_chromium_tests_passed_locally": 53,
             "phone_chromium_tests_not_run_locally": 9,
             "typecheck_lint_schema_build_dry_run": "passed"
           }

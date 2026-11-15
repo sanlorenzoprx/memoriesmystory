@@ -1,5 +1,11 @@
 # Foundation Package Changelog
 
+## Supplementary family photographs — 2026-11-15
+
+- Added a relative's own photograph (for example the back of a print) as an immutable, separately attributed contribution reviewed by the owner before invited family sees it. It never replaces the Living Memory's original photograph. Migration 0019 adds the photo-source table and guards and recreates the read-only source view.
+- Voice and photograph originals now share one confirmed-upload and scoped-playback path. Whole-memory deletion removes both.
+- English and Spanish controls; the recollection form lays out one field per line. No captioning, OCR or identity matching. Transcript review, device and human acceptance remain pending; no deployment is claimed.
+
 ## Family voice recollections — 2026-11-15
 
 - Added a relative's own recorded voice as an immutable, separately attributed contribution with owner review before invited family can hear it. Migration 0018 adds the voice-source table, guards and a read-only view; migration 0017 is unchanged.

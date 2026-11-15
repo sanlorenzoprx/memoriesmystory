@@ -33,3 +33,10 @@ immutable `family_contribution_voice_sources` table, authorship/immutability and
 source-kind guards, and the read-only `family_contribution_sources` view that the
 contribution routes read. Tables from 0017 are not altered. The Worker reads the
 view, so do not deploy the matching Worker before this migration is applied.
+
+## 0019 — supplementary family photographs
+
+Apply after 0018 and before the matching Worker and client. It adds the immutable
+`family_contribution_photo_sources` table and its guards, and drops and recreates
+the read-only `family_contribution_sources` view to include photographs. No stored
+row is changed.

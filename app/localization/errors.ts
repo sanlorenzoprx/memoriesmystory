@@ -12,6 +12,10 @@ const messages: Readonly<Record<string, string>> = {
  "family_contribution_voice_length":"Keep a voice recollection to 30 seconds or less.",
  "family_contribution_voice_unconfirmed":"Your recording could not be confirmed as saved. It is still here; please try again.",
  "family_contribution_voice_fixed":"A voice recollection stays exactly as recorded. To say it differently, withdraw it and record a new one.",
+ "family_contribution_photo_format":"That photograph format is not supported. Choose a JPEG, PNG, WebP or HEIC photograph.",
+ "family_contribution_photo_size":"That photograph is too large to add here. Choose a smaller photograph.",
+ "family_contribution_photo_unconfirmed":"Your photograph could not be confirmed as saved. It is still here; please try again.",
+ "family_contribution_photo_fixed":"An added photograph stays exactly as provided. To replace it, withdraw it and add another.",
 
   "family_access_invalid":"Check the family invitation details and try again.",
   "family_access_not_found":"This family invitation has expired or is not available with your access.",

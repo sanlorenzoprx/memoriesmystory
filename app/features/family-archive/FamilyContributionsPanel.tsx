@@ -1,12 +1,15 @@
 import { legacyDeletionChannel } from "../../services/legacy-recording-store";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { FamilyContribution } from "../../domain/family-contribution";
 import {
   contributionRequest,
-  contributionVoiceUrl,
+  contributionMediaUrl,
+  readContributionPhoto,
   removeLocalContributionDrafts,
+  submitPhotoContribution,
   submitVoiceContribution,
   type ContributionIndex,
+  type LocalContributionPhoto,
 } from "../../services/family-contributions";
 import { ContributionVoiceRecorder } from "./ContributionVoiceRecorder";
 import type { LocalAudio } from "../capture/local-draft";
@@ -65,6 +68,8 @@ export function FamilyContributionsPanel({
     [saved, setSaved] = useState(false),
     [voice, setVoice] = useState<LocalAudio | null>(null),
     [voiceSaved, setVoiceSaved] = useState(false),
+    [photo, setPhoto] = useState<LocalContributionPhoto | null>(null),
+    [photoSaved, setPhotoSaved] = useState(false),
     [storageError, setStorageError] = useState(false),
     [deleted, setDeleted] = useState(false),
     [history, setHistory] = useState<{
@@ -73,7 +78,19 @@ export function FamilyContributionsPanel({
       nextCursor: string | null;
     } | null>(null);
   // One key per recording, reused on retry so a repeated send cannot store it twice.
-  const voiceKey = useRef<string | null>(null);
+  const voiceKey = useRef<string | null>(null),
+    photoKey = useRef<string | null>(null),
+    photoInput = useRef<HTMLInputElement | null>(null);
+  const photoPreview = useMemo(
+    () => (photo ? URL.createObjectURL(photo.blob) : null),
+    [photo],
+  );
+  useEffect(
+    () => () => {
+      if (photoPreview) URL.revokeObjectURL(photoPreview);
+    },
+    [photoPreview],
+  );
   const localKey = useRef<string | null>(null),
     mounted = useRef(true),
     deletion = useRef(false);
@@ -92,6 +109,7 @@ export function FamilyContributionsPanel({
       setDeleted(true);
       setDraft({ ...blank });
       setVoice(null);
+      setPhoto(null);
       setView(null);
       setHistory(null);
       try {
@@ -155,6 +173,7 @@ export function FamilyContributionsPanel({
     setError(null);
     setSaved(false);
     setVoiceSaved(false);
+    setPhotoSaved(false);
     try {
       await work();
     } catch (e) {
@@ -237,6 +256,37 @@ export function FamilyContributionsPanel({
     setDraft((previous) => ({ ...previous, agree: false, requestKey: null }));
     setVoiceSaved(true);
   }
+  async function submitPhoto() {
+    if (!photo) return;
+    const key =
+      photoKey.current ??
+      (photoKey.current = `contribution_photo_${crypto.randomUUID()}`);
+    const result = await submitPhotoContribution(memoryId, grantId, photo, {
+      attribution: draft.attribution,
+      agreementVersion: draft.agreementVersion,
+      key,
+    });
+    const canonical = await contributionRequest<{
+      contribution: FamilyContribution;
+    }>(memoryId, grantId, `/${result.id}`);
+    if (
+      !canonical.contribution?.own ||
+      canonical.contribution.revision?.sourceKind !== "human_photo" ||
+      canonical.contribution.revision.attribution !==
+        draft.attribution.trim() ||
+      canonical.contribution.authorState !== "submitted"
+    )
+      throw new Error(
+        "Your photograph could not be confirmed as saved. It is still here; please try again.",
+      );
+    await refresh();
+    if (deletion.current) return;
+    photoKey.current = null;
+    if (photoInput.current) photoInput.current.value = "";
+    setPhoto(null);
+    setDraft((previous) => ({ ...previous, agree: false, requestKey: null }));
+    setPhotoSaved(true);
+  }
   async function decide(contribution: FamilyContribution, include: boolean) {
     await contributionRequest(
       memoryId,
@@ -274,6 +324,13 @@ export function FamilyContributionsPanel({
         <p role="status">
           {t(
             "Your recollection is saved for review. It has not automatically been shared with family.",
+          )}
+        </p>
+      )}
+      {photoSaved && (
+        <p role="status">
+          {t(
+            "Your photograph is saved for review. It has not automatically been shared with family.",
           )}
         </p>
       )}
@@ -319,7 +376,29 @@ export function FamilyContributionsPanel({
                       aria-label={t("Recollection in {name}'s own voice", {
                         name: item.revision.attribution,
                       })}
-                      src={contributionVoiceUrl(memoryId, item.id, grantId)}
+                      src={contributionMediaUrl(
+                        "voice",
+                        memoryId,
+                        item.id,
+                        grantId,
+                      )}
+                    />
+                  </>
+                ) : item.revision.sourceKind === "human_photo" ? (
+                  <>
+                    <p>{t("Added photograph")}</p>
+                    <img
+                      loading="lazy"
+                      style={{ maxWidth: "100%", height: "auto" }}
+                      alt={t("Photograph added by {name}", {
+                        name: item.revision.attribution,
+                      })}
+                      src={contributionMediaUrl(
+                        "photo",
+                        memoryId,
+                        item.id,
+                        grantId,
+                      )}
                     />
                   </>
                 ) : (
@@ -350,7 +429,14 @@ export function FamilyContributionsPanel({
                     )}
                   </p>
                 )}
-                {item.own && item.revision.sourceKind !== "human_voice" && (
+                {item.own && item.revision.sourceKind === "human_photo" && (
+                  <p>
+                    {t(
+                      "An added photograph stays exactly as provided. To replace it, withdraw it and add another.",
+                    )}
+                  </p>
+                )}
+                {item.own && item.revision.sourceKind === "human_text" && (
                   <button
                     type="button"
                     disabled={busy}
@@ -380,7 +466,7 @@ export function FamilyContributionsPanel({
                   </button>
                 )}
                 {(item.own || item.canAssemble) &&
-                  item.revision.sourceKind !== "human_voice" && (
+                  item.revision.sourceKind === "human_text" && (
                   <button
                     type="button"
                     disabled={busy}
@@ -631,6 +717,72 @@ export function FamilyContributionsPanel({
                       </button>
                     </>
                   )}
+                  <section aria-label={t("Added photograph")}>
+                    <h3>{t("Or add a photograph of your own")}</h3>
+                    <p>
+                      {t(
+                        "For example the back of the print, or another picture from that day. It is kept exactly as you provide it and never replaces the original photograph.",
+                      )}
+                    </p>
+                    <label>
+                      {t(photo ? "Choose a different photograph" : "Choose a photograph to add")}
+                      <input
+                        ref={photoInput}
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp,image/heic,image/heif"
+                        disabled={busy}
+                        onChange={(event) => {
+                          const file = event.target.files?.[0];
+                          if (!file) return;
+                          photoKey.current = null;
+                          setPhotoSaved(false);
+                          void readContributionPhoto(file).then(
+                            (chosen) => {
+                              if (mounted.current && !deletion.current)
+                                setPhoto(chosen);
+                            },
+                            () => {
+                              if (mounted.current)
+                                setError(
+                                  "Your photograph could not be confirmed as saved. It is still here; please try again.",
+                                );
+                            },
+                          );
+                        }}
+                      />
+                    </label>
+                    {photo && photoPreview && (
+                      <>
+                        <img
+                          style={{ maxWidth: "100%", height: "auto" }}
+                          alt={t("Photograph you chose to add")}
+                          src={photoPreview}
+                        />
+                        <p role="status">
+                          {t(
+                            "Your unsent photograph is only in this open page. Keep it open until submission is confirmed.",
+                          )}
+                        </p>
+                        {(!draft.agree || !draft.attribution.trim()) && (
+                          <p>
+                            {t(
+                              "Add your name and choose owner review above before submitting your photograph.",
+                            )}
+                          </p>
+                        )}
+                        <button
+                          type="button"
+                          className="primary-action"
+                          disabled={
+                            busy || !draft.agree || !draft.attribution.trim()
+                          }
+                          onClick={() => void action(submitPhoto)}
+                        >
+                          {t("Submit my photograph for review")}
+                        </button>
+                      </>
+                    )}
+                  </section>
                 </>
               )}
             </form>
