@@ -26,7 +26,7 @@ try {
     .all();
   const names = new Set(objects.map((object) => object.name));
   const requiredObjects = [
-    "family_contributions","family_contributions_memory","family_contribution_revisions","family_contribution_revision_history","family_contribution_events","family_contribution_owner_insert","family_contribution_identity_immutable","family_contribution_revision_author","family_contribution_revision_immutable","family_contribution_event_immutable","family_contribution_previous_scope",
+    "family_contributions","family_contributions_memory","family_contribution_revisions","family_contribution_revision_history","family_contribution_events","family_contribution_owner_insert","family_contribution_identity_immutable","family_contribution_revision_author","family_contribution_revision_immutable","family_contribution_event_immutable","family_contribution_previous_scope","family_contribution_voice_sources","family_contribution_voice_author","family_contribution_voice_immutable","family_contribution_voice_not_text","family_contribution_text_not_voice","family_contribution_sources",
     "family_access_grants","family_access_events","family_access_owner","family_access_member","family_access_owner_insert","family_access_identity_immutable","family_access_revocation_final","family_access_events_immutable",
     "family_people_records","family_people_history","family_people_archive","family_people_owner_insert","family_people_identity_immutable","family_people_history_immutable",
     "family_archives","family_chapters","family_chapter_memories","family_memory_labels",

@@ -67,6 +67,11 @@ class TestD1 {
       "0011_legacy_recordings.sql",
       "0012_legacy_remote_calls.sql",
       "0013_remote_recording_sources.sql",
+      "0014_private_family_chapters.sql",
+      "0015_human_people.sql",
+      "0016_scoped_family_access.sql",
+      "0017_attributed_family_contributions.sql",
+      "0018_family_voice_contributions.sql",
     ]) {
       this.database.exec(
         readFileSync(new URL(`../../migrations/${migration}`, import.meta.url), "utf8")
@@ -462,7 +467,7 @@ describe("Living Memory durable completion", () => {
       expect(d1.database.prepare("SELECT count(*) AS count FROM transcript_revisions").get()).toEqual({ count: 3 });
       const response = await handleDeletionRoute(new Request(`https://example.test/resources/drafts/${draftId}`, {
         method: "DELETE", headers: { Cookie: cookie, Origin: "https://example.test", "X-Memories-Request": "deletion-v1" }
-      }), { ...env, MEDIA_BUCKET: { delete: async () => undefined } as unknown as R2Bucket });
+      }), { ...env, MEDIA_BUCKET: { delete: async () => undefined, list: async () => ({ objects: [], truncated: false }) } as unknown as R2Bucket });
       expect(response?.status).toBe(200);
       for (const table of ["living_memory_reviews", "living_memory_context_entries", "transcript_revisions", "media_assets"]) {
         expect(d1.database.prepare(`SELECT count(*) AS count FROM ${table}`).get()).toEqual({ count: 0 });

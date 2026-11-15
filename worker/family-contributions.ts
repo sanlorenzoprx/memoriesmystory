@@ -4,7 +4,12 @@ import {
   grantAllowsMemory,
   type FamilyAccessEnv,
 } from "./family-permissions";
-import { readBoundedText } from "./request-body";
+import {
+  readBoundedBytes,
+  readBoundedText,
+  RequestBodyTooLarge,
+} from "./request-body";
+import { museVoiceReplyValidation } from "./muse-voice-replies";
 import { phase1Config } from "../config/phase-1";
 const limits = phase1Config.familyContributions,
   idPattern = /^[A-Za-z0-9_-]{8,120}$/;
@@ -36,6 +41,20 @@ function text(value: unknown, max: number): string {
     fail(400);
   return value.trim();
 }
+const voiceExtensions: Record<string, string> = {
+  "audio/webm": "webm",
+  "audio/mp4": "m4a",
+  "audio/mpeg": "mp3",
+  "audio/wav": "wav",
+  "audio/ogg": "ogg",
+};
+type VoiceSource = {
+  id: string;
+  r2_key: string;
+  content_type: string;
+  byte_size: number;
+  sha256: string;
+};
 type Row = {
   id: string;
   memory_story_id: string;
@@ -57,7 +76,7 @@ export async function handleFamilyContributionRoute(
 ): Promise<Response | null> {
   const url = new URL(request.url),
     match = url.pathname.match(
-      /^\/resources\/family-contributions\/([^/]+)(?:\/([^/]+)(?:\/(revise|assembly|withdraw|history))?)?$/,
+      /^\/resources\/family-contributions\/([^/]+)(?:\/([^/]+)(?:\/(revise|assembly|withdraw|history|voice))?)?$/,
     );
   if (!match) return null;
   try {
@@ -65,7 +84,8 @@ export async function handleFamilyContributionRoute(
     if (!session) fail(401, "session_required");
     const user = session.userId,
       memoryId = id(match[1]),
-      contributionId = match[2] ? id(match[2]) : null,
+      voiceUpload = match[2] === "voice" && !match[3],
+      contributionId = match[2] && !voiceUpload ? id(match[2]) : null,
       action = match[3];
     const memory = await env.DB.prepare(
       "SELECT owner_user_id FROM memory_stories WHERE id=? AND status='complete'",
@@ -98,7 +118,10 @@ export async function handleFamilyContributionRoute(
     if (
       !canRead &&
       !withdrawing &&
-      !(action === "history" && current?.author_user_id === user)
+      !(
+        (action === "history" || action === "voice") &&
+        current?.author_user_id === user
+      )
     )
       fail(403, "family_contribution_denied");
     const guardParams = [memoryId, user, grantId ?? "", user, 1];
@@ -110,7 +133,7 @@ export async function handleFamilyContributionRoute(
         if (after) id(after);
         const rows = (
           await env.DB.prepare(
-            "SELECT id,attribution,human_text,source_kind,created_at,previous_revision_id FROM family_contribution_revisions WHERE contribution_id=? AND id>? ORDER BY id LIMIT ?",
+            "SELECT id,attribution,human_text,source_kind,created_at,previous_revision_id FROM family_contribution_sources WHERE contribution_id=? AND id>? ORDER BY id LIMIT ?",
           )
             .bind(current.id, after ?? "", limits.pageSize + 1)
             .all<{
@@ -140,12 +163,74 @@ export async function handleFamilyContributionRoute(
               : null,
         });
       }
+      if (action === "voice" && current) {
+        // The author and owner may always hear the source. Invited family hears
+        // only the version the owner included, while its source grant still holds.
+        const mayHear = async () =>
+          isOwner ||
+          current.author_user_id === user ||
+          Boolean(
+            (await env.DB.prepare(
+              `SELECT 1 AS ok FROM family_contributions c JOIN family_contribution_sources v ON v.id=c.included_revision_id AND v.contribution_id=c.id WHERE c.id=? AND c.author_state='submitted' AND v.source_kind='human_voice' AND ${visibleSource}`,
+            )
+              .bind(current.id)
+              .first()) &&
+              (await env.DB.prepare(`SELECT 1 AS ok WHERE ${permission}`)
+                .bind(memoryId, user, grantId ?? "", user, 0)
+                .first()),
+          );
+        const source = await env.DB.prepare(
+          "SELECT id,r2_key,content_type,byte_size,sha256 FROM family_contribution_voice_sources WHERE contribution_id=?",
+        )
+          .bind(current.id)
+          .first<VoiceSource>();
+        if (!source) fail(404, "family_contribution_not_found");
+        if (!(await mayHear())) fail(403, "family_contribution_denied");
+        const ranged = /^bytes=\d*-\d*$/.test(
+          request.headers.get("Range") ?? "",
+        );
+        const object = ranged
+          ? await env.MEDIA_BUCKET.get(source.r2_key, {
+              range: request.headers,
+            })
+          : await env.MEDIA_BUCKET.get(source.r2_key);
+        if (!object) fail(503, "family_contribution_unavailable");
+        // Re-check after the storage await before sending private bytes.
+        if (!(await mayHear())) fail(403, "family_contribution_denied");
+        const headers = new Headers({
+          "Content-Type": source.content_type,
+          "Cache-Control": "private, no-store",
+          "Accept-Ranges": "bytes",
+          "X-Content-Type-Options": "nosniff",
+          "X-Content-SHA256": source.sha256,
+          "Referrer-Policy": "no-referrer",
+        });
+        const range = object.range;
+        if (
+          ranged &&
+          range &&
+          "offset" in range &&
+          typeof range.offset === "number"
+        ) {
+          const length = range.length ?? source.byte_size - range.offset;
+          if (range.offset > 0 || length < source.byte_size) {
+            headers.set("Content-Length", String(length));
+            headers.set(
+              "Content-Range",
+              `bytes ${range.offset}-${range.offset + length - 1}/${source.byte_size}`,
+            );
+            return new Response(object.body, { status: 206, headers });
+          }
+        }
+        headers.set("Content-Length", String(source.byte_size));
+        return new Response(object.body, { headers });
+      }
       if (action) fail(404, "family_contribution_not_found");
       const after = url.searchParams.get("after");
       if (after) id(after);
       const rows = (
         await env.DB.prepare(
-          `SELECT c.*,CASE WHEN c.author_state='submitted' AND c.included_revision_id IS NOT NULL AND ${pinnedVisibleSource} THEN 1 ELSE 0 END AS family_visible,CASE WHEN ${visibleSource} THEN 1 ELSE 0 END AS source_available,v.id AS revision_id,v.attribution,v.human_text,v.source_kind,v.created_at AS revision_created FROM family_contributions c JOIN family_contribution_revisions v ON v.contribution_id=c.id AND v.id=CASE WHEN c.owner_user_id=? OR c.author_user_id=? THEN c.latest_revision_id ELSE c.included_revision_id END LEFT JOIN family_contribution_revisions pinned ON pinned.id=c.included_revision_id AND pinned.contribution_id=c.id WHERE c.memory_story_id=? AND c.id>? AND (?='' OR c.id=?) AND (c.owner_user_id=? OR c.author_user_id=? OR (c.author_state='submitted' AND c.included_revision_id IS NOT NULL AND ${visibleSource})) ORDER BY c.id LIMIT ?`,
+          `SELECT c.*,CASE WHEN c.author_state='submitted' AND c.included_revision_id IS NOT NULL AND ${pinnedVisibleSource} THEN 1 ELSE 0 END AS family_visible,CASE WHEN ${visibleSource} THEN 1 ELSE 0 END AS source_available,v.id AS revision_id,v.attribution,v.human_text,v.source_kind,v.duration_ms,v.content_type AS voice_content_type,v.created_at AS revision_created FROM family_contributions c JOIN family_contribution_sources v ON v.contribution_id=c.id AND v.id=CASE WHEN c.owner_user_id=? OR c.author_user_id=? THEN c.latest_revision_id ELSE c.included_revision_id END LEFT JOIN family_contribution_sources pinned ON pinned.id=c.included_revision_id AND pinned.contribution_id=c.id WHERE c.memory_story_id=? AND c.id>? AND (?='' OR c.id=?) AND (c.owner_user_id=? OR c.author_user_id=? OR (c.author_state='submitted' AND c.included_revision_id IS NOT NULL AND ${visibleSource})) ORDER BY c.id LIMIT ?`,
         )
           .bind(
             user,
@@ -166,6 +251,8 @@ export async function handleFamilyContributionRoute(
               attribution: string;
               human_text: string;
               source_kind: string;
+              duration_ms: number | null;
+              voice_content_type: string | null;
               revision_created: string;
             }
           >()
@@ -202,6 +289,10 @@ export async function handleFamilyContributionRoute(
           sourceKind: c.source_kind,
           createdAt: c.revision_created,
         },
+        voice:
+          c.source_kind === "human_voice"
+            ? { durationMs: c.duration_ms, contentType: c.voice_content_type }
+            : null,
       }));
       if (contributionId) {
         if (!contributions.length) fail(404, "family_contribution_not_found");
@@ -221,6 +312,200 @@ export async function handleFamilyContributionRoute(
         request.headers.get("Origin") !== url.origin)
     )
       fail(403, "csrf");
+    if (voiceUpload) {
+      if (!canWrite) fail(403, "family_contribution_denied");
+      if (
+        request.headers.get("X-Contribution-Agree") !== "true" ||
+        request.headers.get("X-Agreement-Version") !== limits.agreementVersion
+      )
+        fail(400, "family_contribution_consent");
+      let named = "";
+      try {
+        named = decodeURIComponent(
+          request.headers.get("X-Contribution-Attribution") ?? "",
+        );
+      } catch {
+        fail(400);
+      }
+      const attribution = text(named, limits.attributionCharacters),
+        contentType =
+          (request.headers.get("Content-Type") ?? "")
+            .split(";")[0]
+            ?.trim()
+            .toLowerCase() ?? "",
+        extension = voiceExtensions[contentType],
+        contentSha = (
+          request.headers.get("X-Content-SHA256") ?? ""
+        ).toLowerCase(),
+        durationMs = Number(request.headers.get("X-Audio-Duration-MS"));
+      if (!extension) fail(415, "family_contribution_voice_format");
+      if (!/^[a-f0-9]{64}$/.test(contentSha))
+        fail(400, "family_contribution_voice_unconfirmed");
+      if (
+        !Number.isSafeInteger(durationMs) ||
+        durationMs < 100 ||
+        durationMs > limits.voiceSeconds * 1000 + 1000
+      )
+        fail(400, "family_contribution_voice_length");
+      const key = id(request.headers.get("X-Idempotency-Key")),
+        receiptKey = `contribution_${await sha256Text(`${user}:contribution_voice:${key}`)}`,
+        requestHash = await sha256Text(
+          JSON.stringify({
+            memoryId,
+            grantId,
+            attribution,
+            contentSha,
+            contentType,
+            durationMs,
+          }),
+        );
+      const prior = async () => {
+        const row = await env.DB.prepare(
+          "SELECT request_hash,result_ref FROM operation_receipts WHERE idempotency_key=? AND scope_type='user' AND scope_id=?",
+        )
+          .bind(receiptKey, user)
+          .first<{ request_hash: string; result_ref: string }>();
+        if (row && row.request_hash !== requestHash)
+          fail(409, "idempotency_conflict");
+        return row ? JSON.parse(row.result_ref) : null;
+      };
+      const old = await prior();
+      if (old) return json({ ...old, replayed: true });
+      let bytes: Uint8Array<ArrayBuffer>;
+      try {
+        bytes = await readBoundedBytes(request, limits.voiceBytes);
+      } catch (error) {
+        if (error instanceof RequestBodyTooLarge)
+          fail(413, "family_contribution_voice_length");
+        throw error;
+      }
+      if (!bytes.byteLength) fail(400, "family_contribution_voice_unconfirmed");
+      if (!museVoiceReplyValidation.hasAudioSignature(bytes, contentType))
+        fail(415, "family_contribution_voice_format");
+      const digest = [
+        ...new Uint8Array(await crypto.subtle.digest("SHA-256", bytes)),
+      ]
+        .map((byte) => byte.toString(16).padStart(2, "0"))
+        .join("");
+      if (digest !== contentSha)
+        fail(400, "family_contribution_voice_unconfirmed");
+      const guard = [memoryId, user, grantId ?? "", user, 1];
+      // Never place a voice in storage for someone whose access already ended.
+      if (
+        !(await env.DB.prepare(`SELECT 1 AS ok WHERE ${permission}`)
+          .bind(...guard)
+          .first())
+      )
+        fail(403, "family_contribution_denied");
+      const now = new Date().toISOString(),
+        sourceId = `family_contribution_${(await sha256Text(receiptKey)).slice(0, 40)}`,
+        voiceId = `contribution_voice_${(await sha256Text(`${receiptKey}:voice`)).slice(0, 40)}`,
+        // Each attempt has its own key, so a retry never overwrites an earlier original.
+        r2Key = `contributions/${memoryId}/${sourceId}/${crypto.randomUUID()}/original.${extension}`,
+        result = { id: sourceId, version: 1 };
+      const discard = () => env.MEDIA_BUCKET.delete(r2Key).catch(() => {});
+      let etag: string;
+      try {
+        const stored = await env.MEDIA_BUCKET.put(r2Key, bytes, {
+          httpMetadata: { contentType, cacheControl: "private, no-store" },
+          customMetadata: { memoryId, contributionId: sourceId },
+          sha256: contentSha,
+        });
+        const head = await env.MEDIA_BUCKET.head(r2Key),
+          readback = await env.MEDIA_BUCKET.get(r2Key);
+        if (
+          !stored ||
+          !head ||
+          !readback ||
+          head.size !== bytes.byteLength ||
+          head.etag !== stored.etag
+        )
+          throw new Error("unconfirmed");
+        const stream = new Uint8Array(await readback.arrayBuffer()),
+          again = [
+            ...new Uint8Array(await crypto.subtle.digest("SHA-256", stream)),
+          ]
+            .map((byte) => byte.toString(16).padStart(2, "0"))
+            .join("");
+        if (again !== contentSha) throw new Error("unconfirmed");
+        etag = head.etag;
+      } catch {
+        await discard();
+        fail(503, "family_contribution_voice_unconfirmed");
+      }
+      try {
+        const results = await env.DB.batch([
+          env.DB.prepare(
+            `INSERT INTO family_contributions(id,memory_story_id,owner_user_id,author_user_id,author_state,latest_revision_id,created_at,updated_at) SELECT ?,?,?,?,'submitted',?,?,? WHERE ${permission} AND (SELECT count(*) FROM family_contributions WHERE memory_story_id=?)<?`,
+          ).bind(
+            sourceId,
+            memoryId,
+            memory.owner_user_id,
+            user,
+            voiceId,
+            now,
+            now,
+            ...guard,
+            memoryId,
+            limits.maximumPerMemory,
+          ),
+          env.DB.prepare(
+            "INSERT INTO operation_receipts(idempotency_key,operation_kind,scope_type,scope_id,request_hash,status,result_ref,correlation_id,created_at,updated_at) SELECT ?,'contribution_voice','user',?,?,'succeeded',?,?,?,? WHERE changes()=1",
+          ).bind(
+            receiptKey,
+            user,
+            requestHash,
+            JSON.stringify(result),
+            receiptKey,
+            now,
+            now,
+          ),
+          env.DB.prepare(
+            "INSERT INTO family_contribution_voice_sources(id,contribution_id,author_user_id,source_grant_id,attribution,agreement_version,r2_key,content_type,byte_size,sha256,r2_etag,duration_ms,created_at) SELECT ?,?,?,?,?,?,?,?,?,?,?,?,? WHERE EXISTS(SELECT 1 FROM operation_receipts WHERE idempotency_key=? AND request_hash=?) AND EXISTS(SELECT 1 FROM family_contributions WHERE id=? AND version=1)",
+          ).bind(
+            voiceId,
+            sourceId,
+            user,
+            isOwner ? null : grantId,
+            attribution,
+            limits.agreementVersion,
+            r2Key,
+            contentType,
+            bytes.byteLength,
+            contentSha,
+            etag,
+            durationMs,
+            now,
+            receiptKey,
+            requestHash,
+            sourceId,
+          ),
+          env.DB.prepare(
+            "INSERT INTO family_contribution_events(id,contribution_id,actor_user_id,action,revision_id,created_at) SELECT ?,?,?,'submitted',?,? WHERE EXISTS(SELECT 1 FROM family_contribution_voice_sources WHERE id=? AND r2_key=?)",
+          ).bind(receiptKey, sourceId, user, voiceId, now, voiceId, r2Key),
+        ]);
+        if (!results[0]!.meta.changes) {
+          await discard();
+          const replay = await prior();
+          if (replay) return json({ ...replay, replayed: true });
+          if (
+            !(await env.DB.prepare(`SELECT 1 AS ok WHERE ${permission}`)
+              .bind(...guard)
+              .first())
+          )
+            fail(403, "family_contribution_denied");
+          fail(429, "family_contribution_limit");
+        }
+      } catch (error) {
+        if (error instanceof ContributionError) throw error;
+        // This attempt's object is unreferenced; a concurrent winner keeps its own key.
+        await discard();
+        const replay = await prior();
+        if (replay) return json({ ...replay, replayed: true });
+        throw error;
+      }
+      return json(result, 201);
+    }
     let body: Record<string, unknown>;
     try {
       body = JSON.parse(
@@ -236,6 +521,16 @@ export async function handleFamilyContributionRoute(
       (action === "withdraw" && !withdrawing)
     )
       fail(403, "family_contribution_denied");
+    if (
+      action === "revise" &&
+      current &&
+      (await env.DB.prepare(
+        "SELECT 1 AS ok FROM family_contribution_voice_sources WHERE contribution_id=?",
+      )
+        .bind(current.id)
+        .first())
+    )
+      fail(409, "family_contribution_voice_fixed");
     if (
       (!action && contributionId) ||
       (!action && !canWrite) ||
@@ -334,7 +629,7 @@ export async function handleFamilyContributionRoute(
       if (
         selected &&
         !(await env.DB.prepare(
-          "SELECT id FROM family_contribution_revisions WHERE id=? AND contribution_id=?",
+          "SELECT id FROM family_contribution_sources WHERE id=? AND contribution_id=?",
         )
           .bind(selected, sourceId)
           .first())
@@ -345,7 +640,7 @@ export async function handleFamilyContributionRoute(
       event = selected ? "included" : "excluded";
       selectedRevision = selected;
       mutation = env.DB.prepare(
-        `UPDATE family_contributions SET included_revision_id=?,version=version+1,updated_at=? WHERE id=? AND owner_user_id=? AND version=? AND ${permission} AND (? IS NULL OR EXISTS(SELECT 1 FROM family_contribution_revisions v JOIN family_contributions c ON c.id=v.contribution_id WHERE v.id=? AND c.id=? AND ${visibleSource}))`,
+        `UPDATE family_contributions SET included_revision_id=?,version=version+1,updated_at=? WHERE id=? AND owner_user_id=? AND version=? AND ${permission} AND (? IS NULL OR EXISTS(SELECT 1 FROM family_contribution_sources v JOIN family_contributions c ON c.id=v.contribution_id WHERE v.id=? AND c.id=? AND ${visibleSource}))`,
       ).bind(
         selected,
         now,

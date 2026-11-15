@@ -1,6 +1,6 @@
 # Current State
 
-**As of:** 2026-11-14
+**As of:** 2026-11-15
 **Canonical line:** `main`. The Week-One product line (`integration/lm-week-one`) was promoted into `main` on 2026-09-30.
 
 This page is the single current-status record. It replaces earlier audits and function inventories. When it disagrees with an older status document, this page wins; when it disagrees with Foundation or an accepted decision record, those win and this page must be corrected.
@@ -27,9 +27,17 @@ E02 on `feat/human-entered-people` adds optional human-entered people, uncertain
 
 E03 on `feat/scoped-family-invitations` adds verified-recipient expiring invitations, viewer/contributor roles, default selected-memory scope, explicit Chapter/archive-of-Chapter-memories scope, private original playback and revocation checks on every subsequent read. Copy-link delivery does not require a new messaging provider, and legacy conversation guests still need no account. Local core evidence is 226 tests/77 schema objects and all 53 phone-browser checks passed. PR #43 merged as `9d18404` after CI 43689344069 passed all 226 core and 53 phone checks. Hosted Clerk acceptance remains pending. Migration 0016 is required. Contributor roles are an authorization foundation; E04 separately attributed contributions remain next. See `IMPLEMENTATION/SCOPED_FAMILY_INVITATIONS_2026-11-15.md`. No full staging or production deployment is claimed.
 
-## Family contribution text candidate
+## Family contribution text — merged; voice/photo sources pending
 
-E04a on `feat/attributed-family-contributions` adds independently attributed human text, immutable revision lineage and versioned review intent, author-only revision/withdrawal, owner selection of a specific family-visible version, source-grant rechecks and recoverable on-device writing. Two EN/ES browser journeys, ten route cases, native D1/R2 source/receipt/lineage checks and draft cleanup/API boundary checks passed. Local core passed 238 tests with 88 schema objects and all 55 phone-browser checks passed. Clean-install CI remains pending. Migration 0017 is required. This is text only; E04 voice/photo sources and each author's transcript review remain required. See `IMPLEMENTATION/ATTRIBUTED_FAMILY_TEXT_2026-11-15.md`.
+E04a on `feat/attributed-family-contributions` adds independently attributed human text, immutable revision lineage and versioned review intent, author-only revision/withdrawal, owner selection of a specific family-visible version, source-grant rechecks and recoverable on-device writing. Two EN/ES browser journeys, ten route cases, native D1/R2 source/receipt/lineage checks and draft cleanup/API boundary checks passed. Local core passed 238 tests with 88 schema objects and all 55 phone-browser checks passed. PR #44 merged as `d0a550b` after main CI 43692868082 passed. Migration 0017 is required. This is text only; E04 voice/photo sources and each author's transcript review remain required. See `IMPLEMENTATION/ATTRIBUTED_FAMILY_TEXT_2026-11-15.md`.
+
+## Family voice recollections — implemented locally; CI pending
+
+E04b adds a relative's own recorded voice as an immutable, separately attributed contribution: private R2 original confirmed by read-back hash before any record exists, owner review before invited family can hear it, author withdrawal, no in-place revision, and removal of every voice object on whole-memory deletion. Text and voice share the existing review flow through a read-only view. Local core passed 245 tests with 94 schema objects; 51 phone-browser checks passed locally and the nine `legacy-recording.spec.ts` checks could not launch in the review sandbox. Migration 0018 is required. Supplementary-photo contributions, each author's transcript review, on-device recovery of an unsent recording, real storage/identity proof and device/human acceptance remain required. See `IMPLEMENTATION/ATTRIBUTED_FAMILY_VOICE_2026-11-15.md`.
+
+## Family share links opened in a browser — routing repaired
+
+A 2026-11-15 review found that a browser navigation to `/shared/:token` (and to any other Worker-served address) received the app shell instead of the Worker response, because single-page-application asset handling answers navigations before the Worker runs. A recipient tapping a family link therefore saw the app error screen. `wrangler.jsonc` now lists every Worker-served path in `assets.run_worker_first`, and `tests/e2e/worker-navigation.spec.ts` opens these addresses by real navigation. Local core passed 238 tests with 88 schema objects; 49 phone-browser checks passed locally and the nine `legacy-recording.spec.ts` checks could not launch their own browser build in the review sandbox, so clean-install CI is the authority for the full 58. A full created-share recipient journey against real D1/R2, and any deployed proof, remain pending. Any new Worker route prefix must be added to that list. See `IMPLEMENTATION/REPO_AND_HANDOFF_REVIEW_2026-11-15.md` and `IMPLEMENTATION/SHARE_LINK_NAVIGATION_2026-11-15.md`.
 
 ## What works today
 

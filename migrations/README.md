@@ -25,3 +25,11 @@ rollback; an older reader follows the current transcript and can expand existing
 shares. Retain the additive schema and pause new edits using
 `STORY_REVIEW_WRITES_PAUSED=true`, then roll forward. Never erase source/revision
 history to revert a UI change. See the November 13 storyteller-review decision.
+
+## 0018 — family voice recollections
+
+Apply this additive migration before the matching Worker and client. It adds the
+immutable `family_contribution_voice_sources` table, authorship/immutability and
+source-kind guards, and the read-only `family_contribution_sources` view that the
+contribution routes read. Tables from 0017 are not altered. The Worker reads the
+view, so do not deploy the matching Worker before this migration is applied.

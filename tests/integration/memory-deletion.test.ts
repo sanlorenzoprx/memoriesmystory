@@ -48,6 +48,11 @@ class TestD1 {
       "0011_legacy_recordings.sql",
       "0012_legacy_remote_calls.sql",
       "0013_remote_recording_sources.sql",
+      "0014_private_family_chapters.sql",
+      "0015_human_people.sql",
+      "0016_scoped_family_access.sql",
+      "0017_attributed_family_contributions.sql",
+      "0018_family_voice_contributions.sql",
     ]) {
       this.database.exec(readFileSync(new URL(`../../migrations/${migration}`, import.meta.url), "utf8"));
     }
@@ -152,7 +157,7 @@ describe("Living Memory deletion", () => {
     const env: DeletionEnv = {
       DB: d1 as unknown as D1Database,
       SESSION_SECRET: secret,
-      MEDIA_BUCKET: { delete: async (key: string) => { removed.push(key); } } as unknown as R2Bucket
+      MEDIA_BUCKET: { delete: async (key: string) => { removed.push(key); }, list: async () => ({ objects: [], truncated: false }) } as unknown as R2Bucket
     };
 
     const response = await handleDeletionRoute(

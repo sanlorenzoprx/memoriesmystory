@@ -105,7 +105,7 @@
         "packet-3",
         "living-memory-ratification"
       ],
-      "title": "Photo \u2192 Voice \u2192 Muse \u2192 Story Context \u2192 Preserve \u2192 Playback \u2192 Optional Family Share",
+      "title": "Photo → Voice → Muse → Story Context → Preserve → Playback → Optional Family Share",
       "release_required": true
     },
     {
@@ -123,7 +123,7 @@
       "depends_on": [
         "solo-trust-controls"
       ],
-      "title": "V2 B01\u2013B03: measured multilingual/source-grounded Muse evaluation and evidence-based improvement or no-change decision",
+      "title": "V2 B01–B03: measured multilingual/source-grounded Muse evaluation and evidence-based improvement or no-change decision",
       "release_required": true
     },
     {
@@ -386,17 +386,33 @@
       ],
       "title": "Separately attributed family recollections and contributions",
       "release_required": true,
-      "note": "E04a source-attributed text/revisions and owner assembly in progress. E04 voice/photo originals, each author transcript review and final policy/device acceptance remain required.",
+      "note": "E04a text merged through PR44. E04b voice recollections implemented and locally proven, CI pending. Supplementary-photo contributions, each author transcript review and final policy/device acceptance remain required.",
       "implementation_packets": [
         {
           "packet": "E04a",
           "branch": "feat/attributed-family-contributions",
-          "status": "implemented_local_proven_ci_pending",
+          "pr": 44,
+          "merge_sha": "d0a550b0a9cd7b6920f3cdfb8d1f5307917d75da",
+          "main_ci_run": 43692868082,
+          "status": "merged_local_and_ci_proven_human_acceptance_pending",
           "note": "Human text, own revisions, source lineage, explicit review inclusion, withdrawal and current-source permission; not whole E04 completion.",
           "receipt": "docs/IMPLEMENTATION/ATTRIBUTED_FAMILY_TEXT_2026-11-15.md",
           "local_verification": {
             "unit_integration_tests": 238,
             "phone_chromium_tests": 55,
+            "typecheck_lint_schema_build_dry_run": "passed"
+          }
+        },
+        {
+          "packet": "E04b",
+          "branch": "claude/wonderful-einstein-lhk453",
+          "status": "implemented_local_proven_ci_pending",
+          "note": "Immutable attributed voice original with read-back hash, owner inclusion, author withdrawal, scoped playback and deletion cleanup; not whole E04 completion.",
+          "receipt": "docs/IMPLEMENTATION/ATTRIBUTED_FAMILY_VOICE_2026-11-15.md",
+          "local_verification": {
+            "unit_integration_tests": 245,
+            "phone_chromium_tests_passed_locally": 51,
+            "phone_chromium_tests_not_run_locally": 9,
             "typecheck_lint_schema_build_dry_run": "passed"
           }
         }

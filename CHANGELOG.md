@@ -1,5 +1,17 @@
 # Foundation Package Changelog
 
+## Family voice recollections — 2026-11-15
+
+- Added a relative's own recorded voice as an immutable, separately attributed contribution with owner review before invited family can hear it. Migration 0018 adds the voice-source table, guards and a read-only view; migration 0017 is unchanged.
+- The voice is confirmed in private storage by read-back hash before any record exists; failed or unauthorized attempts leave nothing stored. Whole-memory deletion removes every family voice object.
+- English and Spanish recorder with listen, record again, truthful saved notice and same-key retry. No transcription or generated material. Photo contributions, transcript review, device and human acceptance remain pending; no deployment is claimed.
+
+## Family share links open in a browser — 2026-11-15
+
+- Listed every Worker-served path in `assets.run_worker_first` so browser navigations to family share links, shared media, resource and public API addresses reach the Worker instead of the app shell.
+- Added a navigation browser suite covering the share page, shared media, a resource address, health and application deep links.
+- Recorded a repository and V2 handoff review receipt. No Foundation document, migration or product behaviour changed; no deployment is claimed.
+
 ## RealtimeKit unrecorded Our Living Legacy calling — 2026-11-14
 
 - Added a managed Cloudflare call slice on existing private invitations, with optional microphone/camera, reconnect status, audio continuation and English/Spanish controls. Joining remains independent of recording consent.

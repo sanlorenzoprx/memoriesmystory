@@ -13,7 +13,9 @@ export type FamilyContribution = {
     id: string;
     attribution: string;
     text: string;
-    sourceKind: "human_text";
+    sourceKind: "human_text" | "human_voice";
     createdAt: string;
   };
+  /** Present only for a spoken recollection; its words exist only in the recording. */
+  voice?: { durationMs: number; contentType: string } | null;
 };

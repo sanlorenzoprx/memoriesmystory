@@ -153,7 +153,12 @@ async function deleteMemory(
   const recordings=story ? await env.DB.prepare("SELECT r.id,m.r2_key FROM legacy_recordings r JOIN legacy_recording_media m ON m.recording_id=r.id WHERE r.session_id IN (SELECT id FROM legacy_sessions WHERE memory_story_id=?)").bind(story.id).all<AssetRow>() : {results:[] as AssetRow[]};
   const remoteSources=story?await env.DB.prepare("SELECT x.id,x.r2_key FROM legacy_remote_sources x JOIN legacy_remote_recordings r ON r.id=x.recording_id JOIN legacy_sessions s ON s.id=r.session_id WHERE s.memory_story_id=? AND x.r2_key IS NOT NULL").bind(story.id).all<AssetRow>():{results:[] as AssetRow[]};
   const sourceSessions=story?await env.DB.prepare("SELECT DISTINCT s.id FROM legacy_sessions s JOIN legacy_remote_recordings r ON r.session_id=s.id WHERE s.memory_story_id=?").bind(story.id).all<{id:string}>():{results:[] as {id:string}[]};
-  const allAssets = [...assets.results, ...voiceReplies.results,...recordings.results,...remoteSources.results];
+  const contributionVoices = story
+    ? await env.DB.prepare(
+        "SELECT v.id, v.r2_key FROM family_contribution_voice_sources v JOIN family_contributions c ON c.id = v.contribution_id WHERE c.memory_story_id = ?"
+      ).bind(story.id).all<AssetRow>()
+    : { results: [] as AssetRow[] };
+  const allAssets = [...assets.results, ...voiceReplies.results,...recordings.results,...remoteSources.results, ...contributionVoices.results];
   const revisions = story ? await env.DB.prepare(
     "SELECT id, parent_revision_id FROM transcript_revisions WHERE memory_story_id = ?"
   ).bind(story.id).all<{ id: string; parent_revision_id: string | null }>() : { results: [] };
@@ -181,6 +186,15 @@ async function deleteMemory(
   try {
     for (const asset of allAssets) {
       await env.MEDIA_BUCKET.delete(asset.r2_key);
+    }
+    // Include unreferenced family-voice attempt objects for this memory.
+    if (story) {
+      let cursor: string | undefined;
+      do {
+        const page = await env.MEDIA_BUCKET.list({ prefix: `contributions/${story.id}/`, ...(cursor ? { cursor } : {}) });
+        if (page.objects.length) await env.MEDIA_BUCKET.delete(page.objects.map((object) => object.key));
+        cursor = page.truncated ? page.cursor : undefined;
+      } while (cursor);
     }
     // Include unreferenced, unconfirmed attempt objects, scoped to these owned sessions.
     for(const session of sourceSessions.results){
