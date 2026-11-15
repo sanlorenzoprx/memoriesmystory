@@ -2,7 +2,7 @@ export class RequestBodyTooLarge extends Error {}
 
 /** Bound JSON/text requests by actual bytes, including chunked bodies without Content-Length. */
 export async function readBoundedText(
-  request: Request,
+  request: Pick<Request, "headers" | "body">,
   maximumBytes: number,
 ): Promise<string> {
   if (Number(request.headers.get("Content-Length")) > maximumBytes)

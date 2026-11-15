@@ -1,3 +1,4 @@
+import { FamilyInvitationsPanel } from "./FamilyInvitationsPanel";
 import { PeoplePanel } from "./PeoplePanel";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router";
@@ -28,14 +29,22 @@ export function FamilyArchivePanel() {
     archiveTitle = useRef(t("My family archive")),
     dirtyRef = useRef(false),
     chapterDirtyRef = useRef(false),
-    peopleDirtyRef = useRef(false);
+    peopleDirtyRef = useRef(false),
+    inviteDirtyRef = useRef(false);
   const setCurrentDirty = useCallback((value: boolean) => {
     chapterDirtyRef.current = value;
-    dirtyRef.current = value || peopleDirtyRef.current;
+    dirtyRef.current =
+      value || peopleDirtyRef.current || inviteDirtyRef.current;
   }, []);
   const setPeopleDirty = useCallback((value: boolean) => {
     peopleDirtyRef.current = value;
-    dirtyRef.current = value || chapterDirtyRef.current;
+    dirtyRef.current =
+      value || chapterDirtyRef.current || inviteDirtyRef.current;
+  }, []);
+  const setInviteDirty = useCallback((value: boolean) => {
+    inviteDirtyRef.current = value;
+    dirtyRef.current =
+      value || chapterDirtyRef.current || peopleDirtyRef.current;
   }, []);
   useEffect(() => {
     let active = true;
@@ -198,6 +207,9 @@ export function FamilyArchivePanel() {
       aria-label={t("Private Chapters")}
     >
       <h2>{t("Chapters")}</h2>
+      <Link to="/family" className="secondary-action">
+        {t("Memories shared with me")}
+      </Link>
       <p>
         {t(
           "Bring related Living Memories together. Removing a Chapter keeps your photographs and voices in your archive.",
@@ -259,6 +271,13 @@ export function FamilyArchivePanel() {
               archiveId={view.archiveId}
               memories={view.memories}
               onDirty={setPeopleDirty}
+            />
+          )}
+          {view.archiveId && (
+            <FamilyInvitationsPanel
+              key={`invite_${view.archiveId}`}
+              view={view}
+              onDirty={setInviteDirty}
             />
           )}
           {!editing && (

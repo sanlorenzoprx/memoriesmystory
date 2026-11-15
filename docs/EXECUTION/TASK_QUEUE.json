@@ -347,12 +347,28 @@
         {
           "packet": "E02",
           "branch": "feat/human-entered-people",
-          "status": "implemented_local_proven_ci_pending",
+          "status": "merged_local_and_ci_proven_human_acceptance_pending",
           "note": "Human-entered labels, uncertainty, private relationship references, additive history and reversible explicit links; no identity inference.",
           "receipt": "docs/IMPLEMENTATION/HUMAN_PEOPLE_REFERENCES_2026-11-14.md",
           "local_verification": {
             "unit_integration_tests": 218,
             "phone_chromium_tests": 51,
+            "typecheck_lint_schema_build_dry_run": "passed"
+          },
+          "pr": 42,
+          "head_sha": "4bf4ea93b35b3247651da5129f59a7860a53024c",
+          "merge_sha": "a0c4500e3223e755e574332e511922f362c057a0",
+          "ci_run": 43635510632
+        },
+        {
+          "packet": "E03",
+          "branch": "feat/scoped-family-invitations",
+          "status": "implemented_local_proven_ci_pending",
+          "note": "Verified-recipient expiring invitations, viewer/contributor roles, explicit source scope and revocable private media. No guest-call account requirement.",
+          "receipt": "docs/IMPLEMENTATION/SCOPED_FAMILY_INVITATIONS_2026-11-15.md",
+          "local_verification": {
+            "unit_integration_tests": 226,
+            "phone_chromium_tests": 53,
             "typecheck_lint_schema_build_dry_run": "passed"
           }
         }

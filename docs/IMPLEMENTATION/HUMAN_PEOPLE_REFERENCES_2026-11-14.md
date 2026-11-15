@@ -21,3 +21,7 @@ Local core verification passed 217 tests plus schema integrity/foreign keys/69 r
 The preceding E01 cloud run 43634180628 passed with confirmed cleanup; it pins the E01 candidate and does not claim this E02 code was cloud-tested. No full staging application or production deployment, real-human acceptance or complete V2 release is claimed. Apply migration 0015 before deploying this Worker/client candidate. Existing large-bundle warning remains.
 
 Anti-drift: human-sourced context and recoverable attribution protect I-03–I-09/I-25; private owner-scoped retrieval protects I-19; uncertainty and independent recollections protect I-05–I-07; immutable originals and honest acknowledgements protect I-08/I-10; optional bilingual controls and recovery support I-15/I-17/I-18. No sharing or reward changes. Next is E03 least-privilege family invitations and roles, with separate contribution authority and immediate revocation checks.
+
+## Merged result
+
+PR #42 merged as `a0c4500e3223e755e574332e511922f362c057a0` after clean-install CI 43635510632 passed all 218 unit/integration tests and 51 phone-browser checks. The reviewed source head was `4bf4ea93b35b3247651da5129f59a7860a53024c`. E02 human/device and hosted identity acceptance remain distinct from automated proof. E03 invitation/permission implementation now follows on current main.

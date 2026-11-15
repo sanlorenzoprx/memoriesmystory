@@ -1,6 +1,16 @@
 // API codes select presentation copy; workflow decisions continue to use codes/status.
 // Never display an arbitrary provider/server message as translated interface copy.
 const messages: Readonly<Record<string, string>> = {
+  "family_access_invalid":"Check the family invitation details and try again.",
+  "family_access_not_found":"This family invitation has expired or is not available with your access.",
+  "family_access_denied":"This family invitation is not available with your account.",
+  "family_access_unavailable":"Family access is unavailable right now. Please try again.",
+  "family_identity_unavailable":"Your invited account could not be checked right now. Please try again.",
+  "family_recipient_mismatch":"Use the verified email account that received this family invitation.",
+  "family_access_conflict":"Family access changed. Review the latest invitation before trying again.",
+  "family_access_limit":"The current family invitation limit has been reached.",
+  "family_invitation_inactive":"This invitation is no longer pending. Review family access before creating another.",
+
  family_archive_invalid:"Check the Chapter details and try again.",
  family_archive_not_found:"This private Chapter or archive is not available with your access.",
  family_archive_conflict:"These details changed elsewhere. Your edits are still here. Reopen the latest version before saving.",
