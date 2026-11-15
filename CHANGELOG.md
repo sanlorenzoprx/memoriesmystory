@@ -1,5 +1,10 @@
 # Foundation Package Changelog
 
+## Shared conversations in the archive export — 2026-11-15
+
+- The owner export now includes Our Living Legacy recordings (in-person recording; remote composite video and each participant's microphone source) as verified originals, with participants, every consent choice, the consent in force at each recording, and speaker identification only where a participant identified their own voice.
+- A recording that was never fully preserved is counted as missing and the export is marked incomplete. No provider identifiers, storage keys or access hashes are exported. No migration; no deployment is claimed.
+
 ## Portable archive export — 2026-11-15
 
 - Added an owner export built on the device: every original is downloaded, re-hashed and compared with the preserved original before being packaged into a ZIP with a hash manifest and a readable index. Human testimony, machine transcripts and Muse questions are labelled separately.

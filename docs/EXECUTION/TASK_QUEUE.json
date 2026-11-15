@@ -174,16 +174,32 @@
       ],
       "title": "First release: complete export, integrity/restore maintenance and policy-approved stewardship; extend export with group/family sources before acceptance",
       "release_required": true,
-      "note": "F01a portable export implemented and locally proven, CI pending: verified originals, hash manifest and readable index for solo, scan, transcript, context, Muse, family-contribution and organization sources. Our Living Legacy recordings/consent records, restore, encryption, server-built export, fixity maintenance (F03) and policy-approved stewardship (F02) remain required.",
+      "note": "F01a plain export merged through PR50. F01b adds Our Living Legacy recordings, consent history and self-identified speakers, locally proven, CI pending. Restore, encryption, server-built export, fixity maintenance (F03) and policy-approved stewardship (F02) remain required. Owner direction on album export tiers is recorded in docs/DECISIONS/2026-11-15-albums-reminders-export-tiers.md.",
       "implementation_packets": [
         {
           "packet": "F01a",
           "branch": "claude/wonderful-einstein-lhk453",
-          "status": "implemented_local_proven_ci_pending",
+          "status": "merged_local_and_ci_proven_human_acceptance_pending",
           "note": "Owner export built on the device with per-file SHA-256 verification; states what is not included; no schema change.",
           "receipt": "docs/IMPLEMENTATION/PORTABLE_ARCHIVE_EXPORT_2026-11-15.md",
           "local_verification": {
             "unit_integration_tests": 271,
+            "phone_chromium_tests_passed_locally": 63,
+            "phone_chromium_tests_not_run_locally": 9,
+            "typecheck_lint_schema_build_dry_run": "passed"
+          },
+          "pr": 50,
+          "merge_sha": "25e3dd5ffe1c5bd5b54c96ac89f8ee3fa982edb4",
+          "ci_run": 43727242307
+        },
+        {
+          "packet": "F01b",
+          "branch": "claude/wonderful-einstein-lhk453",
+          "status": "implemented_local_proven_ci_pending",
+          "note": "Shared conversation originals with consent and self-identified attribution in the owner export; unpreserved recordings counted, never listed.",
+          "receipt": "docs/IMPLEMENTATION/PORTABLE_ARCHIVE_EXPORT_2026-11-15.md",
+          "local_verification": {
+            "unit_integration_tests": 272,
             "phone_chromium_tests_passed_locally": 63,
             "phone_chromium_tests_not_run_locally": 9,
             "typecheck_lint_schema_build_dry_run": "passed"

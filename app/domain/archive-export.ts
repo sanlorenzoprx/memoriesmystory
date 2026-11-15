@@ -18,7 +18,13 @@ export const archiveExportLimits = {
 export type ArchiveExportFile = {
   /** Path inside the export, also the download address suffix. */
   path: string;
-  kind: "asset" | "voice-reply" | "contribution-voice" | "contribution-photo";
+  kind:
+    | "asset"
+    | "voice-reply"
+    | "contribution-voice"
+    | "contribution-photo"
+    | "session-recording"
+    | "session-source";
   id: string;
   role:
     | "original_photograph"
@@ -27,7 +33,10 @@ export type ArchiveExportFile = {
     | "cleaned_audio"
     | "voice_reply_to_muse"
     | "family_voice_recollection"
-    | "family_added_photograph";
+    | "family_added_photograph"
+    | "shared_conversation_recording"
+    | "shared_conversation_video"
+    | "shared_conversation_voice";
   /** True for a source exactly as a person provided it; false for a derivative. */
   original: boolean;
   /** For a derivative, the id of the original it was made from. */
@@ -77,6 +86,12 @@ export type ArchiveExportMemory = {
     machineTranscript: string | null;
     storytellerConfirmedText: string | null;
   }[];
+  /**
+   * Our Living Legacy conversations about this memory's photograph. Each
+   * recording carries the consent given before it began; who is speaking is
+   * recorded only where a participant identified their own voice.
+   */
+  sharedConversations?: ArchiveExportConversation[];
   /** Relatives' separately attributed recollections. Withdrawn ones are not exported. */
   familyContributions: {
     id: string;
@@ -93,6 +108,52 @@ export type ArchiveExportMemory = {
       text: string;
       includedForFamily: boolean;
       createdAt: string;
+    }[];
+    createdAt: string;
+  }[];
+};
+
+export type ArchiveExportConversation = {
+  id: string;
+  mode: "in_person" | "remote";
+  createdAt: string;
+  participants: {
+    role: "host" | "guest";
+    displayName: string | null;
+    consent: string;
+    consentVersion: string | null;
+    accessEnded: boolean;
+  }[];
+  /** Every consent choice, in order. Later choices do not erase earlier ones. */
+  consentHistory: {
+    role: "host" | "guest";
+    decision: string;
+    consentVersion: string;
+    scope: string;
+    at: string;
+  }[];
+  recordings: {
+    id: string;
+    kind: "in_person" | "remote";
+    /** "preserved", or "partial_preserved" when only part was captured. */
+    state: string;
+    interrupted: boolean;
+    fileIds: string[];
+    /** The accepted consents in force when this recording was authorized. */
+    consentAtRecording: {
+      role: "host" | "guest" | null;
+      consentVersion: string;
+      at: string;
+    }[];
+    /** A participant's own statement of where their voice is; never inferred. */
+    selfIdentifiedSpeakers: {
+      role: "host" | "guest";
+      displayName: string | null;
+      fileId: string | null;
+      startMs: number | null;
+      endMs: number | null;
+      note: string;
+      at: string;
     }[];
     createdAt: string;
   }[];
