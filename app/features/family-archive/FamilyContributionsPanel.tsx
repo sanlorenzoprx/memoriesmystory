@@ -3,9 +3,13 @@ import { useEffect, useRef, useState } from "react";
 import type { FamilyContribution } from "../../domain/family-contribution";
 import {
   contributionRequest,
+  contributionVoiceUrl,
   removeLocalContributionDrafts,
+  submitVoiceContribution,
   type ContributionIndex,
 } from "../../services/family-contributions";
+import { ContributionVoiceRecorder } from "./ContributionVoiceRecorder";
+import type { LocalAudio } from "../capture/local-draft";
 import { t, notice, useLocale } from "../../localization/language";
 import { phase1Config } from "../../../config/phase-1";
 const limits = phase1Config.familyContributions;
@@ -59,6 +63,8 @@ export function FamilyContributionsPanel({
     [busy, setBusy] = useState(false),
     [error, setError] = useState<string | null>(null),
     [saved, setSaved] = useState(false),
+    [voice, setVoice] = useState<LocalAudio | null>(null),
+    [voiceSaved, setVoiceSaved] = useState(false),
     [storageError, setStorageError] = useState(false),
     [deleted, setDeleted] = useState(false),
     [history, setHistory] = useState<{
@@ -66,6 +72,8 @@ export function FamilyContributionsPanel({
       revisions: { attribution: string; text: string; createdAt: string }[];
       nextCursor: string | null;
     } | null>(null);
+  // One key per recording, reused on retry so a repeated send cannot store it twice.
+  const voiceKey = useRef<string | null>(null);
   const localKey = useRef<string | null>(null),
     mounted = useRef(true),
     deletion = useRef(false);
@@ -83,6 +91,7 @@ export function FamilyContributionsPanel({
       deletion.current = true;
       setDeleted(true);
       setDraft({ ...blank });
+      setVoice(null);
       setView(null);
       setHistory(null);
       try {
@@ -145,6 +154,7 @@ export function FamilyContributionsPanel({
     setBusy(true);
     setError(null);
     setSaved(false);
+    setVoiceSaved(false);
     try {
       await work();
     } catch (e) {
@@ -196,6 +206,37 @@ export function FamilyContributionsPanel({
     setHistory(null);
     setSaved(true);
   }
+  async function submitVoice() {
+    if (!voice) return;
+    const key =
+      voiceKey.current ??
+      (voiceKey.current = `contribution_voice_${crypto.randomUUID()}`);
+    const result = await submitVoiceContribution(memoryId, grantId, voice, {
+      attribution: draft.attribution,
+      agreementVersion: draft.agreementVersion,
+      key,
+    });
+    // "Saved" is shown only after the server's own record of this voice is read back.
+    const canonical = await contributionRequest<{
+      contribution: FamilyContribution;
+    }>(memoryId, grantId, `/${result.id}`);
+    if (
+      !canonical.contribution?.own ||
+      canonical.contribution.revision?.sourceKind !== "human_voice" ||
+      canonical.contribution.revision.attribution !==
+        draft.attribution.trim() ||
+      canonical.contribution.authorState !== "submitted"
+    )
+      throw new Error(
+        "Your recording could not be confirmed as saved. It is still here; please try again.",
+      );
+    await refresh();
+    if (deletion.current) return;
+    voiceKey.current = null;
+    setVoice(null);
+    setDraft((previous) => ({ ...previous, agree: false, requestKey: null }));
+    setVoiceSaved(true);
+  }
   async function decide(contribution: FamilyContribution, include: boolean) {
     await contributionRequest(
       memoryId,
@@ -236,6 +277,13 @@ export function FamilyContributionsPanel({
           )}
         </p>
       )}
+      {voiceSaved && (
+        <p role="status">
+          {t(
+            "Your voice recollection is saved for review. It has not automatically been shared with family.",
+          )}
+        </p>
+      )}
       <button
         type="button"
         className="secondary-action"
@@ -262,12 +310,26 @@ export function FamilyContributionsPanel({
                     </time>
                   </p>
                 )}
-                <p
-                  className="human-recollection-text"
-                  style={{ whiteSpace: "pre-wrap" }}
-                >
-                  {item.revision.text}
-                </p>
+                {item.revision.sourceKind === "human_voice" ? (
+                  <>
+                    <p>{t("Voice recollection")}</p>
+                    <audio
+                      controls
+                      preload="none"
+                      aria-label={t("Recollection in {name}'s own voice", {
+                        name: item.revision.attribution,
+                      })}
+                      src={contributionVoiceUrl(memoryId, item.id, grantId)}
+                    />
+                  </>
+                ) : (
+                  <p
+                    className="human-recollection-text"
+                    style={{ whiteSpace: "pre-wrap" }}
+                  >
+                    {item.revision.text}
+                  </p>
+                )}
                 <p>
                   {t(
                     item.authorState === "withdrawn"
@@ -281,7 +343,14 @@ export function FamilyContributionsPanel({
                             : "Waiting for owner review",
                   )}
                 </p>
-                {item.own && (
+                {item.own && item.revision.sourceKind === "human_voice" && (
+                  <p>
+                    {t(
+                      "A voice recollection stays exactly as recorded. To say it differently, withdraw it and record a new one.",
+                    )}
+                  </p>
+                )}
+                {item.own && item.revision.sourceKind !== "human_voice" && (
                   <button
                     type="button"
                     disabled={busy}
@@ -310,7 +379,8 @@ export function FamilyContributionsPanel({
                     {t("Revise my recollection")}
                   </button>
                 )}
-                {(item.own || item.canAssemble) && (
+                {(item.own || item.canAssemble) &&
+                  item.revision.sourceKind !== "human_voice" && (
                   <button
                     type="button"
                     disabled={busy}
@@ -528,6 +598,41 @@ export function FamilyContributionsPanel({
                   </button>
                 )}
               </fieldset>
+              {!draft.editing && (
+                <>
+                  <ContributionVoiceRecorder
+                    audio={voice}
+                    disabled={busy}
+                    maximumSeconds={limits.voiceSeconds}
+                    onChange={(next) => {
+                      voiceKey.current = null;
+                      setVoiceSaved(false);
+                      setVoice(next);
+                    }}
+                  />
+                  {voice && (
+                    <>
+                      {(!draft.agree || !draft.attribution.trim()) && (
+                        <p>
+                          {t(
+                            "Add your name and choose owner review above before submitting your recording.",
+                          )}
+                        </p>
+                      )}
+                      <button
+                        type="button"
+                        className="primary-action"
+                        disabled={
+                          busy || !draft.agree || !draft.attribution.trim()
+                        }
+                        onClick={() => void action(submitVoice)}
+                      >
+                        {t("Submit my voice recollection for review")}
+                      </button>
+                    </>
+                  )}
+                </>
+              )}
             </form>
           )}
         </>

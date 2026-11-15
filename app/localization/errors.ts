@@ -8,6 +8,10 @@ const messages: Readonly<Record<string, string>> = {
  "family_contribution_consent":"Choose whether you want to submit these words for owner review.",
  "family_contribution_limit":"The current contribution limit for this memory has been reached.",
  "family_contribution_unavailable":"Family recollections could not be opened. Please try again.",
+ "family_contribution_voice_format":"That recording format is not supported. Please record again.",
+ "family_contribution_voice_length":"Keep a voice recollection to 30 seconds or less.",
+ "family_contribution_voice_unconfirmed":"Your recording could not be confirmed as saved. It is still here; please try again.",
+ "family_contribution_voice_fixed":"A voice recollection stays exactly as recorded. To say it differently, withdraw it and record a new one.",
 
   "family_access_invalid":"Check the family invitation details and try again.",
   "family_access_not_found":"This family invitation has expired or is not available with your access.",
