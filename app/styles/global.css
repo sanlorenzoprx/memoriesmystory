@@ -2198,3 +2198,27 @@ h1 {
 .family-archive-panel .archive-list button { width: 100%; text-align: start; display: flex; flex-direction: column; gap: .4rem; }
 .family-archive-panel fieldset { min-width: 0; margin-block: 1rem; }
 .family-archive-panel li { margin-block: .75rem; }
+
+/* Family recollection form: one field per line so labels stay readable at large text sizes. */
+.memory-review-section form label {
+  display: block;
+  margin-top: 0.75rem;
+}
+
+.memory-review-section form input:not([type="checkbox"]),
+.memory-review-section form textarea {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  margin-top: 0.25rem;
+}
+
+.memory-review-section form textarea {
+  min-height: 6rem;
+}
+
+.memory-review-section form audio {
+  width: 100%;
+}
+

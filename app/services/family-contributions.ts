@@ -72,43 +72,56 @@ export function removeLocalContributionDrafts(memoryId: string) {
   }
 }
 
-export function contributionVoiceUrl(
+export function contributionMediaUrl(
+  kind: "voice" | "photo",
   memoryId: string,
   contributionId: string,
   grantId?: string,
 ) {
-  return `/resources/family-contributions/${encodeURIComponent(memoryId)}/${encodeURIComponent(contributionId)}/voice${grantId ? `?grantId=${encodeURIComponent(grantId)}` : ""}`;
+  return `/resources/family-contributions/${encodeURIComponent(memoryId)}/${encodeURIComponent(contributionId)}/${kind}${grantId ? `?grantId=${encodeURIComponent(grantId)}` : ""}`;
 }
 
-/** Sends one recorded voice original. Resolves only on a durable server acknowledgement. */
-export async function submitVoiceContribution(
+async function blobSha256(blob: Blob) {
+  const digest = await crypto.subtle.digest("SHA-256", await blob.arrayBuffer());
+  return [...new Uint8Array(digest)]
+    .map((byte) => byte.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+/** Sends one untouched original. Resolves only on a durable server acknowledgement. */
+async function submitOriginal(
+  kind: "voice" | "photo",
   memoryId: string,
   grantId: string | undefined,
-  audio: { blob: Blob; mimeType: string; sha256: string; durationMs: number },
+  source: { blob: Blob; mimeType: string; sha256: string; durationMs?: number },
   input: { attribution: string; agreementVersion: string; key: string },
 ): Promise<{ id: string; version: number }> {
   const fallback =
-    "Your recording could not be confirmed as saved. It is still here; please try again.";
+    kind === "voice"
+      ? "Your recording could not be confirmed as saved. It is still here; please try again."
+      : "Your photograph could not be confirmed as saved. It is still here; please try again.";
   let response: Response;
   try {
     response = await fetch(
-      `/resources/family-contributions/${encodeURIComponent(memoryId)}/voice${grantId ? `?grantId=${encodeURIComponent(grantId)}` : ""}`,
+      `/resources/family-contributions/${encodeURIComponent(memoryId)}/${kind}${grantId ? `?grantId=${encodeURIComponent(grantId)}` : ""}`,
       {
         method: "POST",
         credentials: "same-origin",
         headers: {
           "X-Memories-Request": "family-v1",
-          "Content-Type": audio.mimeType,
+          "Content-Type": source.mimeType,
           "X-Idempotency-Key": input.key,
-          "X-Content-SHA256": audio.sha256,
-          "X-Audio-Duration-MS": String(Math.round(audio.durationMs)),
+          "X-Content-SHA256": source.sha256,
+          ...(source.durationMs === undefined
+            ? {}
+            : { "X-Audio-Duration-MS": String(Math.round(source.durationMs)) }),
           "X-Contribution-Attribution": encodeURIComponent(
             input.attribution.trim(),
           ),
           "X-Contribution-Agree": "true",
           "X-Agreement-Version": input.agreementVersion,
         },
-        body: audio.blob,
+        body: source.blob,
       },
     );
   } catch {
@@ -128,4 +141,39 @@ export async function submitVoiceContribution(
   )
     throw new Error(fallback);
   return { id: value.id, version: Number(value.version) };
+}
+
+export function submitVoiceContribution(
+  memoryId: string,
+  grantId: string | undefined,
+  audio: { blob: Blob; mimeType: string; sha256: string; durationMs: number },
+  input: { attribution: string; agreementVersion: string; key: string },
+) {
+  return submitOriginal("voice", memoryId, grantId, audio, input);
+}
+
+export type LocalContributionPhoto = {
+  blob: Blob;
+  mimeType: string;
+  sha256: string;
+};
+
+/** Reads a chosen file as-is. The bytes are never resized, re-encoded or corrected. */
+export async function readContributionPhoto(
+  file: Blob,
+): Promise<LocalContributionPhoto> {
+  return {
+    blob: file,
+    mimeType: file.type.split(";")[0]?.trim().toLowerCase() ?? "",
+    sha256: await blobSha256(file),
+  };
+}
+
+export function submitPhotoContribution(
+  memoryId: string,
+  grantId: string | undefined,
+  photo: LocalContributionPhoto,
+  input: { attribution: string; agreementVersion: string; key: string },
+) {
+  return submitOriginal("photo", memoryId, grantId, photo, input);
 }
