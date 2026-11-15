@@ -3,7 +3,10 @@ import { SignIn, SignedIn, SignedOut, useAuth } from "@clerk/clerk-react";
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router";
 
-import { claimLocalDraft, openAccountSession } from "../../services/identity-api";
+import {
+  claimLocalDraft,
+  openAccountSession,
+} from "../../services/identity-api";
 import { loadLocalDraft } from "../../services/local-draft-store";
 
 const clerkConfigured = Boolean(import.meta.env.VITE_CLERK_PUBLISHABLE_KEY);
@@ -12,14 +15,31 @@ export function IdentityExperience() {
   useLocale();
   const [searchParams] = useSearchParams();
   const draftId = searchParams.get("draftId");
+  const requestedReturn = searchParams.get("returnTo");
+  const returnTo =
+    requestedReturn &&
+    /^\/family(?:\/join\/[a-f0-9]{64})?$/.test(requestedReturn)
+      ? requestedReturn
+      : null;
 
   if (!clerkConfigured) {
     return (
       <IdentityFrame>
         <p className="eyebrow">{t("Your story is safe")}</p>
         <h1>{t("Carry it with you.")}</h1>
-        <p className="capture-lede">{t("Sign-in is ready for Clerk configuration. Your photograph and voice remain safely preserved while this environment is connected.")}</p>
-        {draftId && <Link className="secondary-action" to={`/capture/${encodeURIComponent(draftId)}`}>{t("Return to your preserved story")}</Link>}
+        <p className="capture-lede">
+          {t(
+            "Sign-in is ready for Clerk configuration. Your photograph and voice remain safely preserved while this environment is connected.",
+          )}
+        </p>
+        {draftId && (
+          <Link
+            className="secondary-action"
+            to={`/capture/${encodeURIComponent(draftId)}`}
+          >
+            {t("Return to your preserved story")}
+          </Link>
+        )}
       </IdentityFrame>
     );
   }
@@ -28,20 +48,30 @@ export function IdentityExperience() {
     <IdentityFrame>
       <p className="eyebrow">{t("Protected family archive")}</p>
       <h1>{t("Your story, wherever you are.")}</h1>
-      <p className="capture-lede">{t("Sign in to protect this Living Memory and continue on your phone, tablet or computer.")}</p>
+      <p className="capture-lede">
+        {t(
+          "Sign in to protect this Living Memory and continue on your phone, tablet or computer.",
+        )}
+      </p>
       <SignedOut>
         <div className="clerk-responsive-frame">
           <SignIn routing="hash" />
         </div>
       </SignedOut>
       <SignedIn>
-        <BindIdentity draftId={draftId} />
+        <BindIdentity draftId={draftId} returnTo={returnTo} />
       </SignedIn>
     </IdentityFrame>
   );
 }
 
-function BindIdentity({ draftId }: { readonly draftId: string | null }) {
+function BindIdentity({
+  draftId,
+  returnTo,
+}: {
+  readonly draftId: string | null;
+  readonly returnTo: string | null;
+}) {
   useLocale();
   const { getToken } = useAuth();
   const navigate = useNavigate();
@@ -56,22 +86,37 @@ function BindIdentity({ draftId }: { readonly draftId: string | null }) {
         await openAccountSession(token);
         if (draftId) {
           const draft = await loadLocalDraft(draftId);
-          if (!draft) throw new Error("This device no longer has the local claim key.");
+          if (!draft)
+            throw new Error("This device no longer has the local claim key.");
           setMessage("Protecting your photograph and voice…");
           await claimLocalDraft(draft);
-          if (active) await navigate(`/memory/${encodeURIComponent(draftId)}`, { replace: true });
+          if (active)
+            await navigate(`/memory/${encodeURIComponent(draftId)}`, {
+              replace: true,
+            });
         } else if (active) {
-          await navigate("/archive", { replace: true });
+          await navigate(returnTo ?? "/archive", { replace: true });
         }
       } catch (error) {
-        if (active) setMessage(error instanceof Error ? error.message : "Your archive could not be opened.");
+        if (active)
+          setMessage(
+            error instanceof Error
+              ? error.message
+              : "Your archive could not be opened.",
+          );
       }
     }
     void bind();
-    return () => { active = false; };
-  }, [draftId, getToken, navigate]);
+    return () => {
+      active = false;
+    };
+  }, [draftId, getToken, navigate, returnTo]);
 
-  return <p className="preservation-status" role="status">{notice(message)}</p>;
+  return (
+    <p className="preservation-status" role="status">
+      {notice(message)}
+    </p>
+  );
 }
 
 function IdentityFrame({ children }: { readonly children: React.ReactNode }) {
@@ -80,7 +125,9 @@ function IdentityFrame({ children }: { readonly children: React.ReactNode }) {
     <div className="quiet-page identity-page" id="main-content">
       <section className="capture-introduction identity-card">
         {children}
-        <p className="privacy-promise">{t("Private by default. Nothing is shared unless you choose.")}</p>
+        <p className="privacy-promise">
+          {t("Private by default. Nothing is shared unless you choose.")}
+        </p>
       </section>
     </div>
   );

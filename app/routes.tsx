@@ -1,3 +1,4 @@
+import { FamilyAccessExperience } from './features/family-archive/FamilyAccessExperience';
 import { t, notice, useLocale, getLocale } from "./localization/language";
 import type { RouteObject } from "react-router";
 import { useState } from "react";
@@ -31,6 +32,8 @@ export const routes: RouteObject[] = [
     element: <AppShell />,
     errorElement: <RouteErrorBoundary />,
     children: [
+      {path:"family",element:<FamilyAccessExperience/>},
+      {path:"family/join/:token",element:<FamilyAccessExperience/>},
       { path: "legacy/new", element: <NewLegacySession /> },
       { path: "legacy/:sessionId/join", element: <JoinLegacySession /> },
       { path: "legacy/:sessionId", element: <LegacySessionExperience /> },

@@ -1,4 +1,5 @@
 /// <reference types="@cloudflare/workers-types" />
+import { createAppSession } from "../../worker/auth-session";
 import { afterAll, describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import { resolve, dirname, relative } from "node:path";
@@ -40,11 +41,12 @@ function modules() {
   }
   add(resolve("worker/archive-routes.ts"));
   add(resolve("worker/people-routes.ts"));
+  add(resolve("worker/family-access-routes.ts"));
   result.unshift({
     type: "ESModule",
     path: "family-runtime-test.js",
     contents:
-      "import {handleArchiveRoute} from './worker/archive-routes.js'; import {handlePeopleRoute} from './worker/people-routes.js'; export default {async fetch(request,env){return await handlePeopleRoute(request,env)??await handleArchiveRoute(request,env);}};",
+      "import {handleFamilyAccessRoute} from './worker/family-access-routes.js'; import {handleArchiveRoute} from './worker/archive-routes.js'; import {handlePeopleRoute} from './worker/people-routes.js'; export default {async fetch(request,env){return await handleFamilyAccessRoute(request,env,async(_env,user)=>user==='family_native_member')??await handlePeopleRoute(request,env)??await handleArchiveRoute(request,env);}};",
   });
   return result;
 }
@@ -242,6 +244,92 @@ describe("private Chapter metadata on native workerd/D1/R2", () => {
       expect(JSON.parse(history.results[1].document_json).label).toBe(
         "Human correction",
       );
+      const accessHeaders = {
+        Cookie: fixture.owner,
+        "X-Memories-Request": "family-v1",
+        "X-Idempotency-Key": "native_access_invite",
+      };
+      const inviteResponse = await runtime!.dispatchFetch(
+        "https://example.test/resources/family-access/grants",
+        {
+          method: "POST",
+          headers: accessHeaders,
+          body: JSON.stringify({
+            archiveId: a.id,
+            scopeKind: "memory",
+            scopeId: fixture.memory,
+            targetEmail: "native@example.test",
+            role: "viewer",
+          }),
+        },
+      );
+      expect(inviteResponse.status).toBe(201);
+      const invite = (await inviteResponse.json()) as {
+        id: string;
+        joinPath: string;
+      };
+      const now = new Date().toISOString();
+      await db
+        .prepare("INSERT INTO users(id,created_at,updated_at) VALUES(?,?,?)")
+        .bind("family_native_member", now, now)
+        .run();
+      const member = (
+        await createAppSession(
+          {
+            DB: db as unknown as D1Database,
+            SESSION_SECRET: fixture.env.SESSION_SECRET,
+          },
+          "family_native_member",
+        )
+      ).cookie.split(";")[0];
+      const accepted = await runtime!.dispatchFetch(
+        `https://example.test/resources/family-access/invite/${invite.joinPath.split("/").at(-1)}/accept`,
+        {
+          method: "POST",
+          headers: { ...accessHeaders, Cookie: member },
+          body: "{}",
+        },
+      );
+      expect(accepted.status).toBe(200);
+      const familyView = (await (
+        await runtime!.dispatchFetch(
+          `https://example.test/resources/family-access/memberships/${invite.id}/view`,
+          { headers: { Cookie: member } },
+        )
+      ).json()) as { memories: { id: string; photoUrl: string }[] };
+      expect(familyView.memories.map((m) => m.id)).toEqual([fixture.memory]);
+      const photoUrl = `https://example.test${familyView.memories[0].photoUrl}`;
+      const original = await runtime!.dispatchFetch(photoUrl, {
+        headers: { Cookie: member },
+      });
+      expect(original.status).toBe(200);
+      const originalBytes = new Uint8Array(await original.arrayBuffer());
+      const partial = await runtime!.dispatchFetch(photoUrl, {
+        headers: { Cookie: member, Range: "bytes=0-3" },
+      });
+      expect(partial.status).toBe(206);
+      expect(new Uint8Array(await partial.arrayBuffer())).toEqual(
+        originalBytes.slice(0, 4),
+      );
+      expect(
+        (
+          await runtime!.dispatchFetch(
+            `https://example.test/resources/family-access/grants/${invite.id}/revoke`,
+            {
+              method: "POST",
+              headers: accessHeaders,
+              body: JSON.stringify({ version: 2 }),
+            },
+          )
+        ).status,
+      ).toBe(200);
+      expect(
+        (
+          await runtime!.dispatchFetch(photoUrl, {
+            headers: { Cookie: member },
+          })
+        ).status,
+      ).toBe(403);
       expect(
         (await bucket.list()).objects.map((object) => ({
           key: object.key,

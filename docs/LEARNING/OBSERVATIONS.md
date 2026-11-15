@@ -222,3 +222,13 @@ Observations preserve evidence separately from proposed solutions. Follow `READM
 - Confidence and contrary evidence: technical evidence only; older-adult and real-family acceptance remains owner-deferred.
 - Affected experience or invariant: I-05–I-09, I-19, I-25.
 - Related proposal: implements the owner-approved V2 E02 scope; no Foundation amendment.
+
+### L-2026-11-15-001 — Family access follows current source scope
+
+- Status: corroborated.
+- Evidence source: E03 route/native/bilingual browser checks; `IMPLEMENTATION/SCOPED_FAMILY_INVITATIONS_2026-11-15.md`.
+- Observed fact: selected-memory access does not enumerate other personal memories; removing a Chapter reference or revoking membership denies subsequent private media requests. Wrong-account acceptance leaves the invitation pending. Inactive creation retries require awaited error handling to return their stable failure response.
+- Interpretation: copyable invitations are transport, not identity or source authority; account and current source membership must be evaluated at retrieval. Promise rejections must remain inside route error boundaries.
+- Confidence and contrary evidence: native/fixture/browser evidence; hosted Clerk and physical/human proof remain open.
+- Affected experience or invariant: I-08–I-10, I-19, I-21, I-25.
+- Related proposal: implements approved V2.1 E03; no Foundation amendment.

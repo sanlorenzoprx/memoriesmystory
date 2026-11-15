@@ -1,3 +1,4 @@
+import { handleFamilyAccessRoute } from './family-access-routes';
 import { handleArchiveRoute } from "./archive-routes";
 import { handlePeopleRoute } from "./people-routes";
 import { handleRemoteRecordingRoute } from "./legacy-remote-recording-route";
@@ -70,6 +71,8 @@ const handler: ExportedHandler<Env, TranscriptionQueueMessage> = {
 
     const archiveResponse=await handleArchiveRoute(request,env);
     if(archiveResponse)return archiveResponse;
+    const familyAccessResponse=await handleFamilyAccessRoute(request,env);
+    if(familyAccessResponse)return familyAccessResponse;
     const peopleResponse=await handlePeopleRoute(request,env);
     if(peopleResponse)return peopleResponse;
 
