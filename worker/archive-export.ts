@@ -3,6 +3,7 @@ import {
   archiveExportFormat,
   archiveExportLimits as limits,
   archiveExportVersion,
+  type ArchiveExportConversation,
   type ArchiveExportFile,
   type ArchiveExportManifest,
   type ArchiveExportMemory,
@@ -29,6 +30,8 @@ const extensions: Record<string, string> = {
   "audio/mpeg": "mp3",
   "audio/wav": "wav",
   "audio/ogg": "ogg",
+  "video/mp4": "mp4",
+  "video/webm": "webm",
 };
 const assetRoles: Record<string, [ArchiveExportFile["role"], boolean]> = {
   original_photo: ["original_photograph", true],
@@ -47,6 +50,10 @@ const fileSources: Record<ArchiveExportFile["kind"], string> = {
     "SELECT s.r2_key,s.content_type,s.byte_size,s.sha256 FROM family_contribution_voice_sources s JOIN family_contributions c ON c.id=s.contribution_id JOIN memory_stories m ON m.id=c.memory_story_id WHERE s.id=?1 AND m.owner_user_id=?2 AND m.status='complete' AND c.author_state='submitted'",
   "contribution-photo":
     "SELECT s.r2_key,s.content_type,s.byte_size,s.sha256 FROM family_contribution_photo_sources s JOIN family_contributions c ON c.id=s.contribution_id JOIN memory_stories m ON m.id=c.memory_story_id WHERE s.id=?1 AND m.owner_user_id=?2 AND m.status='complete' AND c.author_state='submitted'",
+  "session-recording":
+    "SELECT x.r2_key,x.content_type,x.byte_size,x.sha256 FROM legacy_recording_media x JOIN legacy_recordings r ON r.id=x.recording_id JOIN legacy_sessions s ON s.id=r.session_id JOIN memory_stories m ON m.id=s.memory_story_id WHERE x.recording_id=?1 AND m.owner_user_id=?2 AND s.owner_user_id=?2 AND m.status='complete' AND x.durability_status='durable' AND s.deletion_requested_at IS NULL",
+  "session-source":
+    "SELECT x.r2_key,x.content_type,x.byte_size,x.sha256 FROM legacy_remote_sources x JOIN legacy_remote_recordings r ON r.id=x.recording_id JOIN legacy_sessions s ON s.id=r.session_id JOIN memory_stories m ON m.id=s.memory_story_id WHERE x.id=?1 AND m.owner_user_id=?2 AND s.owner_user_id=?2 AND m.status='complete' AND x.durability_status='durable' AND r.phase IN ('preserved','partial_preserved') AND s.deletion_requested_at IS NULL",
 };
 
 async function manifest(env: ArchiveExportEnv, owner: string) {
@@ -79,6 +86,7 @@ async function manifest(env: ArchiveExportEnv, owner: string) {
       storytellerContext: [],
       museConversation: [],
       voiceReplies: [],
+      sharedConversations: [],
       familyContributions: [],
     });
   const currentTranscript = new Map(
@@ -323,6 +331,248 @@ async function manifest(env: ArchiveExportEnv, owner: string) {
   for (const { row, entry } of submitted.values())
     memories.get(row.memory_story_id)?.familyContributions.push(entry);
 
+  // Our Living Legacy conversations: consent first, then the preserved sources.
+  const sessionRows = await all<{
+    id: string;
+    memory_story_id: string;
+    mode: "in_person" | "remote";
+    created_at: string;
+  }>(
+    `SELECT id,memory_story_id,mode,created_at FROM legacy_sessions WHERE owner_user_id=?1 AND deletion_requested_at IS NULL AND memory_story_id ${owned} ORDER BY created_at,id`,
+    owner,
+  );
+  const conversations = new Map<string, ArchiveExportConversation>(),
+    conversationMemory = new Map<string, string>(),
+    people = new Map<
+      string,
+      { role: "host" | "guest"; displayName: string | null }
+    >();
+  for (const row of sessionRows) {
+    const conversation: ArchiveExportConversation = {
+      id: row.id,
+      mode: row.mode,
+      createdAt: row.created_at,
+      participants: [],
+      consentHistory: [],
+      recordings: [],
+    };
+    conversations.set(row.id, conversation);
+    conversationMemory.set(row.id, row.memory_story_id);
+    memories.get(row.memory_story_id)?.sharedConversations?.push(conversation);
+  }
+  const inSessions =
+    "IN (SELECT id FROM legacy_sessions WHERE owner_user_id=?1 AND deletion_requested_at IS NULL)";
+  for (const row of await all<{
+    id: string;
+    session_id: string;
+    role: "host" | "guest";
+    display_name: string | null;
+    consent: string;
+    consent_version: string | null;
+    revoked_at: string | null;
+  }>(
+    `SELECT id,session_id,role,display_name,consent,consent_version,revoked_at FROM legacy_participants WHERE session_id ${inSessions} ORDER BY created_at,id`,
+    owner,
+  )) {
+    people.set(row.id, { role: row.role, displayName: row.display_name });
+    conversations.get(row.session_id)?.participants.push({
+      role: row.role,
+      displayName: row.display_name,
+      consent: row.consent,
+      consentVersion: row.consent_version,
+      accessEnded: Boolean(row.revoked_at),
+    });
+  }
+  for (const row of await all<{
+    session_id: string;
+    participant_id: string;
+    decision: string;
+    consent_version: string;
+    scope: string;
+    created_at: string;
+  }>(
+    `SELECT session_id,participant_id,decision,consent_version,scope,created_at FROM legacy_consent_events WHERE session_id ${inSessions} ORDER BY rowid`,
+    owner,
+  ))
+    conversations.get(row.session_id)?.consentHistory.push({
+      role: people.get(row.participant_id)?.role ?? "guest",
+      decision: row.decision,
+      consentVersion: row.consent_version,
+      scope: row.scope,
+      at: row.created_at,
+    });
+  const snapshot = (value: string) => {
+    let events: unknown;
+    try {
+      events = JSON.parse(value);
+    } catch {
+      events = [];
+    }
+    return (Array.isArray(events) ? events : []).map(
+      (event: { participant_id?: string; consent_version?: string; created_at?: string }) => ({
+        role: people.get(String(event.participant_id))?.role ?? null,
+        consentVersion: String(event.consent_version ?? ""),
+        at: String(event.created_at ?? ""),
+      }),
+    );
+  };
+  type Recording = ArchiveExportConversation["recordings"][number];
+  const recordings = new Map<string, Recording>();
+  let unpreserved = 0;
+  for (const row of await all<{
+    id: string;
+    session_id: string;
+    consent_snapshot_json: string;
+    created_at: string;
+    content_type: string | null;
+    byte_size: number | null;
+    sha256: string | null;
+    duration_ms: number | null;
+    interrupted: number | null;
+    durability_status: string | null;
+  }>(
+    `SELECT r.id,r.session_id,r.consent_snapshot_json,r.created_at,x.content_type,x.byte_size,x.sha256,x.duration_ms,x.interrupted,x.durability_status FROM legacy_recordings r LEFT JOIN legacy_recording_media x ON x.recording_id=r.id WHERE r.session_id ${inSessions} ORDER BY r.created_at,r.id`,
+    owner,
+  )) {
+    if (row.durability_status !== "durable" || !row.sha256) {
+      unpreserved++;
+      continue;
+    }
+    const recording: Recording = {
+      id: row.id,
+      kind: "in_person",
+      state: "preserved",
+      interrupted: row.interrupted === 1,
+      fileIds: [row.id],
+      consentAtRecording: snapshot(row.consent_snapshot_json),
+      selfIdentifiedSpeakers: [],
+      createdAt: row.created_at,
+    };
+    recordings.set(row.id, recording);
+    conversations.get(row.session_id)?.recordings.push(recording);
+    file(
+      conversationMemory.get(row.session_id)!,
+      "session-recording",
+      "shared_conversation_recording",
+      {
+        id: row.id,
+        content_type: row.content_type!,
+        byte_size: row.byte_size!,
+        sha256: row.sha256,
+        duration_ms: row.duration_ms,
+        created_at: row.created_at,
+      },
+    );
+  }
+  for (const row of await all<{
+    recording_id: string;
+    participant_id: string;
+    start_ms: number;
+    end_ms: number;
+    note: string;
+    created_at: string;
+  }>(
+    `SELECT c.recording_id,c.participant_id,c.start_ms,c.end_ms,c.note,c.created_at FROM legacy_recording_claims c JOIN legacy_recordings r ON r.id=c.recording_id WHERE r.session_id ${inSessions} ORDER BY c.rowid`,
+    owner,
+  ))
+    recordings.get(row.recording_id)?.selfIdentifiedSpeakers.push({
+      role: people.get(row.participant_id)?.role ?? "guest",
+      displayName: people.get(row.participant_id)?.displayName ?? null,
+      fileId: row.recording_id,
+      startMs: row.start_ms,
+      endMs: row.end_ms,
+      note: row.note,
+      at: row.created_at,
+    });
+  for (const row of await all<{
+    id: string;
+    session_id: string;
+    consent_snapshot_json: string;
+    phase: string;
+    created_at: string;
+  }>(
+    `SELECT id,session_id,consent_snapshot_json,phase,created_at FROM legacy_remote_recordings WHERE session_id ${inSessions} ORDER BY created_at,id`,
+    owner,
+  )) {
+    if (row.phase !== "preserved" && row.phase !== "partial_preserved") {
+      unpreserved++;
+      continue;
+    }
+    const recording: Recording = {
+      id: row.id,
+      kind: "remote",
+      state: row.phase,
+      interrupted: row.phase === "partial_preserved",
+      fileIds: [],
+      consentAtRecording: snapshot(row.consent_snapshot_json),
+      selfIdentifiedSpeakers: [],
+      createdAt: row.created_at,
+    };
+    recordings.set(row.id, recording);
+    conversations.get(row.session_id)?.recordings.push(recording);
+  }
+  for (const row of await all<{
+    id: string;
+    recording_id: string;
+    session_id: string;
+    participant_id: string | null;
+    kind: string;
+    content_type: string;
+    byte_size: number | null;
+    sha256: string | null;
+    durability_status: string;
+    created_at: string;
+  }>(
+    `SELECT x.id,x.recording_id,r.session_id,x.participant_id,x.kind,x.content_type,x.byte_size,x.sha256,x.durability_status,x.created_at FROM legacy_remote_sources x JOIN legacy_remote_recordings r ON r.id=x.recording_id WHERE r.session_id ${inSessions} ORDER BY x.created_at,x.id`,
+    owner,
+  )) {
+    const recording = recordings.get(row.recording_id);
+    if (!recording) continue;
+    if (row.durability_status !== "durable" || !row.sha256 || !row.byte_size) {
+      unpreserved++;
+      continue;
+    }
+    recording.fileIds.push(row.id);
+    file(
+      conversationMemory.get(row.session_id)!,
+      "session-source",
+      row.kind === "composite_video"
+        ? "shared_conversation_video"
+        : "shared_conversation_voice",
+      {
+        id: row.id,
+        content_type: row.content_type,
+        byte_size: row.byte_size,
+        sha256: row.sha256,
+        created_at: row.created_at,
+      },
+      {
+        attribution: row.participant_id
+          ? (people.get(row.participant_id)?.displayName ?? null)
+          : null,
+      },
+    );
+  }
+  for (const row of await all<{
+    source_id: string;
+    recording_id: string;
+    participant_id: string;
+    note: string;
+    created_at: string;
+  }>(
+    `SELECT c.source_id,x.recording_id,c.participant_id,c.note,c.created_at FROM legacy_remote_source_claims c JOIN legacy_remote_sources x ON x.id=c.source_id JOIN legacy_remote_recordings r ON r.id=x.recording_id WHERE r.session_id ${inSessions} ORDER BY c.rowid`,
+    owner,
+  ))
+    recordings.get(row.recording_id)?.selfIdentifiedSpeakers.push({
+      role: people.get(row.participant_id)?.role ?? "guest",
+      displayName: people.get(row.participant_id)?.displayName ?? null,
+      fileId: row.source_id,
+      startMs: null,
+      endMs: null,
+      note: row.note,
+      at: row.created_at,
+    });
+
   const chapters = await all<{
     id: string;
     title: string;
@@ -332,7 +582,7 @@ async function manifest(env: ArchiveExportEnv, owner: string) {
     "SELECT c.id,c.title,c.description,(SELECT json_group_array(memory_story_id) FROM (SELECT cm.memory_story_id FROM family_chapter_memories cm WHERE cm.chapter_id=c.id ORDER BY cm.position)) AS members FROM family_chapters c JOIN family_archives a ON a.id=c.archive_id WHERE a.owner_user_id=?1 ORDER BY a.id,c.position,c.id",
     owner,
   );
-  const people = await all<{ id: string; kind: string; document_json: string }>(
+  const peopleRecords = await all<{ id: string; kind: string; document_json: string }>(
     "SELECT r.id,r.kind,r.document_json FROM family_people_records r JOIN family_archives a ON a.id=r.archive_id WHERE a.owner_user_id=?1 AND r.active=1 ORDER BY r.id",
     owner,
   );
@@ -341,16 +591,13 @@ async function manifest(env: ArchiveExportEnv, owner: string) {
   const withdrawn = contributions.filter(
       (row) => row.author_state !== "submitted",
     ).length,
-    sessions = await count(
-      `SELECT count(*) AS n FROM legacy_sessions WHERE memory_story_id ${owned}`,
-    ),
     drafts = await count(
       "SELECT count(*) AS n FROM memory_stories WHERE owner_user_id=?1 AND status<>'complete'",
     );
   // State plainly what this format version does not carry.
   const notIncluded: ArchiveExportManifest["notIncluded"] = [];
   if (truncated) notIncluded.push({ code: "more_memories_than_one_export", count: null });
-  if (sessions) notIncluded.push({ code: "shared_conversation_recordings", count: sessions });
+  if (unpreserved) notIncluded.push({ code: "shared_recordings_not_preserved", count: unpreserved });
   if (withdrawn) notIncluded.push({ code: "recollections_withdrawn_by_their_author", count: withdrawn });
   if (drafts) notIncluded.push({ code: "unfinished_memories", count: drafts });
   const result: ArchiveExportManifest = {
@@ -368,7 +615,7 @@ async function manifest(env: ArchiveExportEnv, owner: string) {
         memories.has(id),
       ),
     })),
-    people: people.map((person) => ({
+    people: peopleRecords.map((person) => ({
       id: person.id,
       kind: person.kind,
       document: JSON.parse(person.document_json),
@@ -384,7 +631,7 @@ export async function handleArchiveExportRoute(
 ): Promise<Response | null> {
   const url = new URL(request.url),
     match = url.pathname.match(
-      /^\/resources\/archive-export\/(manifest|file\/(asset|voice-reply|contribution-voice|contribution-photo)\/([^/]+))$/,
+      /^\/resources\/archive-export\/(manifest|file\/(asset|voice-reply|contribution-voice|contribution-photo|session-recording|session-source)\/([^/]+))$/,
     );
   if (!match) return null;
   try {

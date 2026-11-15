@@ -4,6 +4,8 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { setupLegacyFixture } from "../helpers/legacy-fixture";
 import { handleRemoteRecordingRoute } from "../../worker/legacy-remote-recording-route";
 import { handleLegacyRemoteRoute } from "../../worker/legacy-remote";
+import { handleArchiveExportRoute } from "../../worker/archive-export";
+import type { ArchiveExportManifest } from "../../app/domain/archive-export";
 import { legacyConsentVersion } from "../../app/domain/our-living-legacy";
 const cleanups: (() => void)[] = [];
 afterEach(() => {
@@ -347,6 +349,44 @@ describe("consent-controlled remote recording archive routes", () => {
         )
         .run("b".repeat(64)),
     ).toThrow(/immutable/);
+    // F01: the owner's archive export carries these sources with consent and attribution.
+    const exported = (await handleArchiveExportRoute(
+      new Request("https://example.test/resources/archive-export/manifest", {
+        headers: { Cookie: s.owner },
+      }),
+      s.env,
+    ))!;
+    const manifest = (await exported.json()) as ArchiveExportManifest,
+      memory = manifest.memories[0]!,
+      conversation = memory.sharedConversations![0]!,
+      recording = conversation.recordings[0]!;
+    expect(conversation).toMatchObject({ id: s.id, mode: "remote" });
+    expect(conversation.participants.map((p) => p.role).sort()).toEqual(["guest", "host"]);
+    expect(conversation.consentHistory.every((c) => c.decision === "accepted")).toBe(true);
+    expect(recording).toMatchObject({ kind: "remote", state: "preserved" });
+    expect(recording.consentAtRecording).toHaveLength(2);
+    expect(recording.fileIds.sort()).toEqual(["remote_source_composite", "remote_source_guest", "remote_source_host"]);
+    // Only the guest identified their own voice; nothing is inferred for the host.
+    expect(recording.selfIdentifiedSpeakers).toEqual([
+      expect.objectContaining({ role: "guest", fileId: "remote_source_guest", note: "This is my voice." }),
+    ]);
+    const roles = memory.files.filter((f) => f.kind === "session-source").map((f) => f.role).sort();
+    expect(roles).toEqual(["shared_conversation_video", "shared_conversation_voice", "shared_conversation_voice"]);
+    const download = (await handleArchiveExportRoute(
+      new Request("https://example.test/resources/archive-export/file/session-source/remote_source_guest", { headers: { Cookie: s.owner } }),
+      s.env,
+    ))!;
+    expect(download.status).toBe(200);
+    expect(new Uint8Array(await download.arrayBuffer())).toEqual(new Uint8Array([1, 2, 3, 4]));
+    // A conversation guest is not the archive owner and cannot export.
+    expect(
+      (await handleArchiveExportRoute(
+        new Request("https://example.test/resources/archive-export/file/session-source/remote_source_guest", { headers: { Cookie: s.guest } }),
+        s.env,
+      ))!.status,
+    ).toBe(401);
+    expect(JSON.stringify(manifest)).not.toContain("private/remote_source");
+    expect(JSON.stringify(manifest)).not.toContain("meeting-provider-test");
   });
 
   it("waits for capture cleanup before deletion and removes quarantined attempts only in the owned session", async () => {

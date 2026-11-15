@@ -48,3 +48,22 @@ The nine checks not run are all in `tests/e2e/legacy-recording.spec.ts`, which l
 - No rate limit yet on these routes (review finding F3).
 
 **Reversible:** yes (no schema change). **Production deployed:** no.
+
+## F01b — Shared conversation recordings added (2026-11-15)
+
+**Result:** PARTIAL — implemented and locally proven on `main` `300ab86` plus this change; CI, real storage and human acceptance pending. This section supersedes the first bullet of "Not yet exported" above.
+
+The export now carries Our Living Legacy conversations about each memory's photograph:
+
+- the preserved in-person recording, and for remote conversations the composite video and each participant's own microphone source, as verified original files;
+- the participants by role and the name they chose, every consent choice in order, and the accepted consents in force when each recording was authorized;
+- speaker identification **only** where a participant identified their own voice, with their note and, for in-person recordings, the time range they gave. Nothing is inferred.
+
+A recording that was authorized but never fully preserved is not listed as a file; it is counted under `shared_recordings_not_preserved` and the export is marked incomplete. Conversations with a pending deletion request are left out. Provider meeting and recording identifiers, storage keys, invitation and access hashes and account identifiers are not exported.
+
+Evidence: one new Worker test records a consented in-person conversation through the real routes and exports it (not-yet-preserved counted as missing; after upload the file hash equals the recorded bytes; consent history and snapshot present; no speaker named; guest cookie refused); the existing preserved-remote-sources test now also exports the composite and both microphone sources, the guest's own-voice claim, and refuses the guest. `npm run verify:core` passed with 272 tests in 63 files; 63 phone-browser checks passed locally and the nine `legacy-recording.spec.ts` checks could not launch in the review sandbox.
+
+Still not exported: withdrawn family recollections (policy), unfinished memories, share-link inventory, scan correction parameters and people history versions. Restore, encryption and a server-built export for large archives remain.
+
+**Participant rights.** The owner's export includes a guest's recorded voice under the consent that guest gave for recording. Whether a participant may later ask for their voice to be left out of exports is part of the open recording/withdrawal policy decision.
+

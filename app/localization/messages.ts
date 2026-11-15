@@ -5,6 +5,10 @@ import type { UiLocale } from "./locale";
 export const spanishMessages: Readonly<Record<string, string>> = {
  "Added {date}":"Añadido {date}",
  "Find a memory":"Buscar un recuerdo",
+ "Shared conversation recording (Our Living Legacy)":"Grabación de conversación compartida (Our Living Legacy)",
+ "Shared conversation video (Our Living Legacy)":"Video de conversación compartida (Our Living Legacy)",
+ "One person's voice from a shared conversation":"La voz de una persona en una conversación compartida",
+ "Shared conversation recordings that were never fully preserved":"Grabaciones de conversaciones compartidas que nunca se conservaron por completo",
  "Export my archive":"Exportar mi archivo",
  "Take a copy of your originals and their history with you. Each file is checked against the preserved original before it is packaged. Nothing in your archive is changed.":"Llévate una copia de tus originales y de su historial. Cada archivo se compara con el original conservado antes de empaquetarlo. Nada cambia en tu archivo.",
  "Prepare my archive export":"Preparar la exportación de mi archivo",
