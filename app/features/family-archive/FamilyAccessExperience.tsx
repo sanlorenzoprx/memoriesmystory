@@ -1,3 +1,4 @@
+import { FamilyContributionsPanel } from './FamilyContributionsPanel';
 import { useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router";
 import type {
@@ -252,6 +253,7 @@ export function FamilyAccessExperience() {
               ) : (
                 <p>{t("The original voice is unavailable right now.")}</p>
               )}
+            <FamilyContributionsPanel key={`${selected.id}:${memory.id}`} memoryId={memory.id} grantId={selected.id}/>
             </article>
           ))}
           {cursor && (

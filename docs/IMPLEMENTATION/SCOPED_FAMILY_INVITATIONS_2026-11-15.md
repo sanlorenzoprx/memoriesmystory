@@ -29,3 +29,7 @@ Final review found that returning an asynchronous inactive-invitation replay wit
 Real hosted Clerk recipient acceptance and integrated application deployment/rollback remain open, alongside owner-deferred physical/human checks. Legal wording, operative stewardship and live billing remain separate gates. This slice does not complete V2.1. Next is E04 independent attributed family voice/text/photo contributions, each author's transcript review, and owner-controlled assembly that preserves different recollections.
 
 Anti-drift: explicit scope/default privacy and fresh identity protect I-19/I-21/I-25; immutable sources protect I-02–I-09; canonical acknowledgements and retry/version handling protect I-10; account-bound scope checks support source-grounded retrieval and eventual export without granting unrelated material; optional bilingual controls and manual delivery support I-15/I-17/I-18; no rewards or forced publication.
+
+## Merged result
+
+PR #43 merged as `9d184044153ab65d504053f81809acb63f2b0ca6` after clean-install CI 43689344069 passed 226 unit/integration and 53 phone-browser tests. Candidate head: `24d9873fbfa5a9e432e10bcd3bc4d5d3514e32d2`. Hosted real Clerk and deferred device/human gates remain open. E04 implementation advances on current main without treating these pending acceptance gates as complete.

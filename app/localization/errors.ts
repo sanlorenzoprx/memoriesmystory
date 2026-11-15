@@ -1,6 +1,14 @@
 // API codes select presentation copy; workflow decisions continue to use codes/status.
 // Never display an arbitrary provider/server message as translated interface copy.
 const messages: Readonly<Record<string, string>> = {
+ "family_contribution_invalid":"Check your recollection and attribution before submitting.",
+ "family_contribution_not_found":"This recollection is not available with your access.",
+ "family_contribution_denied":"This recollection is not available with your access.",
+ "family_contribution_conflict":"Your words are still here. Recheck the latest version before submitting again.",
+ "family_contribution_consent":"Choose whether you want to submit these words for owner review.",
+ "family_contribution_limit":"The current contribution limit for this memory has been reached.",
+ "family_contribution_unavailable":"Family recollections could not be opened. Please try again.",
+
   "family_access_invalid":"Check the family invitation details and try again.",
   "family_access_not_found":"This family invitation has expired or is not available with your access.",
   "family_access_denied":"This family invitation is not available with your account.",
