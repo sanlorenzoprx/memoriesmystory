@@ -31,7 +31,7 @@ E03 on `feat/scoped-family-invitations` adds verified-recipient expiring invitat
 
 E04a on `feat/attributed-family-contributions` adds independently attributed human text, immutable revision lineage and versioned review intent, author-only revision/withdrawal, owner selection of a specific family-visible version, source-grant rechecks and recoverable on-device writing. Two EN/ES browser journeys, ten route cases, native D1/R2 source/receipt/lineage checks and draft cleanup/API boundary checks passed. Local core passed 238 tests with 88 schema objects and all 55 phone-browser checks passed. PR #44 merged as `d0a550b` after main CI 43692868082 passed. Migration 0017 is required. This is text only; E04 voice/photo sources and each author's transcript review remain required. See `IMPLEMENTATION/ATTRIBUTED_FAMILY_TEXT_2026-11-15.md`.
 
-## Talk with Muse — M1–M3 merged, M4a in review
+## Talk with Muse — M1–M4a merged, M4c in review
 
 By owner decisions 2026-11-16 (`DECISIONS/2026-11-16-talk-with-muse.md`), Muse becomes a storytelling companion with companion safeguards built in for US-first, then global, use.
 
@@ -42,7 +42,9 @@ By owner decisions 2026-11-16 (`DECISIONS/2026-11-16-talk-with-muse.md`), Muse b
 - **M3:** Muse looks at the photograph once, describes only what can be seen (no names, dates or places; any digit discards the note), and asks about it. Migration 0041.
 - **M3 merged** (PR #82, `a3b0181`).
 - **M4a:** the server side of the open conversation. A one-time adult and AI confirmation; an opening that says Muse is an AI; one question at a time from the person's own words; danger first; an AI reminder every three hours; and a single family suggestion after 45 minutes. Migration 0042.
-- **Next:** M4b voice and saving into a Living Memory; M4c the screen.
+- **M4a merged** (PR #83, `99091e3`).
+- **M4c:** the typed Talk with Muse screen at `/muse`, reached from the archive. The confirmation wording awaits owner and legal review.
+- **Next:** M4b voice and saving into a Living Memory.
 - **Waiting on the owner:** a paid-tier Gemini API key for the Worker secret and the live evaluation, and review of crisis wording per country.
 
 See `IMPLEMENTATION/MUSE_COMPANION_M1_2026-11-16.md` and `IMPLEMENTATION/MUSE_COMPANION_M2_2026-11-16.md`.

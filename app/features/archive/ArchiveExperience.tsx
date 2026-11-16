@@ -45,6 +45,7 @@ function ArchiveIndex() {
         {drafts === null && !error && <p className="preservation-status" role="status">{t("Gathering your stories…")}</p>}
         {drafts?.length === 0 && <p className="capture-lede">{t("Your first protected Living Memory will appear here.")}</p>}
         {drafts && drafts.length > 0 && <MuseMemoryPanel />}
+        {drafts && drafts.length > 0 && <Link className="secondary-action" to="/muse">{t("Talk with Muse")}</Link>}
         {drafts?.some(draft=>draft.status==="complete")&&<FamilySearchPanel/>}
         {drafts?.some(draft=>draft.status==="complete")&&<FamilyTimelinePanel/>}
         {drafts?.some(draft=>draft.status==="complete")&&<FamilyArchivePanel/>}

@@ -31,6 +31,7 @@ async function stub(page: Page) {
           { id: "ctx_axe_place", memoryId: memory, memoryTitle: null, kind: "place", value: "Ponce", approximate: true, forgotten: true },
         ],
       } });
+    if (path.endsWith("/muse/talk/consent")) return route.fulfill({ json: { confirmed: false, disclosureVersion: "muse-talk-disclosure-2026-11-16" } });
     if (path.endsWith("/growth/events")) return route.fulfill({ status: 202, json: { recorded: true } });
     return route.fulfill({ json: {} });
   });
@@ -40,6 +41,7 @@ const pages: { name: string; path: string; open?: (page: Page) => Promise<void> 
   { name: "first screen", path: "/" },
   { name: "archive", path: "/archive" },
   { name: "family", path: "/family" },
+  { name: "Talk with Muse confirmation", path: "/muse" },
   { name: "finished memory", path: `/memory/${memory}` },
   {
     name: "sharing agreement",

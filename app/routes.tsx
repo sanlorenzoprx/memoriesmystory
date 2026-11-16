@@ -57,6 +57,7 @@ export const routes: RouteObject[] = [
         path: "memory/:draftId",
         lazy: async () => ({ Component: (await import("./features/living-memory/LivingMemoryExperience")).LivingMemoryExperience })
       },
+      { path: "muse", lazy: async () => ({ Component: (await import("./features/muse/TalkWithMuse")).TalkWithMuse }) },
       { path: "archive", lazy: archivePage },
       { path: "archive/:draftId", lazy: archivePage }
     ]
