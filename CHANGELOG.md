@@ -7,7 +7,8 @@
 - First-person words of wanting to die or self-harm are answered before any question, with real people to reach in the person's country and language.
 - The archive shows where the person left off and what Muse remembers, which is only their own confirmed words. Muse forgets on request without changing any memory, and can ask whether a new memory connects to an earlier one. Migration 0040.
 - Muse looks at the photograph once and asks about what can be seen, never saying who, when or where. The description is stored as Muse's own material (migration 0041).
-- The server side of Talk with Muse: a one-time confirmation of adulthood and that Muse is an AI; an opening that says so; one question at a time from the person's own words; danger answered first; an AI reminder every three hours; and a single family suggestion after a long talk (migration 0042). No screen yet. No deployment is claimed.
+- The server side of Talk with Muse: a one-time confirmation of adulthood and that Muse is an AI; an opening that says so; one question at a time from the person's own words; danger answered first; an AI reminder every three hours; and a single family suggestion after a long talk (migration 0042).
+- The Talk with Muse screen, reached from the archive: a one-time confirmation, a typed conversation, one-tap help and deletion. The confirmation wording awaits owner review. No deployment is claimed.
 
 ## Welcome splash for returning people — 2026-11-16
 

@@ -2316,3 +2316,45 @@ h1 {
   text-decoration: line-through;
   opacity: 0.7;
 }
+
+/* Talk with Muse (decision 2026-11-16). */
+.muse-talk-consent,
+.muse-talk-reply {
+  display: grid;
+  gap: 12px;
+  margin: 16px 0;
+}
+.muse-talk-consent label {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  min-height: 44px;
+}
+.muse-talk-turns {
+  list-style: none;
+  padding: 0;
+  margin: 16px 0;
+  display: grid;
+  gap: 12px;
+}
+.muse-talk-turns li {
+  padding: 12px 14px;
+  border-radius: 12px;
+}
+.muse-talk-muse {
+  background: var(--surface-raised, #f7f1ea);
+}
+.muse-talk-person {
+  background: var(--surface-person, #e8efe9);
+  margin-left: 24px;
+}
+.muse-talk-turns li p {
+  margin: 4px 0 0;
+}
+.muse-talk-turns li.muse-talk-end {
+  padding: 0;
+}
+.muse-talk-reply textarea {
+  width: 100%;
+  font: inherit;
+}
