@@ -8,7 +8,7 @@ The lane updates this file in each pull request. The coordinator folds it into `
 
 ## Status
 
-In progress. L7.1–L7.3 merged; L7.4 dependency advisories and CI audit implemented by the coordinator, CI pending.
+In progress. L7.1–L7.3 merged; L7.4 merged (PR #62, `cd865a0`).
 
 ## Merged
 
@@ -23,7 +23,7 @@ L7.4: CI-gated (`npm audit --omit=dev --audit-level=high`); record in `docs/SECU
 
 ## Next
 
-The dead-letter queue, then per-account cost ceilings, then the threat model.
+Per-account cost ceilings, then the threat model. The dead-letter queue waits on L8 provisioning (see the L8 lane file).
 
 ## Waiting on the owner
 

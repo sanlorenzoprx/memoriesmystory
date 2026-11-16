@@ -56,6 +56,7 @@ class TestD1 {
       "0019_family_photo_contributions.sql",
       "0020_family_voice_written_words.sql",
       "0021_family_album_permissions.sql",
+      "0025_fixity_checks.sql",
     ]) {
       this.database.exec(readFileSync(new URL(`../../migrations/${migration}`, import.meta.url), "utf8"));
     }
@@ -157,6 +158,12 @@ describe("Living Memory deletion", () => {
       d1.database.prepare("SELECT free_stories_completed AS n FROM story_entitlements WHERE user_id = ?").get(userId)
     ).toEqual({ n: 1 });
 
+    // Integrity history for this memory's media, plus another account's row that must stay.
+    for (const [id, source] of [["fixity_delete_photo", "asset_delete_photo"], ["fixity_delete_reply", "muse_voice_delete_001"], ["fixity_keep_other", "asset_someone_else"]])
+      d1.database.prepare(
+        "INSERT INTO fixity_checks(id,source_kind,source_id,outcome,expected_sha256,observed_sha256,observed_byte_size,checked_at) VALUES(?,'asset',?,'match',?,?,10,?)"
+      ).run(id, source, "a".repeat(64), "a".repeat(64), now);
+
     const env: DeletionEnv = {
       DB: d1 as unknown as D1Database,
       SESSION_SECRET: secret,
@@ -184,6 +191,8 @@ describe("Living Memory deletion", () => {
     expect(d1.database.prepare("SELECT count(*) AS n FROM memory_story_drafts WHERE id = ?").get(draftId)).toEqual({ n: 0 });
     expect(d1.database.prepare("SELECT count(*) AS n FROM memory_stories WHERE id = ?").get(draftId)).toEqual({ n: 0 });
     expect(d1.database.prepare("SELECT count(*) AS n FROM media_assets WHERE draft_id = ?").get(draftId)).toEqual({ n: 0 });
+    // No hash of the deleted media is kept in integrity history.
+    expect(d1.database.prepare("SELECT id FROM fixity_checks").all()).toEqual([{ id: "fixity_keep_other" }]);
     expect(d1.database.prepare("SELECT count(*) AS n FROM muse_voice_reply_assets WHERE memory_story_id = ?").get(draftId)).toEqual({ n: 0 });
     expect(d1.database.prepare("SELECT count(*) AS n FROM operation_receipts WHERE scope_id = 'muse_voice_delete_001'").get()).toEqual({ n: 0 });
     expect(d1.database.prepare("SELECT actor_type, deleted_asset_count FROM deletion_receipts WHERE draft_id = ?").get(draftId))

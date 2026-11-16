@@ -10,6 +10,7 @@ export { LegacyRecorder } from "./legacy-recorder";
 import { handleLegacyRemoteRoute } from "./legacy-remote";
 import type { RealtimeKitEnv } from "./realtimekit";
 import { enforceRateLimit, type RateLimitEnv } from "./rate-limit";
+import { runFixityPass } from "./fixity";
 import { appIdentity } from "../config/app-identity";
 import { handleLegacyRecordingRoute } from "./legacy-recordings";
 import { handleLegacySessionRoute } from "./legacy-sessions";
@@ -75,6 +76,15 @@ const handler: ExportedHandler<Env, TranscriptionQueueMessage> = {
 
   async queue(batch, env) {
     await processTranscriptionBatch(batch, env);
+  },
+
+  // Daily integrity pass over stored originals and sources (worker/fixity.ts).
+  async scheduled(_controller, env, context) {
+    context.waitUntil(
+      runFixityPass(env).then((result) => {
+        console.log("Fixity pass finished", result);
+      }),
+    );
   }
 };
 
