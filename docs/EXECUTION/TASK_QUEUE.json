@@ -360,7 +360,7 @@
       ],
       "title": "People, relationships, Chapters, and Family Archive",
       "release_required": true,
-      "note": "E01/E02/E03 merged through PR43; Chapters have native and real-cloud proof, people/invitations have CI/native/browser evidence. Hosted Clerk/full-app and owner-deferred physical/human acceptance remain open; implementation proceeds to E04 without marking those gates complete. Owner decision 2026-11-15: Album → Chapter → Living Memory; album wording and starter ideas merged through PR53 (docs/IMPLEMENTATION/ALBUMS_AND_CHAPTERS_2026-11-15.md). Person albums, owner-granted album-making permission and album export remain. Owner-granted album-making permission for invited relatives implemented and locally proven, CI pending (docs/IMPLEMENTATION/FAMILY_ALBUM_PERMISSION_2026-11-16.md).",
+      "note": "E01/E02/E03 merged through PR43; Chapters have native and real-cloud proof, people/invitations have CI/native/browser evidence. Hosted Clerk/full-app and owner-deferred physical/human acceptance remain open; implementation proceeds to E04 without marking those gates complete. Owner decision 2026-11-15: Album → Chapter → Living Memory; album wording and starter ideas merged through PR53 (docs/IMPLEMENTATION/ALBUMS_AND_CHAPTERS_2026-11-15.md). Person albums, owner-granted album-making permission and album export remain. Owner-granted album-making permission for invited relatives merged through PR54 (docs/IMPLEMENTATION/FAMILY_ALBUM_PERMISSION_2026-11-16.md).",
       "implementation_packets": [
         {
           "packet": "E01",
