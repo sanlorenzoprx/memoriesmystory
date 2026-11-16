@@ -8,19 +8,20 @@ The lane updates this file in each pull request. The coordinator folds it into `
 
 ## Status
 
-In progress. L2.1 email adapter and L2.2 invitations by email implemented by the coordinator, sending off, CI pending.
+In progress, sending off. L2.1–L2.2 merged; L2.3 preferences and unsubscribe implemented by the coordinator, CI pending.
 
 ## Merged
 
-None yet.
+- L2.1 email adapter and L2.2 invitations by email — PR #64, `4fa3fbd`.
 
 ## Evidence level reached
 
-L2.1–L2.2: INTEGRATION_PROVEN locally with a test double (receipt `docs/IMPLEMENTATION/INVITATION_EMAIL_2026-11-16.md`); migration 0022.
+L2.1–L2.2: INTEGRATION_PROVEN with a test double (receipt `docs/IMPLEMENTATION/INVITATION_EMAIL_2026-11-16.md`); migration 0022.
+L2.3: INTEGRATION_PROVEN locally (receipt `docs/IMPLEMENTATION/EMAIL_PREFERENCES_2026-11-16.md`); migration 0023.
 
 ## Next
 
-L2.3 preferences and signed one-step unsubscribe; L2.4 "something new is waiting" notices to invited family (sending off).
+L2.4 "something new is waiting" notices to invited family (sending off).
 
 ## Waiting on the owner
 

@@ -1,5 +1,9 @@
 # Foundation Package Changelog
 
+## Email preferences and one-step unsubscribe — 2026-11-16
+
+- Email choices for owners and invited relatives, all off until turned on, with an append-only history (migration 0023). Signed unsubscribe links work without signing in, change nothing when opened, and turn off one kind of email for one person on a button press or a one-click POST. No email is sent yet. No deployment is claimed.
+
 ## Invitations by email — 2026-11-16
 
 - A Cloudflare Email Service adapter that fails closed with stable codes, plus an owner option to email a family invitation's link in English and Spanish. The email carries no memory content, is sent at most once, and is never sent for an inactive invitation. Migration 0022 adds an append-only delivery record with no address or body. Sending is off (`EMAIL_SENDING_ENABLED=false`) until a sending domain is onboarded. No deployment is claimed.

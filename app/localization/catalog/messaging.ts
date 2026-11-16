@@ -8,5 +8,18 @@ export const spanish: Readonly<Record<string, string>> = {
     "Esta invitación ya no está activa, así que no se envió por correo.",
   "Email is not available yet, so nothing was emailed. Send the link below yourself.":
     "El correo todavía no está disponible, así que no se envió nada. Envía tú el enlace de abajo.",
+  "Email choices": "Opciones de correo",
+  "These emails are off unless you turn them on. They never include your memories' words, photographs or titles, and each one has a link to stop them.":
+    "Estos correos están desactivados a menos que los actives. Nunca incluyen las palabras, fotografías ni títulos de tus recuerdos, y cada uno tiene un enlace para dejar de recibirlos.",
+  "Optional emails": "Correos opcionales",
+  "Email me when something new is shared with me": "Enviarme un correo cuando se comparta algo nuevo conmigo",
+  "Email me an occasional reminder to add a memory": "Enviarme de vez en cuando un recordatorio para añadir un recuerdo",
+  "Your email choices are saved.": "Tus opciones de correo están guardadas.",
+  "Your email choices could not be saved. Please try again.": "No se pudieron guardar tus opciones de correo. Vuelve a intentarlo.",
+  "Your email choices changed somewhere else. Open them again to see the latest.":
+    "Tus opciones de correo cambiaron en otro lugar. Ábrelas de nuevo para ver las más recientes.",
 };
-export const errors: Readonly<Record<string, string>> = {};
+export const errors: Readonly<Record<string, string>> = {
+  email_preferences_conflict: "Your email choices changed somewhere else. Open them again to see the latest.",
+  email_preferences_invalid: "Your email choices could not be saved. Please try again.",
+};

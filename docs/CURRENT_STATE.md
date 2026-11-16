@@ -31,9 +31,13 @@ E03 on `feat/scoped-family-invitations` adds verified-recipient expiring invitat
 
 E04a on `feat/attributed-family-contributions` adds independently attributed human text, immutable revision lineage and versioned review intent, author-only revision/withdrawal, owner selection of a specific family-visible version, source-grant rechecks and recoverable on-device writing. Two EN/ES browser journeys, ten route cases, native D1/R2 source/receipt/lineage checks and draft cleanup/API boundary checks passed. Local core passed 238 tests with 88 schema objects and all 55 phone-browser checks passed. PR #44 merged as `d0a550b` after main CI 43692868082 passed. Migration 0017 is required. This is text only; E04 voice/photo sources and each author's transcript review remain required. See `IMPLEMENTATION/ATTRIBUTED_FAMILY_TEXT_2026-11-15.md`.
 
-## Invitations by email — implemented locally, sending off; CI pending
+## Email preferences and one-step unsubscribe — implemented locally; CI pending
 
-An owner can ask for a family invitation's private link to be emailed to the invited address in English and Spanish. The email has no memory, album or personal content. It is sent at most once and refused for a revoked or expired invitation, and the owner is told plainly whether it went. The Cloudflare Email adapter fails closed, and sending stays off until a sending domain is onboarded (O2). Migration 0022. See `IMPLEMENTATION/INVITATION_EMAIL_2026-11-16.md`.
+Owners and invited relatives have email choices, all off until turned on, with versioned saves and an append-only history. A signed unsubscribe link works without signing in. It changes nothing when opened and turns off one kind of email for one person on a button press or a one-click POST. Forged links change nothing. Migration 0023. See `IMPLEMENTATION/EMAIL_PREFERENCES_2026-11-16.md`.
+
+## Invitations by email — merged, sending off
+
+An owner can ask for a family invitation's private link to be emailed to the invited address in English and Spanish. The email has no memory, album or personal content. It is sent at most once and refused for a revoked or expired invitation, and the owner is told plainly whether it went. The Cloudflare Email adapter fails closed, and sending stays off until a sending domain is onboarded (O2). Migration 0022 (PR #64, `4fa3fbd`). See `IMPLEMENTATION/INVITATION_EMAIL_2026-11-16.md`.
 
 ## Scheduled integrity checks — merged
 

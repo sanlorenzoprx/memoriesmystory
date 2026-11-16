@@ -71,3 +71,10 @@ Apply before the matching Worker. It adds the append-only `email_deliveries`
 table (purpose, subject id, status and stable code; no address, subject or
 body) with a partial unique index so a purpose and subject are recorded as sent
 at most once. No stored row is changed. 0023–0024 stay reserved for lane L2.
+
+## 0023 — email preferences
+
+Apply after 0022 and before the matching Worker. It adds `email_preferences`
+(every optional kind defaults off) and the append-only
+`email_preference_events` history, which records changes made in settings and
+through signed unsubscribe links. No stored row is changed.
