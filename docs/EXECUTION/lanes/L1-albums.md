@@ -8,16 +8,17 @@ The lane updates this file in each pull request. The coordinator folds it into `
 
 ## Status
 
-In progress. L1.2 album export implemented by the coordinator, CI pending.
+In progress. L1.1 and L1.2 merged.
 
 ## Merged
 
 - L1.1 person albums — PR #58, `bc39ce7`.
+- L1.2 album export — PR #59, `cb550d4`. The ZIP keeps the archive export's `index.html` and `manifest.json` names rather than `album.html` and `sources.json`, so one verification reader serves both.
 
 ## Evidence level reached
 
 L1.1: INTEGRATION_PROVEN (receipt `docs/IMPLEMENTATION/PERSON_ALBUMS_2026-11-16.md`).
-L1.2: INTEGRATION_PROVEN locally (receipt `docs/IMPLEMENTATION/ALBUM_EXPORT_2026-11-16.md`).
+L1.2: INTEGRATION_PROVEN (receipt `docs/IMPLEMENTATION/ALBUM_EXPORT_2026-11-16.md`).
 
 ## Next
 

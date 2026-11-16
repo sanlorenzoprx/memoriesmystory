@@ -9,6 +9,7 @@ import { handleRemoteRecordingRoute } from "./legacy-remote-recording-route";
 export { LegacyRecorder } from "./legacy-recorder";
 import { handleLegacyRemoteRoute } from "./legacy-remote";
 import type { RealtimeKitEnv } from "./realtimekit";
+import { enforceRateLimit, type RateLimitEnv } from "./rate-limit";
 import { appIdentity } from "../config/app-identity";
 import { handleLegacyRecordingRoute } from "./legacy-recordings";
 import { handleLegacySessionRoute } from "./legacy-sessions";
@@ -31,7 +32,7 @@ import {
 } from "./transcription";
 import type { TranscriptionQueueMessage } from "../app/domain";
 
-export interface Env extends RealtimeKitEnv {
+export interface Env extends RealtimeKitEnv, RateLimitEnv {
   LEGACY_RECORDERS?: DurableObjectNamespace;
   LEGACY_REMOTE_RECORDING_ENABLED?: string;
   ASSETS: Fetcher;
@@ -87,6 +88,9 @@ async function route(request: Request, env: Env): Promise<Response> {
         brand: env.PUBLIC_BRAND_NAME ?? appIdentity.brandName
       });
     }
+
+    const limited = await enforceRateLimit(request, env);
+    if (limited) return limited;
 
     const discoveryResponse = handleDiscoveryRoute(request);
     if (discoveryResponse) return discoveryResponse;
