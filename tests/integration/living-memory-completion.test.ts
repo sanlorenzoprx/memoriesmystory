@@ -77,6 +77,7 @@ class TestD1 {
       "0020_family_voice_written_words.sql",
       "0021_family_album_permissions.sql",
       "0025_fixity_checks.sql",
+      "0030_entitlement_ledger.sql",
       "0028_share_agreements.sql",
     ]) {
       this.database.exec(

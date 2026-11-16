@@ -3,9 +3,11 @@
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { DatabaseSync, type SQLInputValue, type StatementSync } from "node:sqlite";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 
 import { handleDeletionRoute, type DeletionEnv } from "../../worker/deletion";
+import { phase1Config } from "../../config/phase-1";
+import { summarizeLedger, type LedgerEntry } from "../../app/domain/entitlement";
 
 class Statement {
   constructor(
@@ -57,6 +59,7 @@ class TestD1 {
       "0020_family_voice_written_words.sql",
       "0021_family_album_permissions.sql",
       "0025_fixity_checks.sql",
+      "0030_entitlement_ledger.sql",
     ]) {
       this.database.exec(readFileSync(new URL(`../../migrations/${migration}`, import.meta.url), "utf8"));
     }
@@ -80,8 +83,15 @@ function digest(value: string): string {
   return createHash("sha256").update(value).digest("hex");
 }
 
+afterEach(() => {
+  (phase1Config.entitlements as { deletionReturnsCapacity: boolean }).deletionReturnsCapacity = true;
+});
+
 describe("Living Memory deletion", () => {
-  it("removes media and connected records while keeping a minimal receipt", async () => {
+  for (const returnsCapacity of [true, false])
+  it(`removes media and connected records while keeping a minimal receipt (deletion ${returnsCapacity ? "returns" : "keeps"} capacity)`, async () => {
+    // The stated deletion policy decides; the ledger records what it did.
+    (phase1Config.entitlements as { deletionReturnsCapacity: boolean }).deletionReturnsCapacity = returnsCapacity;
     const d1 = new TestD1();
     const removed: string[] = [];
     const secret = "s".repeat(40);
@@ -191,6 +201,16 @@ describe("Living Memory deletion", () => {
     expect(d1.database.prepare("SELECT count(*) AS n FROM memory_story_drafts WHERE id = ?").get(draftId)).toEqual({ n: 0 });
     expect(d1.database.prepare("SELECT count(*) AS n FROM memory_stories WHERE id = ?").get(draftId)).toEqual({ n: 0 });
     expect(d1.database.prepare("SELECT count(*) AS n FROM media_assets WHERE draft_id = ?").get(draftId)).toEqual({ n: 0 });
+    const ledger = d1.database.prepare("SELECT entry_kind,granted,used_delta,policy_version FROM entitlement_ledger WHERE user_id=? ORDER BY rowid").all(userId) as LedgerEntry[];
+    expect(ledger.map((entry) => entry.entry_kind)).toEqual([
+      "grant",
+      "memory_completed",
+      returnsCapacity ? "memory_deleted_capacity_returned" : "memory_deleted_capacity_kept",
+    ]);
+    // The ledger and the enforcement counter agree.
+    const counter = d1.database.prepare("SELECT free_stories_unlocked AS unlocked, free_stories_completed AS completed FROM story_entitlements WHERE user_id=?").get(userId) as { unlocked: number; completed: number };
+    expect(summarizeLedger(ledger)).toEqual({ granted: counter.unlocked, used: counter.completed, remaining: counter.unlocked - counter.completed });
+    expect(counter.completed).toBe(returnsCapacity ? 0 : 1);
     // No hash of the deleted media is kept in integrity history.
     expect(d1.database.prepare("SELECT id FROM fixity_checks").all()).toEqual([{ id: "fixity_keep_other" }]);
     expect(d1.database.prepare("SELECT count(*) AS n FROM muse_voice_reply_assets WHERE memory_story_id = ?").get(draftId)).toEqual({ n: 0 });
@@ -199,6 +219,6 @@ describe("Living Memory deletion", () => {
       .toEqual({ actor_type: "owner", deleted_asset_count: 3 });
     expect(
       d1.database.prepare("SELECT free_stories_completed AS n FROM story_entitlements WHERE user_id = ?").get(userId)
-    ).toEqual({ n: 0 });
+    ).toEqual({ n: returnsCapacity ? 0 : 1 });
   });
 });
