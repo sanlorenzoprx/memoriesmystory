@@ -60,8 +60,8 @@ In the owner's words: "initially US then global scale app so that has to be bake
 | Packet | Content | Status |
 | --- | --- | --- |
 | M1 | This decision; Gemini routing with zero-data-retention allowlist and fallback; the danger check in today's Muse conversation and first question | Merged (PR #80) |
-| M2 | Muse memory: "where you left off", the person's own confirmed people, places and times across memories, and the "What Muse remembers" page | Implemented (`IMPLEMENTATION/MUSE_COMPANION_M2_2026-11-16.md`) |
-| M3 | Photo-aware questions (visible content only), stored as generated material | Planned |
+| M2 | Muse memory: "where you left off", the person's own confirmed people, places and times across memories, and the "What Muse remembers" page | Merged (PR #81) |
+| M3 | Photo-aware questions (visible content only), stored as generated material | Implemented (`IMPLEMENTATION/MUSE_COMPANION_M3_2026-11-16.md`) |
 | M4 | Talk with Muse: voice-first open conversation, adult confirmation, AI disclosure cadence, gentle ending, model-based second safety check | Planned |
 | M5 | Live evaluation of Gemini models on synthetic scenarios; owner review of crisis wording before launch in each country | Needs the owner's Cloudflare credentials |
 

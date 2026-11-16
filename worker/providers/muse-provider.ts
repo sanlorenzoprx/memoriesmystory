@@ -6,7 +6,25 @@ export type MuseTextRequest = {
   readonly user: string;
   readonly maxTokens: number;
   readonly temperature: number;
+  /** A photograph for Muse to look at (decision 2026-11-16): JPEG, PNG or WebP, base64. */
+  readonly image?: { readonly mimeType: string; readonly base64: string };
 };
+
+/** Chat messages in the OpenAI-compatible shape both Gemini routes accept. */
+function chatMessages(request: MuseTextRequest) {
+  return [
+    { role: "system", content: request.system },
+    {
+      role: "user",
+      content: request.image
+        ? [
+            { type: "text", text: request.user },
+            { type: "image_url", image_url: { url: `data:${request.image.mimeType};base64,${request.image.base64}` } }
+          ]
+        : request.user
+    }
+  ];
+}
 
 export interface MuseTextProvider {
   readonly provider: string;
@@ -42,11 +60,10 @@ export class CloudflareMuseTextProvider implements MuseTextProvider {
     const thirdParty = isThirdPartyModel(this.modelId);
     if (thirdParty && !(phase1Config.ai.museZeroRetentionModels as readonly string[]).includes(this.modelId))
       throw new MuseModelRefused("Model is not on the zero-data-retention list");
+    // The Workers AI fallback reads text only; a photograph is never sent to it.
+    if (!thirdParty && request.image) throw new MuseModelRefused("Model cannot look at photographs");
     const input = {
-      messages: [
-        { role: "system", content: request.system },
-        { role: "user", content: request.user }
-      ],
+      messages: chatMessages(request),
       // Gemini reasons before answering and those tokens count against the
       // limit; the guard still trims what the storyteller sees to one question.
       max_tokens: thirdParty ? request.maxTokens + phase1Config.ai.museReasoningTokenAllowance : request.maxTokens,
@@ -76,10 +93,7 @@ export class DirectGeminiMuseTextProvider implements MuseTextProvider {
       headers: { Authorization: `Bearer ${this.apiKey}`, "Content-Type": "application/json" },
       body: JSON.stringify({
         model: this.modelId,
-        messages: [
-          { role: "system", content: request.system },
-          { role: "user", content: request.user }
-        ],
+        messages: chatMessages(request),
         max_tokens: request.maxTokens + phase1Config.ai.museReasoningTokenAllowance,
         temperature: request.temperature,
         // Muse asks one short question; keep Gemini's thinking short too.
