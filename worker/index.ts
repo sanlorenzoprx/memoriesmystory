@@ -19,6 +19,7 @@ import { handleEmailPreferenceRoute } from "./email-preferences";
 import { handleReferralRoute } from "./referral";
 import { handleShareAgreementRoute } from "./share-agreement";
 import { handleMuseMemoryRoute } from "./muse-memory";
+import { handleMuseTalkRoute } from "./muse-talk";
 import type { EmailProviderEnv } from "./providers/email-provider";
 import { appIdentity } from "../config/app-identity";
 import { handleLegacyRecordingRoute } from "./legacy-recordings";
@@ -166,6 +167,9 @@ async function route(request: Request, env: Env): Promise<Response> {
 
     const museMemoryResponse = await handleMuseMemoryRoute(request, env);
     if (museMemoryResponse) return museMemoryResponse;
+
+    const museTalkResponse = await handleMuseTalkRoute(request, env);
+    if (museTalkResponse) return museTalkResponse;
 
     const archiveResponse=await handleArchiveRoute(request,env);
     if(archiveResponse)return archiveResponse;

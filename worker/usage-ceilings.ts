@@ -10,13 +10,15 @@ import { phase1Config } from "../config/phase-1";
 export type CeilingOperation = keyof typeof phase1Config.dailyCeilings;
 
 const operationPath =
-  /^\/resources\/(?:drafts\/[^/]+\/(muse|muse-tts|muse-conversation|muse-voice-replies(?:\/[^/]+)?|process|scans)|legacy-sessions\/[^/]+\/(call))$/;
+  /^\/resources\/(?:drafts\/[^/]+\/(muse|muse-tts|muse-conversation|muse-voice-replies(?:\/[^/]+)?|process|scans)|legacy-sessions\/[^/]+\/(call)|muse\/(talks)\/[^/]+\/messages)$/;
 
 export function ceilingOperation(request: Request): CeilingOperation | null {
   if (["GET", "HEAD", "OPTIONS"].includes(request.method)) return null;
   const match = operationPath.exec(new URL(request.url).pathname);
   if (!match) return null;
-  const segment = match[1] ?? match[2]!;
+  const segment = match[1] ?? match[2] ?? match[3]!;
+  // Talk with Muse messages share the Muse conversation ceiling.
+  if (segment === "talks") return "muse_conversation";
   if (segment === "muse") return "muse";
   if (segment === "muse-tts") return "muse_speech";
   if (segment === "muse-conversation") return "muse_conversation";

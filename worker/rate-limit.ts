@@ -29,7 +29,7 @@ export type RateLimitClass = "public" | "costly" | "writes";
 
 const readOnly = new Set(["GET", "HEAD", "OPTIONS"]);
 const costlyPath =
-  /^\/resources\/(?:drafts\/[^/]+\/(?:muse|muse-tts|muse-conversation|muse-voice-replies(?:\/[^/]+)?|process|scans)|legacy-sessions\/[^/]+\/call)$/;
+  /^\/resources\/(?:drafts\/[^/]+\/(?:muse|muse-tts|muse-conversation|muse-voice-replies(?:\/[^/]+)?|process|scans)|legacy-sessions\/[^/]+\/call|muse\/talks\/[^/]+\/messages)$/;
 const publicPath =
   /^\/(?:shared\/[^/]+(?:\/(?:photo|voice))?|mcp|api\/v1\/[^/]+|resources\/auth\/session|resources\/email\/unsubscribe)$/;
 
