@@ -159,7 +159,7 @@ export function FamilyAccessExperience() {
                 ? "One Living Memory"
                 : preview.scopeKind === "chapter"
                   ? "One Chapter"
-                  : "Memories in this archive’s Chapters",
+                  : "Memories in this album’s Chapters",
             )}
           </p>
           <p>

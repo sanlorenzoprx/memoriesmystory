@@ -15,6 +15,14 @@ import {
   loadFamilyMemory,
 } from "../../services/family-archive";
 import { t, notice, useLocale } from "../../localization/language";
+// Name ideas only. Nothing is created until the person chooses and saves.
+const albumIdeas = [
+  "Family holidays",
+  "Vacations",
+  "About one person",
+  "A family home",
+  "A family tradition",
+] as const;
 const limits = phase1Config.familyArchive;
 const newKey = () => `family_request_${crypto.randomUUID()}`;
 export function FamilyArchivePanel() {
@@ -26,7 +34,7 @@ export function FamilyArchivePanel() {
     [editing, setEditing] = useState<string | null>(null);
   const key = useRef<string | null>(null),
     archiveKey = useRef(newKey()),
-    archiveTitle = useRef(t("My family archive")),
+    archiveTitle = useRef(t("My family album")),
     dirtyRef = useRef(false),
     chapterDirtyRef = useRef(false),
     peopleDirtyRef = useRef(false),
@@ -238,9 +246,9 @@ export function FamilyArchivePanel() {
         <>
           {view.archives.length > 0 && (
             <label>
-              {t("Private archive")}
+              {t("Album")}
               <select
-                aria-label={t("Private archive")}
+                aria-label={t("Album")}
                 value={view.archiveId ?? ""}
                 disabled={busy}
                 onChange={(event) => {
@@ -608,9 +616,9 @@ function ChapterEditor({
       />
       {view.archives.length > 1 && (
         <label>
-          {t("Move to a private archive")}
+          {t("Move to another album")}
           <select
-            aria-label={t("Move to a private archive")}
+            aria-label={t("Move to another album")}
             value={chapter.archiveId}
             disabled={saving}
             onChange={(event) => change({ archiveId: event.target.value })}
@@ -824,7 +832,7 @@ function ArchiveSettings({
       kind === "delete" &&
       !window.confirm(
         t(
-          "Remove this private archive and its Chapters? Your Living Memories will stay protected.",
+          "Remove this album and its Chapters? Your Living Memories will stay protected.",
         ),
       )
     )
@@ -865,9 +873,9 @@ function ArchiveSettings({
   }
   return (
     <details>
-      <summary>{t("Private archive settings")}</summary>
+      <summary>{t("Album settings")}</summary>
       <label>
-        {t("Archive name")}
+        {t("Album name")}
         <input
           value={title}
           maxLength={limits.titleCharacters}
@@ -879,7 +887,7 @@ function ArchiveSettings({
         />
       </label>
       <label htmlFor={"archive-description-" + archive.id}>
-        {t("About this archive (optional)")}
+        {t("About this album (optional)")}
       </label>
       <textarea
         id={"archive-description-" + archive.id}
@@ -897,10 +905,29 @@ function ArchiveSettings({
         disabled={busy || !title.trim()}
         onClick={() => void action("save")}
       >
-        {t("Save archive details")}
+        {t("Save album details")}
       </button>
+      <p>
+        {t(
+          "An album holds Chapters. For example, an album “Family vacation” with a Chapter “Places we visited”.",
+        )}
+      </p>
+      <p>{t("Ideas for a new album")}</p>
+      {albumIdeas.map((idea) => (
+        <button
+          key={idea}
+          type="button"
+          disabled={busy}
+          onClick={() => {
+            setNextName(t(idea));
+            key.current = null;
+          }}
+        >
+          {t(idea)}
+        </button>
+      ))}
       <label>
-        {t("New private archive name")}
+        {t("New album name")}
         <input
           value={nextName}
           maxLength={limits.titleCharacters}
@@ -917,7 +944,7 @@ function ArchiveSettings({
         disabled={busy || !nextName.trim()}
         onClick={() => void action("create")}
       >
-        {t("Create another private archive")}
+        {t("Create an album")}
       </button>
       <button
         type="button"
@@ -925,7 +952,7 @@ function ArchiveSettings({
         disabled={busy}
         onClick={() => void action("delete")}
       >
-        {t("Remove private archive")}
+        {t("Remove album")}
       </button>
       {error && <p role="alert">{notice(error)}</p>}
     </details>

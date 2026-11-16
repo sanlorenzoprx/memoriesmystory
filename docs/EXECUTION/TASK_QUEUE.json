@@ -195,7 +195,7 @@
         {
           "packet": "F01b",
           "branch": "claude/wonderful-einstein-lhk453",
-          "status": "implemented_local_proven_ci_pending",
+          "status": "merged_local_and_ci_proven_human_acceptance_pending",
           "note": "Shared conversation originals with consent and self-identified attribution in the owner export; unpreserved recordings counted, never listed.",
           "receipt": "docs/IMPLEMENTATION/PORTABLE_ARCHIVE_EXPORT_2026-11-15.md",
           "local_verification": {
@@ -203,7 +203,10 @@
             "phone_chromium_tests_passed_locally": 63,
             "phone_chromium_tests_not_run_locally": 9,
             "typecheck_lint_schema_build_dry_run": "passed"
-          }
+          },
+          "pr": 52,
+          "merge_sha": "a9b226836eb3f6328743e1399455fda6600bf956",
+          "ci_run": 43754556216
         }
       ]
     },
@@ -357,7 +360,7 @@
       ],
       "title": "People, relationships, Chapters, and Family Archive",
       "release_required": true,
-      "note": "E01/E02/E03 merged through PR43; Chapters have native and real-cloud proof, people/invitations have CI/native/browser evidence. Hosted Clerk/full-app and owner-deferred physical/human acceptance remain open; implementation proceeds to E04 without marking those gates complete.",
+      "note": "E01/E02/E03 merged through PR43; Chapters have native and real-cloud proof, people/invitations have CI/native/browser evidence. Hosted Clerk/full-app and owner-deferred physical/human acceptance remain open; implementation proceeds to E04 without marking those gates complete. Owner decision 2026-11-15: Album → Chapter → Living Memory; album wording and starter ideas implemented, CI pending (docs/IMPLEMENTATION/ALBUMS_AND_CHAPTERS_2026-11-15.md). Person albums, owner-granted album-making permission and album export remain.",
       "implementation_packets": [
         {
           "packet": "E01",

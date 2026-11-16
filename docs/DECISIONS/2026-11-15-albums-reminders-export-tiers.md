@@ -1,6 +1,6 @@
 # Albums, reminders by email or push, and export tiers
 
-**Status:** proposed. Owner direction received 2026-11-15; the open questions below must be answered before implementation of each part.
+**Status:** accepted. Owner direction received 2026-11-15 and the five open questions were answered by the owner the same day; see "Owner answers" at the end. Implementation proceeds one slice at a time with the usual receipts.
 
 ## Context
 
@@ -84,3 +84,23 @@ For each part when built: authorization tests for the new permission, opt-in and
 ## Consequences and follow-up
 
 Nothing in this record is implemented. Work that does not depend on these answers continues: adding shared conversation recordings to the plain export, then starter suggestions and person albums, which follow existing rules.
+
+## Owner answers — 2026-11-15
+
+1. **Albums with Chapters inside.** The customer word is **Album**, and an album is organized into **Chapters** — for example an album "Family vacation" with a Chapter "Places visited". This matches the stored model that already exists (a container holding Chapters); the container was labelled "private archive" and is now labelled "Album". "Chapter" keeps its Foundation meaning.
+2. **Album permission.** At the primary owner's discretion, an invited person may be given permission to organize new albums and to add albums and images ("Family Legacy"). The owner grants it per person; it is never implied by an invitation.
+3. **Reminder provider.** Cloudflare Email.
+4. **Who gets messages.** Both the owner and invited family. Email should carry a direct link so the recipient can open, and pass on, what was shared with them.
+5. **Album export.** Both basic and premium can export albums. Album export is a growth feature, not a premium gate.
+
+### How these are applied
+
+- **Decision A (albums):** accepted as answered. Album → Chapter → Living Memory. Starter ideas are name suggestions only.
+- **Decision B (reminders):** accepted with Cloudflare Email as the processor. Opt-in, visible cadence and a verified one-step unsubscribe still apply, and so do the guardrails: no reward for sharing, no pressure wording, and nothing from a private memory in a message to someone not invited to it. A direct link in an email to an invited relative opens only what that relative was invited to; a link meant to be passed on publicly remains the owner's deliberate bounded family share link, never the private invitation.
+- **Decision C (export):** the plain file export and the album export are both available to every owner. What distinguishes premium is left to packets H01–H03.
+
+### Still to settle while building
+
+- **"Add images"** for a permitted relative: whether a relative's added image becomes a new Living Memory in the owner's archive (which today needs a photograph and a voice and counts against the owner's plan) or an album photograph without a voice. The first slice gives the permission to organize albums and Chapters and keeps image adding to the existing reviewed photograph contributions; the owner will be asked before a relative's upload can create a new memory.
+- **Sending domain** for Cloudflare Email and the exact reminder cadence wording.
+
