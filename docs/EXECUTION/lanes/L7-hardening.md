@@ -23,7 +23,7 @@ L7.4: CI-gated (`npm audit --omit=dev --audit-level=high`); record in `docs/SECU
 
 ## Next
 
-Per-account cost ceilings, then the threat model. The dead-letter queue waits on L8 provisioning (see the L8 lane file).
+Threat model, observability without story content, route splitting, WCAG 2.2 AA review. Per-account cost ceilings landed with L5.4. The dead-letter queue waits on L8 provisioning (see the L8 lane file).
 
 ## Waiting on the owner
 
