@@ -1,5 +1,10 @@
 # Foundation Package Changelog
 
+## Album permission for invited relatives — 2026-11-16
+
+- The owner can let one accepted invited person make their own albums and Chapters from the memories shared with them. Migration 0021 adds the permission, its event history and album authorship, and lets an album's recorded maker place the owner's memories in it.
+- A permitted relative cannot reach albums made by others, place a memory outside their invitation, or rename a memory; removing the permission or invitation stops them at once and leaves the albums with the owner. No deployment is claimed.
+
 ## Albums that hold Chapters — 2026-11-15
 
 - By owner decision, the family archive is organized as Album → Chapter → Living Memory. The container that already held Chapters is now labelled Album in English and Spanish, with starter name ideas that create nothing until the person saves. No stored data, route or migration changed.

@@ -13,6 +13,8 @@ Read the campaign controls in this order:
 
 Current sprint references:
 
+- `V3_AUTONOMOUS_ENGINEERING_HANDOFF_2026-11-16.md` — dated handoff for the next implementer: what is built, owner decisions, remaining work in order, and working conventions. A cross-reference, not a second ledger.
+
 - `EXPANDED_FIRST_RELEASE.md` — required first-release capabilities, dependencies, evidence and activation prerequisites.
 
 - `../CURRENT_STATE.md` — single current-status record and release-candidate gate.

@@ -34,8 +34,9 @@ const json = (value: unknown, status = 200) =>
       "Referrer-Policy": "no-referrer",
     },
   });
-function grantView(g: FamilyGrant) {
+function grantView(g: FamilyGrant & { can_organize?: number }) {
   return {
+    canOrganizeAlbums: g.can_organize === 1,
     id: g.id,
     archiveId: g.archive_id,
     role: g.role,
@@ -68,7 +69,7 @@ export async function handleFamilyAccessRoute(
 ): Promise<Response | null> {
   const url = new URL(request.url),
     match = url.pathname.match(
-      /^\/resources\/family-access(?:\/(grants|invite|memberships)(?:\/([^/]+))?(?:\/(accept|revoke|view|media)(?:\/([^/]+))?)?)?$/,
+      /^\/resources\/family-access(?:\/(grants|invite|memberships)(?:\/([^/]+))?(?:\/(accept|revoke|view|media|album-permission)(?:\/([^/]+))?)?)?$/,
     );
   if (!match) return null;
   try {
@@ -110,10 +111,10 @@ export async function handleFamilyAccessRoute(
         if (after) id(after);
         const rows = (
           await env.DB.prepare(
-            "SELECT * FROM family_access_grants WHERE archive_id=? AND owner_user_id=? AND id>? ORDER BY id LIMIT ?",
+            "SELECT g.*,CASE WHEN p.grant_id IS NULL THEN 0 ELSE 1 END AS can_organize FROM family_access_grants g LEFT JOIN family_album_permissions p ON p.grant_id=g.id WHERE g.archive_id=? AND g.owner_user_id=? AND g.id>? ORDER BY g.id LIMIT ?",
           )
             .bind(archiveId, user, after ?? "", limits.pageSize + 1)
-            .all<FamilyGrant>()
+            .all<FamilyGrant & { can_organize: number }>()
         ).results;
         return json({
           grants: rows.slice(0, limits.pageSize).map(grantView),
@@ -128,10 +129,12 @@ export async function handleFamilyAccessRoute(
         if (after) id(after);
         const rows = (
           await env.DB.prepare(
-            "SELECT g.*,CASE g.scope_kind WHEN 'memory' THEN l.title WHEN 'chapter' THEN c.title ELSE a.title END AS scope_label FROM family_access_grants g JOIN family_archives a ON a.id=g.archive_id AND a.owner_user_id=g.owner_user_id LEFT JOIN family_memory_labels l ON g.scope_kind='memory' AND l.memory_story_id=g.scope_id LEFT JOIN family_chapters c ON g.scope_kind='chapter' AND c.id=g.scope_id AND c.archive_id=g.archive_id WHERE accepted_by_user_id=? AND state='accepted' AND g.id>? ORDER BY g.id LIMIT ?",
+            "SELECT g.*,CASE WHEN EXISTS(SELECT 1 FROM family_album_permissions ap WHERE ap.grant_id=g.id) THEN 1 ELSE 0 END AS can_organize,CASE g.scope_kind WHEN 'memory' THEN l.title WHEN 'chapter' THEN c.title ELSE a.title END AS scope_label FROM family_access_grants g JOIN family_archives a ON a.id=g.archive_id AND a.owner_user_id=g.owner_user_id LEFT JOIN family_memory_labels l ON g.scope_kind='memory' AND l.memory_story_id=g.scope_id LEFT JOIN family_chapters c ON g.scope_kind='chapter' AND c.id=g.scope_id AND c.archive_id=g.archive_id WHERE accepted_by_user_id=? AND state='accepted' AND g.id>? ORDER BY g.id LIMIT ?",
           )
             .bind(user, after ?? "", limits.pageSize + 1)
-            .all<FamilyGrant & { scope_label: string | null }>()
+            .all<
+              FamilyGrant & { scope_label: string | null; can_organize: number }
+            >()
         ).results;
         return json({
           memberships: rows.slice(0, limits.pageSize).map((g) => ({
@@ -139,6 +142,7 @@ export async function handleFamilyAccessRoute(
             id: g.id,
             role: g.role,
             scopeKind: g.scope_kind,
+            canOrganizeAlbums: g.can_organize === 1,
           })),
           nextCursor:
             rows.length > limits.pageSize
@@ -258,6 +262,13 @@ export async function handleFamilyAccessRoute(
             id: grant.id,
             role: grant.role,
             scopeKind: grant.scope_kind,
+            canOrganizeAlbums: Boolean(
+              await env.DB.prepare(
+                "SELECT 1 AS ok FROM family_album_permissions WHERE grant_id=?",
+              )
+                .bind(grant.id)
+                .first(),
+            ),
           },
           memories: (
             await Promise.all(
@@ -343,6 +354,44 @@ export async function handleFamilyAccessRoute(
       ]);
       if (!result[0]!.meta.changes) fail(409, "family_access_conflict");
       return json({ id: grant.id, version: grant.version + 1 });
+    }
+    if (kind === "grants" && routeId && action === "album-permission") {
+      // The owner alone decides, per accepted invitation, whether that person
+      // may organize albums. Turning it off leaves their albums with the owner.
+      const grant = await env.DB.prepare(
+        "SELECT * FROM family_access_grants WHERE id=? AND owner_user_id=?",
+      )
+        .bind(id(routeId), user)
+        .first<FamilyGrant>();
+      if (!grant) fail(404, "family_access_not_found");
+      if (body.allow !== true && body.allow !== false) fail(400);
+      if (grant.state !== "accepted") fail(409, "family_access_conflict");
+      const now = new Date().toISOString(),
+        eventId = `album_permission_${crypto.randomUUID().replace(/-/g, "")}`;
+      await env.DB.batch([
+        body.allow
+          ? env.DB.prepare(
+              "INSERT INTO family_album_permissions(grant_id,granted_by_user_id,created_at) SELECT ?,?,? WHERE EXISTS(SELECT 1 FROM family_access_grants g WHERE g.id=? AND g.owner_user_id=? AND g.state='accepted') AND NOT EXISTS(SELECT 1 FROM family_album_permissions WHERE grant_id=?)",
+            ).bind(grant.id, user, now, grant.id, user, grant.id)
+          : env.DB.prepare(
+              "DELETE FROM family_album_permissions WHERE grant_id=? AND EXISTS(SELECT 1 FROM family_access_grants g WHERE g.id=? AND g.owner_user_id=?)",
+            ).bind(grant.id, grant.id, user),
+        env.DB.prepare(
+          "INSERT INTO family_album_permission_events(id,grant_id,action,actor_user_id,recorded_at) SELECT ?,?,?,?,? WHERE changes()=1",
+        ).bind(eventId, grant.id, body.allow ? "allowed" : "removed", user, now),
+      ]);
+      const allowed = Boolean(
+        await env.DB.prepare(
+          "SELECT 1 AS ok FROM family_album_permissions WHERE grant_id=?",
+        )
+          .bind(grant.id)
+          .first(),
+      );
+      return json({
+        id: grant.id,
+        version: grant.version,
+        canOrganizeAlbums: allowed,
+      });
     }
     if (kind !== "grants" || routeId) fail(404, "family_access_not_found");
     const archiveId = id(body.archiveId),

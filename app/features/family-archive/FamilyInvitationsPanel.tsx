@@ -286,6 +286,37 @@ export function FamilyInvitationsPanel({
                         : "Invitation pending",
                 )}
               </p>
+              {grant.state === "accepted" && (
+                <>
+                  <p>
+                    {t(
+                      grant.canOrganizeAlbums
+                        ? "This person can make their own albums from the memories you shared with them."
+                        : "This person can look, but cannot make albums.",
+                    )}
+                  </p>
+                  <button
+                    type="button"
+                    disabled={busy}
+                    onClick={() =>
+                      void action(async () => {
+                        await familyAccessRequest(
+                          `/grants/${grant.id}/album-permission`,
+                          "POST",
+                          { allow: !grant.canOrganizeAlbums },
+                        );
+                        await refresh();
+                      })
+                    }
+                  >
+                    {t(
+                      grant.canOrganizeAlbums
+                        ? "Stop letting this person make albums"
+                        : "Let this person make albums",
+                    )}
+                  </button>
+                </>
+              )}
               {grant.state !== "revoked" && (
                 <button
                   type="button"

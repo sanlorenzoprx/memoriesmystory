@@ -3,6 +3,8 @@ export type FamilyArchive = {
   title: string;
   description: string;
   version: number;
+  /** True when an invited relative made this album under the owner's permission. */
+  madeByFamily?: boolean;
 };
 export type FamilyMemory = {
   id: string;
