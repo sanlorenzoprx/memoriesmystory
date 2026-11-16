@@ -1,4 +1,5 @@
-import { sendEmail, type EmailNotSentCode, type EmailProviderEnv } from "./providers/email-provider";
+import { emailSendingReady, sendEmail, type EmailNotSentCode, type EmailProviderEnv } from "./providers/email-provider";
+import { unsubscribeToken } from "./email-preferences";
 
 /**
  * Emails sent on a person's behalf (lane L2). Every message carries only a
@@ -84,4 +85,191 @@ export async function sendInvitationEmail(
     // A concurrent send already recorded this invitation as sent.
     .catch(() => undefined);
   return outcome.status === "sent" ? { status: "sent" } : { status: "not_sent", code: outcome.code };
+}
+
+/** The unsubscribe and app links need the public origin when no request is at hand. */
+export type FamilyUpdateEnv = NotificationEnv & { SESSION_SECRET?: string; PUBLIC_APP_ORIGIN?: string };
+
+export function familyUpdateEmail(familyUrl: string, unsubscribeUrl: string, brand: string) {
+  const english = [
+      `Something new was shared with you in ${brand}.`,
+      `Open your family memories: ${familyUrl}`,
+      `You get this email because you asked for it. To stop these emails: ${unsubscribeUrl}`,
+    ],
+    spanish = [
+      `Se compartió algo nuevo contigo en ${brand}.`,
+      `Abre tus recuerdos familiares: ${familyUrl}`,
+      `Recibes este correo porque lo pediste. Para dejar de recibirlos: ${unsubscribeUrl}`,
+    ];
+  const paragraphs = (lines: string[]) =>
+    lines
+      .map((line) => {
+        const url = [familyUrl, unsubscribeUrl].find((candidate) => line.endsWith(candidate));
+        return url
+          ? `<p>${escapeHtml(line.slice(0, -url.length)).trimEnd()} <a href="${escapeHtml(url)}">${escapeHtml(url)}</a></p>`
+          : `<p>${escapeHtml(line)}</p>`;
+      })
+      .join("");
+  return {
+    subject: `Something new is waiting · Algo nuevo te espera — ${brand}`,
+    text: `${english.join("\n\n")}\n\n—\n\n${spanish.join("\n\n")}\n`,
+    html: `<!doctype html><html><body style="font-family:system-ui,sans-serif;line-height:1.5;max-width:560px"><div lang="en">${paragraphs(english)}</div><hr><div lang="es">${paragraphs(spanish)}</div></body></html>`,
+  };
+}
+
+/**
+ * Invited relatives who asked for family updates and have something new in
+ * their shared scope since their last notice (and since they accepted):
+ * a memory the owner placed in a shared Chapter, or someone else's
+ * recollection the owner included for family.
+ */
+const membersWithNews = `
+WITH g AS (
+ SELECT fg.accepted_by_user_id AS member,fg.owner_user_id AS owner,fg.archive_id,fg.scope_kind,fg.scope_id,
+  max(fg.accepted_at,COALESCE((SELECT max(n.created_at) FROM family_update_notices n WHERE n.member_user_id=fg.accepted_by_user_id AND n.status='sent'),'')) AS since
+ FROM family_access_grants fg
+ JOIN email_preferences p ON p.user_id=fg.accepted_by_user_id AND p.family_updates=1
+ WHERE fg.state='accepted'
+)
+SELECT DISTINCT g.member FROM g
+WHERE NOT EXISTS(SELECT 1 FROM family_update_notices n WHERE n.member_user_id=g.member AND n.sent_on=?1 AND n.status='sent')
+AND (
+ (g.scope_kind<>'memory' AND EXISTS(
+  SELECT 1 FROM family_chapter_memories cm JOIN family_chapters c ON c.id=cm.chapter_id
+  JOIN memory_stories m ON m.id=cm.memory_story_id AND m.status='complete' AND m.owner_user_id=g.owner
+  WHERE c.archive_id=g.archive_id AND (g.scope_kind='archive' OR c.id=g.scope_id) AND cm.created_at>g.since))
+ OR EXISTS(
+  SELECT 1 FROM family_contribution_events e JOIN family_contributions fc ON fc.id=e.contribution_id
+  WHERE e.action='included' AND e.created_at>g.since AND fc.owner_user_id=g.owner AND fc.author_user_id<>g.member
+   AND fc.author_state='submitted' AND fc.included_revision_id IS NOT NULL
+   AND ((g.scope_kind='memory' AND fc.memory_story_id=g.scope_id) OR (g.scope_kind<>'memory' AND EXISTS(
+    SELECT 1 FROM family_chapter_memories cm2 JOIN family_chapters c2 ON c2.id=cm2.chapter_id
+    WHERE cm2.memory_story_id=fc.memory_story_id AND c2.archive_id=g.archive_id AND (g.scope_kind='archive' OR c2.id=g.scope_id)))))
+)
+LIMIT ?2`;
+
+export type FamilyUpdatePassResult = { skipped: string | null; sent: number; notSent: number };
+
+/** A daily pass. Sends nothing, and records nothing, while email is unavailable. */
+export async function runFamilyUpdatePass(
+  env: FamilyUpdateEnv,
+  options: { now?: Date; limit?: number } = {},
+): Promise<FamilyUpdatePassResult> {
+  const refused = emailSendingReady(env);
+  if (refused && refused.status === "not_sent") return { skipped: refused.code, sent: 0, notSent: 0 };
+  if (!env.SESSION_SECRET || !env.PUBLIC_APP_ORIGIN || !/^https:\/\/[^/]+$/.test(env.PUBLIC_APP_ORIGIN))
+    return { skipped: "email_links_unconfigured", sent: 0, notSent: 0 };
+  const now = options.now ?? new Date(),
+    today = now.toISOString().slice(0, 10),
+    brand = env.PUBLIC_BRAND_NAME ?? "Memories: My Story";
+  const { results } = await env.DB.prepare(membersWithNews)
+    .bind(today, options.limit ?? 200)
+    .all<{ member: string }>();
+  const result: FamilyUpdatePassResult = { skipped: null, sent: 0, notSent: 0 };
+  for (const { member } of results) {
+    const user = await env.DB.prepare("SELECT email FROM users WHERE id=?").bind(member).first<{ email: string | null }>();
+    let outcome: Awaited<ReturnType<typeof sendEmail>>;
+    if (!user?.email) outcome = { status: "not_sent", code: "email_recipient_invalid" };
+    else {
+      const unsubscribeUrl = `${env.PUBLIC_APP_ORIGIN}/resources/email/unsubscribe?t=${encodeURIComponent(await unsubscribeToken(env.SESSION_SECRET, member, "family_updates"))}`,
+        message = familyUpdateEmail(`${env.PUBLIC_APP_ORIGIN}/family`, unsubscribeUrl, brand);
+      outcome = await sendEmail(env, {
+        to: user.email,
+        ...message,
+        headers: { "List-Unsubscribe": `<${unsubscribeUrl}>`, "List-Unsubscribe-Post": "List-Unsubscribe=One-Click" },
+      });
+    }
+    await env.DB.prepare(
+      "INSERT INTO family_update_notices(id,member_user_id,sent_on,status,code,created_at) VALUES(?,?,?,?,?,?)",
+    )
+      .bind(`notice_${crypto.randomUUID()}`, member, today, outcome.status, outcome.status === "sent" ? null : outcome.code, now.toISOString())
+      .run()
+      .catch(() => undefined);
+    if (outcome.status === "sent") result.sent++;
+    else result.notSent++;
+  }
+  return result;
+}
+
+export function ownerReminderEmail(startUrl: string, unsubscribeUrl: string, brand: string) {
+  const english = [
+      "Is there a photograph you have been meaning to talk about?",
+      `When you have a few minutes, choose one and tell its story in your own voice: ${startUrl}`,
+      `You get this reminder at most once a month because you asked for it. To stop these emails: ${unsubscribeUrl}`,
+    ],
+    spanish = [
+      "¿Hay alguna fotografía de la que querías hablar?",
+      `Cuando tengas unos minutos, elige una y cuenta su historia con tu propia voz: ${startUrl}`,
+      `Recibes este recordatorio como máximo una vez al mes porque lo pediste. Para dejar de recibirlos: ${unsubscribeUrl}`,
+    ];
+  const paragraphs = (lines: string[]) =>
+    lines
+      .map((line) => {
+        const url = [startUrl, unsubscribeUrl].find((candidate) => line.endsWith(candidate));
+        return url
+          ? `<p>${escapeHtml(line.slice(0, -url.length)).trimEnd()} <a href="${escapeHtml(url)}">${escapeHtml(url)}</a></p>`
+          : `<p>${escapeHtml(line)}</p>`;
+      })
+      .join("");
+  return {
+    subject: `A photograph and your voice · Una fotografía y tu voz — ${brand}`,
+    text: `${english.join("\n\n")}\n\n—\n\n${spanish.join("\n\n")}\n`,
+    html: `<!doctype html><html><body style="font-family:system-ui,sans-serif;line-height:1.5;max-width:560px"><div lang="en">${paragraphs(english)}</div><hr><div lang="es">${paragraphs(spanish)}</div></body></html>`,
+  };
+}
+
+/**
+ * People who asked for reminders, have had no reminder this month or in the
+ * last 28 days, and have not finished a Living Memory in the last 30 days.
+ */
+const ownersToRemind = `
+SELECT p.user_id AS member FROM email_preferences p
+WHERE p.owner_reminders=1
+AND NOT EXISTS(SELECT 1 FROM owner_reminders r WHERE r.user_id=p.user_id AND r.status='sent' AND (r.sent_month=?1 OR r.created_at>?2))
+AND NOT EXISTS(SELECT 1 FROM memory_stories m WHERE m.owner_user_id=p.user_id AND m.status='complete' AND m.completed_at>?3)
+ORDER BY p.user_id LIMIT ?4`;
+
+/** A daily pass that sends at most monthly. Sends and records nothing while email is unavailable. */
+export async function runOwnerReminderPass(
+  env: FamilyUpdateEnv,
+  options: { now?: Date; limit?: number } = {},
+): Promise<FamilyUpdatePassResult> {
+  const refused = emailSendingReady(env);
+  if (refused && refused.status === "not_sent") return { skipped: refused.code, sent: 0, notSent: 0 };
+  if (!env.SESSION_SECRET || !env.PUBLIC_APP_ORIGIN || !/^https:\/\/[^/]+$/.test(env.PUBLIC_APP_ORIGIN))
+    return { skipped: "email_links_unconfigured", sent: 0, notSent: 0 };
+  const now = options.now ?? new Date(),
+    day = 86_400_000,
+    brand = env.PUBLIC_BRAND_NAME ?? "Memories: My Story";
+  const { results } = await env.DB.prepare(ownersToRemind)
+    .bind(
+      now.toISOString().slice(0, 7),
+      new Date(now.getTime() - 28 * day).toISOString(),
+      new Date(now.getTime() - 30 * day).toISOString(),
+      options.limit ?? 200,
+    )
+    .all<{ member: string }>();
+  const result: FamilyUpdatePassResult = { skipped: null, sent: 0, notSent: 0 };
+  for (const { member } of results) {
+    const user = await env.DB.prepare("SELECT email FROM users WHERE id=?").bind(member).first<{ email: string | null }>();
+    let outcome: Awaited<ReturnType<typeof sendEmail>>;
+    if (!user?.email) outcome = { status: "not_sent", code: "email_recipient_invalid" };
+    else {
+      const unsubscribeUrl = `${env.PUBLIC_APP_ORIGIN}/resources/email/unsubscribe?t=${encodeURIComponent(await unsubscribeToken(env.SESSION_SECRET, member, "owner_reminders"))}`;
+      outcome = await sendEmail(env, {
+        to: user.email,
+        ...ownerReminderEmail(`${env.PUBLIC_APP_ORIGIN}/`, unsubscribeUrl, brand),
+        headers: { "List-Unsubscribe": `<${unsubscribeUrl}>`, "List-Unsubscribe-Post": "List-Unsubscribe=One-Click" },
+      });
+    }
+    await env.DB.prepare(
+      "INSERT INTO owner_reminders(id,user_id,sent_month,status,code,created_at) VALUES(?,?,?,?,?,?)",
+    )
+      .bind(`reminder_${crypto.randomUUID()}`, member, now.toISOString().slice(0, 7), outcome.status, outcome.status === "sent" ? null : outcome.code, now.toISOString())
+      .run()
+      .catch(() => undefined);
+    if (outcome.status === "sent") result.sent++;
+    else result.notSent++;
+  }
+  return result;
 }

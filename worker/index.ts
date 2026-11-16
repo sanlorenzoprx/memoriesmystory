@@ -11,6 +11,7 @@ import { handleLegacyRemoteRoute } from "./legacy-remote";
 import type { RealtimeKitEnv } from "./realtimekit";
 import { enforceRateLimit, type RateLimitEnv } from "./rate-limit";
 import { runFixityPass } from "./fixity";
+import { runFamilyUpdatePass, runOwnerReminderPass } from "./notifications";
 import { handleEmailPreferenceRoute } from "./email-preferences";
 import type { EmailProviderEnv } from "./providers/email-provider";
 import { appIdentity } from "../config/app-identity";
@@ -54,6 +55,7 @@ export interface Env extends RealtimeKitEnv, RateLimitEnv, EmailProviderEnv {
   CLERK_SECRET_KEY?: string;
   CLERK_JWT_KEY?: string;
   CLERK_AUTHORIZED_PARTIES?: string;
+  PUBLIC_APP_ORIGIN?: string;
 }
 
 const handler: ExportedHandler<Env, TranscriptionQueueMessage> = {
@@ -85,6 +87,17 @@ const handler: ExportedHandler<Env, TranscriptionQueueMessage> = {
     context.waitUntil(
       runFixityPass(env).then((result) => {
         console.log("Fixity pass finished", result);
+      }),
+    );
+    // Counts only; no address or content is logged.
+    context.waitUntil(
+      runFamilyUpdatePass(env).then((result) => {
+        console.log("Family update pass finished", result);
+      }),
+    );
+    context.waitUntil(
+      runOwnerReminderPass(env).then((result) => {
+        console.log("Owner reminder pass finished", result);
       }),
     );
   }
