@@ -1,6 +1,7 @@
+import { laneCatalogs } from "./catalog";
 // API codes select presentation copy; workflow decisions continue to use codes/status.
 // Never display an arbitrary provider/server message as translated interface copy.
-const messages: Readonly<Record<string, string>> = {
+export const coreErrorMessages: Readonly<Record<string, string>> = {
  "family_contribution_invalid":"Check your recollection and attribution before submitting.",
  "family_contribution_not_found":"This recollection is not available with your access.",
  "family_contribution_denied":"This recollection is not available with your access.",
@@ -86,6 +87,11 @@ const messages: Readonly<Record<string, string>> = {
   media_delete_failed: "Deletion did not finish. Please try again before assuming this memory is removed.",
   delete_record_failed: "Deletion needs another try to finish removing the archive record."
 };
+const messages: Readonly<Record<string, string>> = Object.assign(
+  {},
+  coreErrorMessages,
+  ...Object.values(laneCatalogs).map((catalog) => catalog.errors),
+);
 export function apiMessageKey(code: string | undefined, fallback: string): string {
   return (code && messages[code]) || fallback;
 }

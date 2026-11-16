@@ -1,3 +1,4 @@
+import { getPrivateObject, privateMediaResponse } from "./private-media";
 import { phase1Config } from "../config/phase-1";
 import { authenticateAppSession, type AuthSessionEnv } from "./auth-session";
 
@@ -527,29 +528,17 @@ async function streamMedia(request: Request, env: MediaRouteEnv, draftId: string
     const session = await authenticateAppSession(request, env);
     if (session?.userId !== authorizedDraft.owner_user_id) throw new MediaRouteError(403,"Sign in to open this scan.","owner_required");
   }
-  const object = request.headers.has("Range")
-    ? await env.MEDIA_BUCKET.get(asset.r2_key, { range: request.headers })
-    : await env.MEDIA_BUCKET.get(asset.r2_key);
+  const { object, ranged } = await getPrivateObject(env.MEDIA_BUCKET, asset.r2_key, request);
   if (!object) {
     throw new MediaRouteError(503, "The preserved original is temporarily unavailable.", "object_unavailable");
   }
-  const headers = new Headers({
-    "Accept-Ranges": "bytes",
+  return privateMediaResponse(object, ranged, asset.byte_size, {
     "Cache-Control": "private, no-store",
     "Content-Type": asset.content_type,
     ETag: object.httpEtag,
     "X-Content-SHA256": asset.sha256,
     "X-Content-Type-Options": "nosniff"
   });
-  const range = object.range;
-  if (request.headers.has("Range") && range && "offset" in range && typeof range.offset === "number") {
-    const length = range.length ?? object.size - range.offset;
-    headers.set("Content-Length", String(length));
-    headers.set("Content-Range", `bytes ${range.offset}-${range.offset + length - 1}/${asset.byte_size}`);
-    return new Response(object.body, { status: 206, headers });
-  }
-  headers.set("Content-Length", String(asset.byte_size));
-  return new Response(object.body, { status: 200, headers });
 }
 
 export async function handleMediaRoute(request: Request, env: MediaRouteEnv): Promise<Response | null> {

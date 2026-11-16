@@ -1,3 +1,4 @@
+import { getPrivateObject, privateMediaResponse } from "./private-media";
 import { authenticateAppSession, sha256Text } from "./auth-session";
 import {
   activeFamilyGrant,
@@ -231,44 +232,21 @@ export async function handleFamilyContributionRoute(
           .first<VoiceSource>();
         if (!source) fail(404, "family_contribution_not_found");
         if (!(await mayHear())) fail(403, "family_contribution_denied");
-        const ranged = /^bytes=\d*-\d*$/.test(
-          request.headers.get("Range") ?? "",
+        const { object, ranged } = await getPrivateObject(
+          env.MEDIA_BUCKET,
+          source.r2_key,
+          request,
         );
-        const object = ranged
-          ? await env.MEDIA_BUCKET.get(source.r2_key, {
-              range: request.headers,
-            })
-          : await env.MEDIA_BUCKET.get(source.r2_key);
         if (!object) fail(503, "family_contribution_unavailable");
         // Re-check after the storage await before sending private bytes.
         if (!(await mayHear())) fail(403, "family_contribution_denied");
-        const headers = new Headers({
+        return privateMediaResponse(object, ranged, source.byte_size, {
           "Content-Type": source.content_type,
           "Cache-Control": "private, no-store",
-          "Accept-Ranges": "bytes",
           "X-Content-Type-Options": "nosniff",
           "X-Content-SHA256": source.sha256,
           "Referrer-Policy": "no-referrer",
         });
-        const range = object.range;
-        if (
-          ranged &&
-          range &&
-          "offset" in range &&
-          typeof range.offset === "number"
-        ) {
-          const length = range.length ?? source.byte_size - range.offset;
-          if (range.offset > 0 || length < source.byte_size) {
-            headers.set("Content-Length", String(length));
-            headers.set(
-              "Content-Range",
-              `bytes ${range.offset}-${range.offset + length - 1}/${source.byte_size}`,
-            );
-            return new Response(object.body, { status: 206, headers });
-          }
-        }
-        headers.set("Content-Length", String(source.byte_size));
-        return new Response(object.body, { headers });
       }
       if (action) fail(404, "family_contribution_not_found");
       const after = url.searchParams.get("after");

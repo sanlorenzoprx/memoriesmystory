@@ -31,6 +31,10 @@ E03 on `feat/scoped-family-invitations` adds verified-recipient expiring invitat
 
 E04a on `feat/attributed-family-contributions` adds independently attributed human text, immutable revision lineage and versioned review intent, author-only revision/withdrawal, owner selection of a specific family-visible version, source-grant rechecks and recoverable on-device writing. Two EN/ES browser journeys, ten route cases, native D1/R2 source/receipt/lineage checks and draft cleanup/API boundary checks passed. Local core passed 238 tests with 88 schema objects and all 55 phone-browser checks passed. PR #44 merged as `d0a550b` after main CI 43692868082 passed. Migration 0017 is required. This is text only; E04 voice/photo sources and each author's transcript review remain required. See `IMPLEMENTATION/ATTRIBUTED_FAMILY_TEXT_2026-11-15.md`.
 
+## Parallel lane scaffolding — implemented locally; CI pending
+
+The coordinator added lane status files, per-lane copy catalogs and a shared private-media response used by all seven private media handlers, which also fixes the out-of-range `206` finding (F6). No behaviour change otherwise. See `IMPLEMENTATION/PARALLEL_LANE_SCAFFOLDING_2026-11-16.md` and `EXECUTION/V1_LAUNCH_PARALLEL_HANDOFF_2026-11-16.md`.
+
 ## Album permission for invited relatives — merged; hosted and human acceptance pending
 
 The owner can let one accepted invited person make their own albums and Chapters from the memories shared with them. Those albums stay in the owner's archive, marked as made by a family member; the relative cannot reach albums made by the owner or anyone else, place a memory outside their invitation, or rename a memory. Removing the permission or the invitation stops them at once. Migration 0021 is required. PR #54 merged as `d0b5fa1` after CI 43784546004 passed. A relative's upload creating a new Living Memory is not built and needs an owner decision. See `IMPLEMENTATION/FAMILY_ALBUM_PERMISSION_2026-11-16.md`. The dated handoff for the next implementer is `EXECUTION/V3_AUTONOMOUS_ENGINEERING_HANDOFF_2026-11-16.md`.

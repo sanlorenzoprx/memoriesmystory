@@ -1,5 +1,10 @@
 # Foundation Package Changelog
 
+## Parallel lane scaffolding — 2026-11-16
+
+- Added lane status files and per-lane copy catalogs so several agents can work without editing the same lines; a test refuses duplicate copy keys.
+- All seven private media handlers now share one response helper. A malformed or unsatisfiable `Range` returns the whole file with `200` instead of a misleading `206`; satisfiable ranges, including whole-file ranges, still return `206`. No migration; no deployment is claimed.
+
 ## Album permission for invited relatives — 2026-11-16
 
 - The owner can let one accepted invited person make their own albums and Chapters from the memories shared with them. Migration 0021 adds the permission, its event history and album authorship, and lets an album's recorded maker place the owner's memories in it.

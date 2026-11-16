@@ -1,3 +1,4 @@
+import { getPrivateObject, privateMediaResponse } from "./private-media";
 import { realtimeKitConfigured } from "./realtimekit";
 import { phase1Config } from "../config/phase-1";
 import {
@@ -104,34 +105,18 @@ export async function handleRemoteRecordingRoute(
         .first<RemoteSourceRow>();
       if (!source) legacyFail(404, "legacy_not_found");
       if (request.method === "GET" && !match[5]) {
-        const object = await env.MEDIA_BUCKET.get(source.r2_key!, {
-          range: request.headers,
-        });
+        const { object, ranged } = await getPrivateObject(
+          env.MEDIA_BUCKET,
+          source.r2_key!,
+          request,
+        );
         if (!object) legacyFail(503, "legacy_recording_pending");
-        const headers = new Headers({
+        return privateMediaResponse(object, ranged, object.size, {
           "Content-Type": source.content_type,
           "Cache-Control": "private, no-store",
           "X-Content-Type-Options": "nosniff",
           "Referrer-Policy": "no-referrer",
-          "Accept-Ranges": "bytes",
         });
-        headers.set("Content-Length", String(object.size));
-        let status = 200;
-        if (
-          request.headers.has("Range") &&
-          object.range &&
-          "offset" in object.range
-        ) {
-          const offset = object.range.offset ?? 0,
-            length = object.range.length ?? object.size;
-          headers.set(
-            "Content-Range",
-            `bytes ${offset}-${offset + length - 1}/${object.size}`,
-          );
-          headers.set("Content-Length", String(length));
-          status = 206;
-        }
-        return new Response(object.body, { status, headers });
       }
       legacyMutation(request);
       if (request.method !== "POST" || match[5] !== "claim")
