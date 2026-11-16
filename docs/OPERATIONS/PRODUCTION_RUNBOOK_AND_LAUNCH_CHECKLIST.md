@@ -16,7 +16,8 @@ Secrets are entered by the owner in the Cloudflare dashboard, `wrangler secret p
 | `SESSION_SECRET`, `SHARE_TOKEN_PEPPER` | Worker secrets | Distinct per environment; never rotate silently, because rotating `SESSION_SECRET` ends sessions and invalidates unsubscribe links |
 | Clerk keys and `CLERK_AUTHORIZED_PARTIES` | Worker secrets and variables | Owner input O3 |
 | `ELEVENLABS_API_KEY`, Muse voice id | Worker secrets | Owner input O4 |
-| AI Gateway credits (unified billing) and optional `AI_GATEWAY_ID` | Cloudflare AI Gateway; Worker variable | Muse calls Gemini through the `AI` binding; without credits it falls back to Workers AI. Only zero-data-retention models are allowed (`phase1Config.ai.museZeroRetentionModels`) |
+| `GEMINI_API_KEY` (preferred) | Worker secret | Muse calls Google directly, billed to the owner's Gemini credits. The key must come from a Google Cloud project with billing on (paid tier); never a free-tier key, whose content Google may use |
+| AI Gateway credits or a stored Google key, and optional `AI_GATEWAY_ID` | Cloudflare AI Gateway; Worker variable | Used only when `GEMINI_API_KEY` is not set. Only zero-data-retention models are allowed (`phase1Config.ai.museZeroRetentionModels`). Turn on **Require provider credentials** on the gateway to never spend Cloudflare credits |
 | `RESEND_API_KEY` | Worker secret | Primary email provider; the sending domain must be verified in Resend first |
 | `EMAIL_FROM_ADDRESS`, `PUBLIC_APP_ORIGIN` | Worker variables | The sender must be on the verified domain; origin like `https://<app host>` |
 | Cloudflare Email (second provider) | `wrangler.jsonc` `send_email` binding | Add only after the domain is onboarded; arbitrary recipients need Workers Paid |
@@ -121,7 +122,7 @@ The script refuses the placeholder D1 id and a bundle without the Clerk key. Pro
 | `rate_limited` or `daily_limit_reached` reported by real families | Raise the thresholds in `wrangler.jsonc` or `phase1Config.dailyCeilings`; a legitimate family must not be limited |
 | `Email provider refused a message` | Check Resend status and the domain; Cloudflare Email takes over automatically if configured |
 | Transcription failures | Memories stay safe and show a retry; check provider status and the queue |
-| Muse questions all look like the fixed fallback | Gemini and Workers AI both failing: check AI Gateway credits and status; Muse keeps working with fixed questions |
+| Muse questions all look like the fixed fallback | Gemini and Workers AI both failing: check the Gemini key's billing and quota (or AI Gateway credits) and provider status; Muse keeps working with fixed questions |
 
 Logs carry ids, codes and counts only, never story content, addresses or tokens. Keep it that way in any new log line.
 

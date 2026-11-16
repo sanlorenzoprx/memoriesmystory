@@ -1,5 +1,5 @@
 /// <reference types="@cloudflare/workers-types" />
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { phase1Config } from "../../config/phase-1";
 import { CloudflareMuseTextProvider, createMuseTextProvider, MuseModelRefused } from "../../worker/providers/muse-provider";
 
@@ -65,5 +65,53 @@ describe("Muse model routing (owner decision 2026-11-16: Gemini first)", () => {
   it("only lists zero-data-retention models, with the primary among them", () => {
     expect(phase1Config.ai.museZeroRetentionModels).toContain(phase1Config.ai.museModelId);
     expect(phase1Config.ai.museFallbackModelId.startsWith("@cf/")).toBe(true);
+  });
+
+  describe("direct to Google with the owner's own Gemini key", () => {
+    const key = "synthetic-gemini-key-not-real";
+    afterEach(() => vi.unstubAllGlobals());
+    function stubGoogle(reply: () => Response) {
+      const calls: { url: string; init: RequestInit }[] = [];
+      vi.stubGlobal("fetch", async (url: string, init: RequestInit) => (calls.push({ url, init }), reply()));
+      return calls;
+    }
+
+    it("calls Google directly, not AI Gateway, so usage draws on the owner's Gemini credits", async () => {
+      const google = stubGoogle(() => Response.json({ choices: [{ message: { content: "What song was playing?" } }] }));
+      const { ai, calls } = fakeAi(() => ({ response: "unused" }));
+      const text = await createMuseTextProvider({ AI: ai, GEMINI_API_KEY: ` ${key} ` }).generate(request);
+      expect(text).toBe("What song was playing?");
+      expect(calls).toHaveLength(0);
+      expect(google).toHaveLength(1);
+      expect(google[0]!.url).toBe("https://generativelanguage.googleapis.com/v1beta/openai/chat/completions");
+      expect((google[0]!.init.headers as Record<string, string>).Authorization).toBe(`Bearer ${key}`);
+      const body = JSON.parse(String(google[0]!.init.body)) as Record<string, unknown>;
+      expect(body).toMatchObject({ model: phase1Config.ai.museDirectGeminiModel, reasoning_effort: "low", temperature: 0.4 });
+      expect(body.messages).toEqual([
+        { role: "system", content: "You are Muse." },
+        { role: "user", content: "Storyteller transcript: Abuela's kitchen." },
+      ]);
+    });
+
+    it("falls back to Workers AI when Google refuses, without exposing the key or Google's reply", async () => {
+      for (const status of [401, 429, 500]) {
+        stubGoogle(() => new Response(JSON.stringify({ error: { message: `echo ${key}` } }), { status }));
+        const { ai, calls } = fakeAi(() => ({ response: "Who else was there?" }));
+        expect(await createMuseTextProvider({ AI: ai, GEMINI_API_KEY: key }).generate(request)).toBe("Who else was there?");
+        expect(calls.map((call) => call.model)).toEqual(["@cf/meta/llama-3.1-8b-instruct-fast"]);
+      }
+      stubGoogle(() => new Response("{}", { status: 503 }));
+      const { ai } = fakeAi(() => { throw new Error("workers ai down"); });
+      const error = await createMuseTextProvider({ AI: ai, GEMINI_API_KEY: key }).generate(request).catch((reason: Error) => reason);
+      expect(String(error)).not.toContain(key);
+    });
+
+    it("uses the gateway route when no key is set", async () => {
+      const google = stubGoogle(() => Response.json({}));
+      const { ai, calls } = fakeAi(() => ({ choices: [{ message: { content: "Where were you?" } }] }));
+      expect(await createMuseTextProvider({ AI: ai, GEMINI_API_KEY: "  " }).generate(request)).toBe("Where were you?");
+      expect(google).toHaveLength(0);
+      expect(calls[0]!.model).toBe("google/gemini-3-flash");
+    });
   });
 });

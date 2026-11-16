@@ -8,7 +8,7 @@ The lane updates this file in each pull request. The coordinator folds it into `
 
 ## Status
 
-In progress. B01 corpus and evaluator, the live runner, and B03 measured guard fixes merged (PR #76, `0d677a5`). M1 (Gemini routing, zero-data-retention allowlist, Workers AI fallback, danger check) merged (PR #80, `2a778f9`). M2 (where you left off, what Muse remembers, connecting memories) in review. The B02/M5 live comparison needs the owner's account credentials.
+In progress. B01 corpus and evaluator, the live runner, and B03 measured guard fixes merged (PR #76, `0d677a5`). M1 (Gemini routing, zero-data-retention allowlist, Workers AI fallback, danger check) merged (PR #80, `2a778f9`). M2 (where you left off, what Muse remembers, connecting memories) and the direct Gemini call with the owner's key in review. The B02/M5 live comparison needs the owner's account credentials.
 
 ## Merged
 
@@ -27,5 +27,5 @@ M3 photo-aware questions (visible content only, stored as generated material). T
 
 ## Waiting on the owner
 
-- Cloudflare account id and an API token with Workers AI and AI Gateway access, plus AI Gateway credits (unified billing) for Gemini, used only in the owner's own shell for `npm run eval:muse`.
+- A Gemini API key from a Google Cloud project with billing on (paid tier), entered by the owner as the Worker secret `GEMINI_API_KEY` and used in the owner's own shell for `GEMINI_API_KEY=… npm run eval:muse`. Never paste it in chat or commit it.
 - Review of the crisis wording and numbers per launch country (`config/muse-safety.ts`).

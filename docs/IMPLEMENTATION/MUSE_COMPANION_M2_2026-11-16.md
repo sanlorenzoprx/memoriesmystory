@@ -36,4 +36,16 @@
 | `tests/e2e/muse-memory.spec.ts` (EN, ES) | Left-off link and count; grouped list with "About:" for approximate values and links to the memory; forget, then remember, each confirmed by the server with the right request header |
 | `tests/e2e/accessibility.spec.ts` | The open panel is now scanned. A first run found tap targets under 24 px (WCAG 2.5.8); links and buttons now have full-size targets; 14 screens pass in EN and ES |
 
+## Also in this change: Gemini called directly with the owner's key
+
+The owner has Gemini credits with Google and asked for a direct call (decision amended 2026-11-16).
+- With the Worker secret `GEMINI_API_KEY`, Muse calls `gemini-3-flash-preview` on Google's OpenAI-compatible endpoint, with low reasoning effort and a 15-second limit (`DirectGeminiMuseTextProvider`). Workers AI answers when Google refuses or is down.
+- Without the key, the AI Gateway route is unchanged.
+- `npm run eval:muse` accepts `GEMINI_API_KEY` alone, with no Cloudflare account needed.
+- Tests (`tests/unit/muse-provider.test.ts`, 3 new):
+  - Google is called directly with the key as a Bearer token, and the binding is not called;
+  - Workers AI answers on 401, 429 and 500 from Google, and the key never appears in a failure;
+  - a blank key keeps the gateway route.
+- Not proven live: the model id and the reasoning setting are taken from Google's documentation and need the first evaluation run.
+
 **Reversible:** yes. The table is additive; an older Worker ignores it. **Migration:** 0040. **Production deployed:** no.

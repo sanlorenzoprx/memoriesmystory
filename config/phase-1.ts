@@ -111,6 +111,13 @@ export const phase1Config = {
     museFallbackModelId: "@cf/meta/llama-3.1-8b-instruct-fast",
     museZeroRetentionModels: ["google/gemini-3-flash", "google/gemini-3.1-pro", "google/gemini-3.1-flash-lite", "google/gemini-2.5-flash"],
     museReasoningTokenAllowance: 1024,
+    // Owner decision 2026-11-16: with GEMINI_API_KEY set, the Worker calls
+    // Google directly so usage draws on the owner's own Gemini credits. The
+    // key must belong to a Google Cloud project with billing on (paid tier),
+    // where Google does not use prompts or responses to improve its products.
+    museDirectGeminiModel: "gemini-3-flash-preview",
+    museDirectGeminiEndpoint: "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
+    museDirectTimeoutMs: 15000,
     musePromptVersion: "remembering-companion-v1",
     museConversationPromptVersion: "story-elicitor-v1",
     museTtsProvider: "elevenlabs",

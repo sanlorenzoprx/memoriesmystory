@@ -10,8 +10,11 @@
 //   CLOUDFLARE_ACCOUNT_ID=... CLOUDFLARE_API_TOKEN=... \
 //     node --experimental-strip-types scripts/muse-eval.ts [--model=google/gemini-3-flash|@cf/...] [--runs=3]
 //
-// The default is Muse's configured model. Gemini models go through AI Gateway
-// with unified billing (no Google key); set AI_GATEWAY_ID to use a named gateway.
+// Direct to Google with the owner's own Gemini credits (no Cloudflare account needed):
+//   GEMINI_API_KEY=... node --experimental-strip-types scripts/muse-eval.ts [--model=gemini-3-flash-preview]
+//
+// Otherwise the default is Muse's configured model through Cloudflare: Gemini
+// via AI Gateway (set AI_GATEWAY_ID for a named gateway), or a Workers AI model.
 import { readFileSync } from "node:fs";
 import { museRememberingSystemPrompt } from "../worker/muse-prompts.ts";
 import { normalizeQuestion } from "../worker/muse-guard.ts";
@@ -23,11 +26,13 @@ type Scenario = { id: string; locale: string; transcript: string };
 const flag = (name: string) => process.argv.find((arg) => arg.startsWith(`--${name}=`))?.split("=").slice(1).join("=");
 const account = process.env.CLOUDFLARE_ACCOUNT_ID,
   token = process.env.CLOUDFLARE_API_TOKEN,
-  model = flag("model") ?? phase1Config.ai.museModelId,
+  geminiKey = process.env.GEMINI_API_KEY,
+  model = flag("model") ?? (geminiKey ? phase1Config.ai.museDirectGeminiModel : phase1Config.ai.museModelId),
+  direct = Boolean(geminiKey) && !model.includes("/"),
   thirdParty = isThirdPartyModel(model),
   runs = Number(flag("runs") ?? 3);
-if (!account || !token) {
-  console.error("Set CLOUDFLARE_ACCOUNT_ID and CLOUDFLARE_API_TOKEN in your shell. Nothing was sent.");
+if (!direct && (!account || !token)) {
+  console.error("Set GEMINI_API_KEY, or CLOUDFLARE_ACCOUNT_ID and CLOUDFLARE_API_TOKEN, in your shell. Nothing was sent.");
   process.exit(2);
 }
 const { scenarios } = JSON.parse(readFileSync(new URL("../tests/fixtures/muse/scenarios.json", import.meta.url), "utf8")) as { scenarios: Scenario[] };
@@ -40,24 +45,30 @@ for (const scenario of scenarios)
       { role: "system", content: museRememberingSystemPrompt },
       { role: "user", content: `Storyteller transcript:\n${scenario.transcript}` },
     ];
-    const response = await fetch(
-      thirdParty
-        ? `https://api.cloudflare.com/client/v4/accounts/${account}/ai/v1/chat/completions`
-        : `https://api.cloudflare.com/client/v4/accounts/${account}/ai/run/${model}`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-          ...(thirdParty && process.env.AI_GATEWAY_ID ? { "cf-aig-gateway-id": process.env.AI_GATEWAY_ID } : {}),
-        },
-        body: JSON.stringify(
+    const response = direct
+      ? await fetch(phase1Config.ai.museDirectGeminiEndpoint, {
+          method: "POST",
+          headers: { Authorization: `Bearer ${geminiKey}`, "Content-Type": "application/json" },
+          body: JSON.stringify({ model, messages, max_tokens: 80 + phase1Config.ai.museReasoningTokenAllowance, temperature: 0.4, reasoning_effort: "low" }),
+        })
+      : await fetch(
           thirdParty
-            ? { model, messages, max_tokens: 80 + phase1Config.ai.museReasoningTokenAllowance, temperature: 0.4 }
-            : { messages, max_tokens: 80, temperature: 0.4 },
-        ),
-      },
-    );
+            ? `https://api.cloudflare.com/client/v4/accounts/${account}/ai/v1/chat/completions`
+            : `https://api.cloudflare.com/client/v4/accounts/${account}/ai/run/${model}`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+              ...(thirdParty && process.env.AI_GATEWAY_ID ? { "cf-aig-gateway-id": process.env.AI_GATEWAY_ID } : {}),
+            },
+            body: JSON.stringify(
+              thirdParty
+                ? { model, messages, max_tokens: 80 + phase1Config.ai.museReasoningTokenAllowance, temperature: 0.4 }
+                : { messages, max_tokens: 80, temperature: 0.4 },
+            ),
+          },
+        );
     const ms = Math.round(performance.now() - started);
     const body = (await response.json().catch(() => null)) as { result?: unknown } | null;
     // OpenAI-compatible replies are bare; the older Workers AI route wraps them in `result`.
@@ -78,6 +89,7 @@ const latencies = results.map((result) => result.ms).sort((a, b) => a - b);
 const percentile = (p: number) => latencies[Math.min(latencies.length - 1, Math.floor((p / 100) * latencies.length))];
 console.log(JSON.stringify({
   model,
+  route: direct ? "google-direct" : thirdParty ? "cloudflare-ai-gateway" : "workers-ai",
   runs: results.length,
   shownViolations: results.filter((result) => result.violations.length).length,
   rawViolations: results.filter((result) => result.rawViolations.length).length,

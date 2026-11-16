@@ -50,6 +50,7 @@ export interface Env extends RealtimeKitEnv, RateLimitEnv, EmailProviderEnv {
   MEDIA_BUCKET: R2Bucket;
   AI: Ai;
   AI_GATEWAY_ID?: string;
+  GEMINI_API_KEY?: string;
   PROCESSING_QUEUE: Queue<TranscriptionQueueMessage>;
   ELEVENLABS_API_KEY?: string;
   ELEVENLABS_MUSE_VOICE_ID?: string;

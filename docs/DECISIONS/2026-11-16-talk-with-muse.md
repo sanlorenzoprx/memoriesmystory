@@ -50,6 +50,10 @@ In the owner's words: "initially US then global scale app so that has to be bake
    - Only models Cloudflare lists as zero data retention may receive a family's words (`phase1Config.ai.museZeroRetentionModels`). The primary is `google/gemini-3-flash`.
    - Workers AI (`@cf/meta/llama-3.1-8b-instruct-fast`) stays as the fallback, so Muse keeps listening during an outage.
    - The model choice is confirmed with the live evaluation (`npm run eval:muse`) before launch.
+   - **Amended the same day.** The owner has Gemini credits with Google and asked for a direct call ("we need to do a direct call").
+     - When the Worker secret `GEMINI_API_KEY` is set, Muse calls Google's Gemini API directly (`gemini-3-flash-preview` on Google's OpenAI-compatible endpoint), billed to the owner's Gemini credits. Workers AI stays the fallback.
+     - The key must belong to a Google Cloud project with billing on. Under Google's Gemini API terms, paid-tier prompts and responses are not used to improve Google's products, while unpaid-tier content is.
+     - Without the key, the AI Gateway route above remains, and it can also use a Google key stored on the gateway (BYOK) instead of Cloudflare credits.
 
 ## Order of work
 
