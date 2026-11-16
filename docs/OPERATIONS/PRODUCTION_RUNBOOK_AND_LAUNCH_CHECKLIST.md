@@ -21,6 +21,7 @@ Secrets are entered by the owner in the Cloudflare dashboard, `wrangler secret p
 | Cloudflare Email (second provider) | `wrangler.jsonc` `send_email` binding | Add only after the domain is onboarded; arbitrary recipients need Workers Paid |
 | `EMAIL_SENDING_ENABLED` | Worker variable | `"false"` until the owner approves a real send on staging |
 | Dead-letter queue `memoriesmystory-processing-dlq` | Cloudflare Queues | Create first, then add `dead_letter_queue` to the consumer |
+| Cloudflare Images binding `IMAGES` | `wrangler.jsonc` | Optional: display copies of HEIC photographs; billed per transformation |
 | `LEGACY_REMOTE_RECORDING_ENABLED` | Worker variable | `"false"` until remote recording is accepted on staging |
 
 ## 2. Migrate

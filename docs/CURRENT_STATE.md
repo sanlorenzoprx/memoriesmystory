@@ -31,9 +31,13 @@ E03 on `feat/scoped-family-invitations` adds verified-recipient expiring invitat
 
 E04a on `feat/attributed-family-contributions` adds independently attributed human text, immutable revision lineage and versioned review intent, author-only revision/withdrawal, owner selection of a specific family-visible version, source-grant rechecks and recoverable on-device writing. Two EN/ES browser journeys, ten route cases, native D1/R2 source/receipt/lineage checks and draft cleanup/API boundary checks passed. Local core passed 238 tests with 88 schema objects and all 55 phone-browser checks passed. PR #44 merged as `d0a550b` after main CI 43692868082 passed. Migration 0017 is required. This is text only; E04 voice/photo sources and each author's transcript review remain required. See `IMPLEMENTATION/ATTRIBUTED_FAMILY_TEXT_2026-11-15.md`.
 
-## Unsent contribution media survives a reload — implemented locally; CI pending
+## HEIC viewing copy — implemented locally; CI pending
 
-A relative's unsent voice recording or photograph is kept on the device with its request key until a confirmed send, a discard or the memory's deletion, so a reload loses nothing and a later send cannot save twice. See `IMPLEMENTATION/UNSENT_CONTRIBUTION_MEDIA_2026-11-16.md`.
+The memory page asks for a display JPEG of a HEIC or HEIF original. The Worker makes it on request with the Cloudflare Images binding, labelled with the original's id and hash, and never presents it as the original. Without the binding the original is served as before. See `IMPLEMENTATION/HEIC_VIEWING_COPY_2026-11-16.md`.
+
+## Unsent contribution media survives a reload — merged
+
+A relative's unsent voice recording or photograph is kept on the device with its request key until a confirmed send, a discard or the memory's deletion, so a reload loses nothing and a later send cannot save twice (PR #74, `095e3a5`). See `IMPLEMENTATION/UNSENT_CONTRIBUTION_MEDIA_2026-11-16.md`.
 
 ## Runbook, threat model and route splitting — merged
 

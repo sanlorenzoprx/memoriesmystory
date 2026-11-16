@@ -8,7 +8,7 @@ The lane updates this file in each pull request. The coordinator folds it into `
 
 ## Status
 
-In progress. L1.1 and L1.2 merged; L1.3 reload-safe unsent media implemented by the coordinator, CI pending.
+L1.1–L1.3 merged (L1.3 in PR #74, `095e3a5`); L1.4 HEIC viewing copy implemented by the coordinator, CI pending. L1.5 waits on D3.
 
 ## Merged
 
@@ -19,11 +19,12 @@ In progress. L1.1 and L1.2 merged; L1.3 reload-safe unsent media implemented by 
 
 L1.1: INTEGRATION_PROVEN (receipt `docs/IMPLEMENTATION/PERSON_ALBUMS_2026-11-16.md`).
 L1.2: INTEGRATION_PROVEN (receipt `docs/IMPLEMENTATION/ALBUM_EXPORT_2026-11-16.md`).
-L1.3: browser-proven locally (receipt `docs/IMPLEMENTATION/UNSENT_CONTRIBUTION_MEDIA_2026-11-16.md`).
+L1.3: browser-proven (receipt `docs/IMPLEMENTATION/UNSENT_CONTRIBUTION_MEDIA_2026-11-16.md`).
+L1.4: UNIT_PROVEN (receipt `docs/IMPLEMENTATION/HEIC_VIEWING_COPY_2026-11-16.md`); live conversion needs the Images binding.
 
 ## Next
 
-L1.4 HEIC viewing copy. Relative-added images wait on owner decision D3.
+L1.5 relative-added images, only after owner decision D3. Relative-added images wait on owner decision D3.
 
 ## Waiting on the owner
 

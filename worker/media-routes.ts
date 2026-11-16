@@ -1,10 +1,11 @@
-import { getPrivateObject, privateMediaResponse } from "./private-media";
+import { getPrivateObject, privateMediaResponse, viewingCopyResponse, type ViewingImagesBinding } from "./private-media";
 import { phase1Config } from "../config/phase-1";
 import { authenticateAppSession, type AuthSessionEnv } from "./auth-session";
 
 export type MediaRouteEnv = AuthSessionEnv & {
   readonly DB: D1Database;
   readonly MEDIA_BUCKET: R2Bucket;
+  readonly IMAGES?: ViewingImagesBinding;
 };
 
 type OriginalRole = "original_photo" | "original_audio";
@@ -528,6 +529,9 @@ async function streamMedia(request: Request, env: MediaRouteEnv, draftId: string
     const session = await authenticateAppSession(request, env);
     if (session?.userId !== authorizedDraft.owner_user_id) throw new MediaRouteError(403,"Sign in to open this scan.","owner_required");
   }
+  // A display-only JPEG for HEIC originals, when the page asks for one.
+  const viewing = await viewingCopyResponse(request, env.MEDIA_BUCKET, env.IMAGES, asset);
+  if (viewing) return viewing;
   const { object, ranged } = await getPrivateObject(env.MEDIA_BUCKET, asset.r2_key, request);
   if (!object) {
     throw new MediaRouteError(503, "The preserved original is temporarily unavailable.", "object_unavailable");

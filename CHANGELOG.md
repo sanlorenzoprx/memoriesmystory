@@ -1,5 +1,9 @@
 # Foundation Package Changelog
 
+## HEIC viewing copy — 2026-11-16
+
+- HEIC and HEIF originals can be displayed through a JPEG viewing copy made on request by the Cloudflare Images binding. The copy is labelled with the original's id and hash, and the original is never changed. It is optional until the binding is provisioned. No migration; no deployment is claimed.
+
 ## Unsent contribution media survives a reload — 2026-11-16
 
 - A relative's unsent voice recording or photograph is kept on the device, with its request key, until a confirmed send, a discard or the memory's deletion. No migration; no deployment is claimed.

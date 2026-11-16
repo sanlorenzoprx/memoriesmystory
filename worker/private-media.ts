@@ -69,3 +69,46 @@ export function privateMediaResponse(
   headers.set("Content-Length", String(totalBytes));
   return new Response(object.body, { status: 200, headers });
 }
+
+/** The Cloudflare Images binding, narrowed to what a viewing copy needs. */
+export type ViewingImagesBinding = {
+  input(stream: ReadableStream<Uint8Array>): {
+    output(options: { format: "image/jpeg"; quality?: number }): Promise<{ response(): Response }>;
+  };
+};
+
+const viewingInputLimit = 20 * 1024 * 1024;
+
+/**
+ * A display-only JPEG of a HEIC or HEIF original (lane L1.4). Most browsers
+ * cannot show HEIC. The original's bytes and record never change; the copy is
+ * made on request, labelled with the original's id and hash, and never
+ * claims to be the original. Returns null when no copy applies or can be made,
+ * so the caller serves the original exactly as before.
+ */
+export async function viewingCopyResponse(
+  request: Request,
+  bucket: R2Bucket,
+  images: ViewingImagesBinding | undefined,
+  original: { id: string; r2_key: string; content_type: string; byte_size: number; sha256: string },
+): Promise<Response | null> {
+  if (new URL(request.url).searchParams.get("display") !== "jpeg") return null;
+  if (!images || !/^image\/hei[cf]$/.test(original.content_type) || original.byte_size > viewingInputLimit) return null;
+  try {
+    const object = await bucket.get(original.r2_key);
+    if (!object) return null;
+    const converted = (await images.input(object.body).output({ format: "image/jpeg", quality: 90 })).response();
+    if (!converted.ok || !converted.body) return null;
+    return new Response(converted.body, {
+      headers: {
+        "Content-Type": "image/jpeg",
+        "Cache-Control": "private, no-store",
+        "X-Content-Type-Options": "nosniff",
+        "X-Viewing-Copy-Of": original.id,
+        "X-Source-SHA256": original.sha256,
+      },
+    });
+  } catch {
+    return null;
+  }
+}
