@@ -811,7 +811,10 @@ export function FamilyContributionsPanel({
                     onChange={(next) => {
                       voiceKey.current = null;
                       setVoiceSaved(false);
-                      setVoice(next);
+                      // Kept on this device before it is shown, so a reload cannot lose it.
+                      void keepMedia("voice", next, null).then(() => {
+                        if (mounted.current && !deletion.current) setVoice(next);
+                      });
                     }}
                   />
                   {voice && (
@@ -855,7 +858,9 @@ export function FamilyContributionsPanel({
                           photoKey.current = null;
                           setPhotoSaved(false);
                           void readContributionPhoto(file).then(
-                            (chosen) => {
+                            async (chosen) => {
+                              // Kept on this device before it is shown, so a reload cannot lose it.
+                              await keepMedia("photo", chosen, null);
                               if (mounted.current && !deletion.current)
                                 setPhoto(chosen);
                             },

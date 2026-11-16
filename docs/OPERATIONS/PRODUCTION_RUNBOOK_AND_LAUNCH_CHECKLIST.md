@@ -129,7 +129,7 @@ Each line needs a receipt under `docs/IMPLEMENTATION/` or `docs/EXECUTION/`. Sou
 | # | Gate | Status 2026-11-16 |
 | --- | --- | --- |
 | 1 | Group A capabilities merged or descoped by decision | Mostly merged (albums, export and check, integrity, email with sending off, sharing, referral, ledger, ceilings). Open: L1.3 reload-safe unsent media, L1.4 HEIC viewing copy, server-built export for large archives, stewardship (D7) |
-| 2 | Group B complete; no open high-severity finding | Security headers, rate limits, ceilings, error fallback and dependency audit merged. Open: threat model, observability review, route splitting, WCAG 2.2 AA review |
+| 2 | Group B complete; no open high-severity finding | Security headers, rate limits, ceilings, error fallback and dependency audit merged. Threat model, route splitting and the automated WCAG 2.2 A/AA scan are done. Open: observability alerts on staging, CSP enforcement, screen-reader review |
 | 3 | Legal pages with owner-approved wording, versioned acceptance | Not started; waits on D2 |
 | 4 | Whole application on staging with all migrations and staging proofs | Not run; needs O1–O4 |
 | 5 | Backup, restore and rollback rehearsed | Not run; needs staging |

@@ -20,12 +20,13 @@ In progress. L7.1–L7.3 merged; L7.4 merged (PR #62, `cd865a0`).
 L7.1–L7.2: INTEGRATION_PROVEN locally (receipt `docs/IMPLEMENTATION/SECURITY_HEADERS_AND_FALLBACK_2026-11-16.md`). The report-only CSP needs staging evidence before it is enforced.
 L7.3: INTEGRATION_PROVEN (receipt `docs/IMPLEMENTATION/RATE_LIMITING_2026-11-16.md`). Thresholds need staging evidence.
 Threat model: `docs/SECURITY/THREAT_MODEL.md` (CODED, reviewed against tests).
+Automated WCAG 2.2 A/AA scan: 14 states, EN and ES, clean after the label-in-name fix (`docs/IMPLEMENTATION/ACCESSIBILITY_REVIEW_2026-11-16.md`).
 Route splitting: later pages load on demand; main bundle 729 kB → 562 kB (209 → 169 kB gzip); 81 phone checks pass.
 L7.4: CI-gated (`npm audit --omit=dev --audit-level=high`); record in `docs/SECURITY/DEPENDENCY_ADVISORIES.md`.
 
 ## Next
 
-WCAG 2.2 AA review; observability alerts on staging; enforce the CSP after staging reports. Per-account cost ceilings landed with L5.4. The dead-letter queue waits on L8 provisioning (see the L8 lane file).
+Observability alerts on staging; enforce the CSP after staging reports; screen-reader review (acceptance kit J8). Per-account cost ceilings landed with L5.4. The dead-letter queue waits on L8 provisioning (see the L8 lane file).
 
 ## Waiting on the owner
 

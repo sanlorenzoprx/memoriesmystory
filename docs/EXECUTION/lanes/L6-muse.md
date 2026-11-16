@@ -8,7 +8,7 @@ The lane updates this file in each pull request. The coordinator folds it into `
 
 ## Status
 
-In progress. B01 corpus and evaluator, the live runner, and B03 measured guard fixes implemented by the coordinator, CI pending. The B02 live comparison needs the owner's account credentials.
+In progress. B01 corpus and evaluator, the live runner, and B03 measured guard fixes merged (PR #76, `0d677a5`). The B02 live comparison needs the owner's account credentials.
 
 ## Merged
 

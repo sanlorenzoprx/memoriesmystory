@@ -1,5 +1,10 @@
 # Foundation Package Changelog
 
+## Automated accessibility scan — 2026-11-16
+
+- An axe-core WCAG 2.2 A/AA scan covers 14 screens and states in English and Spanish. Text-size buttons now speak their visible text first (WCAG 2.5.3).
+- A chosen contribution photograph or recording is kept on the device before it is shown, closing a reload race. No migration; no deployment is claimed.
+
 ## Muse evaluation, guard fixes and acceptance kit — 2026-11-16
 
 - An independent Muse evaluator with a synthetic English and Spanish corpus, plus a live runner (`npm run eval:muse`) that needs owner credentials.
