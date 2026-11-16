@@ -31,11 +31,15 @@ E03 on `feat/scoped-family-invitations` adds verified-recipient expiring invitat
 
 E04a on `feat/attributed-family-contributions` adds independently attributed human text, immutable revision lineage and versioned review intent, author-only revision/withdrawal, owner selection of a specific family-visible version, source-grant rechecks and recoverable on-device writing. Two EN/ES browser journeys, ten route cases, native D1/R2 source/receipt/lineage checks and draft cleanup/API boundary checks passed. Local core passed 238 tests with 88 schema objects and all 55 phone-browser checks passed. PR #44 merged as `d0a550b` after main CI 43692868082 passed. Migration 0017 is required. This is text only; E04 voice/photo sources and each author's transcript review remain required. See `IMPLEMENTATION/ATTRIBUTED_FAMILY_TEXT_2026-11-15.md`.
 
-## Owner reminders — implemented locally, sending off; CI pending
+## Share handoff and referral events — implemented locally; CI pending
 
-Opt-in bilingual reminders to add a memory, at most once a calendar month (database-enforced) and never within 28 days, skipped after a recent memory, with one-click unsubscribe and no content. Wording follows the D6 default and awaits owner approval. Migration 0038. See `IMPLEMENTATION/OWNER_REMINDERS_2026-11-16.md`.
+A ready family link can be handed to WhatsApp or Facebook (no publishing API), with its reach and the limits of revocation stated plainly. The share policy's growth-loop events are recorded content-free: no fingerprinting, no identifiers, no reward. The share page's discovery link carries only an opaque referral id and appears only with the creator's attribution choice. No migration. See `IMPLEMENTATION/SHARE_HANDOFF_AND_REFERRAL_2026-11-16.md`.
 
-## Family update notices — implemented locally, sending off; CI pending
+## Owner reminders — merged, sending off
+
+Opt-in bilingual reminders to add a memory, at most once a calendar month (database-enforced) and never within 28 days, skipped after a recent memory, with one-click unsubscribe and no content. Wording follows the D6 default and awaits owner approval. Migration 0038 (PR #66, `bd70a0f`). See `IMPLEMENTATION/OWNER_REMINDERS_2026-11-16.md`.
+
+## Family update notices — merged, sending off
 
 Once a day, an invited relative who opted in gets a short bilingual email when something new is shared inside their accepted scope: a memory placed in a shared Chapter, or someone else's recollection included for family. The email has a link to `/family`, one-click unsubscribe and no memory content, and goes at most once a day. Nothing is sent or recorded while email is off. Migration 0024. See `IMPLEMENTATION/FAMILY_UPDATE_NOTICES_2026-11-16.md`.
 

@@ -1,5 +1,11 @@
 # Foundation Package Changelog
 
+## Share handoff and referral events — 2026-11-16
+
+- A ready family link can be sent on WhatsApp or shared on Facebook through hand-off links, with a plain statement of who can open it and that saved copies cannot be recalled.
+- The share policy's growth-loop events are recorded content-free and deduplicated: prompt viewed, share started (with channel), share opened (daily per share), referred visitor, and referred first memory started and completed. There is no fingerprinting, no identifiers and no reward.
+- Attributed share pages offer "Create your own Living Memory" with an opaque referral id. No migration; no deployment is claimed.
+
 ## Owner reminders — 2026-11-16
 
 - Opt-in reminders to add a memory, at most once a calendar month and never within 28 days, skipped after a recent memory, with one-click unsubscribe and no memory content. Migration 0038 (coordinator-allocated). Wording awaits D6 approval. No deployment is claimed.

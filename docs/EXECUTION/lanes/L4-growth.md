@@ -8,7 +8,7 @@ The lane updates this file in each pull request. The coordinator folds it into `
 
 ## Status
 
-Not started.
+In progress. L4.1 share handoff and L4.2 referral events implemented by the coordinator, CI pending. L4.4 share-page headers landed with L7.1 (PR #57).
 
 ## Merged
 
@@ -16,11 +16,11 @@ None yet.
 
 ## Evidence level reached
 
-—
+L4.1–L4.2: INTEGRATION_PROVEN locally (receipt `docs/IMPLEMENTATION/SHARE_HANDOFF_AND_REFERRAL_2026-11-16.md`); real-device handoff pending.
 
 ## Next
 
-The first packet in section 4 of `../V1_LAUNCH_PARALLEL_HANDOFF_2026-11-16.md`.
+L4.3 public landing page (G04) with synthetic demonstration media.
 
 ## Waiting on the owner
 
