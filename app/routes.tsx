@@ -2,6 +2,7 @@ import { t, notice, useLocale, getLocale } from "./localization/language";
 import type { RouteObject } from "react-router";
 import { useEffect, useRef, useState } from "react";
 import { rememberReferral } from "./services/growth-events";
+import { WelcomeSplash } from "./features/welcome/WelcomeSplash";
 import {
   Link,
   useNavigate,
@@ -75,6 +76,7 @@ function AppShell() {
       <a className="skip-link" href="#main-content">{t("Skip to the story")}</a>
       <LanguageControl />
       <TextSizeControl />
+      <WelcomeSplash />
       <Outlet />
     </main>
   );

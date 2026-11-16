@@ -1,5 +1,9 @@
 # Foundation Package Changelog
 
+## Welcome splash for returning people — 2026-11-16
+
+- By owner decision, returning signed-in people with finished Living Memories see one of their own photographs for about three seconds, once per visit. It never appears for new visitors, and it is skippable, can be turned off and respects reduced motion. No migration; no deployment is claimed.
+
 ## Server-built export and test audit — 2026-11-16
 
 - Archives too large for one device are prepared on the server: originals are checked in background steps, then offered in whole-memory ZIP parts that stream the stored originals without copying (migration 0026). Parts expire after seven days and are purged on memory deletion.
