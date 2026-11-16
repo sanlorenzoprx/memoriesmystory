@@ -52,7 +52,11 @@ const config = {
   queues: {
     producers: base.queues.producers.map((producer) => ({ ...producer, queue })),
     consumers: base.queues.consumers.map((consumer) => ({ ...consumer, queue }))
-  }
+  },
+  // Staging keeps its own rate-limit counters: same names, namespaces offset by 1000.
+  ...(base.ratelimits
+    ? { ratelimits: base.ratelimits.map((limit) => ({ ...limit, namespace_id: String(Number(limit.namespace_id) + 1000) })) }
+    : {})
 };
 writeFileSync(join(root, generatedConfig), `${JSON.stringify(config, null, 2)}\n`);
 

@@ -1,4 +1,3 @@
-import { FamilyAccessExperience } from './features/family-archive/FamilyAccessExperience';
 import { t, notice, useLocale, getLocale } from "./localization/language";
 import type { RouteObject } from "react-router";
 import { useEffect, useRef, useState } from "react";
@@ -14,10 +13,6 @@ import {
 import { appIdentity } from "../config/app-identity";
 import { firstExperienceContent } from "./features/first-experience/content";
 import { CaptureExperience } from "./features/capture/CaptureExperience";
-import { IdentityExperience } from "./features/identity/IdentityExperience";
-import { ArchiveExperience } from "./features/archive/ArchiveExperience";
-import { LivingMemoryExperience } from "./features/living-memory/LivingMemoryExperience";
-import { NewLegacySession, JoinLegacySession, LegacySessionExperience } from "./features/legacy/LegacySessionExperience";
 import { LanguageControl } from "./localization/LanguageControl";
 import { TextSizeControl } from "./features/TextSizeControl";
 import type { CaptureEntryMode } from "./features/capture/local-draft";
@@ -27,17 +22,23 @@ type HomeLoaderData = {
   brandName: typeof appIdentity.brandName;
 };
 
+const familyPage = async () => ({ Component: (await import("./features/family-archive/FamilyAccessExperience")).FamilyAccessExperience });
+const archivePage = async () => ({ Component: (await import("./features/archive/ArchiveExperience")).ArchiveExperience });
+const legacyPages = () => import("./features/legacy/LegacySessionExperience");
+
 export const routes: RouteObject[] = [
   {
     path: "/",
     element: <AppShell />,
     errorElement: <RouteErrorBoundary />,
     children: [
-      {path:"family",element:<FamilyAccessExperience/>},
-      {path:"family/join/:token",element:<FamilyAccessExperience/>},
-      { path: "legacy/new", element: <NewLegacySession /> },
-      { path: "legacy/:sessionId/join", element: <JoinLegacySession /> },
-      { path: "legacy/:sessionId", element: <LegacySessionExperience /> },
+      // Pages after the first screen load on demand (lane L7 route splitting);
+      // the first screen and capture stay in the main bundle.
+      { path: "family", lazy: familyPage },
+      { path: "family/join/:token", lazy: familyPage },
+      { path: "legacy/new", lazy: async () => ({ Component: (await legacyPages()).NewLegacySession }) },
+      { path: "legacy/:sessionId/join", lazy: async () => ({ Component: (await legacyPages()).JoinLegacySession }) },
+      { path: "legacy/:sessionId", lazy: async () => ({ Component: (await legacyPages()).LegacySessionExperience }) },
       {
         index: true,
         loader: homeLoader,
@@ -49,20 +50,14 @@ export const routes: RouteObject[] = [
       },
       {
         path: "auth/protect",
-        element: <IdentityExperience />
+        lazy: async () => ({ Component: (await import("./features/identity/IdentityExperience")).IdentityExperience })
       },
       {
         path: "memory/:draftId",
-        element: <LivingMemoryExperience />
+        lazy: async () => ({ Component: (await import("./features/living-memory/LivingMemoryExperience")).LivingMemoryExperience })
       },
-      {
-        path: "archive",
-        element: <ArchiveExperience />
-      },
-      {
-        path: "archive/:draftId",
-        element: <ArchiveExperience />
-      }
+      { path: "archive", lazy: archivePage },
+      { path: "archive/:draftId", lazy: archivePage }
     ]
   }
 ];

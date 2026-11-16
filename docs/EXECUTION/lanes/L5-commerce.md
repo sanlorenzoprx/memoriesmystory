@@ -8,18 +8,19 @@ The lane updates this file in each pull request. The coordinator folds it into `
 
 ## Status
 
-In progress. L5.1–L5.2 merged; L5.4 daily ceilings implemented by the coordinator, CI pending. L5.3 Stripe sandbox waits on O5.
+In progress. L5.1, L5.2 and L5.4 merged. L5.3 Stripe sandbox waits on O5.
 
 ## Merged
 
 - L5.1 cost metering report — PR #68, `920727e`.
 - L5.2 plans and entitlement ledger — PR #71, `398f32b`.
+- L5.4 daily ceilings — PR #72, `9f84221`.
 
 ## Evidence level reached
 
 L5.1: INTEGRATION_PROVEN against fixtures (receipt `docs/IMPLEMENTATION/COST_METERING_2026-11-16.md`); rates not set.
 L5.2: INTEGRATION_PROVEN (receipt `docs/IMPLEMENTATION/ENTITLEMENT_LEDGER_2026-11-16.md`); migration 0030.
-L5.4: INTEGRATION_PROVEN locally (receipt `docs/IMPLEMENTATION/DAILY_CEILINGS_2026-11-16.md`); migration 0031.
+L5.4: INTEGRATION_PROVEN (receipt `docs/IMPLEMENTATION/DAILY_CEILINGS_2026-11-16.md`); migration 0031.
 
 ## Next
 
