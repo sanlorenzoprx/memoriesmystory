@@ -20,6 +20,7 @@ import {
   createMuseTextProvider,
   type MuseProviderEnv
 } from "./providers/muse-provider";
+import { showsCrisisSignal, supportReply } from "./muse-safety";
 
 export type MuseConversationEnv = AuthSessionEnv &
   LivingMemoryPersistenceEnv &
@@ -496,6 +497,9 @@ function serializeTurn(turn: TurnRow, draftId: string) {
         ? turn.source_ref.slice(5)
         : null),
     voiceReplyAssetId: turn.voice_reply_asset_id,
+    support: turn.source_ref?.startsWith("support:")
+      ? (({ lines, emergencyNumber }) => ({ lines, emergencyNumber }))(supportReply(turn.source_ref.split(":")[1] ?? "en-US"))
+      : null,
     voiceReplyMediaUrl: turn.voice_reply_asset_id
       ? `/resources/drafts/${encodeURIComponent(draftId)}/muse-voice-replies/${encodeURIComponent(turn.voice_reply_asset_id)}/media`
       : null,
@@ -639,6 +643,18 @@ async function continueConversation(
   let context = await currentContext(env, foundation.livingMemoryId);
 
   if (turns.length === 0) {
+    if (showsCrisisSignal(transcript.text)) {
+      await insertMuseTurn(
+        env,
+        foundation.livingMemoryId,
+        0,
+        supportReply(responseLocale).message,
+        "open",
+        `support:${responseLocale}:transcript:${transcript.id}`,
+        "muse-safety-support-v1"
+      );
+      return snapshot(env, foundation.livingMemoryId, draftId);
+    }
     const next = await generateNextQuestion(env, transcript, turns, context, responseLocale);
     await insertMuseTurn(
       env,
@@ -750,15 +766,19 @@ async function continueConversation(
         target.focus_kind,
         voiceReplyAssetId
       );
-      await saveContextFromReply(
-        env,
-        foundation.livingMemoryId,
-        userId,
-        target.focus_kind,
-        state,
-        content,
-        storytellerTurnId
-      );
+      // Words that may signal danger are kept as testimony but never
+      // attached to the memory as a person, place or time.
+      if (!showsCrisisSignal(rawAnswer)) {
+        await saveContextFromReply(
+          env,
+          foundation.livingMemoryId,
+          userId,
+          target.focus_kind,
+          state,
+          content,
+          storytellerTurnId
+        );
+      }
     }
   }
 
@@ -767,6 +787,28 @@ async function continueConversation(
   const unresolved = unresolvedContext(context);
   const museTurns = turns.filter((turn) => turn.speaker === "muse");
   const lastTurn = turns.at(-1);
+
+  // A person who may be in danger is answered before anything else, even on
+  // the last answer; the conversation stays open afterwards (decision
+  // 2026-11-16, Talk with Muse). Checked here so a retried request that
+  // already saved the reply still gets the support message.
+  if (
+    lastTurn?.speaker === "storyteller" &&
+    (lastTurn.response_state === "stated" || lastTurn.response_state === "approximate") &&
+    showsCrisisSignal(lastTurn.content)
+  ) {
+    const support = supportReply(responseLocale);
+    await insertMuseTurn(
+      env,
+      foundation.livingMemoryId,
+      lastTurn.turn_index + 1,
+      support.message,
+      "open",
+      `support:${responseLocale}:${lastTurn.id}`,
+      "muse-safety-support-v1"
+    );
+    return snapshot(env, foundation.livingMemoryId, draftId);
+  }
 
   if (unresolved.length === 0 && lastTurn?.speaker === "storyteller" && museTurns.length >= 2) {
     return snapshot(env, foundation.livingMemoryId, draftId);

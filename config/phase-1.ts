@@ -104,7 +104,13 @@ export const phase1Config = {
     transcriptionProvider: "elevenlabs",
     transcriptionModelId: "scribe_v2",
     transcriptionEndpoint: "https://api.elevenlabs.io/v1/speech-to-text",
-    museModelId: "@cf/meta/llama-3.1-8b-instruct-fast",
+    // Owner decision 2026-11-16: Gemini first, through Cloudflare AI Gateway
+    // (unified billing, no Google key). Only zero-data-retention models may
+    // receive a family's words; Workers AI stays as the fallback.
+    museModelId: "google/gemini-3-flash",
+    museFallbackModelId: "@cf/meta/llama-3.1-8b-instruct-fast",
+    museZeroRetentionModels: ["google/gemini-3-flash", "google/gemini-3.1-pro", "google/gemini-3.1-flash-lite", "google/gemini-2.5-flash"],
+    museReasoningTokenAllowance: 1024,
     musePromptVersion: "remembering-companion-v1",
     museConversationPromptVersion: "story-elicitor-v1",
     museTtsProvider: "elevenlabs",

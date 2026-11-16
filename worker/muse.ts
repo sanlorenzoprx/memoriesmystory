@@ -20,6 +20,7 @@ import {
   createMuseTextProvider,
   type MuseProviderEnv
 } from "./providers/muse-provider";
+import { showsCrisisSignal, supportReply } from "./muse-safety";
 
 export type MuseEnv = AuthSessionEnv &
   LivingMemoryPersistenceEnv &
@@ -160,7 +161,8 @@ async function currentContext(
 async function generateMuseQuestion(
   env: MuseEnv,
   livingMemoryId: string,
-  transcript: TranscriptRow
+  transcript: TranscriptRow,
+  uiLocale: string | null = null
 ): Promise<MuseArtifactRow> {
   const existing = await currentMusePrompt(env, livingMemoryId);
   if (existing) return existing;
@@ -173,7 +175,11 @@ async function generateMuseQuestion(
   let modelConfigVersion: string = phase1Config.ai.modelConfigVersion;
   let question = fallbackQuestion(transcript.locale);
 
-  if (transcript.text.trim()) {
+  if (showsCrisisSignal(transcript.text)) {
+    // A person who may be in danger is answered first (decision 2026-11-16).
+    question = supportReply(uiLocale ?? transcript.locale).message;
+    modelConfigVersion = "muse-safety-support-v1";
+  } else if (transcript.text.trim()) {
     try {
       const provider = createMuseTextProvider(env);
       const result = await provider.generate({
@@ -263,7 +269,7 @@ async function askMuse(
       "Your photograph and voice are safe. Muse can help after the transcript is ready."
     );
   }
-  const prompt = await generateMuseQuestion(env, foundation.livingMemoryId, transcript);
+  const prompt = await generateMuseQuestion(env, foundation.livingMemoryId, transcript, request.headers.get("X-UI-Locale"));
   return json({
     ok: true,
     livingMemoryId: foundation.livingMemoryId,

@@ -2268,3 +2268,15 @@ h1 {
   88% { opacity: 1; }
   100% { opacity: 0; }
 }
+
+/* Muse support message: real people to reach now (decision 2026-11-16). */
+.muse-support-lines {
+  margin: 8px 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 6px;
+}
+.muse-support-lines a {
+  font-weight: 600;
+  margin-right: 8px;
+}
