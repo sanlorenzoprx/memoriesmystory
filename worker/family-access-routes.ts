@@ -9,6 +9,7 @@ import {
   type FamilyGrant,
 } from "./family-permissions";
 import { phase1Config } from "../config/phase-1";
+import { sendInvitationEmail, type NotificationEnv } from "./notifications";
 const limits = phase1Config.familyAccess,
   idPattern = /^[A-Za-z0-9_-]{8,120}$/;
 class AccessError extends Error {
@@ -423,6 +424,17 @@ export async function handleFamilyAccessRoute(
         `${env.SESSION_SECRET}:family-invitation:${receiptKey}`,
       ),
       path = `/family/join/${token}`;
+    // Only when the owner asked; the result says plainly whether it went.
+    async function emailed(grant: string) {
+      if (body.emailInvitation !== true) return {};
+      return {
+        email: await sendInvitationEmail(env as NotificationEnv, {
+          grantId: grant,
+          ownerUserId: user,
+          joinUrl: new URL(path, request.url).href,
+        }),
+      };
+    }
     async function prior() {
       const row = await env.DB.prepare(
         "SELECT request_hash,result_ref FROM operation_receipts WHERE idempotency_key=? AND scope_type='user' AND scope_id=?",
@@ -446,7 +458,7 @@ export async function handleFamilyAccessRoute(
           (await sha256Text(`${env.SESSION_SECRET}:family-token:${token}`))
       )
         fail(409, "family_invitation_inactive");
-      return json({ ...result, joinPath: path, replayed: true });
+      return json({ ...result, joinPath: path, replayed: true, ...(await emailed(String(result.id))) });
     }
     if (old) return await replayCreation(old);
     const now = new Date(),
@@ -494,7 +506,7 @@ export async function handleFamilyAccessRoute(
       if (winner) return await replayCreation(winner);
       throw error;
     }
-    return json({ ...result, joinPath: path }, 201);
+    return json({ ...result, joinPath: path, ...(await emailed(grantId)) }, 201);
   } catch (error) {
     return error instanceof AccessError
       ? json({ error: { code: error.code } }, error.status)

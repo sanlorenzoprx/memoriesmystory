@@ -89,7 +89,15 @@ for (const locale of ["en-US", "es-PR"] as const)
         created = true;
         return route.fulfill({
           status: 201,
-          json: { id: grant.id, version: 1, joinPath: `/family/join/${token}` },
+          json: {
+            id: grant.id,
+            version: 1,
+            joinPath: `/family/join/${token}`,
+            // Sending is switched off until a sending domain is onboarded.
+            ...(request.postDataJSON().emailInvitation
+              ? { email: { status: "not_sent", code: "email_sending_off" } }
+              : {}),
+          },
         });
       }
       if (path.endsWith("/grants"))
@@ -197,6 +205,20 @@ for (const locale of ["en-US", "es-PR"] as const)
     await expect(
       page.getByLabel(copy("Private family invitation link"), { exact: true }),
     ).toHaveValue(new RegExp(`/family/join/${token}$`));
+    // Asking to email it afterwards replays the same invitation and says plainly nothing was sent.
+    await page
+      .getByLabel(copy("Also email the invitation link to this address"), { exact: true })
+      .check();
+    await page
+      .getByRole("button", { name: copy("Create family invitation"), exact: true })
+      .click();
+    await expect(
+      page.getByText(
+        copy("Email is not available yet, so nothing was emailed. Send the link below yourself."),
+        { exact: true },
+      ),
+    ).toBeVisible();
+    expect(keys[2]).toBe(keys[0]);
     await page.goto(`/family/join/${token}`);
     await page
       .getByRole("button", {

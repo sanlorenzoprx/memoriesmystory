@@ -64,3 +64,10 @@ Apply after 0021 and before the matching Worker. It adds the append-only
 removes its rows, so no hash of deleted family media is kept. No stored row is
 changed. Migrations 0022–0024 are reserved for lane L2 and may land later; 0025
 does not depend on them.
+
+## 0022 — email delivery record
+
+Apply before the matching Worker. It adds the append-only `email_deliveries`
+table (purpose, subject id, status and stable code; no address, subject or
+body) with a partial unique index so a purpose and subject are recorded as sent
+at most once. No stored row is changed. 0023–0024 stay reserved for lane L2.

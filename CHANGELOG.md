@@ -1,5 +1,9 @@
 # Foundation Package Changelog
 
+## Invitations by email — 2026-11-16
+
+- A Cloudflare Email Service adapter that fails closed with stable codes, plus an owner option to email a family invitation's link in English and Spanish. The email carries no memory content, is sent at most once, and is never sent for an inactive invitation. Migration 0022 adds an append-only delivery record with no address or body. Sending is off (`EMAIL_SENDING_ENABLED=false`) until a sending domain is onboarded. No deployment is claimed.
+
 ## Scheduled integrity checks — 2026-11-16
 
 - A daily cron re-hashes stored originals and sources against their preservation hashes and records match, mismatch or missing in the append-only `fixity_checks` table. Migration 0025 is required. It never repairs or rewrites media. Memory deletion removes the matching rows. No deployment is claimed.
