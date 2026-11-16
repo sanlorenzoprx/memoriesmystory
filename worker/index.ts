@@ -12,6 +12,7 @@ import type { RealtimeKitEnv } from "./realtimekit";
 import { enforceRateLimit, type RateLimitEnv } from "./rate-limit";
 import { enforceDailyCeiling } from "./usage-ceilings";
 import { runFixityPass } from "./fixity";
+import { handleServerExportRoute, processServerExportStep, purgeServerExports, type ServerExportMessage } from "./server-export";
 import type { ViewingImagesBinding } from "./private-media";
 import { runFamilyUpdatePass, runOwnerReminderPass } from "./notifications";
 import { handleEmailPreferenceRoute } from "./email-preferences";
@@ -63,7 +64,7 @@ export interface Env extends RealtimeKitEnv, RateLimitEnv, EmailProviderEnv {
   IMAGES?: ViewingImagesBinding;
 }
 
-const handler: ExportedHandler<Env, TranscriptionQueueMessage> = {
+const handler: ExportedHandler<Env, TranscriptionQueueMessage | ServerExportMessage> = {
   async fetch(request, env) {
     try {
       return await route(request, env);
@@ -84,7 +85,20 @@ const handler: ExportedHandler<Env, TranscriptionQueueMessage> = {
   },
 
   async queue(batch, env) {
-    await processTranscriptionBatch(batch, env);
+    // Export steps and transcriptions share one queue; each kind is handled on its own.
+    const isExport = (message: Message<unknown>): message is Message<ServerExportMessage> =>
+      (message.body as { type?: unknown } | null)?.type === "server_export";
+    for (const message of batch.messages.filter(isExport)) {
+      try {
+        await processServerExportStep(env, message.body.jobId);
+        message.ack();
+      } catch {
+        message.retry();
+      }
+    }
+    const transcriptions = batch.messages.filter((message) => !isExport(message)) as Message<TranscriptionQueueMessage>[];
+    if (transcriptions.length)
+      await processTranscriptionBatch({ ...batch, messages: transcriptions } as MessageBatch<TranscriptionQueueMessage>, env);
   },
 
   // Daily integrity pass over stored originals and sources (worker/fixity.ts).
@@ -103,6 +117,11 @@ const handler: ExportedHandler<Env, TranscriptionQueueMessage> = {
     context.waitUntil(
       runOwnerReminderPass(env).then((result) => {
         console.log("Owner reminder pass finished", result);
+      }),
+    );
+    context.waitUntil(
+      purgeServerExports(env, { expiredBefore: new Date().toISOString() }).then((removed) => {
+        console.log("Expired server exports removed", { removed });
       }),
     );
   }
@@ -146,6 +165,8 @@ async function route(request: Request, env: Env): Promise<Response> {
     if(archiveResponse)return archiveResponse;
     const familyContributionResponse=await handleFamilyContributionRoute(request,env);
     if(familyContributionResponse)return familyContributionResponse;
+    const serverExportResponse = await handleServerExportRoute(request, env);
+    if (serverExportResponse) return serverExportResponse;
     const archiveExportResponse = await handleArchiveExportRoute(request, env);
     if (archiveExportResponse) return archiveExportResponse;
     const familyTimelineResponse = await handleFamilyTimelineRoute(request, env);

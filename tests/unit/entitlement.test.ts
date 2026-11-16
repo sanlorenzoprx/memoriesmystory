@@ -1,10 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { plans, summarizeLedger } from "../../app/domain/entitlement";
+import { summarizeLedger } from "../../app/domain/entitlement";
 
 describe("plans and the entitlement ledger (L5.2)", () => {
-  it("offers one free Living Memory with no price shown until prices are decided", () => {
-    expect(plans).toEqual({ free: { livingMemories: 1, priceShown: false } });
-  });
 
   it("adds up grants, uses and deletions under either policy", () => {
     const grant = { entry_kind: "grant", granted: 1, used_delta: 0 } as const,

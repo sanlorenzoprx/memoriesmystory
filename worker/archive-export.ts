@@ -41,7 +41,7 @@ const assetRoles: Record<string, [ArchiveExportFile["role"], boolean]> = {
 };
 
 // Each kind resolves to one durable object owned (through its memory) by ?2.
-const fileSources: Record<ArchiveExportFile["kind"], string> = {
+export const fileSources: Record<ArchiveExportFile["kind"], string> = {
   asset:
     "SELECT a.r2_key,a.content_type,a.byte_size,a.sha256 FROM media_assets a JOIN memory_stories m ON m.id=a.memory_story_id WHERE a.id=?1 AND m.owner_user_id=?2 AND m.status='complete' AND a.durability_status='durable'",
   "voice-reply":
@@ -56,7 +56,7 @@ const fileSources: Record<ArchiveExportFile["kind"], string> = {
     "SELECT x.r2_key,x.content_type,x.byte_size,x.sha256 FROM legacy_remote_sources x JOIN legacy_remote_recordings r ON r.id=x.recording_id JOIN legacy_sessions s ON s.id=r.session_id JOIN memory_stories m ON m.id=s.memory_story_id WHERE x.id=?1 AND m.owner_user_id=?2 AND s.owner_user_id=?2 AND m.status='complete' AND x.durability_status='durable' AND r.phase IN ('preserved','partial_preserved') AND s.deletion_requested_at IS NULL",
 };
 
-async function manifest(env: ArchiveExportEnv, owner: string) {
+export async function buildArchiveManifest(env: ArchiveExportEnv, owner: string) {
   const all = <T>(sql: string, ...values: unknown[]) =>
     env.DB.prepare(sql)
       .bind(...values)
@@ -653,7 +653,7 @@ export async function handleArchiveExportRoute(
     const session = await authenticateAppSession(request, env);
     if (!session) return json({ error: { code: "session_required" } }, 401);
     if (match[1] === "manifest")
-      return json(await manifest(env, session.userId));
+      return json(await buildArchiveManifest(env, session.userId));
     const kind = match[2] as ArchiveExportFile["kind"],
       id = match[3]!;
     if (!idPattern.test(id))

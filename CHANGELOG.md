@@ -1,5 +1,10 @@
 # Foundation Package Changelog
 
+## Server-built export and test audit — 2026-11-16
+
+- Archives too large for one device are prepared on the server: originals are checked in background steps, then offered in whole-memory ZIP parts that stream the stored originals without copying (migration 0026). Parts expire after seven days and are purged on memory deletion.
+- A test audit found no tautological tests; two duplicate configuration pins were removed. No deployment is claimed.
+
 ## Automated accessibility scan — 2026-11-16
 
 - An axe-core WCAG 2.2 A/AA scan covers 14 screens and states in English and Spanish. Text-size buttons now speak their visible text first (WCAG 2.5.3).

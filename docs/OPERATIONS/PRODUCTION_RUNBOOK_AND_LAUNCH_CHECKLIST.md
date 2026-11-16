@@ -33,14 +33,14 @@ npx wrangler d1 migrations apply <database> --remote --config wrangler.staging.g
 ```
 
 **Current set:**
-- 0001–0025
+- 0001–0026 (0026 is server-built exports)
 - 0028 (sharing agreement)
 - 0030 (entitlement ledger)
 - 0031 (daily ceilings)
 - 0038 (owner reminders)
 - 0039 (reminder cadence)
 
-Gaps (0026–0027, 0029, 0032–0037) are reserved for lanes and are expected. Each later migration was checked not to depend on them.
+Gaps (0027, 0029, 0032–0037) are reserved for lanes and are expected. Each later migration was checked not to depend on them.
 
 Before applying, take a D1 Time Travel bookmark:
 
@@ -99,7 +99,7 @@ The script refuses the placeholder D1 id and a bundle without the Clerk key. Pro
 
   This restores the pre-migration state. It also discards any writes since the bookmark, so use it only when data is wrong, never just to undo a deploy.
 - **Migration compensation notes:**
-  - Additive tables and triggers (0022–0025, 0028, 0030, 0031, 0038) can stay in place under an older Worker.
+  - Additive tables and triggers (0022–0026, 0028, 0030, 0031, 0038) can stay in place under an older Worker.
   - 0028 makes the server require a sharing agreement. An older Worker ignores the table.
   - 0039 drops `owner_reminders_monthly` and adds `owner_reminders_daily`. To compensate, recreate the monthly index only if no person has more than one sent reminder in a month.
   - R2 originals are never rewritten by a deploy. The daily integrity pass records any change.
@@ -128,7 +128,7 @@ Each line needs a receipt under `docs/IMPLEMENTATION/` or `docs/EXECUTION/`. Sou
 
 | # | Gate | Status 2026-11-16 |
 | --- | --- | --- |
-| 1 | Group A capabilities merged or descoped by decision | Mostly merged (albums, export and check, integrity, email with sending off, sharing, referral, ledger, ceilings). Open: L1.3 reload-safe unsent media, L1.4 HEIC viewing copy, server-built export for large archives, stewardship (D7) |
+| 1 | Group A capabilities merged or descoped by decision | Mostly merged (albums, export and check, integrity, email with sending off, sharing, referral, ledger, ceilings). Open: L1.3 reload-safe unsent media, L1.4 HEIC viewing copy, stewardship (D7) |
 | 2 | Group B complete; no open high-severity finding | Security headers, rate limits, ceilings, error fallback and dependency audit merged. Threat model, route splitting and the automated WCAG 2.2 A/AA scan are done. Open: observability alerts on staging, CSP enforcement, screen-reader review |
 | 3 | Legal pages with owner-approved wording, versioned acceptance | Not started; waits on D2 |
 | 4 | Whole application on staging with all migrations and staging proofs | Not run; needs O1–O4 |

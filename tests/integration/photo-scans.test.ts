@@ -75,6 +75,7 @@ class TestD1 {
       "0010_legacy_sessions.sql",
       "0011_legacy_recordings.sql",
       "0025_fixity_checks.sql",
+      "0026_server_exports.sql",
       "0030_entitlement_ledger.sql",
     ])
       this.database.exec(

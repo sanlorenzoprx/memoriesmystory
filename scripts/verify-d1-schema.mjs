@@ -34,6 +34,7 @@ try {
     "family_update_notices","family_update_notices_daily","family_update_notices_member","family_update_notices_immutable",
     "email_preferences","email_preference_events","email_preference_events_user","email_preference_events_immutable",
     "email_deliveries","email_deliveries_sent_once","email_deliveries_subject","email_deliveries_immutable",
+    "server_export_jobs","server_export_entries","server_export_one_building","server_export_jobs_owner","server_export_jobs_expiry","server_export_entries_volume",
     "fixity_checks","fixity_checks_source","fixity_checks_outcome","fixity_checks_immutable",
     "family_access_grants","family_access_events","family_access_owner","family_access_member","family_access_owner_insert","family_access_identity_immutable","family_access_revocation_final","family_access_events_immutable",
     "family_people_records","family_people_history","family_people_archive","family_people_owner_insert","family_people_identity_immutable","family_people_history_immutable",

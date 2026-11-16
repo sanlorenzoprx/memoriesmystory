@@ -31,9 +31,13 @@ E03 on `feat/scoped-family-invitations` adds verified-recipient expiring invitat
 
 E04a on `feat/attributed-family-contributions` adds independently attributed human text, immutable revision lineage and versioned review intent, author-only revision/withdrawal, owner selection of a specific family-visible version, source-grant rechecks and recoverable on-device writing. Two EN/ES browser journeys, ten route cases, native D1/R2 source/receipt/lineage checks and draft cleanup/API boundary checks passed. Local core passed 238 tests with 88 schema objects and all 55 phone-browser checks passed. PR #44 merged as `d0a550b` after main CI 43692868082 passed. Migration 0017 is required. This is text only; E04 voice/photo sources and each author's transcript review remain required. See `IMPLEMENTATION/ATTRIBUTED_FAMILY_TEXT_2026-11-15.md`.
 
-## Automated accessibility scan — implemented locally; CI pending
+## Server-built export for large archives — implemented locally; CI pending
 
-axe-core checks WCAG 2.2 A/AA on 14 screens and states in English and Spanish. The one finding, text-size buttons whose spoken name did not contain their visible text, is fixed, and all 14 states are now clean. A reload race in unsent contribution media is also fixed. See `IMPLEMENTATION/ACCESSIBILITY_REVIEW_2026-11-16.md`.
+Archives too large for one device are prepared on the server. Each original is checked against its record in background steps, then offered in whole-memory parts of up to 1.5 GB. Each part is a complete ZIP that streams the stored originals directly. Parts expire after seven days and are removed on memory deletion. Migration 0026. A test audit found no tautological tests; two duplicate configuration pins were removed (`IMPLEMENTATION/TEST_AUDIT_2026-11-16.md`). See `IMPLEMENTATION/SERVER_EXPORT_2026-11-16.md`.
+
+## Automated accessibility scan — merged
+
+axe-core checks WCAG 2.2 A/AA on 14 screens and states in English and Spanish. The one finding, text-size buttons whose spoken name did not contain their visible text, is fixed, and all 14 states are now clean. A reload race in unsent contribution media is also fixed (PR #77, `dfe33dc`). See `IMPLEMENTATION/ACCESSIBILITY_REVIEW_2026-11-16.md`.
 
 ## Muse evaluation and guard fixes; acceptance kit — merged
 
