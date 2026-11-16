@@ -40,6 +40,7 @@ npx wrangler d1 migrations apply <database> --remote --config wrangler.staging.g
 - 0031 (daily ceilings)
 - 0038 (owner reminders)
 - 0039 (reminder cadence)
+- 0040 (what Muse is asked to forget)
 
 Gaps (0027, 0029, 0032–0037) are reserved for lanes and are expected. Each later migration was checked not to depend on them.
 
@@ -100,7 +101,7 @@ The script refuses the placeholder D1 id and a bundle without the Clerk key. Pro
 
   This restores the pre-migration state. It also discards any writes since the bookmark, so use it only when data is wrong, never just to undo a deploy.
 - **Migration compensation notes:**
-  - Additive tables and triggers (0022–0026, 0028, 0030, 0031, 0038) can stay in place under an older Worker.
+  - Additive tables and triggers (0022–0026, 0028, 0030, 0031, 0038, 0040) can stay in place under an older Worker.
   - 0028 makes the server require a sharing agreement. An older Worker ignores the table.
   - 0039 drops `owner_reminders_monthly` and adds `owner_reminders_daily`. To compensate, recreate the monthly index only if no person has more than one sent reminder in a month.
   - R2 originals are never rewritten by a deploy. The daily integrity pass records any change.

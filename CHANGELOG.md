@@ -1,5 +1,12 @@
 # Foundation Package Changelog
 
+## Talk with Muse: Gemini, safety, and what Muse remembers — 2026-11-16
+
+- By owner decision, Muse becomes a storytelling companion with every companion safeguard built in from the start (`DECISIONS/2026-11-16-talk-with-muse.md`; AI Behavior Guide 0.2).
+- Muse asks Gemini first through Cloudflare AI Gateway. Only zero-data-retention models may receive a family's words, and Workers AI answers when Gemini cannot.
+- First-person words of wanting to die or self-harm are answered before any question, with real people to reach in the person's country and language.
+- The archive shows where the person left off and what Muse remembers, which is only their own confirmed words. Muse forgets on request without changing any memory, and can ask whether a new memory connects to an earlier one. Migration 0040. No deployment is claimed.
+
 ## Welcome splash for returning people — 2026-11-16
 
 - By owner decision, returning signed-in people with finished Living Memories see one of their own photographs for about three seconds, once per visit. It never appears for new visitors, and it is skippable, can be turned off and respects reduced motion. No migration; no deployment is claimed.

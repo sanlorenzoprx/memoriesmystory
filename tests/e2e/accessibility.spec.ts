@@ -23,6 +23,14 @@ async function stub(page: Page) {
     if (path.endsWith("/family-archives") || path.includes("/family-archives"))
       return route.fulfill({ json: { archives: [], nextCursor: null } });
     if (path.endsWith("/share-agreement")) return route.fulfill({ json: { familyAndFriends: false, public: false, version: "share-agreement-2026-11-16" } });
+    if (path.endsWith("/muse/memory"))
+      return route.fulfill({ json: {
+        leftOff: { draftId: "draft_axe_unfinished", updatedAt: "2026-11-15T00:00:00Z", unfinished: 2 },
+        remembered: [
+          { id: "ctx_axe_person", memoryId: memory, memoryTitle: "Navidad en Ponce", kind: "person", value: "Tío Luis", approximate: false, forgotten: false },
+          { id: "ctx_axe_place", memoryId: memory, memoryTitle: null, kind: "place", value: "Ponce", approximate: true, forgotten: true },
+        ],
+      } });
     if (path.endsWith("/growth/events")) return route.fulfill({ status: 202, json: { recorded: true } });
     return route.fulfill({ json: {} });
   });
