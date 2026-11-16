@@ -190,3 +190,86 @@ export async function runFamilyUpdatePass(
   }
   return result;
 }
+
+export function ownerReminderEmail(startUrl: string, unsubscribeUrl: string, brand: string) {
+  const english = [
+      "Is there a photograph you have been meaning to talk about?",
+      `When you have a few minutes, choose one and tell its story in your own voice: ${startUrl}`,
+      `You get this reminder at most once a month because you asked for it. To stop these emails: ${unsubscribeUrl}`,
+    ],
+    spanish = [
+      "¿Hay alguna fotografía de la que querías hablar?",
+      `Cuando tengas unos minutos, elige una y cuenta su historia con tu propia voz: ${startUrl}`,
+      `Recibes este recordatorio como máximo una vez al mes porque lo pediste. Para dejar de recibirlos: ${unsubscribeUrl}`,
+    ];
+  const paragraphs = (lines: string[]) =>
+    lines
+      .map((line) => {
+        const url = [startUrl, unsubscribeUrl].find((candidate) => line.endsWith(candidate));
+        return url
+          ? `<p>${escapeHtml(line.slice(0, -url.length)).trimEnd()} <a href="${escapeHtml(url)}">${escapeHtml(url)}</a></p>`
+          : `<p>${escapeHtml(line)}</p>`;
+      })
+      .join("");
+  return {
+    subject: `A photograph and your voice · Una fotografía y tu voz — ${brand}`,
+    text: `${english.join("\n\n")}\n\n—\n\n${spanish.join("\n\n")}\n`,
+    html: `<!doctype html><html><body style="font-family:system-ui,sans-serif;line-height:1.5;max-width:560px"><div lang="en">${paragraphs(english)}</div><hr><div lang="es">${paragraphs(spanish)}</div></body></html>`,
+  };
+}
+
+/**
+ * People who asked for reminders, have had no reminder this month or in the
+ * last 28 days, and have not finished a Living Memory in the last 30 days.
+ */
+const ownersToRemind = `
+SELECT p.user_id AS member FROM email_preferences p
+WHERE p.owner_reminders=1
+AND NOT EXISTS(SELECT 1 FROM owner_reminders r WHERE r.user_id=p.user_id AND r.status='sent' AND (r.sent_month=?1 OR r.created_at>?2))
+AND NOT EXISTS(SELECT 1 FROM memory_stories m WHERE m.owner_user_id=p.user_id AND m.status='complete' AND m.completed_at>?3)
+ORDER BY p.user_id LIMIT ?4`;
+
+/** A daily pass that sends at most monthly. Sends and records nothing while email is unavailable. */
+export async function runOwnerReminderPass(
+  env: FamilyUpdateEnv,
+  options: { now?: Date; limit?: number } = {},
+): Promise<FamilyUpdatePassResult> {
+  const refused = emailSendingReady(env);
+  if (refused && refused.status === "not_sent") return { skipped: refused.code, sent: 0, notSent: 0 };
+  if (!env.SESSION_SECRET || !env.PUBLIC_APP_ORIGIN || !/^https:\/\/[^/]+$/.test(env.PUBLIC_APP_ORIGIN))
+    return { skipped: "email_links_unconfigured", sent: 0, notSent: 0 };
+  const now = options.now ?? new Date(),
+    day = 86_400_000,
+    brand = env.PUBLIC_BRAND_NAME ?? "Memories: My Story";
+  const { results } = await env.DB.prepare(ownersToRemind)
+    .bind(
+      now.toISOString().slice(0, 7),
+      new Date(now.getTime() - 28 * day).toISOString(),
+      new Date(now.getTime() - 30 * day).toISOString(),
+      options.limit ?? 200,
+    )
+    .all<{ member: string }>();
+  const result: FamilyUpdatePassResult = { skipped: null, sent: 0, notSent: 0 };
+  for (const { member } of results) {
+    const user = await env.DB.prepare("SELECT email FROM users WHERE id=?").bind(member).first<{ email: string | null }>();
+    let outcome: Awaited<ReturnType<typeof sendEmail>>;
+    if (!user?.email) outcome = { status: "not_sent", code: "email_recipient_invalid" };
+    else {
+      const unsubscribeUrl = `${env.PUBLIC_APP_ORIGIN}/resources/email/unsubscribe?t=${encodeURIComponent(await unsubscribeToken(env.SESSION_SECRET, member, "owner_reminders"))}`;
+      outcome = await sendEmail(env, {
+        to: user.email,
+        ...ownerReminderEmail(`${env.PUBLIC_APP_ORIGIN}/`, unsubscribeUrl, brand),
+        headers: { "List-Unsubscribe": `<${unsubscribeUrl}>`, "List-Unsubscribe-Post": "List-Unsubscribe=One-Click" },
+      });
+    }
+    await env.DB.prepare(
+      "INSERT INTO owner_reminders(id,user_id,sent_month,status,code,created_at) VALUES(?,?,?,?,?,?)",
+    )
+      .bind(`reminder_${crypto.randomUUID()}`, member, now.toISOString().slice(0, 7), outcome.status, outcome.status === "sent" ? null : outcome.code, now.toISOString())
+      .run()
+      .catch(() => undefined);
+    if (outcome.status === "sent") result.sent++;
+    else result.notSent++;
+  }
+  return result;
+}

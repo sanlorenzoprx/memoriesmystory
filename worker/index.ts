@@ -11,7 +11,7 @@ import { handleLegacyRemoteRoute } from "./legacy-remote";
 import type { RealtimeKitEnv } from "./realtimekit";
 import { enforceRateLimit, type RateLimitEnv } from "./rate-limit";
 import { runFixityPass } from "./fixity";
-import { runFamilyUpdatePass } from "./notifications";
+import { runFamilyUpdatePass, runOwnerReminderPass } from "./notifications";
 import { handleEmailPreferenceRoute } from "./email-preferences";
 import type { EmailProviderEnv } from "./providers/email-provider";
 import { appIdentity } from "../config/app-identity";
@@ -93,6 +93,11 @@ const handler: ExportedHandler<Env, TranscriptionQueueMessage> = {
     context.waitUntil(
       runFamilyUpdatePass(env).then((result) => {
         console.log("Family update pass finished", result);
+      }),
+    );
+    context.waitUntil(
+      runOwnerReminderPass(env).then((result) => {
+        console.log("Owner reminder pass finished", result);
       }),
     );
   }

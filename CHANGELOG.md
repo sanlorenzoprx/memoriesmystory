@@ -1,5 +1,9 @@
 # Foundation Package Changelog
 
+## Owner reminders — 2026-11-16
+
+- Opt-in reminders to add a memory, at most once a calendar month and never within 28 days, skipped after a recent memory, with one-click unsubscribe and no memory content. Migration 0038 (coordinator-allocated). Wording awaits D6 approval. No deployment is claimed.
+
 ## Family update notices — 2026-11-16
 
 - A daily pass emails opted-in invited relatives, at most once a day, when something new is shared inside their accepted scope. The email has a link to the family view, one-click unsubscribe headers and no memory content. Migration 0024 records each real send attempt. Nothing is sent or recorded while email is off. No deployment is claimed.

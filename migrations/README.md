@@ -86,3 +86,11 @@ Apply after 0023 and before the matching Worker. It adds the append-only
 or body), with a partial unique index so a person is recorded as notified at
 most once a day. No stored row is changed. This completes lane L2's reserved
 range 0022–0024.
+
+## 0038 — owner reminders
+
+Allocated by the coordinator to lane L2 (its range 0022–0024 was used). Apply
+before the matching Worker. It adds the append-only `owner_reminders` table
+(person, month, status and stable code; no address or body), with a partial
+unique index so a person is recorded as reminded at most once per calendar
+month. It does not depend on any of 0026–0037. No stored row is changed.
