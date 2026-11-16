@@ -68,3 +68,32 @@ export async function loadPeople(archiveId: string, after?: string) {
     throw new Error("People could not be opened. Please try again.");
   return value as { records: PeopleRecord[]; nextCursor: string | null };
 }
+
+export type PersonAlbum = {
+  person: { id: string; label: string; active: boolean };
+  memories: { id: string; title: string | null; photoUrl: string | null }[];
+};
+
+/** The memories a human linked to one person. Nothing is matched by face, voice or name. */
+export async function loadPersonAlbum(
+  archiveId: string,
+  personId: string,
+): Promise<PersonAlbum> {
+  const fallback = "This person's album could not be opened. Please try again.";
+  let response: Response;
+  try {
+    response = await fetch(
+      `/resources/family-people/person/${encodeURIComponent(personId)}/memories?archiveId=${encodeURIComponent(archiveId)}`,
+      { credentials: "same-origin" },
+    );
+  } catch (error) {
+    throw new Error(fallback, { cause: error });
+  }
+  const value = (await response.json().catch(() => null)) as
+    | (Partial<PersonAlbum> & { error?: { code?: string } })
+    | null;
+  if (!response.ok) throw new Error(apiMessageKey(value?.error?.code, fallback));
+  if (!value?.person || !Array.isArray(value.memories)) throw new Error(fallback);
+  return value as PersonAlbum;
+}
+

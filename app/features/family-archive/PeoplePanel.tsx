@@ -5,7 +5,13 @@ import type {
   RelationshipReference,
 } from "../../domain/family-people";
 import type { FamilyMemory } from "../../domain/family-archive";
-import { loadPeople, peopleRequest } from "../../services/family-people";
+import {
+  loadPeople,
+  loadPersonAlbum,
+  peopleRequest,
+  type PersonAlbum,
+} from "../../services/family-people";
+import { Link } from "react-router";
 import { t, notice, useLocale } from "../../localization/language";
 import { phase1Config } from "../../../config/phase-1";
 const blank: PersonReference = {
@@ -36,7 +42,8 @@ export function PeoplePanel({
     [draft, setDraft] = useState<PersonReference>(blank),
     [history, setHistory] = useState<
       { version: number; document: PersonReference }[]
-    >([]);
+    >([]),
+    [album, setAlbum] = useState<PersonAlbum | null>(null);
   const [relation, setRelation] = useState<RelationshipReference>({
     fromId: "",
     toId: "",
@@ -182,6 +189,19 @@ export function PeoplePanel({
                     person.active ? "Edit person" : "Restore or review person",
                   )}
                 </button>
+                {person.active && (
+                  <button
+                    type="button"
+                    disabled={busy}
+                    onClick={() =>
+                      void action(async () =>
+                        setAlbum(await loadPersonAlbum(archiveId, person.id)),
+                      )
+                    }
+                  >
+                    {t("Open this person's album")}
+                  </button>
+                )}
               </li>
             ))}
           </ul>
@@ -193,6 +213,47 @@ export function PeoplePanel({
             >
               {t("More people references")}
             </button>
+          )}
+          {album && (
+            <section aria-label={t("Album of {name}", { name: album.person.label || t("Unnamed person") })}>
+              <h3>
+                {t("Album of {name}", {
+                  name: album.person.label || t("Unnamed person"),
+                })}
+              </h3>
+              <p>
+                {t(
+                  "These are the memories you linked to this person. Nothing is added by recognizing faces or voices.",
+                )}
+              </p>
+              {album.memories.length === 0 ? (
+                <p>{t("No memories are linked to this person yet.")}</p>
+              ) : (
+                <ul className="archive-list">
+                  {album.memories.map((memory, index) => (
+                    <li key={memory.id}>
+                      <Link to={`/memory/${encodeURIComponent(memory.id)}`}>
+                        {memory.photoUrl && (
+                          <img
+                            src={memory.photoUrl}
+                            alt={t("Photograph from this memory")}
+                            loading="lazy"
+                            style={{ maxWidth: "6rem", height: "auto" }}
+                          />
+                        )}
+                        <strong>
+                          {memory.title ??
+                            t("Living Memory {number}", { number: index + 1 })}
+                        </strong>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              <button type="button" onClick={() => setAlbum(null)}>
+                {t("Close this album")}
+              </button>
+            </section>
           )}
           <button
             type="button"

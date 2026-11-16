@@ -8,7 +8,7 @@ The lane updates this file in each pull request. The coordinator folds it into `
 
 ## Status
 
-In progress. L7.1 (security headers, share-link headers) and L7.2 (Worker error fallback) implemented by the coordinator, CI pending.
+In progress. L7.1 (security headers, share-link headers) and L7.2 (Worker error fallback) merged through PR #57 (`9211e22`).
 
 ## Merged
 
