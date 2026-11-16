@@ -31,9 +31,13 @@ E03 on `feat/scoped-family-invitations` adds verified-recipient expiring invitat
 
 E04a on `feat/attributed-family-contributions` adds independently attributed human text, immutable revision lineage and versioned review intent, author-only revision/withdrawal, owner selection of a specific family-visible version, source-grant rechecks and recoverable on-device writing. Two EN/ES browser journeys, ten route cases, native D1/R2 source/receipt/lineage checks and draft cleanup/API boundary checks passed. Local core passed 238 tests with 88 schema objects and all 55 phone-browser checks passed. PR #44 merged as `d0a550b` after main CI 43692868082 passed. Migration 0017 is required. This is text only; E04 voice/photo sources and each author's transcript review remain required. See `IMPLEMENTATION/ATTRIBUTED_FAMILY_TEXT_2026-11-15.md`.
 
-## Export verification — implemented locally; CI pending
+## Dependency advisories and CI audit — implemented locally; CI pending
 
-On the archive page, a person can check a saved archive or album export on their own device: every file is re-hashed against the export's manifest, and changed, missing and added files are named. Nothing is uploaded. No migration. See `IMPLEMENTATION/EXPORT_VERIFICATION_2026-11-16.md`.
+React Router, Vite and Vitest are updated past their advisories, and CI now fails on any high or critical advisory in shipped dependencies. One moderate advisory in RealtimeKit's `uuid` is accepted with its reason. See `SECURITY/DEPENDENCY_ADVISORIES.md`.
+
+## Export verification — merged
+
+On the archive page, a person can check a saved archive or album export on their own device: every file is re-hashed against the export's manifest, and changed, missing and added files are named. Nothing is uploaded. No migration (PR #61, `c65a95a`). See `IMPLEMENTATION/EXPORT_VERIFICATION_2026-11-16.md`.
 
 ## Request-rate limiting — merged
 

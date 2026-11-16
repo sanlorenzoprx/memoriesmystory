@@ -24,6 +24,11 @@ jobs:
       - name: Install
         run: npm ci
 
+      # Fails on any high or critical advisory in code that ships to people.
+      # Accepted moderate advisories are listed in docs/SECURITY/DEPENDENCY_ADVISORIES.md.
+      - name: Audit production dependencies
+        run: npm audit --omit=dev --audit-level=high
+
       - name: Install Playwright Chromium
         run: npx playwright install --with-deps chromium
 

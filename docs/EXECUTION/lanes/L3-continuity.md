@@ -8,15 +8,15 @@ The lane updates this file in each pull request. The coordinator folds it into `
 
 ## Status
 
-In progress. L3.1 export verification implemented by the coordinator, CI pending.
+In progress. L3.1 merged.
 
 ## Merged
 
-None yet.
+- L3.1 export verification — PR #61, `c65a95a`.
 
 ## Evidence level reached
 
-L3.1: INTEGRATION_PROVEN locally (receipt `docs/IMPLEMENTATION/EXPORT_VERIFICATION_2026-11-16.md`). A large export on a real phone is still needed.
+L3.1: INTEGRATION_PROVEN (receipt `docs/IMPLEMENTATION/EXPORT_VERIFICATION_2026-11-16.md`). A large export on a real phone is still needed.
 
 ## Next
 

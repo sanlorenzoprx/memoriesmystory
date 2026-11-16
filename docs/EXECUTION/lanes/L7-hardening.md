@@ -8,7 +8,7 @@ The lane updates this file in each pull request. The coordinator folds it into `
 
 ## Status
 
-In progress. L7.1–L7.3 merged.
+In progress. L7.1–L7.3 merged; L7.4 dependency advisories and CI audit implemented by the coordinator, CI pending.
 
 ## Merged
 
@@ -19,10 +19,11 @@ In progress. L7.1–L7.3 merged.
 
 L7.1–L7.2: INTEGRATION_PROVEN locally (receipt `docs/IMPLEMENTATION/SECURITY_HEADERS_AND_FALLBACK_2026-11-16.md`). The report-only CSP needs staging evidence before it is enforced.
 L7.3: INTEGRATION_PROVEN (receipt `docs/IMPLEMENTATION/RATE_LIMITING_2026-11-16.md`). Thresholds need staging evidence.
+L7.4: CI-gated (`npm audit --omit=dev --audit-level=high`); record in `docs/SECURITY/DEPENDENCY_ADVISORIES.md`.
 
 ## Next
 
-L7.4 dependency advisories and the CI audit step; then the dead-letter queue and per-account cost ceilings.
+The dead-letter queue, then per-account cost ceilings, then the threat model.
 
 ## Waiting on the owner
 

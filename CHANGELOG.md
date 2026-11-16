@@ -1,5 +1,9 @@
 # Foundation Package Changelog
 
+## Dependency advisories and CI audit — 2026-11-16
+
+- React Router 8.5.1, Vite 8.3.8 and Vitest 4.1.12 clear their advisories. Wrangler and other tooling moved to the latest versions within their existing ranges. CI now runs `npm audit --omit=dev --audit-level=high`. One moderate RealtimeKit `uuid` advisory is accepted and recorded in `docs/SECURITY/DEPENDENCY_ADVISORIES.md`. No deployment is claimed.
+
 ## Export verification — 2026-11-16
 
 - On the archive page, **Check an export** re-hashes every file in a saved archive or album export against its own manifest, on the device, and names changed, missing and added files. Recompressed, encrypted, damaged and non-export ZIPs are refused plainly in English and Spanish. Nothing is uploaded. No migration; no deployment is claimed.
