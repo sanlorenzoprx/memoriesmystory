@@ -3,6 +3,7 @@ import { ArchiveExportPanel } from "../family-archive/ArchiveExportPanel";
 import { ExportCheckPanel } from "../continuity/ExportCheckPanel";
 import { EmailPreferencesPanel } from "../notifications/EmailPreferencesPanel";
 import { WelcomeSplashSetting } from "../welcome/WelcomeSplash";
+import { MuseMemoryPanel } from "../muse/MuseMemoryPanel";
 import { FamilySearchPanel } from "../family-archive/FamilySearchPanel";
 import { FamilyTimelinePanel } from "../family-archive/FamilyTimelinePanel";
 import { t, notice, useLocale, getLocale } from "../../localization/language";
@@ -43,6 +44,7 @@ function ArchiveIndex() {
         {error && <ArchiveSignInMessage message={notice(error)} />}
         {drafts === null && !error && <p className="preservation-status" role="status">{t("Gathering your stories…")}</p>}
         {drafts?.length === 0 && <p className="capture-lede">{t("Your first protected Living Memory will appear here.")}</p>}
+        {drafts && drafts.length > 0 && <MuseMemoryPanel />}
         {drafts?.some(draft=>draft.status==="complete")&&<FamilySearchPanel/>}
         {drafts?.some(draft=>draft.status==="complete")&&<FamilyTimelinePanel/>}
         {drafts?.some(draft=>draft.status==="complete")&&<FamilyArchivePanel/>}

@@ -2280,3 +2280,39 @@ h1 {
   font-weight: 600;
   margin-right: 8px;
 }
+
+/* Talk with Muse M2: where you left off, and what Muse remembers. */
+.muse-left-off {
+  margin: 16px 0;
+  padding: 16px;
+  border-radius: 12px;
+  background: var(--surface-raised, #f7f1ea);
+}
+.muse-left-off p {
+  margin: 0 0 12px;
+}
+.muse-memory h3 {
+  margin: 16px 0 8px;
+  font-size: 1rem;
+}
+.muse-memory ul {
+  display: grid;
+  gap: 8px;
+  padding-left: 18px;
+}
+.muse-memory li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.muse-memory li a,
+.muse-memory li button {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+.muse-memory-forgotten > span:first-child {
+  text-decoration: line-through;
+  opacity: 0.7;
+}

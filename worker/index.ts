@@ -18,6 +18,7 @@ import { runFamilyUpdatePass, runOwnerReminderPass } from "./notifications";
 import { handleEmailPreferenceRoute } from "./email-preferences";
 import { handleReferralRoute } from "./referral";
 import { handleShareAgreementRoute } from "./share-agreement";
+import { handleMuseMemoryRoute } from "./muse-memory";
 import type { EmailProviderEnv } from "./providers/email-provider";
 import { appIdentity } from "../config/app-identity";
 import { handleLegacyRecordingRoute } from "./legacy-recordings";
@@ -49,6 +50,7 @@ export interface Env extends RealtimeKitEnv, RateLimitEnv, EmailProviderEnv {
   MEDIA_BUCKET: R2Bucket;
   AI: Ai;
   AI_GATEWAY_ID?: string;
+  GEMINI_API_KEY?: string;
   PROCESSING_QUEUE: Queue<TranscriptionQueueMessage>;
   ELEVENLABS_API_KEY?: string;
   ELEVENLABS_MUSE_VOICE_ID?: string;
@@ -161,6 +163,9 @@ async function route(request: Request, env: Env): Promise<Response> {
 
     const shareAgreementResponse = await handleShareAgreementRoute(request, env);
     if (shareAgreementResponse) return shareAgreementResponse;
+
+    const museMemoryResponse = await handleMuseMemoryRoute(request, env);
+    if (museMemoryResponse) return museMemoryResponse;
 
     const archiveResponse=await handleArchiveRoute(request,env);
     if(archiveResponse)return archiveResponse;

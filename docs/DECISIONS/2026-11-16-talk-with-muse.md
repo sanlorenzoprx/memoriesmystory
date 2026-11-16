@@ -50,13 +50,17 @@ In the owner's words: "initially US then global scale app so that has to be bake
    - Only models Cloudflare lists as zero data retention may receive a family's words (`phase1Config.ai.museZeroRetentionModels`). The primary is `google/gemini-3-flash`.
    - Workers AI (`@cf/meta/llama-3.1-8b-instruct-fast`) stays as the fallback, so Muse keeps listening during an outage.
    - The model choice is confirmed with the live evaluation (`npm run eval:muse`) before launch.
+   - **Amended the same day.** The owner has Gemini credits with Google and asked for a direct call ("we need to do a direct call").
+     - When the Worker secret `GEMINI_API_KEY` is set, Muse calls Google's Gemini API directly (`gemini-3-flash-preview` on Google's OpenAI-compatible endpoint), billed to the owner's Gemini credits. Workers AI stays the fallback.
+     - The key must belong to a Google Cloud project with billing on. Under Google's Gemini API terms, paid-tier prompts and responses are not used to improve Google's products, while unpaid-tier content is.
+     - Without the key, the AI Gateway route above remains, and it can also use a Google key stored on the gateway (BYOK) instead of Cloudflare credits.
 
 ## Order of work
 
 | Packet | Content | Status |
 | --- | --- | --- |
-| M1 | This decision; Gemini routing with zero-data-retention allowlist and fallback; the danger check in today's Muse conversation and first question | This pull request |
-| M2 | Muse memory: "where you left off", the person's own confirmed people, places and times across memories, and the "What Muse remembers" page | Next |
+| M1 | This decision; Gemini routing with zero-data-retention allowlist and fallback; the danger check in today's Muse conversation and first question | Merged (PR #80) |
+| M2 | Muse memory: "where you left off", the person's own confirmed people, places and times across memories, and the "What Muse remembers" page | Implemented (`IMPLEMENTATION/MUSE_COMPANION_M2_2026-11-16.md`) |
 | M3 | Photo-aware questions (visible content only), stored as generated material | Planned |
 | M4 | Talk with Muse: voice-first open conversation, adult confirmation, AI disclosure cadence, gentle ending, model-based second safety check | Planned |
 | M5 | Live evaluation of Gemini models on synthetic scenarios; owner review of crisis wording before launch in each country | Needs the owner's Cloudflare credentials |

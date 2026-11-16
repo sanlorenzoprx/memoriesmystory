@@ -18,6 +18,8 @@ export type MuseProviderEnv = {
   readonly AI: Ai;
   /** AI Gateway that carries third-party models (Gemini); Cloudflare creates "default" on first use. */
   readonly AI_GATEWAY_ID?: string;
+  /** The owner's own Gemini API key (Worker secret). When set, Muse calls Google directly. */
+  readonly GEMINI_API_KEY?: string;
 };
 
 export class MuseModelRefused extends Error {}
@@ -57,6 +59,40 @@ export class CloudflareMuseTextProvider implements MuseTextProvider {
   }
 }
 
+/**
+ * Gemini called directly on Google's OpenAI-compatible endpoint with the
+ * owner's own key, so usage is billed to their Gemini credits. The key is
+ * sent only to Google, never logged, and never returned.
+ */
+export class DirectGeminiMuseTextProvider implements MuseTextProvider {
+  readonly provider = "google-gemini-direct";
+  readonly modelId = phase1Config.ai.museDirectGeminiModel;
+
+  constructor(private readonly apiKey: string) {}
+
+  async generate(request: MuseTextRequest): Promise<string> {
+    const response = await fetch(phase1Config.ai.museDirectGeminiEndpoint, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${this.apiKey}`, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: this.modelId,
+        messages: [
+          { role: "system", content: request.system },
+          { role: "user", content: request.user }
+        ],
+        max_tokens: request.maxTokens + phase1Config.ai.museReasoningTokenAllowance,
+        temperature: request.temperature,
+        // Muse asks one short question; keep Gemini's thinking short too.
+        reasoning_effort: "low"
+      }),
+      signal: AbortSignal.timeout(phase1Config.ai.museDirectTimeoutMs)
+    });
+    // Only the status leaves this function on failure: no body, no key.
+    if (!response.ok) throw new Error(`Gemini answered ${response.status}`);
+    return modelText(await response.json().catch(() => null));
+  }
+}
+
 /** Tries the primary model, then the fallback, so Muse keeps listening during an outage. */
 export class FallbackMuseTextProvider implements MuseTextProvider {
   readonly provider = "cloudflare-ai";
@@ -79,7 +115,13 @@ export class FallbackMuseTextProvider implements MuseTextProvider {
 }
 
 export function createMuseTextProvider(env: MuseProviderEnv): MuseTextProvider {
-  const gateway = env.AI_GATEWAY_ID?.trim() || "default";
+  const gateway = env.AI_GATEWAY_ID?.trim() || "default",
+    key = env.GEMINI_API_KEY?.trim();
+  if (key)
+    return new FallbackMuseTextProvider([
+      new DirectGeminiMuseTextProvider(key),
+      new CloudflareMuseTextProvider(env.AI, phase1Config.ai.museFallbackModelId, gateway)
+    ]);
   return new FallbackMuseTextProvider([
     new CloudflareMuseTextProvider(env.AI, phase1Config.ai.museModelId, gateway),
     new CloudflareMuseTextProvider(env.AI, phase1Config.ai.museFallbackModelId, gateway)
