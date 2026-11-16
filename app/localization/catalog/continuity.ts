@@ -26,6 +26,14 @@ export const spanish: Readonly<Record<string, string>> = {
   "This ZIP has no manifest.json, so it is not an export from this app.":
     "Este ZIP no tiene manifest.json, así que no es una exportación de esta aplicación.",
   "This export's manifest.json cannot be read.": "No se puede leer el manifest.json de esta exportación.",
+  "Export prepared on our server": "Exportación preparada en nuestro servidor",
+  "Your archive is too large to prepare on this device. We can prepare it on our server instead: every file is checked against the preserved original, and you save it in parts.":
+    "Tu archivo es demasiado grande para prepararlo en este dispositivo. Podemos prepararlo en nuestro servidor: cada archivo se compara con el original preservado y lo guardas en partes.",
+  "Prepare it on our server": "Prepararlo en nuestro servidor",
+  "Your export is ready in {count} parts.": "Tu exportación está lista en {count} partes.",
+  "Save part {part} of {parts}": "Guardar la parte {part} de {parts}",
+  "Each part is a complete export you can check with Check an export. The parts are kept until {date}, then removed.":
+    "Cada parte es una exportación completa que puedes comprobar con Comprobar una exportación. Las partes se guardan hasta el {date} y luego se eliminan.",
 };
 export const errors: Readonly<Record<string, string>> = {
   archive_verify_not_zip: "This file is not a ZIP export.",

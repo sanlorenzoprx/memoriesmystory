@@ -67,6 +67,8 @@ for (const locale of ["en-US", "es-PR"] as const)
     await page.route("**/resources/archive-export/**", (route) => {
       const path = new URL(route.request().url()).pathname;
       if (path.endsWith("/manifest")) return route.fulfill({ json: manifest });
+      // The panel also asks whether a server-prepared export exists; that is not a file download.
+      if (path.endsWith("/jobs/latest")) return route.fulfill({ json: { job: null } });
       downloads.push(path.split("/").at(-1)!);
       return route.fulfill({ status: 200, body: path.endsWith("/voice_private") ? voice : photo });
     });

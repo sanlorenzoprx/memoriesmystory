@@ -12,47 +12,12 @@ import {
   selectAlbumExport,
   type AlbumExportChoice,
 } from "../../domain/album-export";
+import { indexWording } from "../../domain/archive-export-wording";
 import { apiMessageKey } from "../../localization/errors";
 import { getLocale, t, notice, useLocale } from "../../localization/language";
 
 const fallback = "Your archive export could not be prepared. Please try again.";
 
-// Wording for the codes used inside the export's readable index.
-const indexWording: Record<string, string> = {
-  "export role: original_photograph": "Original photograph",
-  "export role: original_voice": "Original voice recording",
-  "export role: corrected_scan":
-    "Corrected scan (made from the original photograph)",
-  "export role: cleaned_audio":
-    "Cleaned audio (made from the original recording)",
-  "export role: voice_reply_to_muse": "Voice reply to Muse",
-  "export role: family_voice_recollection": "Family voice recollection",
-  "export role: family_added_photograph": "Photograph added by family",
-  "export role: shared_conversation_recording":
-    "Shared conversation recording (Our Living Legacy)",
-  "export role: shared_conversation_video":
-    "Shared conversation video (Our Living Legacy)",
-  "export role: shared_conversation_voice":
-    "One person's voice from a shared conversation",
-  "export not included: shared_recordings_not_preserved":
-    "Shared conversation recordings that were never fully preserved",
-  "export context: person": "Who was there",
-  "export context: place": "Where it was",
-  "export context: time": "When it was",
-  "export context: event": "What was happening",
-  "export not included: more_memories_than_one_export":
-    "More memories than one export can hold",
-  "export not included: shared_conversation_recordings":
-    "Shared conversation recordings (Our Living Legacy)",
-  "export not included: recollections_withdrawn_by_their_author":
-    "Recollections withdrawn by the person who gave them",
-  "export not included: unfinished_memories":
-    "Memories that are not finished yet",
-  "export not included: recollections_not_included_for_family":
-    "Recollections you have not included for family",
-  "export not included: files_not_verified":
-    "Files that could not be downloaded or did not match",
-};
 const indexLabel = (key: string, values?: Record<string, string | number>) =>
   t(indexWording[key] ?? key, values);
 
@@ -85,7 +50,8 @@ export function ArchiveExportPanel() {
     [error, setError] = useState<string | null>(null),
     [prepared, setPrepared] = useState<Prepared | null>(null),
     [choices, setChoices] = useState<AlbumExportChoice[]>([]),
-    [chosen, setChosen] = useState("archive");
+    [chosen, setChosen] = useState("archive"),
+    [tooLarge, setTooLarge] = useState(false);
   const choicesLoaded = useRef(false);
   const pending = useRef<AbortController | null>(null),
     objectUrl = useRef<string | null>(null);
@@ -156,10 +122,11 @@ export function ArchiveExportPanel() {
       if (
         files.reduce((sum, file) => sum + file.byteSize, 0) >
         archiveExportLimits.maximumTotalBytes
-      )
-        throw new Error(
-          "Your archive is too large to export on this device yet. Nothing was changed.",
-        );
+      ) {
+        // Too large for one device: offer to prepare it on the server instead.
+        setTooLarge(true);
+        return;
+      }
       const entries: { path: string; bytes: Uint8Array }[] = [],
         checks: ArchiveExportVerification["files"] = [];
       setProgress({ done: 0, total: files.length });
@@ -324,6 +291,7 @@ export function ArchiveExportPanel() {
           {t("Checked {done} of {total} files", progress)}
         </p>
       )}
+      {(tooLarge || chosen === "archive") && <ServerExportSection offer={tooLarge} />}
       {prepared && (
         <div role="status">
           <p>
@@ -364,5 +332,103 @@ export function ArchiveExportPanel() {
         </div>
       )}
     </details>
+  );
+}
+
+type ServerJob = {
+  id: string;
+  state: "building" | "ready" | "failed";
+  checked: number;
+  files: number;
+  expiresAt: string;
+  parts: { part: number; files: number; unverified: number; name: string }[];
+};
+
+/**
+ * For archives too large for one device: the server checks every original
+ * against its preserved record and offers the archive in parts, each a
+ * complete ZIP that Check an export can confirm. Parts are kept for seven days.
+ */
+function ServerExportSection({ offer }: { offer: boolean }) {
+  useLocale();
+  const [job, setJob] = useState<ServerJob | null>(null),
+    [error, setError] = useState<string | null>(null),
+    [starting, setStarting] = useState(false);
+  async function load() {
+    const response = await fetch("/resources/archive-export/jobs/latest", { credentials: "same-origin" });
+    const body = (await response.json().catch(() => null)) as { job?: ServerJob | null } | null;
+    if (response.ok) setJob(body?.job ?? null);
+  }
+  useEffect(() => {
+    void load().catch(() => undefined);
+  }, []);
+  useEffect(() => {
+    if (job?.state !== "building") return;
+    const timer = window.setTimeout(() => void load().catch(() => undefined), 4000);
+    return () => window.clearTimeout(timer);
+  }, [job]);
+  async function start() {
+    setStarting(true);
+    setError(null);
+    try {
+      const response = await fetch("/resources/archive-export/jobs", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json", "X-Memories-Request": "export-v1" },
+        body: JSON.stringify({ locale: getLocale() }),
+      });
+      if (!response.ok) throw new Error(fallback);
+      await load();
+    } catch {
+      setError(fallback);
+    } finally {
+      setStarting(false);
+    }
+  }
+  if (!offer && !job) return null;
+  return (
+    <section aria-label={t("Export prepared on our server")}>
+      {offer && !job && (
+        <>
+          <p>
+            {t(
+              "Your archive is too large to prepare on this device. We can prepare it on our server instead: every file is checked against the preserved original, and you save it in parts.",
+            )}
+          </p>
+          <button type="button" className="secondary-action" disabled={starting} onClick={() => void start()}>
+            {t("Prepare it on our server")}
+          </button>
+        </>
+      )}
+      {error && <p role="alert">{notice(error)}</p>}
+      {job?.state === "building" && (
+        <p role="status">{t("Checked {done} of {total} files", { done: job.checked, total: job.files })}</p>
+      )}
+      {job?.state === "ready" && (
+        <div role="status">
+          <p>
+            <strong>{t("Your export is ready in {count} parts.", { count: job.parts.length })}</strong>
+          </p>
+          <ul>
+            {job.parts.map((part) => (
+              <li key={part.part}>
+                <a href={`/resources/archive-export/jobs/${encodeURIComponent(job.id)}/parts/${part.part}`} download={part.name}>
+                  {t("Save part {part} of {parts}", { part: part.part, parts: job.parts.length })}
+                </a>
+                {part.unverified > 0 && (
+                  <> — {t("Files that could not be downloaded or did not match")} ({part.unverified})</>
+                )}
+              </li>
+            ))}
+          </ul>
+          <p>
+            {t(
+              "Each part is a complete export you can check with Check an export. The parts are kept until {date}, then removed.",
+              { date: new Date(job.expiresAt).toLocaleDateString(getLocale()) },
+            )}
+          </p>
+        </div>
+      )}
+    </section>
   );
 }

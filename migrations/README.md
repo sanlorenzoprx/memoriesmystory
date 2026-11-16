@@ -126,3 +126,11 @@ Apply before the matching Worker. It adds `account_daily_usage` (person, day,
 operation, count) for the daily ceilings on budget-spending operations in
 `phase1Config.dailyCeilings`. Uploads, saves and reads are never counted. No
 stored row is changed.
+
+## 0026 — server-built exports
+
+Apply before the matching Worker. It adds `server_export_jobs` (one job being
+prepared per owner at a time) and `server_export_entries` (each original's
+path, size, recorded SHA-256, checked CRC-32 and whether it matched). Rows and
+the stored parts expire after seven days and are removed when the owner
+deletes a memory. No stored row is changed.

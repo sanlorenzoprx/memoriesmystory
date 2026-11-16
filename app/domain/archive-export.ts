@@ -209,6 +209,66 @@ export function crc32(bytes: Uint8Array): number {
   return (crc ^ 0xffffffff) >>> 0;
 }
 
+/** The 30-byte local header (plus name) that precedes a stored entry's bytes. */
+export function zipLocalHeader(path: string, crc: number, size: number): Uint8Array {
+  const name = new TextEncoder().encode(path),
+    header = new DataView(new ArrayBuffer(30));
+  header.setUint32(0, 0x04034b50, true);
+  header.setUint16(4, 20, true);
+  header.setUint16(6, 0x0800, true); // UTF-8 names
+  header.setUint16(8, 0, true); // stored
+  header.setUint16(10, 0, true);
+  header.setUint16(12, 0x21, true); // 1980-01-01, a fixed date for reproducible archives
+  header.setUint32(14, crc, true);
+  header.setUint32(18, size, true);
+  header.setUint32(22, size, true);
+  header.setUint16(26, name.byteLength, true);
+  header.setUint16(28, 0, true);
+  const out = new Uint8Array(30 + name.byteLength);
+  out.set(new Uint8Array(header.buffer), 0);
+  out.set(name, 30);
+  return out;
+}
+
+/**
+ * The central directory and end record for stored entries already written at
+ * the given offsets. `centralOffset` is where the directory itself begins.
+ */
+export function zipCentralDirectory(
+  entries: readonly { path: string; crc: number; size: number; offset: number }[],
+  centralOffset: number,
+): Uint8Array[] {
+  if (entries.length > 65535) throw new Error("archive_export_too_many_files");
+  const encoder = new TextEncoder(),
+    central: Uint8Array[] = [];
+  for (const entry of entries) {
+    const name = encoder.encode(entry.path),
+      header = new DataView(new ArrayBuffer(46));
+    header.setUint32(0, 0x02014b50, true);
+    header.setUint16(4, 20, true);
+    header.setUint16(6, 20, true);
+    header.setUint16(8, 0x0800, true);
+    header.setUint16(10, 0, true);
+    header.setUint16(12, 0, true);
+    header.setUint16(14, 0x21, true);
+    header.setUint32(16, entry.crc, true);
+    header.setUint32(20, entry.size, true);
+    header.setUint32(24, entry.size, true);
+    header.setUint16(28, name.byteLength, true);
+    header.setUint32(42, entry.offset, true);
+    central.push(new Uint8Array(header.buffer), name);
+  }
+  const centralSize = central.reduce((sum, part) => sum + part.byteLength, 0),
+    end = new DataView(new ArrayBuffer(22));
+  if (centralOffset + centralSize > 0xffffffff) throw new Error("archive_export_too_large");
+  end.setUint32(0, 0x06054b50, true);
+  end.setUint16(8, entries.length, true);
+  end.setUint16(10, entries.length, true);
+  end.setUint32(12, centralSize, true);
+  end.setUint32(16, centralOffset, true);
+  return [...central, new Uint8Array(end.buffer)];
+}
+
 /**
  * A ZIP archive with stored (uncompressed) entries, so every original is
  * byte-identical inside it. Paths are UTF-8. Limited to the classic ZIP sizes
@@ -218,52 +278,25 @@ export function buildStoredZip(
   entries: readonly { path: string; bytes: Uint8Array }[],
 ): Uint8Array[] {
   if (entries.length > 65535) throw new Error("archive_export_too_many_files");
-  const encoder = new TextEncoder(),
-    parts: Uint8Array[] = [],
-    central: Uint8Array[] = [];
+  const parts: Uint8Array[] = [],
+    placed: { path: string; crc: number; size: number; offset: number }[] = [];
   let offset = 0;
   for (const entry of entries) {
-    const name = encoder.encode(entry.path),
-      crc = crc32(entry.bytes),
-      size = entry.bytes.byteLength;
-    const local = new DataView(new ArrayBuffer(30));
-    local.setUint32(0, 0x04034b50, true);
-    local.setUint16(4, 20, true);
-    local.setUint16(6, 0x0800, true); // UTF-8 names
-    local.setUint16(8, 0, true); // stored
-    local.setUint16(10, 0, true);
-    local.setUint16(12, 0x21, true); // 1980-01-01, a fixed date for reproducible archives
-    local.setUint32(14, crc, true);
-    local.setUint32(18, size, true);
-    local.setUint32(22, size, true);
-    local.setUint16(26, name.byteLength, true);
-    local.setUint16(28, 0, true);
-    const header = new DataView(new ArrayBuffer(46));
-    header.setUint32(0, 0x02014b50, true);
-    header.setUint16(4, 20, true);
-    header.setUint16(6, 20, true);
-    header.setUint16(8, 0x0800, true);
-    header.setUint16(10, 0, true);
-    header.setUint16(12, 0, true);
-    header.setUint16(14, 0x21, true);
-    header.setUint32(16, crc, true);
-    header.setUint32(20, size, true);
-    header.setUint32(24, size, true);
-    header.setUint16(28, name.byteLength, true);
-    header.setUint32(42, offset, true);
-    parts.push(new Uint8Array(local.buffer), name, entry.bytes);
-    central.push(new Uint8Array(header.buffer), name);
-    offset += 30 + name.byteLength + size;
+    const crc = crc32(entry.bytes),
+      header = zipLocalHeader(entry.path, crc, entry.bytes.byteLength);
+    placed.push({ path: entry.path, crc, size: entry.bytes.byteLength, offset });
+    parts.push(header, entry.bytes);
+    offset += header.byteLength + entry.bytes.byteLength;
     if (offset > 0xffffffff) throw new Error("archive_export_too_large");
   }
-  const centralSize = central.reduce((sum, part) => sum + part.byteLength, 0),
-    end = new DataView(new ArrayBuffer(22));
-  end.setUint32(0, 0x06054b50, true);
-  end.setUint16(8, entries.length, true);
-  end.setUint16(10, entries.length, true);
-  end.setUint32(12, centralSize, true);
-  end.setUint32(16, offset, true);
-  return [...parts, ...central, new Uint8Array(end.buffer)];
+  return [...parts, ...zipCentralDirectory(placed, offset)];
+}
+
+/** Continues a CRC-32 across chunks: start with 0, pass each chunk, read the result. */
+export function crc32Update(previous: number, bytes: Uint8Array): number {
+  let crc = (previous ^ 0xffffffff) >>> 0;
+  for (const byte of bytes) crc = crcTable[(crc ^ byte) & 0xff]! ^ (crc >>> 8);
+  return (crc ^ 0xffffffff) >>> 0;
 }
 
 const escapeHtml = (value: string) =>

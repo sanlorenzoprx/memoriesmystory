@@ -1,3 +1,4 @@
+import { purgeServerExports } from "./server-export";
 import { phase1Config } from "../config/phase-1";
 import { requestRemoteRecordingStop, type RemoteRecordingEnv } from "./legacy-remote-recording-data";
 import { closeLegacyRemoteCall } from "./legacy-remote";
@@ -330,6 +331,10 @@ async function deleteMemory(
       "The stored media was removed, but the archive record still needs cleanup. Please retry deletion."
     );
   }
+
+  // Prepared server exports may hold this memory's words and media: remove them.
+  if (authorization.ownerUserId)
+    await purgeServerExports(env, { ownerUserId: authorization.ownerUserId }).catch(() => undefined);
 
   return json({
     ok: true,
