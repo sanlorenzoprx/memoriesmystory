@@ -15,6 +15,10 @@ export const spanish: Readonly<Record<string, string>> = {
   "Email me when something new is shared with me": "Enviarme un correo cuando se comparta algo nuevo conmigo",
   "Email me an occasional reminder to add a memory": "Enviarme de vez en cuando un recordatorio para añadir un recuerdo",
   "Your email choices are saved.": "Tus opciones de correo están guardadas.",
+  "How often": "Con qué frecuencia",
+  "Every week": "Cada semana",
+  "Every two weeks": "Cada dos semanas",
+  "Once a month": "Una vez al mes",
   "Your email choices could not be saved. Please try again.": "No se pudieron guardar tus opciones de correo. Vuelve a intentarlo.",
   "Your email choices changed somewhere else. Open them again to see the latest.":
     "Tus opciones de correo cambiaron en otro lugar. Ábrelas de nuevo para ver las más recientes.",

@@ -2,7 +2,8 @@ import { useState } from "react";
 import { apiMessageKey } from "../../localization/errors";
 import { t, notice, useLocale } from "../../localization/language";
 
-type Preferences = { family_updates: boolean; owner_reminders: boolean; version: number };
+type Cadence = "weekly" | "biweekly" | "monthly";
+type Preferences = { family_updates: boolean; owner_reminders: boolean; reminderCadence: Cadence; version: number };
 const fallback = "Your email choices could not be saved. Please try again.";
 
 /**
@@ -35,6 +36,17 @@ export function EmailPreferencesPanel({ kinds }: { kinds: readonly ("family_upda
       setBusy(false);
     }
   }
+  function save(next: Preferences) {
+    return run(async () => {
+      const stored = await request({
+        method: "PUT",
+        headers: { "Content-Type": "application/json", "X-Memories-Request": "email-v1" },
+        body: JSON.stringify(next),
+      });
+      setPreferences(stored);
+      setSaved(true);
+    });
+  }
   const labels = {
     family_updates: "Email me when something new is shared with me",
     owner_reminders: "Email me an occasional reminder to add a memory",
@@ -62,22 +74,25 @@ export function EmailPreferencesPanel({ kinds }: { kinds: readonly ("family_upda
               <input
                 type="checkbox"
                 checked={preferences[kind]}
-                onChange={(event) => {
-                  const next = { ...preferences, [kind]: event.target.checked };
-                  void run(async () => {
-                    const stored = await request({
-                      method: "PUT",
-                      headers: { "Content-Type": "application/json", "X-Memories-Request": "email-v1" },
-                      body: JSON.stringify(next),
-                    });
-                    setPreferences(stored);
-                    setSaved(true);
-                  });
-                }}
+                onChange={(event) => void save({ ...preferences, [kind]: event.target.checked })}
               />{" "}
               {t(labels[kind])}
             </label>
           ))}
+          {kinds.includes("owner_reminders") && preferences.owner_reminders && (
+            <label>
+              {t("How often")}
+              <select
+                aria-label={t("How often")}
+                value={preferences.reminderCadence}
+                onChange={(event) => void save({ ...preferences, reminderCadence: event.target.value as Cadence })}
+              >
+                <option value="weekly">{t("Every week")}</option>
+                <option value="biweekly">{t("Every two weeks")}</option>
+                <option value="monthly">{t("Once a month")}</option>
+              </select>
+            </label>
+          )}
         </fieldset>
       )}
       {saved && <p role="status">{t("Your email choices are saved.")}</p>}

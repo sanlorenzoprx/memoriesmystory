@@ -68,7 +68,7 @@ export async function sendInvitationEmail(
     .first();
   if (already) return { status: "sent" };
   const message = invitationEmail(input.joinUrl, grant.expires_at, env.PUBLIC_BRAND_NAME ?? "Memories: My Story");
-  const outcome = await sendEmail(env, { to: grant.target_email, ...message });
+  const outcome = await sendEmail(env, { to: grant.target_email, ...message }, { idempotencyKey: `family-invitation:${input.grantId}` });
   await env.DB.prepare(
     "INSERT INTO email_deliveries(id,purpose,subject_id,requested_by_user_id,status,code,provider_message_id,created_at) VALUES(?,'family_invitation',?,?,?,?,?,?)",
   )
@@ -177,7 +177,7 @@ export async function runFamilyUpdatePass(
         to: user.email,
         ...message,
         headers: { "List-Unsubscribe": `<${unsubscribeUrl}>`, "List-Unsubscribe-Post": "List-Unsubscribe=One-Click" },
-      });
+      }, { idempotencyKey: `family-update:${member}:${today}` });
     }
     await env.DB.prepare(
       "INSERT INTO family_update_notices(id,member_user_id,sent_on,status,code,created_at) VALUES(?,?,?,?,?,?)",
@@ -191,16 +191,28 @@ export async function runFamilyUpdatePass(
   return result;
 }
 
-export function ownerReminderEmail(startUrl: string, unsubscribeUrl: string, brand: string) {
+const cadenceWords = {
+  weekly: ["about once a week", "aproximadamente una vez por semana"],
+  biweekly: ["about every two weeks", "aproximadamente cada dos semanas"],
+  monthly: ["at most once a month", "como máximo una vez al mes"],
+} as const;
+
+export function ownerReminderEmail(
+  startUrl: string,
+  unsubscribeUrl: string,
+  brand: string,
+  cadence: keyof typeof cadenceWords = "monthly",
+) {
+  const [englishCadence, spanishCadence] = cadenceWords[cadence];
   const english = [
       "Is there a photograph you have been meaning to talk about?",
-      `When you have a few minutes, choose one and tell its story in your own voice: ${startUrl}`,
-      `You get this reminder at most once a month because you asked for it. To stop these emails: ${unsubscribeUrl}`,
+      `When you have a few minutes, tap here to start, then tell its story in your own voice: ${startUrl}`,
+      `You get this reminder ${englishCadence} because you asked for it. You can change how often in Email choices, or stop these emails: ${unsubscribeUrl}`,
     ],
     spanish = [
       "¿Hay alguna fotografía de la que querías hablar?",
-      `Cuando tengas unos minutos, elige una y cuenta su historia con tu propia voz: ${startUrl}`,
-      `Recibes este recordatorio como máximo una vez al mes porque lo pediste. Para dejar de recibirlos: ${unsubscribeUrl}`,
+      `Cuando tengas unos minutos, toca aquí para empezar y cuenta su historia con tu propia voz: ${startUrl}`,
+      `Recibes este recordatorio ${spanishCadence} porque lo pediste. Puedes cambiar la frecuencia en Opciones de correo o dejar de recibirlos: ${unsubscribeUrl}`,
     ];
   const paragraphs = (lines: string[]) =>
     lines
@@ -219,17 +231,21 @@ export function ownerReminderEmail(startUrl: string, unsubscribeUrl: string, bra
 }
 
 /**
- * People who asked for reminders, have had no reminder this month or in the
- * last 28 days, and have not finished a Living Memory in the last 30 days.
+ * People who asked for reminders and are due under their own cadence: no
+ * reminder and no finished Living Memory within the cadence window (a monthly
+ * reminder also never repeats within a calendar month).
  */
 const ownersToRemind = `
-SELECT p.user_id AS member FROM email_preferences p
+SELECT p.user_id AS member, p.reminder_cadence AS cadence FROM email_preferences p
 WHERE p.owner_reminders=1
-AND NOT EXISTS(SELECT 1 FROM owner_reminders r WHERE r.user_id=p.user_id AND r.status='sent' AND (r.sent_month=?1 OR r.created_at>?2))
-AND NOT EXISTS(SELECT 1 FROM memory_stories m WHERE m.owner_user_id=p.user_id AND m.status='complete' AND m.completed_at>?3)
-ORDER BY p.user_id LIMIT ?4`;
+AND NOT EXISTS(SELECT 1 FROM owner_reminders r WHERE r.user_id=p.user_id AND r.status='sent' AND (
+ r.created_at>CASE p.reminder_cadence WHEN 'weekly' THEN ?1 WHEN 'biweekly' THEN ?2 ELSE ?3 END
+ OR (p.reminder_cadence='monthly' AND r.sent_month=?4)))
+AND NOT EXISTS(SELECT 1 FROM memory_stories m WHERE m.owner_user_id=p.user_id AND m.status='complete'
+ AND m.completed_at>CASE p.reminder_cadence WHEN 'weekly' THEN ?1 WHEN 'biweekly' THEN ?2 ELSE ?5 END)
+ORDER BY p.user_id LIMIT ?6`;
 
-/** A daily pass that sends at most monthly. Sends and records nothing while email is unavailable. */
+/** A daily pass that follows each person's cadence. Sends and records nothing while email is unavailable. */
 export async function runOwnerReminderPass(
   env: FamilyUpdateEnv,
   options: { now?: Date; limit?: number } = {},
@@ -243,14 +259,17 @@ export async function runOwnerReminderPass(
     brand = env.PUBLIC_BRAND_NAME ?? "Memories: My Story";
   const { results } = await env.DB.prepare(ownersToRemind)
     .bind(
-      now.toISOString().slice(0, 7),
+      // Slightly under each period, so a daily pass lands on the same weekday.
+      new Date(now.getTime() - 6.5 * day).toISOString(),
+      new Date(now.getTime() - 13.5 * day).toISOString(),
       new Date(now.getTime() - 28 * day).toISOString(),
+      now.toISOString().slice(0, 7),
       new Date(now.getTime() - 30 * day).toISOString(),
       options.limit ?? 200,
     )
-    .all<{ member: string }>();
+    .all<{ member: string; cadence: "weekly" | "biweekly" | "monthly" }>();
   const result: FamilyUpdatePassResult = { skipped: null, sent: 0, notSent: 0 };
-  for (const { member } of results) {
+  for (const { member, cadence } of results) {
     const user = await env.DB.prepare("SELECT email FROM users WHERE id=?").bind(member).first<{ email: string | null }>();
     let outcome: Awaited<ReturnType<typeof sendEmail>>;
     if (!user?.email) outcome = { status: "not_sent", code: "email_recipient_invalid" };
@@ -258,9 +277,10 @@ export async function runOwnerReminderPass(
       const unsubscribeUrl = `${env.PUBLIC_APP_ORIGIN}/resources/email/unsubscribe?t=${encodeURIComponent(await unsubscribeToken(env.SESSION_SECRET, member, "owner_reminders"))}`;
       outcome = await sendEmail(env, {
         to: user.email,
-        ...ownerReminderEmail(`${env.PUBLIC_APP_ORIGIN}/`, unsubscribeUrl, brand),
+        // Opens straight into starting a new memory.
+        ...ownerReminderEmail(`${env.PUBLIC_APP_ORIGIN}/?start=camera`, unsubscribeUrl, brand, cadence),
         headers: { "List-Unsubscribe": `<${unsubscribeUrl}>`, "List-Unsubscribe-Post": "List-Unsubscribe=One-Click" },
-      });
+      }, { idempotencyKey: `owner-reminder:${member}:${now.toISOString().slice(0, 10)}` });
     }
     await env.DB.prepare(
       "INSERT INTO owner_reminders(id,user_id,sent_month,status,code,created_at) VALUES(?,?,?,?,?,?)",

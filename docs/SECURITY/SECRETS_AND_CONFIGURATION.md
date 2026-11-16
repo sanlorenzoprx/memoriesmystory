@@ -17,6 +17,9 @@ Actual credentials never belong in Git, uploaded ZIPs, prompts, receipts, screen
 | `CLERK_SECRET_KEY` | Runtime secret | Clerk token verification and staging identity acceptance | `.dev.vars`; Cloudflare Worker secret |
 | `SHARE_TOKEN_PEPPER` | Runtime secret | Private share tokens are implemented | `.dev.vars`; Cloudflare Worker secret |
 | `TURNSTILE_SECRET_KEY` | Runtime secret | Public/auth endpoint staging acceptance | `.dev.vars`; Cloudflare Worker secret |
+| `RESEND_API_KEY` | Runtime secret | Email sending through Resend, the primary provider (decision 2026-11-16) | `.dev.vars`; Cloudflare Worker secret |
+| `EMAIL_FROM_ADDRESS` | Runtime variable | Sender address on the domain verified in Resend (and in Cloudflare Email if used) | Cloudflare Worker variable |
+| `PUBLIC_APP_ORIGIN` | Runtime variable | Builds links in scheduled emails, for example `https://<app host>` | Cloudflare Worker variable |
 | `ELEVENLABS_API_KEY` | Runtime secret | ElevenLabs Scribe v2 transcription | `.dev.vars`; Cloudflare Worker secret |
 | `CLOUDFLARE_API_TOKEN` | Deployment secret | Automated staging provisioning or deployment is approved | GitHub Actions secret or operator environment; never a Worker secret |
 

@@ -1,7 +1,7 @@
 import { FamilyAccessExperience } from './features/family-archive/FamilyAccessExperience';
 import { t, notice, useLocale, getLocale } from "./localization/language";
 import type { RouteObject } from "react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { rememberReferral } from "./services/growth-events";
 import {
   Link,
@@ -154,6 +154,15 @@ function StartMemoryActions() {
       setStarting(null);
     }
   }
+
+  // A reminder email links here with ?start=camera: begin exactly as a tap would.
+  const autoStarted = useRef(false);
+  useEffect(() => {
+    const mode = new URLSearchParams(window.location.search).get("start");
+    if (autoStarted.current || (mode !== "camera" && mode !== "import")) return;
+    autoStarted.current = true;
+    void start(mode);
+  }, []);
 
   return (
     <>

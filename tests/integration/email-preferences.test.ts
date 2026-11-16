@@ -32,15 +32,21 @@ async function setup() {
 describe("email preferences and one-step unsubscribe (L2.3)", () => {
   it("starts with every optional email off and records each change", async () => {
     const s = await setup();
-    expect(await s.read(s.owner)).toEqual({ family_updates: false, owner_reminders: false, version: 0 });
+    expect(await s.read(s.owner)).toEqual({ family_updates: false, owner_reminders: false, reminderCadence: "weekly", version: 0 });
     expect((await s.call("/preferences")).status).toBe(401);
     expect((await s.save(s.owner, { family_updates: true, owner_reminders: false, version: 0 }, false)).status).toBe(400);
     const saved = await s.save(s.owner, { family_updates: true, owner_reminders: false, version: 0 });
-    expect(await saved.json()).toEqual({ family_updates: true, owner_reminders: false, version: 1 });
+    expect(await saved.json()).toEqual({ family_updates: true, owner_reminders: false, reminderCadence: "weekly", version: 1 });
+    // Cadence is a choice among three; anything else is refused.
+    expect((await s.save(s.owner, { family_updates: true, owner_reminders: true, reminderCadence: "daily", version: 1 })).status).toBe(400);
+    expect(await (await s.save(s.owner, { family_updates: true, owner_reminders: true, reminderCadence: "biweekly", version: 1 })).json()).toMatchObject({ reminderCadence: "biweekly", version: 2 });
     // A stale view cannot overwrite a newer choice.
-    expect((await s.save(s.owner, { family_updates: false, owner_reminders: true, version: 0 })).status).toBe(409);
+    expect((await s.save(s.owner, { family_updates: false, owner_reminders: false, version: 0 })).status).toBe(409);
     expect(await s.read(s.other)).toMatchObject({ family_updates: false });
-    expect(s.events()).toEqual([{ user_id: "owner_legacy_test", kind: "family_updates", enabled: 1, source: "settings" }]);
+    expect(s.events()).toEqual([
+      { user_id: "owner_legacy_test", kind: "family_updates", enabled: 1, source: "settings" },
+      { user_id: "owner_legacy_test", kind: "owner_reminders", enabled: 1, source: "settings" },
+    ]);
   });
 
   it("opening the link changes nothing; pressing the button or a one-click POST turns off only that kind", async () => {
