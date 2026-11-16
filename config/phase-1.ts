@@ -121,6 +121,12 @@ export const phase1Config = {
     musePromptVersion: "remembering-companion-v1",
     museConversationPromptVersion: "story-elicitor-v2",
     musePhotoNotePromptVersion: "photo-note-v1",
+    museTalkPromptVersion: "talk-v1",
+    // Talk with Muse safeguards (decision 2026-11-16).
+    museTalkDisclosureVersion: "muse-talk-disclosure-2026-11-16",
+    museTalkDisclosureEveryMinutes: 180,
+    museTalkFamilyAfterMinutes: 45,
+    museTalkMessageCharacters: 2000,
     // A photograph larger than this is sent only as a JPEG copy made by the
     // Images binding; without the binding Muse simply asks from the words.
     musePhotoInlineLimitBytes: 7 * 1024 * 1024,

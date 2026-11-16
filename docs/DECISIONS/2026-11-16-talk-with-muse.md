@@ -61,8 +61,8 @@ In the owner's words: "initially US then global scale app so that has to be bake
 | --- | --- | --- |
 | M1 | This decision; Gemini routing with zero-data-retention allowlist and fallback; the danger check in today's Muse conversation and first question | Merged (PR #80) |
 | M2 | Muse memory: "where you left off", the person's own confirmed people, places and times across memories, and the "What Muse remembers" page | Merged (PR #81) |
-| M3 | Photo-aware questions (visible content only), stored as generated material | Implemented (`IMPLEMENTATION/MUSE_COMPANION_M3_2026-11-16.md`) |
-| M4 | Talk with Muse: voice-first open conversation, adult confirmation, AI disclosure cadence, gentle ending, model-based second safety check | Planned |
+| M3 | Photo-aware questions (visible content only), stored as generated material | Merged (PR #82) |
+| M4 | Talk with Muse: voice-first open conversation, adult confirmation, AI disclosure cadence, gentle ending, model-based second safety check | M4a server route implemented (`IMPLEMENTATION/MUSE_COMPANION_M4A_2026-11-16.md`); M4b voice and saving, M4c screen planned |
 | M5 | Live evaluation of Gemini models on synthetic scenarios; owner review of crisis wording before launch in each country | Needs the owner's Cloudflare credentials |
 
 The first-five-minute experience (`2026-07-15-first-five-minute-experience.md`) is unchanged: Talk with Muse is never part of a new person's first three interactions.
