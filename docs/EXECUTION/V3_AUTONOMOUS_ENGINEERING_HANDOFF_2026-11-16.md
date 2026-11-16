@@ -2,8 +2,8 @@
 
 **Version:** 3.0 — 2026-11-16
 **Repository:** `https://github.com/sanlorenzoprx/memoriesmystory`
-**Verified main:** `0be3408b59f98fdc5b0015d16bd66fc7a761cc5f` (merge of PR #53), CI green.
-**In flight when written:** PR #54 (album permission for invited relatives, migration 0021), head `f13da3d`, locally verified, CI running. Treat it as not merged until you confirm it on `main`.
+**Verified main:** `d0b5fa1790044aef70be4d3518d2b7af2bda38ac` (merge of PR #54), CI run 43784546004 green on the merged head.
+**In flight:** nothing. No pull request other than the parked PR #13 is open.
 **Supersedes for status:** the V2.1 handoff (2026-11-15), which stopped at PR #42. Its requirements still stand; its status tables do not.
 **Audience:** the next implementing model or engineer, and the owner.
 
@@ -80,7 +80,7 @@ npm run test:e2e
 
 ## 2. What is built and merged
 
-Test totals on PR #54's head: 275 unit and Worker tests in 64 files, 117 required schema objects, 78 browser tests (69 run locally plus the 9 CI-only).
+Test totals on `main`: 275 unit and Worker tests in 64 files, 117 required schema objects, 78 browser tests (69 run locally plus the 9 CI-only).
 
 | Capability | State | Pull requests | Key files | Migrations |
 | --- | --- | --- | --- | --- |
@@ -96,9 +96,9 @@ Test totals on PR #54's head: 275 unit and Worker tests in 64 files, 117 require
 | Timeline from the storyteller's own words | Merged | #49 | `worker/family-timeline.ts`, `app/domain/family-timeline.ts` | — |
 | Plain archive export with verified originals, including shared conversations | Merged | #50, #52 | `worker/archive-export.ts`, `app/domain/archive-export.ts`, `ArchiveExportPanel.tsx` | — |
 | Album wording, starter album ideas, accepted decision record | Merged | #51, #53 | `docs/DECISIONS/2026-11-15-albums-reminders-export-tiers.md` | — |
-| Owner lets an invited relative make albums | **Open: PR #54** | #54 | `worker/archive-routes.ts` (`?grantId=`), `family-api.ts` | 0021 |
+| Owner lets an invited relative make albums | Merged | #54 | `worker/archive-routes.ts` (`?grantId=`), `family-api.ts` | 0021 |
 
-Nothing is deployed to production. No live billing exists. Migrations 0014–0021 have not been applied to any persistent environment.
+Nothing is deployed to production. No live billing exists. Migrations 0014–0021 are on `main` and have not been applied to any persistent environment.
 
 ### 2.1 Patterns to reuse rather than reinvent
 
@@ -145,22 +145,20 @@ Each item names the outcome, the design that fits the existing code, and what pr
 
 ### 4.1 Finish the album direction (owner decision 2026-11-15)
 
-**A. Confirm PR #54 merged.** If its CI failed, fix the cause; do not skip tests.
-
-**B. Person albums** — small.
+**A. Person albums** — small.
 Opening a named person shows the memories a human linked to them, as an album view.
 - Data exists: `family_people_records.document_json.memoryIds`.
 - Add an owner read in `worker/people-routes.ts` (or reuse the listing) and a view in `PeoplePanel.tsx` or the album panel. No face or voice matching; ambiguous or same-name people stay separate.
 - Tests: two people with the same name stay separate; a removed link disappears; another account sees nothing.
 
-**C. Album export (packet G01)** — medium. This is the required "at least one reviewed, source-grounded derivative".
+**B. Album export (packet G01)** — medium. This is the required "at least one reviewed, source-grounded derivative".
 A designed, readable album of one album or Chapter: cover, photographs, the storyteller's words, attributed family recollections, with voices as playable files beside it.
 - Build it on the device like the plain export: reuse `buildStoredZip` and the per-file hash check in `ArchiveExportPanel.tsx`; produce `album.html` plus the media and a `sources.json` manifest listing every source id and hash.
 - The owner selects what goes in, sees a preview, and confirms before saving. Store nothing generated as testimony. No model-written narrative.
 - Available to every owner. Do not gate it.
 - Tests: manifest matches the selection; an unselected or withdrawn contribution is absent; machine transcripts are labelled; originals hash to their manifest values.
 
-**D. Relative-added images** — blocked on decision 3.1 item 1.
+**C. Relative-added images** — blocked on decision 3.1 item 1.
 
 ### 4.2 Email through Cloudflare Email (owner decision; packet E06b and invitations)
 
@@ -245,17 +243,17 @@ Owner-deferred, not waived: physical Android Chrome and iPhone Safari, a second 
 | B01–B03 Muse evaluation | Not started | 4.5 |
 | C01–C02 archival capture and scans | Merged | Physical print and device proof |
 | D01–D03 Our Living Legacy | Merged; synthetic cloud proof | Device, network and human proof; policy; activation |
-| E01–E03 albums, people, invitations | Merged | Hosted Clerk recipient acceptance; person albums (4.1 B) |
+| E01–E03 albums, people, invitations | Merged | Hosted Clerk recipient acceptance; person albums (4.1 A) |
 | E04 family contributions | Merged (text, voice, photograph, speaker-written words) | Policy decisions; machine transcript only with new consent |
 | E05 search | Merged (literal, scoped) | Draft and recent discovery; rate limiting |
 | E06 timeline and resurfacing | Timeline merged | Email reminders (4.2) |
 | F01 export | Plain export merged | Restore check, large archives, encryption (4.3) |
 | F02 stewardship | Not started | Policy-gated (4.3) |
 | F03 integrity | Ingestion hashing only | Fixity and restore rehearsal (4.3) |
-| G01 derivative | Not started | Album export (4.1 C) |
+| G01 derivative | Not started | Album export (4.1 B) |
 | G02–G03 distribution, referral | Foundation only | 4.4 |
 | H01–H03 paid plans | Not started | 4.6 |
-| Album permission for relatives | PR #54 | Confirm merged |
+| Album permission for relatives | Merged (#54) | Relative-added images need an owner decision; hosted and human proof |
 
 No percentage-complete figure is justified. The capture, recording, organization, contribution, retrieval and export foundations are built and tested with synthetic data. Email, keepsake export, integrity maintenance, stewardship, distribution, commerce, Muse evaluation, hardening and every real-world proof remain.
 
@@ -273,7 +271,7 @@ Everything merged since PR #43 is `INTEGRATION_PROVEN` with stubbed browser jour
 
 > You are continuing the Memories: My Story expanded first release. Read `AGENTS.md`, `docs/00_START_HERE.md`, `docs/CURRENT_STATE.md`, `docs/EXECUTION/TASK_QUEUE.json` and `docs/EXECUTION/V3_AUTONOMOUS_ENGINEERING_HANDOFF_2026-11-16.md` first. Fetch `origin/main`, record its SHA, and run `npm ci` and `npm run verify:core` before changing anything.
 >
-> Confirm whether PR #54 merged. Then work through section 4 of the V3 handoff in order: person albums, album export, Cloudflare Email invitations and opt-in reminders, export restore check and large-archive export, integrity maintenance, distribution and referral events, Muse evaluation, sandbox commerce, release hardening. One packet per pull request, started from current `main`.
+> Work through section 4 of the V3 handoff in order: person albums, album export, Cloudflare Email invitations and opt-in reminders, export restore check and large-archive export, integrity maintenance, distribution and referral events, Muse evaluation, sandbox commerce, release hardening. One packet per pull request, started from current `main`.
 >
 > For every slice: append-only migration, Worker route with authorization re-checked inside the write, client with truthful saved state and same-key retry, English and Spanish copy, unit, Worker and browser tests, a receipt under `docs/IMPLEMENTATION/`, and updates to the status page, ledger, changelog and readmes. Add every new stored object to deletion and to the export. Capture test exit codes before committing. Merge when CI is green.
 >
@@ -285,7 +283,7 @@ Everything merged since PR #43 is `INTEGRATION_PROVEN` with stubbed browser jour
 
 **Worker routes** (`/resources/…`): `archive`, `archive-export`, `drafts`, `family-access`, `family-archives`, `family-contributions`, `family-people`, `family-search`, `family-timeline`, `legacy-sessions`, `living-memories`; public `/shared/:token`, `/api/v1/*`, `/mcp`, `/health`.
 
-**Migrations:** `0001`–`0013` solo through remote recording; `0014` albums and Chapters; `0015` people; `0016` invitations; `0017` written contributions; `0018` voice contributions and the sources view; `0019` photograph contributions; `0020` speaker-written words; `0021` album permission (PR #54).
+**Migrations:** `0001`–`0013` solo through remote recording; `0014` albums and Chapters; `0015` people; `0016` invitations; `0017` written contributions; `0018` voice contributions and the sources view; `0019` photograph contributions; `0020` speaker-written words; `0021` album permission.
 
 **Receipts written 2026-11-15 and 2026-11-16** (`docs/IMPLEMENTATION/`): `REPO_AND_HANDOFF_REVIEW`, `SHARE_LINK_NAVIGATION`, `ATTRIBUTED_FAMILY_VOICE`, `ATTRIBUTED_FAMILY_PHOTO`, `SPEAKER_WRITTEN_WORDS`, `AUTHORIZED_FAMILY_SEARCH`, `STORYTELLER_TIMELINE`, `PORTABLE_ARCHIVE_EXPORT`, `ALBUMS_AND_CHAPTERS`, `FAMILY_ALBUM_PERMISSION`.
 
@@ -296,4 +294,4 @@ Everything merged since PR #43 is `INTEGRATION_PROVEN` with stubbed browser jour
 ## Version history
 
 - **1.0, 2.0 — 2026-11-13; 2.1 — 2026-11-15:** earlier handoffs, status through PR #42.
-- **3.0 — 2026-11-16:** status through PR #53 with PR #54 open; owner decisions of 2026-11-15; remaining work re-ordered around albums, email, continuity, distribution, evaluation, commerce and hardening; working conventions and traps recorded.
+- **3.0 — 2026-11-16:** status through PR #54; owner decisions of 2026-11-15; remaining work re-ordered around albums, email, continuity, distribution, evaluation, commerce and hardening; working conventions and traps recorded.
