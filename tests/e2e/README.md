@@ -37,4 +37,6 @@ The export check suite (`export-check.spec.ts`) builds exports with the app's ow
 
 The share handoff case in `family-links.spec.ts` checks that the WhatsApp and Facebook links carry exactly the bounded share address, never the memory id, and that the reach of the link is stated. `referral-visit.spec.ts` checks that a referred visit is recorded once per session with only the opaque referral id.
 
+`family-unsent-media.spec.ts` checks that a relative's unsent recording and photograph survive a reload, that a send after the reload reuses the same request key, and that a deletion message clears both.
+
 The album permission suite (`family-album-permission.spec.ts`) uses stubbed routes in English and Spanish. It verifies that a relative sees no album section without the owner's permission, that every album request from a permitted relative carries their invitation, that owner-only controls are not offered, and that the owner can turn the permission on and off.

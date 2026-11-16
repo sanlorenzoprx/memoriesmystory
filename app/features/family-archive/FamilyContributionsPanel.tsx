@@ -1,4 +1,10 @@
 import { legacyDeletionChannel } from "../../services/legacy-recording-store";
+import {
+  keepUnsentMedia,
+  loadUnsentMedia,
+  removeUnsentMedia,
+  removeUnsentMediaForMemory,
+} from "../../services/contribution-media-store";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { FamilyContribution } from "../../domain/family-contribution";
 import {
@@ -121,6 +127,7 @@ export function FamilyContributionsPanel({
       } catch {
         setStorageError(true);
       }
+      void removeUnsentMediaForMemory(memoryId).catch(() => setStorageError(true));
     };
     return () => channel.close();
   }, [memoryId]);
@@ -136,6 +143,20 @@ export function FamilyContributionsPanel({
       setStorageError(true);
     }
   }, [draft, memoryId]);
+  // Keep unsent media on this device until it is sent, discarded or deleted.
+  function keepMedia(kind: "voice" | "photo", media: unknown, requestKey: string | null) {
+    if (!localKey.current || deletion.current) return Promise.resolve();
+    const key = `${localKey.current}:${kind}`;
+    return (media ? keepUnsentMedia({ key, memoryId, kind, media, requestKey }) : removeUnsentMedia(key)).catch(() =>
+      setStorageError(true),
+    );
+  }
+  useEffect(() => {
+    void keepMedia("voice", voice, voiceKey.current);
+  }, [voice]);
+  useEffect(() => {
+    void keepMedia("photo", photo, photoKey.current);
+  }, [photo]);
   function edit(values: Partial<Draft>) {
     setSaved(false);
     setDraft((previous) => ({ ...previous, ...values, requestKey: null }));
@@ -169,6 +190,21 @@ export function FamilyContributionsPanel({
       localKey.current = `memoriesmystory:contribution:${next.draftScope}`;
       const recovered = readDraft(localKey.current);
       if (recovered) setDraft(recovered);
+      // An unsent recording or photograph survives a reload, with its request key.
+      const scope = localKey.current;
+      void Promise.all([loadUnsentMedia(`${scope}:voice`), loadUnsentMedia(`${scope}:photo`)])
+        .then(([keptVoice, keptPhoto]) => {
+          if (!mounted.current || deletion.current) return;
+          if (keptVoice?.media) {
+            voiceKey.current = keptVoice.requestKey;
+            setVoice((current) => current ?? (keptVoice.media as LocalAudio));
+          }
+          if (keptPhoto?.media) {
+            photoKey.current = keptPhoto.requestKey;
+            setPhoto((current) => current ?? (keptPhoto.media as LocalContributionPhoto));
+          }
+        })
+        .catch(() => setStorageError(true));
     }
   }
   async function action(work: () => Promise<void>) {
@@ -235,6 +271,7 @@ export function FamilyContributionsPanel({
     const key =
       voiceKey.current ??
       (voiceKey.current = `contribution_voice_${crypto.randomUUID()}`);
+    await keepMedia("voice", voice, key);
     const result = await submitVoiceContribution(memoryId, grantId, voice, {
       attribution: draft.attribution,
       agreementVersion: draft.agreementVersion,
@@ -266,6 +303,7 @@ export function FamilyContributionsPanel({
     const key =
       photoKey.current ??
       (photoKey.current = `contribution_photo_${crypto.randomUUID()}`);
+    await keepMedia("photo", photo, key);
     const result = await submitPhotoContribution(memoryId, grantId, photo, {
       attribution: draft.attribution,
       agreementVersion: draft.agreementVersion,
