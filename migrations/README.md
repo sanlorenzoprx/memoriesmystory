@@ -48,3 +48,11 @@ Apply after 0019 and before the matching Worker and client. It adds the append-o
 `family_contribution_transcript_pins`, and their guards. A trigger on
 `family_contributions` removes a pin when the voice is excluded or withdrawn.
 No stored row is changed.
+
+## 0021 — album permission for invited relatives
+
+Apply after 0020 and before the matching Worker and client. It adds
+`family_album_permissions`, `family_album_permission_events` and
+`family_album_authors`, and replaces the `family_chapter_member_scope` trigger so
+the recorded maker of an album may place the owner's complete memories in it.
+No stored row is changed.

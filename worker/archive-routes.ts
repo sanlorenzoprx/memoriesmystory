@@ -5,6 +5,7 @@ import {
   type AuthSessionEnv,
 } from "./auth-session";
 import { readBoundedText, RequestBodyTooLarge } from "./request-body";
+import { activeFamilyGrant, type FamilyGrant } from "./family-permissions";
 import type {
   FamilyArchive,
   FamilyChapter,
@@ -67,20 +68,34 @@ function version(value: unknown) {
     fail(400, "family_archive_invalid");
   return value as number;
 }
-async function archive(env: Env, user: string, id: string) {
+// `author` is set when an invited relative acts under owner-granted album
+// permission: they reach only albums they made themselves.
+const authored =
+  "(?3 IS NULL OR EXISTS(SELECT 1 FROM family_album_authors x WHERE x.archive_id=a.id AND x.author_user_id=?3))";
+async function archive(
+  env: Env,
+  user: string,
+  id: string,
+  author: string | null = null,
+) {
   const row = await env.DB.prepare(
-    "SELECT * FROM family_archives WHERE id=? AND owner_user_id=?",
+    `SELECT a.* FROM family_archives a WHERE a.id=?1 AND a.owner_user_id=?2 AND ${authored}`,
   )
-    .bind(id, user)
+    .bind(id, user, author)
     .first<ArchiveRow>();
   if (!row) fail(404, "family_archive_not_found");
   return row;
 }
-async function chapter(env: Env, user: string, id: string) {
+async function chapter(
+  env: Env,
+  user: string,
+  id: string,
+  author: string | null = null,
+) {
   const row = await env.DB.prepare(
-    "SELECT c.* FROM family_chapters c JOIN family_archives a ON a.id=c.archive_id WHERE c.id=? AND a.owner_user_id=?",
+    `SELECT c.* FROM family_chapters c JOIN family_archives a ON a.id=c.archive_id WHERE c.id=?1 AND a.owner_user_id=?2 AND ${authored}`,
   )
-    .bind(id, user)
+    .bind(id, user, author)
     .first<ChapterRow>();
   if (!row) fail(404, "family_archive_not_found");
   return row;
@@ -105,19 +120,33 @@ async function chapterView(env: Env, row: ChapterRow): Promise<FamilyChapter> {
     memoryIds: memories.map((item) => item.memory_story_id),
   };
 }
+// ?4 scope kind, ?5 scope id, ?6 archive id of the acting relative's invitation;
+// all NULL for the owner. A relative arranges only memories they were invited to.
+const inGrantScope = (column: string) =>
+  `(?4 IS NULL OR (?4='memory' AND ${column}=?5) OR (?4<>'memory' AND EXISTS(SELECT 1 FROM family_chapter_memories gcm JOIN family_chapters gc ON gc.id=gcm.chapter_id WHERE gcm.memory_story_id=${column} AND gc.archive_id=?6 AND (?4='archive' OR gc.id=?5))))`;
 async function memories(
   env: Env,
   user: string,
   cursor: string | null,
   oneId?: string,
+  grant: FamilyGrant | null = null,
 ) {
   const rows = (
     await env.DB.prepare(
-      "SELECT m.id,l.title,COALESCE(l.version,0) AS title_version,p.id AS photo_id,p.draft_id AS photo_draft,p.r2_key AS photo_key,v.r2_key AS voice_key FROM memory_stories m LEFT JOIN family_memory_labels l ON l.memory_story_id=m.id LEFT JOIN media_assets p ON p.id=m.primary_photo_asset_id AND p.memory_story_id=m.id AND p.role='original_photo' AND p.durability_status='durable' LEFT JOIN media_assets v ON v.id=m.primary_audio_asset_id AND v.memory_story_id=m.id AND v.role='original_audio' AND v.durability_status='durable' WHERE m.owner_user_id=? AND m.status='complete' AND m.id" +
+      "SELECT m.id,l.title,COALESCE(l.version,0) AS title_version,p.id AS photo_id,p.draft_id AS photo_draft,p.r2_key AS photo_key,v.r2_key AS voice_key FROM memory_stories m LEFT JOIN family_memory_labels l ON l.memory_story_id=m.id LEFT JOIN media_assets p ON p.id=m.primary_photo_asset_id AND p.memory_story_id=m.id AND p.role='original_photo' AND p.durability_status='durable' LEFT JOIN media_assets v ON v.id=m.primary_audio_asset_id AND v.memory_story_id=m.id AND v.role='original_audio' AND v.durability_status='durable' WHERE m.owner_user_id=?1 AND m.status='complete' AND m.id" +
         (oneId ? "=" : " >") +
-        "? ORDER BY m.id LIMIT ?",
+        "?2 AND " +
+        inGrantScope("m.id") +
+        " ORDER BY m.id LIMIT ?3",
     )
-      .bind(user, oneId ?? cursor ?? "", oneId ? 1 : limits.listingPageSize + 1)
+      .bind(
+        user,
+        oneId ?? cursor ?? "",
+        oneId ? 1 : limits.listingPageSize + 1,
+        grant?.scope_kind ?? null,
+        grant?.scope_id ?? null,
+        grant?.archive_id ?? null,
+      )
       .all<{
         id: string;
         title: string | null;
@@ -148,7 +177,9 @@ async function memories(
         title: row.title,
         titleVersion: row.title_version,
         photoUrl: photo
-          ? `/resources/drafts/${encodeURIComponent(row.photo_draft!)}/media/${encodeURIComponent(row.photo_id!)}`
+          ? grant
+            ? `/resources/family-access/memberships/${encodeURIComponent(grant.id)}/media/${encodeURIComponent(row.photo_id!)}`
+            : `/resources/drafts/${encodeURIComponent(row.photo_draft!)}/media/${encodeURIComponent(row.photo_id!)}`
           : null,
         voiceAvailable: voice,
       };
@@ -173,20 +204,44 @@ export async function handleArchiveRoute(
     const session = await authenticateAppSession(request, env);
     if (!session) fail(401, "session_required");
     const user = session.userId;
+    // An invited relative acts on the owner's archive only under a permission
+    // the owner turned on for that invitation.
+    const grantId = url.searchParams.get("grantId");
+    let grant: FamilyGrant | null = null;
+    if (grantId) {
+      grant = await activeFamilyGrant(env, user, identifier(grantId));
+      if (
+        !grant ||
+        !(await env.DB.prepare(
+          "SELECT 1 AS ok FROM family_album_permissions WHERE grant_id=?",
+        )
+          .bind(grant.id)
+          .first())
+      )
+        fail(403, "family_album_denied");
+    }
+    const owner = grant ? grant.owner_user_id : user,
+      author = grant ? user : null,
+      // Re-checked inside every write batch, so a permission removed while a
+      // request is in flight cannot change anything.
+      stillPermitted = grant
+        ? " AND EXISTS(SELECT 1 FROM family_album_permissions fp JOIN family_access_grants fg ON fg.id=fp.grant_id WHERE fp.grant_id=? AND fg.state='accepted' AND fg.accepted_by_user_id=?)"
+        : "",
+      permitParams = grant ? [grant.id, user] : [];
     const kind = match[1],
       id = match[2] ? identifier(decodeURIComponent(match[2])) : null;
     if (request.method === "GET") {
       if (!kind) {
         const archives = (
           await env.DB.prepare(
-            "SELECT id,title,description,version FROM family_archives WHERE owner_user_id=? ORDER BY created_at,id LIMIT ?",
+            `SELECT a.id,a.title,a.description,a.version,CASE WHEN EXISTS(SELECT 1 FROM family_album_authors y WHERE y.archive_id=a.id) THEN 1 ELSE 0 END AS made_by_family FROM family_archives a WHERE a.owner_user_id=?2 AND ${authored} AND ?1=?1 ORDER BY a.created_at,a.id LIMIT ?4`,
           )
-            .bind(user, limits.maximumArchives)
-            .all<FamilyArchive>()
+            .bind("", owner, author, limits.maximumArchives)
+            .all<FamilyArchive & { made_by_family: number }>()
         ).results;
         const archiveId =
           url.searchParams.get("archiveId") ?? archives[0]?.id ?? null;
-        if (archiveId) await archive(env, user, identifier(archiveId));
+        if (archiveId) await archive(env, owner, identifier(archiveId), author);
         const after = url.searchParams.get("afterChapter"),
           parts = after?.split(":");
         if (
@@ -216,22 +271,28 @@ export async function handleArchiveRoute(
         const cursor = url.searchParams.get("after");
         if (cursor) identifier(cursor);
         return json({
-          archives,
+          archives: archives.map(({ made_by_family, ...album }) => ({
+            ...album,
+            madeByFamily: made_by_family === 1,
+          })),
           archiveId,
           chapters: await Promise.all(page.map((row) => chapterView(env, row))),
           nextChapterCursor:
             chapters.length > page.length
               ? `${last!.position}:${last!.id}`
               : null,
-          ...(await memories(env, user, cursor)),
+          ...(await memories(env, owner, cursor, undefined, grant)),
         });
       }
       if (kind === "chapters" && id)
         return json({
-          chapter: await chapterView(env, await chapter(env, user, id)),
+          chapter: await chapterView(
+            env,
+            await chapter(env, owner, id, author),
+          ),
         });
       if (kind === "memories" && id) {
-        const page = await memories(env, user, null, id);
+        const page = await memories(env, owner, null, id, grant);
         if (!page.memories[0]) fail(404, "family_archive_not_found");
         return json({ memory: page.memories[0] });
       }
@@ -302,18 +363,33 @@ export async function handleArchiveRoute(
       try {
         const changes = await env.DB.batch([
           env.DB.prepare(
-            "INSERT INTO family_archives(id,owner_user_id,title,description,created_at,updated_at) SELECT ?,?,?,?,?,? WHERE (SELECT count(*) FROM family_archives WHERE owner_user_id=?)<?",
+            `INSERT INTO family_archives(id,owner_user_id,title,description,created_at,updated_at) SELECT ?,?,?,?,?,? WHERE (SELECT count(*) FROM family_archives WHERE owner_user_id=?)<?${stillPermitted}`,
           ).bind(
             archiveId,
-            user,
+            owner,
             title,
             description,
             now,
             now,
-            user,
+            owner,
             limits.maximumArchives,
+            ...permitParams,
           ),
           receipt(result),
+          ...(grant
+            ? [
+                env.DB.prepare(
+                  `INSERT INTO family_album_authors(archive_id,author_user_id,grant_id,created_at) SELECT ?,?,?,? WHERE ${guard}`,
+                ).bind(
+                  archiveId,
+                  user,
+                  grant.id,
+                  now,
+                  receiptKey,
+                  requestHash,
+                ),
+              ]
+            : []),
         ]);
         if (!changes[0]!.meta.changes) fail(429, "family_archive_limit");
       } catch (error) {
@@ -324,18 +400,18 @@ export async function handleArchiveRoute(
       return json(result, 201);
     }
     if (kind === "archives" && id) {
-      const current = await archive(env, user, id),
+      const current = await archive(env, owner, id, author),
         expected = version(body.version);
       if (current.version !== expected) fail(409, "family_archive_conflict");
       const result = { id, version: expected + 1 },
         mutation =
           request.method === "DELETE"
             ? env.DB.prepare(
-                "DELETE FROM family_archives WHERE id=? AND owner_user_id=? AND version=?",
-              ).bind(id, user, expected)
+                `DELETE FROM family_archives WHERE id=? AND owner_user_id=? AND version=?${stillPermitted}`,
+              ).bind(id, owner, expected, ...permitParams)
             : request.method === "PATCH"
               ? env.DB.prepare(
-                  "UPDATE family_archives SET title=?,description=?,version=version+1,updated_at=? WHERE id=? AND owner_user_id=? AND version=?",
+                  `UPDATE family_archives SET title=?,description=?,version=version+1,updated_at=? WHERE id=? AND owner_user_id=? AND version=?${stillPermitted}`,
                 ).bind(
                   text(
                     body.title ?? current.title,
@@ -348,8 +424,9 @@ export async function handleArchiveRoute(
                   ),
                   now,
                   id,
-                  user,
+                  owner,
                   expected,
+                  ...permitParams,
                 )
               : null;
       if (!mutation) fail(405, "method");
@@ -363,7 +440,7 @@ export async function handleArchiveRoute(
     }
     if (kind === "chapters" && request.method === "POST" && !id) {
       const archiveId = identifier(body.archiveId);
-      await archive(env, user, archiveId);
+      await archive(env, owner, archiveId, author);
       const title = text(body.title, limits.titleCharacters, true),
         description = text(
           body.description ?? "",
@@ -374,7 +451,8 @@ export async function handleArchiveRoute(
       try {
         const results = await env.DB.batch([
           env.DB.prepare(
-            "INSERT INTO family_chapters(id,archive_id,title,description,position,created_at,updated_at) SELECT ?,?,?,?,COALESCE((SELECT max(position)+1 FROM family_chapters WHERE archive_id=?),0),?,? WHERE (SELECT count(*) FROM family_chapters WHERE archive_id=?)<?",
+            "INSERT INTO family_chapters(id,archive_id,title,description,position,created_at,updated_at) SELECT ?,?,?,?,COALESCE((SELECT max(position)+1 FROM family_chapters WHERE archive_id=?),0),?,? WHERE (SELECT count(*) FROM family_chapters WHERE archive_id=?)<?" +
+              stillPermitted,
           ).bind(
             chapterId,
             archiveId,
@@ -385,6 +463,7 @@ export async function handleArchiveRoute(
             now,
             archiveId,
             limits.maximumChapters,
+            ...permitParams,
           ),
           receipt(result),
         ]);
@@ -397,15 +476,15 @@ export async function handleArchiveRoute(
       return json(result, 201);
     }
     if (kind === "chapters" && id) {
-      const current = await chapter(env, user, id),
+      const current = await chapter(env, owner, id, author),
         expected = version(body.version);
       if (current.version !== expected) fail(409, "family_archive_conflict");
       const result = { id, version: expected + 1 };
       if (request.method === "DELETE") {
         const results = await env.DB.batch([
           env.DB.prepare(
-            "DELETE FROM family_chapters WHERE id=? AND version=?",
-          ).bind(id, expected),
+            `DELETE FROM family_chapters WHERE id=? AND version=?${stillPermitted}`,
+          ).bind(id, expected, ...permitParams),
           receipt(result),
         ]);
         if (!results[0]!.meta.changes) fail(409, "family_archive_conflict");
@@ -416,7 +495,7 @@ export async function handleArchiveRoute(
         body.archiveId === undefined
           ? current.archive_id
           : identifier(body.archiveId);
-      await archive(env, user, archiveId);
+      await archive(env, owner, archiveId, author);
       if (archiveId !== current.archive_id) {
         const count = await env.DB.prepare(
           "SELECT count(*) AS n FROM family_chapters WHERE archive_id=?",
@@ -436,10 +515,19 @@ export async function handleArchiveRoute(
       )
         fail(400, "family_archive_invalid");
       for (const memory of ids) identifier(memory);
+      // Every memory must be the owner's, complete and, for a relative, inside
+      // what their invitation shares. Arranging never widens anyone's access.
       const owned = await env.DB.prepare(
-        "SELECT count(*) AS n FROM json_each(?) selected JOIN memory_stories m ON m.id=selected.value WHERE m.owner_user_id=? AND m.status='complete'",
+        `SELECT count(*) AS n FROM json_each(?1) selected JOIN memory_stories m ON m.id=selected.value WHERE m.owner_user_id=?2 AND m.status='complete' AND ?3=?3 AND ${inGrantScope("m.id")}`,
       )
-        .bind(JSON.stringify(ids), user)
+        .bind(
+          JSON.stringify(ids),
+          owner,
+          "",
+          grant?.scope_kind ?? null,
+          grant?.scope_id ?? null,
+          grant?.archive_id ?? null,
+        )
         .first<{ n: number }>();
       if (owned?.n !== ids.length) fail(404, "family_archive_not_found");
       const cover =
@@ -453,7 +541,8 @@ export async function handleArchiveRoute(
         params = [receiptKey, requestHash, id, expected + 1];
       const statements = [
         env.DB.prepare(
-          "UPDATE family_chapters SET archive_id=?,title=?,description=?,cover_memory_id=NULL,version=version+1,updated_at=? WHERE id=? AND version=? AND (archive_id=? OR (SELECT count(*) FROM family_chapters WHERE archive_id=?)<?)",
+          "UPDATE family_chapters SET archive_id=?,title=?,description=?,cover_memory_id=NULL,version=version+1,updated_at=? WHERE id=? AND version=? AND (archive_id=? OR (SELECT count(*) FROM family_chapters WHERE archive_id=?)<?)" +
+            stillPermitted,
         ).bind(
           archiveId,
           text(body.title ?? current.title, limits.titleCharacters, true),
@@ -467,6 +556,7 @@ export async function handleArchiveRoute(
           archiveId,
           archiveId,
           limits.maximumChapters,
+          ...permitParams,
         ),
         receipt(result),
         env.DB.prepare(
@@ -490,6 +580,8 @@ export async function handleArchiveRoute(
       return json(result);
     }
     if (kind === "memories" && id && request.method === "PATCH") {
+      // Naming a memory stays with its owner.
+      if (grant) fail(403, "family_album_denied");
       if (
         !(await env.DB.prepare(
           "SELECT id FROM memory_stories WHERE id=? AND owner_user_id=?",

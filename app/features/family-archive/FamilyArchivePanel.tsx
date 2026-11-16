@@ -1,6 +1,6 @@
 import { FamilyInvitationsPanel } from "./FamilyInvitationsPanel";
 import { PeoplePanel } from "./PeoplePanel";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router";
 import { phase1Config } from "../../../config/phase-1";
 import type {
@@ -8,12 +8,8 @@ import type {
   FamilyChapter,
   FamilyMemory,
 } from "../../domain/family-archive";
-import {
-  familyRequest,
-  loadChapter,
-  loadFamilyArchive,
-  loadFamilyMemory,
-} from "../../services/family-archive";
+import { familyApi } from "../../services/family-archive";
+import { FamilyApiContext, useFamilyApi } from "./family-api";
 import { t, notice, useLocale } from "../../localization/language";
 // Name ideas only. Nothing is created until the person chooses and saves.
 const albumIdeas = [
@@ -25,7 +21,22 @@ const albumIdeas = [
 ] as const;
 const limits = phase1Config.familyArchive;
 const newKey = () => `family_request_${crypto.randomUUID()}`;
-export function FamilyArchivePanel() {
+/**
+ * Albums and their Chapters. With `grantId` it acts for an invited relative the
+ * owner allowed to organize albums: they see only albums they made and the
+ * memories they were invited to, and owner-only controls are not shown.
+ */
+export function FamilyArchivePanel({ grantId }: { grantId?: string } = {}) {
+  const api = useMemo(() => familyApi(grantId), [grantId]);
+  return (
+    <FamilyApiContext.Provider value={api}>
+      <FamilyArchivePanelBody key={grantId ?? "owner"} />
+    </FamilyApiContext.Provider>
+  );
+}
+function FamilyArchivePanelBody() {
+  const api = useFamilyApi(),
+    forRelative = Boolean(api.grantId);
   useLocale();
   const [view, setView] = useState<FamilyArchiveIndex | null>(null),
     [error, setError] = useState<string | null>(null),
@@ -56,7 +67,7 @@ export function FamilyArchivePanel() {
   }, []);
   useEffect(() => {
     let active = true;
-    void loadFamilyArchive()
+    void api.loadFamilyArchive()
       .then((value) => {
         if (active) setView(value);
       })
@@ -73,7 +84,7 @@ export function FamilyArchivePanel() {
   async function refresh(
     archiveId: string | null | undefined = view?.archiveId ?? undefined,
   ) {
-    const next = await loadFamilyArchive(archiveId ?? undefined);
+    const next = await api.loadFamilyArchive(archiveId ?? undefined);
     setView(next);
   }
   function mayLeave() {
@@ -92,14 +103,14 @@ export function FamilyArchivePanel() {
       let archiveId = view.archiveId;
       if (!archiveId)
         archiveId = (
-          await familyRequest<{ id: string }>(
+          await api.familyRequest<{ id: string }>(
             "/archives",
             "POST",
             { title: archiveTitle.current },
             archiveKey.current,
           )
         ).id;
-      const created = await familyRequest<{ id: string }>(
+      const created = await api.familyRequest<{ id: string }>(
         "/chapters",
         "POST",
         { archiveId, title: name },
@@ -125,7 +136,7 @@ export function FamilyArchivePanel() {
     setBusy(true);
     setError(null);
     try {
-      const next = await loadFamilyArchive(
+      const next = await api.loadFamilyArchive(
         view.archiveId ?? undefined,
         which === "memories" ? (view.nextMemoryCursor ?? undefined) : undefined,
         which === "chapters"
@@ -174,7 +185,7 @@ export function FamilyArchivePanel() {
     }
   }
   const saved = useCallback(async (archiveId?: string) => {
-    const next = await loadFamilyArchive(archiveId);
+    const next = await api.loadFamilyArchive(archiveId);
     setView((previous) =>
       previous
         ? {
@@ -268,12 +279,15 @@ export function FamilyArchivePanel() {
                 {view.archives.map((archive) => (
                   <option key={archive.id} value={archive.id}>
                     {archive.title}
+                    {archive.madeByFamily && !forRelative
+                      ? ` — ${t("Made by a family member")}`
+                      : ""}
                   </option>
                 ))}
               </select>
             </label>
           )}
-          {view.archiveId && (
+          {view.archiveId && !forRelative && (
             <PeoplePanel
               key={view.archiveId}
               archiveId={view.archiveId}
@@ -281,7 +295,7 @@ export function FamilyArchivePanel() {
               onDirty={setPeopleDirty}
             />
           )}
-          {view.archiveId && (
+          {view.archiveId && !forRelative && (
             <FamilyInvitationsPanel
               key={`invite_${view.archiveId}`}
               view={view}
@@ -397,6 +411,8 @@ function ChapterEditor({
   onMoreMemories: () => void;
   busy: boolean;
 }) {
+  const api = useFamilyApi(),
+    forRelative = Boolean(api.grantId);
   const [chapter, setChapter] = useState<FamilyChapter | null>(null),
     [baseline, setBaseline] = useState(""),
     [error, setError] = useState<string | null>(null),
@@ -417,7 +433,7 @@ function ChapterEditor({
   }, []);
   useEffect(() => {
     let active = true;
-    void loadChapter(id)
+    void api.loadChapter(id)
       .then(({ chapter: value }) => {
         if (active) {
           setChapter(value);
@@ -457,7 +473,7 @@ function ChapterEditor({
         !fetching.current.has(memoryId)
       ) {
         fetching.current.add(memoryId);
-        void loadFamilyMemory(memoryId)
+        void api.loadFamilyMemory(memoryId)
           .then(({ memory }) => {
             if (mounted.current)
               setMetadata((previous) => ({ ...previous, [memoryId]: memory }));
@@ -483,7 +499,7 @@ function ChapterEditor({
     setMessage(false);
     key.current ??= newKey();
     try {
-      await familyRequest(
+      await api.familyRequest(
         `/chapters/${id}`,
         "PATCH",
         {
@@ -496,7 +512,7 @@ function ChapterEditor({
         },
         key.current,
       );
-      const next = (await loadChapter(id)).chapter;
+      const next = (await api.loadChapter(id)).chapter;
       setChapter(next);
       setBaseline(JSON.stringify(next));
       key.current = null;
@@ -523,7 +539,7 @@ function ChapterEditor({
     setSaving(true);
     setError(null);
     try {
-      await familyRequest(
+      await api.familyRequest(
         `/chapters/${id}`,
         "DELETE",
         { version: chapter.version },
@@ -641,7 +657,7 @@ function ChapterEditor({
                 {memory?.title ??
                   t("Living Memory {number}", { number: index + 1 })}
               </span>
-              {memory && (
+              {memory && !forRelative && (
                 <MemoryTitleControl
                   memory={memory}
                   number={index + 1}
@@ -804,6 +820,7 @@ function ArchiveSettings({
   onChanged: (id?: string | null) => Promise<void>;
   onDirty: (value: boolean) => void;
 }) {
+  const api = useFamilyApi();
   const archive = view.archives.find((item) => item.id === view.archiveId)!;
   const [title, setTitle] = useState(archive.title),
     [description, setDescription] = useState(archive.description),
@@ -841,7 +858,7 @@ function ArchiveSettings({
     setError(null);
     key.current ??= newKey();
     try {
-      const result = await familyRequest<{ id: string; version: number }>(
+      const result = await api.familyRequest<{ id: string; version: number }>(
         kind === "create" ? "/archives" : `/archives/${archive.id}`,
         kind === "create" ? "POST" : kind === "delete" ? "DELETE" : "PATCH",
         kind === "create"
@@ -969,6 +986,7 @@ function MemoryTitleControl({
   onSaved: (memory: FamilyMemory) => void;
   onDirty: (value: boolean) => void;
 }) {
+  const api = useFamilyApi();
   const [title, setTitle] = useState(memory.title ?? ""),
     [version, setVersion] = useState(memory.titleVersion),
     [busy, setBusy] = useState(false),
@@ -984,13 +1002,13 @@ function MemoryTitleControl({
     setError(null);
     key.current ??= newKey();
     try {
-      await familyRequest(
+      await api.familyRequest(
         `/memories/${memory.id}`,
         "PATCH",
         { title, version },
         key.current,
       );
-      const next = (await loadFamilyMemory(memory.id)).memory;
+      const next = (await api.loadFamilyMemory(memory.id)).memory;
       setVersion(next.titleVersion);
       setTitle(next.title ?? "");
       onSaved(next);

@@ -74,3 +74,43 @@ export const loadFamilyMemory = (id: string) =>
   familyRequest<{ memory: FamilyMemory }>(
     `/memories/${encodeURIComponent(id)}`,
   );
+
+/**
+ * The album requests for one actor. With a `grantId` they act for an invited
+ * relative under the owner's album permission; without it, for the owner.
+ */
+export function familyApi(grantId?: string) {
+  const scoped = (path: string) =>
+    grantId
+      ? `${path}${path.includes("?") ? "&" : "?"}grantId=${encodeURIComponent(grantId)}`
+      : path;
+  const request = <T,>(
+    path = "",
+    method = "GET",
+    body?: unknown,
+    key?: string,
+  ) => familyRequest<T>(scoped(path), method, body, key);
+  return {
+    grantId,
+    familyRequest: request,
+    loadFamilyArchive: (
+      archiveId?: string,
+      after?: string,
+      afterChapter?: string,
+    ) => {
+      const params = new URLSearchParams();
+      if (archiveId) params.set("archiveId", archiveId);
+      if (after) params.set("after", after);
+      if (afterChapter) params.set("afterChapter", afterChapter);
+      return request<FamilyArchiveIndex>(params.size ? `?${params}` : "");
+    },
+    loadChapter: (id: string) =>
+      request<{ chapter: FamilyChapter }>(
+        `/chapters/${encodeURIComponent(id)}`,
+      ),
+    loadFamilyMemory: (id: string) =>
+      request<{ memory: FamilyMemory }>(`/memories/${encodeURIComponent(id)}`),
+  };
+}
+export type FamilyApi = ReturnType<typeof familyApi>;
+

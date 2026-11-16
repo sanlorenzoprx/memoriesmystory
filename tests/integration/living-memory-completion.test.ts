@@ -74,6 +74,7 @@ class TestD1 {
       "0018_family_voice_contributions.sql",
       "0019_family_photo_contributions.sql",
       "0020_family_voice_written_words.sql",
+      "0021_family_album_permissions.sql",
     ]) {
       this.database.exec(
         readFileSync(new URL(`../../migrations/${migration}`, import.meta.url), "utf8")

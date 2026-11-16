@@ -1,5 +1,6 @@
 import { FamilyContributionsPanel } from './FamilyContributionsPanel';
 import { FamilySearchPanel } from './FamilySearchPanel';
+import { FamilyArchivePanel } from './FamilyArchivePanel';
 import { useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router";
 import type {
@@ -225,6 +226,20 @@ export function FamilyAccessExperience() {
         <section aria-label={t("Shared family memories")}>
           <h2>{t("Shared family memories")}</h2>
           <FamilySearchPanel grantId={selected.id} />
+          {selected.canOrganizeAlbums && (
+            <section aria-label={t("Albums you can make")}>
+              <h3>{t("Albums you can make")}</h3>
+              <p>
+                {t(
+                  "The archive owner lets you make albums from the memories shared with you. Your albums stay in their family archive, and they can change or remove them.",
+                )}
+              </p>
+              <FamilyArchivePanel
+                key={`albums_${selected.id}`}
+                grantId={selected.id}
+              />
+            </section>
+          )}
           {!memories.length && (
             <p>
               {t(
