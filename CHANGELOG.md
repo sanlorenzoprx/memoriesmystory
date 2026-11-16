@@ -1,5 +1,9 @@
 # Foundation Package Changelog
 
+## Cost metering report — 2026-11-16
+
+- `npm run cost:report` reads a D1 export offline and reports per-memory and total cost units, plus emails by purpose. It names what it cannot measure, and shows dollars only when every rate is set (all rates are unset for now). No migration; no deployment is claimed.
+
 ## Share handoff and referral events — 2026-11-16
 
 - A ready family link can be sent on WhatsApp or shared on Facebook through hand-off links, with a plain statement of who can open it and that saved copies cannot be recalled.

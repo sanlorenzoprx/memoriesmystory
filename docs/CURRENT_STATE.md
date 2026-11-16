@@ -31,9 +31,13 @@ E03 on `feat/scoped-family-invitations` adds verified-recipient expiring invitat
 
 E04a on `feat/attributed-family-contributions` adds independently attributed human text, immutable revision lineage and versioned review intent, author-only revision/withdrawal, owner selection of a specific family-visible version, source-grant rechecks and recoverable on-device writing. Two EN/ES browser journeys, ten route cases, native D1/R2 source/receipt/lineage checks and draft cleanup/API boundary checks passed. Local core passed 238 tests with 88 schema objects and all 55 phone-browser checks passed. PR #44 merged as `d0a550b` after main CI 43692868082 passed. Migration 0017 is required. This is text only; E04 voice/photo sources and each author's transcript review remain required. See `IMPLEMENTATION/ATTRIBUTED_FAMILY_TEXT_2026-11-15.md`.
 
-## Share handoff and referral events — implemented locally; CI pending
+## Cost metering report — implemented locally; CI pending
 
-A ready family link can be handed to WhatsApp or Facebook (no publishing API), with its reach and the limits of revocation stated plainly. The share policy's growth-loop events are recorded content-free: no fingerprinting, no identifiers, no reward. The share page's discovery link carries only an opaque referral id and appears only with the creator's attribution choice. No migration. See `IMPLEMENTATION/SHARE_HANDOFF_AND_REFERRAL_2026-11-16.md`.
+`npm run cost:report -- <d1-export.sql>` reports, per completed memory and in total, the units that cost money and emails by purpose, offline and with one-way ids. Dollar figures appear only when every rate in `config/cost-rates.json` is set; none is set yet. See `IMPLEMENTATION/COST_METERING_2026-11-16.md`.
+
+## Share handoff and referral events — merged
+
+A ready family link can be handed to WhatsApp or Facebook (no publishing API), with its reach and the limits of revocation stated plainly. The share policy's growth-loop events are recorded content-free: no fingerprinting, no identifiers, no reward. The share page's discovery link carries only an opaque referral id and appears only with the creator's attribution choice. No migration (PR #67, `fcb6106`). See `IMPLEMENTATION/SHARE_HANDOFF_AND_REFERRAL_2026-11-16.md`.
 
 ## Owner reminders — merged, sending off
 
