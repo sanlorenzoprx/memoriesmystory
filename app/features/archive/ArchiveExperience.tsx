@@ -1,5 +1,6 @@
 import { FamilyArchivePanel } from "../family-archive/FamilyArchivePanel";
 import { ArchiveExportPanel } from "../family-archive/ArchiveExportPanel";
+import { ExportCheckPanel } from "../continuity/ExportCheckPanel";
 import { FamilySearchPanel } from "../family-archive/FamilySearchPanel";
 import { FamilyTimelinePanel } from "../family-archive/FamilyTimelinePanel";
 import { t, notice, useLocale, getLocale } from "../../localization/language";
@@ -44,6 +45,7 @@ function ArchiveIndex() {
         {drafts?.some(draft=>draft.status==="complete")&&<FamilyTimelinePanel/>}
         {drafts?.some(draft=>draft.status==="complete")&&<FamilyArchivePanel/>}
         {drafts?.some(draft=>draft.status==="complete")&&<ArchiveExportPanel/>}
+        {drafts&&<ExportCheckPanel/>}
         {drafts && drafts.length > 0 && (
           <ul className="archive-list">
             {drafts.map((draft) => (

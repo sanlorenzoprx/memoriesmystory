@@ -1,5 +1,9 @@
 # Foundation Package Changelog
 
+## Export verification — 2026-11-16
+
+- On the archive page, **Check an export** re-hashes every file in a saved archive or album export against its own manifest, on the device, and names changed, missing and added files. Recompressed, encrypted, damaged and non-export ZIPs are refused plainly in English and Spanish. Nothing is uploaded. No migration; no deployment is claimed.
+
 ## Request-rate limiting — 2026-11-16
 
 - Public routes, budget-spending routes (Muse, speech, transcription, scans, calls) and other writes now have per-address limits through three Workers Rate Limiting bindings declared in `wrangler.jsonc`. An over-limit request gets `429 rate_limited` with `Retry-After`. A missing or failing limiter lets the request through. No migration; no deployment is claimed.
