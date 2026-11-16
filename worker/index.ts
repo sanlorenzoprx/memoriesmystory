@@ -11,6 +11,7 @@ import { handleLegacyRemoteRoute } from "./legacy-remote";
 import type { RealtimeKitEnv } from "./realtimekit";
 import { enforceRateLimit, type RateLimitEnv } from "./rate-limit";
 import { runFixityPass } from "./fixity";
+import { handleEmailPreferenceRoute } from "./email-preferences";
 import type { EmailProviderEnv } from "./providers/email-provider";
 import { appIdentity } from "../config/app-identity";
 import { handleLegacyRecordingRoute } from "./legacy-recordings";
@@ -111,6 +112,9 @@ async function route(request: Request, env: Env): Promise<Response> {
 
     const authResponse = await handleAuthRoute(request, env);
     if (authResponse) return authResponse;
+
+    const emailPreferenceResponse = await handleEmailPreferenceRoute(request, env);
+    if (emailPreferenceResponse) return emailPreferenceResponse;
 
     const archiveResponse=await handleArchiveRoute(request,env);
     if(archiveResponse)return archiveResponse;

@@ -31,7 +31,7 @@ const readOnly = new Set(["GET", "HEAD", "OPTIONS"]);
 const costlyPath =
   /^\/resources\/(?:drafts\/[^/]+\/(?:muse|muse-tts|muse-conversation|muse-voice-replies(?:\/[^/]+)?|process|scans)|legacy-sessions\/[^/]+\/call)$/;
 const publicPath =
-  /^\/(?:shared\/[^/]+(?:\/(?:photo|voice))?|mcp|api\/v1\/[^/]+|resources\/auth\/session)$/;
+  /^\/(?:shared\/[^/]+(?:\/(?:photo|voice))?|mcp|api\/v1\/[^/]+|resources\/auth\/session|resources\/email\/unsubscribe)$/;
 
 /** Which limit applies to a request, or null when none does. */
 export function rateLimitClass(request: Request): RateLimitClass | null {

@@ -2,6 +2,7 @@ import { FamilyContributionsPanel } from './FamilyContributionsPanel';
 import { FamilySearchPanel } from './FamilySearchPanel';
 import { FamilyArchivePanel } from './FamilyArchivePanel';
 import { useEffect, useRef, useState } from "react";
+import { EmailPreferencesPanel } from "../notifications/EmailPreferencesPanel";
 import { Link, useParams } from "react-router";
 import type {
   FamilyMembership,
@@ -284,6 +285,7 @@ export function FamilyAccessExperience() {
           )}
         </section>
       )}
+      {memberships.length > 0 && <EmailPreferencesPanel kinds={["family_updates"]} />}
       <Link className="secondary-action" to="/archive">
         {t("My private archive")}
       </Link>
