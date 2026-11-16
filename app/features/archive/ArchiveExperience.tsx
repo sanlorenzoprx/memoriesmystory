@@ -2,6 +2,7 @@ import { FamilyArchivePanel } from "../family-archive/FamilyArchivePanel";
 import { ArchiveExportPanel } from "../family-archive/ArchiveExportPanel";
 import { ExportCheckPanel } from "../continuity/ExportCheckPanel";
 import { EmailPreferencesPanel } from "../notifications/EmailPreferencesPanel";
+import { WelcomeSplashSetting } from "../welcome/WelcomeSplash";
 import { FamilySearchPanel } from "../family-archive/FamilySearchPanel";
 import { FamilyTimelinePanel } from "../family-archive/FamilyTimelinePanel";
 import { t, notice, useLocale, getLocale } from "../../localization/language";
@@ -48,6 +49,7 @@ function ArchiveIndex() {
         {drafts?.some(draft=>draft.status==="complete")&&<ArchiveExportPanel/>}
         {drafts&&<ExportCheckPanel/>}
         {drafts&&<EmailPreferencesPanel kinds={["owner_reminders","family_updates"]}/>}
+        {drafts?.some(draft=>draft.status==="complete")&&<WelcomeSplashSetting/>}
         {drafts && drafts.length > 0 && (
           <ul className="archive-list">
             {drafts.map((draft) => (

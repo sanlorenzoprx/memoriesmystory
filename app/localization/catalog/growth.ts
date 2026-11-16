@@ -3,6 +3,8 @@
 // errors.ts, so lanes working in parallel do not edit the same lines.
 export const spanish: Readonly<Record<string, string>> = {
   "Send on WhatsApp": "Enviar por WhatsApp",
+  "A photograph from one of your Living Memories": "Una fotografía de uno de tus Recuerdos Vivos",
+  "Show one of my photographs when I open the app": "Mostrar una de mis fotografías al abrir la aplicación",
   "How you want to share": "Cómo quieres compartir",
   "You choose this once. We save your choice and will not ask again.": "Lo eliges una vez. Guardamos tu elección y no volveremos a preguntar.",
   "Friends and family: I can send links to my memories to the people I choose. Anyone who receives a link can open it and keep a copy.":
