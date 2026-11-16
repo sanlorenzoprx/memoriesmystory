@@ -1,5 +1,9 @@
 # Foundation Package Changelog
 
+## Person albums — 2026-11-16
+
+- Each named person now has an album of the memories a human linked to them, in English and Spanish. People with the same name stay separate; nothing is added by recognizing faces or voices. Owner only; no migration; no deployment is claimed.
+
 ## Security headers and Worker error fallback — 2026-11-16
 
 - Baseline security headers on the app shell and static files, with the Content-Security-Policy in report-only mode until staging confirms its allowed origins.

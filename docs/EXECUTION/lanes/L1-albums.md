@@ -8,7 +8,7 @@ The lane updates this file in each pull request. The coordinator folds it into `
 
 ## Status
 
-Not started.
+In progress. L1.1 person albums implemented by the coordinator, CI pending.
 
 ## Merged
 
@@ -16,11 +16,11 @@ None yet.
 
 ## Evidence level reached
 
-—
+L1.1: INTEGRATION_PROVEN locally (receipt `docs/IMPLEMENTATION/PERSON_ALBUMS_2026-11-16.md`).
 
 ## Next
 
-The first packet in section 4 of `../V1_LAUNCH_PARALLEL_HANDOFF_2026-11-16.md`.
+L1.2 album export (G01).
 
 ## Waiting on the owner
 

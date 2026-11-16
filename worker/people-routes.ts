@@ -60,13 +60,15 @@ export async function handlePeopleRoute(
 ): Promise<Response | null> {
   const url = new URL(request.url),
     match = url.pathname.match(
-      /^\/resources\/family-people(?:\/(person|relationship)(?:\/([^/]+))?)?$/,
+      /^\/resources\/family-people(?:\/(person|relationship)(?:\/([^/]+)(?:\/(memories))?)?)?$/,
     );
   if (!match) return null;
   try {
     const session = await authenticateAppSession(request, env);
     if (!session) fail(401, "session_required");
     const user = session.userId;
+    // A person album is read-only; it never accepts a change.
+    if (match[3] && request.method !== "GET") fail(405, "method");
     const recordId = match[2] ? id(decodeURIComponent(match[2])) : null,
       kind = match[1];
     const existing = recordId
@@ -88,6 +90,54 @@ export async function handlePeopleRoute(
     )
       fail(404, "family_archive_not_found");
     if (request.method === "GET") {
+      if (existing && match[3] === "memories") {
+        // A person album: the complete memories a human linked to this person.
+        // Nothing is matched by face, voice or name; a removed person has none.
+        if (existing.kind !== "person") fail(404, "family_archive_not_found");
+        const document = JSON.parse(existing.document_json) as {
+          label?: string;
+          memoryIds?: unknown;
+        };
+        const linked =
+          existing.active && Array.isArray(document.memoryIds)
+            ? document.memoryIds
+                .filter(
+                  (value): value is string =>
+                    typeof value === "string" && validId.test(value),
+                )
+                .slice(0, limits.maximumMemoryReferences)
+            : [];
+        const rows = linked.length
+          ? (
+              await env.DB.prepare(
+                "SELECT m.id,l.title,p.id AS photo_id,p.draft_id AS photo_draft FROM json_each(?1) j JOIN memory_stories m ON m.id=j.value LEFT JOIN family_memory_labels l ON l.memory_story_id=m.id LEFT JOIN media_assets p ON p.id=m.primary_photo_asset_id AND p.memory_story_id=m.id AND p.role='original_photo' AND p.durability_status='durable' WHERE m.owner_user_id=?2 AND m.status='complete' ORDER BY j.key",
+              )
+                .bind(JSON.stringify(linked), user)
+                .all<{
+                  id: string;
+                  title: string | null;
+                  photo_id: string | null;
+                  photo_draft: string | null;
+                }>()
+            ).results
+          : [];
+        return json({
+          person: {
+            id: existing.id,
+            label: typeof document.label === "string" ? document.label : "",
+            active: Boolean(existing.active),
+          },
+          memories: rows.map((row) => ({
+            id: row.id,
+            title: row.title,
+            photoUrl:
+              row.photo_id && row.photo_draft
+                ? `/resources/drafts/${encodeURIComponent(row.photo_draft)}/media/${encodeURIComponent(row.photo_id)}`
+                : null,
+          })),
+        });
+      }
+      if (match[3]) fail(404, "family_archive_not_found");
       if (existing) {
         const history = (
           await env.DB.prepare(

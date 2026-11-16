@@ -294,4 +294,46 @@ describe("human-entered private people references", () => {
       ).status,
     ).toBe(400);
   });
+  it("shows a person album of exactly the memories a human linked, separately for people with the same name", async () => {
+    const s = await setup(),
+      second = await addSyntheticMemory(s, "memory_person_album_second"),
+      third = await addSyntheticMemory(s, "memory_person_album_third");
+    s.db.database
+      .prepare("INSERT INTO family_memory_labels(memory_story_id,title,updated_by_user_id,updated_at) VALUES(?,?,?,?)")
+      .run(second, "La boda", "owner_legacy_test", new Date().toISOString());
+    const first = await s.person({ ...s.document, memoryIds: [second, s.memory] }),
+      namesake = await s.person({ ...s.document, memoryIds: [third] });
+    type Album = { person: { id: string; label: string; active: boolean }; memories: { id: string; title: string | null; photoUrl: string | null }[] };
+    const album = async (id: string) => {
+      const response = await s.call(`/person/${id}/memories`);
+      expect(response.status).toBe(200);
+      expect(response.headers.get("Cache-Control")).toBe("private, no-store");
+      return (await response.json()) as Album;
+    };
+    const one = await album(first.id);
+    expect(one.person).toEqual({ id: first.id, label: "María", active: true });
+    // Order follows what the person linked; titles and photographs come from the owner's memories.
+    expect(one.memories.map((m) => m.id)).toEqual([second, s.memory]);
+    expect(one.memories[0]).toMatchObject({ title: "La boda" });
+    expect(one.memories[0]!.photoUrl).toMatch(/^\/resources\/drafts\/.+\/media\//);
+    // Another person with the same name is a different album; nothing is merged by name.
+    expect((await album(namesake.id)).memories.map((m) => m.id)).toEqual([third]);
+
+    // Unlinking a memory removes it; removing the person empties the album.
+    expect((await s.call(`/person/${first.id}`, "PATCH", { version: 1, document: { ...s.document, memoryIds: [s.memory] } })).status).toBe(200);
+    expect((await album(first.id)).memories.map((m) => m.id)).toEqual([s.memory]);
+    expect((await s.call(`/person/${first.id}`, "DELETE", { version: 2 })).status).toBe(200);
+    const removed = await album(first.id);
+    expect(removed.person.active).toBe(false);
+    expect(removed.memories).toEqual([]);
+
+    // Read-only, owner-only, people only.
+    expect((await s.call(`/person/${namesake.id}/memories`, "PATCH", { version: 1, document: s.document })).status).toBe(405);
+    expect((await s.call(`/person/${namesake.id}/memories`, "GET", undefined, undefined, "")).status).toBe(401);
+    s.db.database.prepare("INSERT INTO users(id,created_at,updated_at) VALUES('person_album_stranger',?,?)").run(new Date().toISOString(), new Date().toISOString());
+    const stranger = (await createAppSession(s.env, "person_album_stranger")).cookie.split(";")[0]!;
+    expect((await s.call(`/person/${namesake.id}/memories`, "GET", undefined, undefined, stranger)).status).toBe(404);
+    expect((await s.call(`/relationship/${namesake.id}/memories`)).status).toBe(404);
+  });
 });
+
