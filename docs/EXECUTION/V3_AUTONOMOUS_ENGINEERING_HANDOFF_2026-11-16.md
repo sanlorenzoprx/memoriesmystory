@@ -2,7 +2,7 @@
 
 **Version:** 3.0 — 2026-11-16
 **Repository:** `https://github.com/sanlorenzoprx/memoriesmystory`
-**Verified main:** `d0b5fa1790044aef70be4d3518d2b7af2bda38ac` (merge of PR #54), CI run 43784546004 green on the merged head.
+**Verified main:** `d0b5fa1790044aef70be4d3518d2b7af2bda38ac` (merge of PR #54). PR #54's head `dd7ba9e` passed CI run 43784546004; confirm the push run on `main` before relying on it.
 **In flight:** nothing. No pull request other than the parked PR #13 is open.
 **Supersedes for status:** the V2.1 handoff (2026-11-15), which stopped at PR #42. Its requirements still stand; its status tables do not.
 **Audience:** the next implementing model or engineer, and the owner.
