@@ -10,6 +10,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 
 import { createAppSession } from "../../worker/auth-session";
 import { handleSharingRoute, type SharingEnv } from "../../worker/sharing";
+import { handleShareAgreementRoute, shareAgreementVersion } from "../../worker/share-agreement";
 
 class TestD1Statement {
   constructor(
@@ -58,7 +59,7 @@ class TestD1 {
       "0005_memory_deletion.sql",
       "0006_muse_conversation.sql",
       "0007_muse_voice_replies.sql",
-      ...(withReview ? ["0008_storyteller_review.sql"] : [])
+      ...(withReview ? ["0008_storyteller_review.sql", "0028_share_agreements.sql"] : [])
     ]) {
       this.database.exec(
         readFileSync(new URL(`../../migrations/${migration}`, import.meta.url), "utf8")
@@ -118,6 +119,11 @@ function seedCompletedLivingMemory(d1: TestD1): void {
   d1.database.prepare(
     "INSERT INTO users (id, email, created_at, updated_at) VALUES (?, ?, ?, ?)"
   ).run(userId, "private-owner@example.test", now, now);
+  // The owner agreed once to share with friends and family (decision 2026-11-16).
+  // The pre-migration cutover harness has no agreement table yet.
+  if (d1.database.prepare("SELECT 1 FROM sqlite_master WHERE name='share_agreements'").get()) d1.database.prepare(
+    "INSERT INTO share_agreements (user_id, scope, agreement_version, agreed_at) VALUES (?, 'family_friends', ?, ?)"
+  ).run(userId, shareAgreementVersion, now);
 
   d1.database.prepare(
     `INSERT INTO memory_story_drafts (
@@ -231,6 +237,32 @@ describe("bounded Living Memory family sharing", () => {
       SHARE_TOKEN_PEPPER: sharePepper
     };
     cookie = cookieHeader((await createAppSession(env, userId)).cookie);
+  });
+
+  it("creates no link until the owner has agreed once how they share, and keeps that choice", async () => {
+    d1.database.prepare("DELETE FROM share_agreements").run();
+    const path = `/resources/living-memories/${storyId}/shares`;
+    const refused = await handleSharingRoute(ownerRequest(path, cookie, "POST", { includeVoice: false }, "share_agreement_first_001"), env);
+    expect(refused?.status).toBe(409);
+    expect(await refused!.json()).toMatchObject({ error: { code: "share_agreement_required" } });
+    const agree = (body: unknown, header = true) =>
+      handleShareAgreementRoute(new Request("https://example.test/resources/share-agreement", {
+        method: "POST",
+        headers: { Cookie: cookie, "Content-Type": "application/json", ...(header ? { "X-Memories-Request": "share-v1" } : {}) },
+        body: JSON.stringify(body)
+      }), env);
+    expect((await agree({ familyAndFriends: true, public: false, version: shareAgreementVersion }, false))?.status).toBe(400);
+    expect((await agree({ familyAndFriends: false, public: true, version: shareAgreementVersion }))?.status).toBe(400);
+    expect((await agree({ familyAndFriends: true, public: false, version: "older-wording" }))?.status).toBe(400);
+    expect(await (await agree({ familyAndFriends: true, public: false, version: shareAgreementVersion }))!.json())
+      .toEqual({ familyAndFriends: true, public: false, version: shareAgreementVersion });
+    // Adding public later keeps the first agreement as it was.
+    expect(await (await agree({ familyAndFriends: true, public: true, version: shareAgreementVersion }))!.json())
+      .toEqual({ familyAndFriends: true, public: true, version: shareAgreementVersion });
+    expect(d1.database.prepare("SELECT scope FROM share_agreements ORDER BY rowid").all()).toEqual([{ scope: "family_friends" }, { scope: "public" }]);
+    expect(() => d1.database.prepare("UPDATE share_agreements SET scope='public'").run()).toThrow(/append-only/);
+    const created = await handleSharingRoute(ownerRequest(path, cookie, "POST", { includeVoice: false }, "share_agreement_first_002"), env);
+    expect(created?.status).toBe(201);
   });
 
   it("offers a discovery link only with attribution, and counts opens once a day without identifiers", async () => {

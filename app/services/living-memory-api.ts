@@ -358,3 +358,21 @@ export async function saveStoryReview(draftId: string, review: {
     body: JSON.stringify(review)
   }));
 }
+
+export type ShareAgreement = { readonly familyAndFriends: boolean; readonly public: boolean; readonly version: string };
+
+/** The person's one-time sharing agreement (owner decision 2026-11-16). */
+export async function loadShareAgreement(): Promise<ShareAgreement> {
+  return requireJson(await fetch("/resources/share-agreement", { credentials: "same-origin" }));
+}
+
+export async function saveShareAgreement(choice: { readonly public: boolean; readonly version: string }): Promise<ShareAgreement> {
+  return requireJson(
+    await fetch("/resources/share-agreement", {
+      method: "POST",
+      credentials: "same-origin",
+      headers: { "Content-Type": "application/json", "X-Memories-Request": "share-v1" },
+      body: JSON.stringify({ familyAndFriends: true, public: choice.public, version: choice.version }),
+    }),
+  );
+}

@@ -8,6 +8,7 @@ import {
 } from "../app/domain";
 import { authenticateAppSession, sha256Text, type AuthSessionEnv } from "./auth-session";
 import { recordShareOpened, referralIdForShare } from "./referral";
+import { readShareAgreement } from "./share-agreement";
 
 // A family share address is a bearer secret: keep it out of search engines and
 // out of the Referer header sent to any other site (review finding F2).
@@ -277,6 +278,14 @@ async function createShare(
 ): Promise<Response> {
   assertMutation(request);
   const { userId } = await requireOwner(request, env, storyId);
+  // The owner's one-time agreement to share is recorded before any link exists.
+  if (!(await readShareAgreement(env, userId)).familyAndFriends) {
+    throw new SharingRouteError(
+      409,
+      "share_agreement_required",
+      "Choose how you want to share once, then create your link."
+    );
+  }
   const pepper = requirePepper(env);
   const idempotencyKey = validIdentifier(
     request.headers.get("X-Idempotency-Key"),

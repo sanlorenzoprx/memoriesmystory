@@ -1,5 +1,9 @@
 # Foundation Package Changelog
 
+## One-time sharing agreement — 2026-11-16
+
+- By owner decision, sharing is agreed once (friends and family, and optionally public), saved with its wording version and not asked again. Facebook appears only after the public choice, and a share link requires the agreement. The Share Policy V2 gains an amendment note, and a decision record also covers the email provider order (Resend first) and person-chosen reminder cadence. Migration 0028. No deployment is claimed.
+
 ## Cost metering report — 2026-11-16
 
 - `npm run cost:report` reads a D1 export offline and reports per-memory and total cost units, plus emails by purpose. It names what it cannot measure, and shows dollars only when every rate is set (all rates are unset for now). No migration; no deployment is claimed.
