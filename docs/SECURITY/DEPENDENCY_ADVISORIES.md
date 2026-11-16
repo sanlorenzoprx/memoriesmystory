@@ -13,6 +13,10 @@ CI runs `npm audit --omit=dev --audit-level=high` after `npm ci`. Any high or cr
 
 `npm audit fix` and `npm update` fail on npm 10.9 (`Cannot read properties of null (reading 'edgesOut')`). The lockfile was resolved with npm 11.6.2 and then completed with npm 10, so `npm ci` works on CI's Node 22 npm.
 
+## 2026-11-16 addition
+
+- `@axe-core/playwright` 4.14.0, pinned exactly: a development-only dependency for the automated accessibility scan. It never ships to people.
+
 ## Accepted, with reason
 
 | Advisory | Severity | Path | Why accepted | Review by |

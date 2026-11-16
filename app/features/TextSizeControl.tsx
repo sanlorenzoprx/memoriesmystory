@@ -68,18 +68,22 @@ export function TextSizeControl() {
   return (
     <div className="text-size-control" aria-label={t("Reading settings")}>
       <span>{t("Text")}</span>
-      {sizes.map((option) => (
-        <button
-          key={option}
-          type="button"
-          className={size === option ? "is-selected" : undefined}
-          aria-pressed={size === option}
-          aria-label={t("Use {size} text", { size: t(labels[option]).toLowerCase() })}
-          onClick={() => setSize(option)}
-        >
-          {option === "standard" ? "A" : option === "large" ? "A+" : "A++"}
-        </button>
-      ))}
+      {sizes.map((option) => {
+        const glyph = option === "standard" ? "A" : option === "large" ? "A+" : "A++";
+        return (
+          <button
+            key={option}
+            type="button"
+            className={size === option ? "is-selected" : undefined}
+            aria-pressed={size === option}
+            // The spoken name starts with the visible text (WCAG 2.5.3 Label in Name).
+            aria-label={`${glyph}, ${t("Use {size} text", { size: t(labels[option]).toLowerCase() })}`}
+            onClick={() => setSize(option)}
+          >
+            {glyph}
+          </button>
+        );
+      })}
       <button
         className="text-size-close"
         type="button"

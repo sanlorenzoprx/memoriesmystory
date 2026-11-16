@@ -39,4 +39,6 @@ The share handoff case in `family-links.spec.ts` checks that the WhatsApp and Fa
 
 `family-unsent-media.spec.ts` checks that a relative's unsent recording and photograph survive a reload, that a send after the reload reuses the same request key, and that a deletion message clears both.
 
+`accessibility.spec.ts` runs axe-core WCAG 2.2 A/AA rules on 14 screens and states in English and Spanish and fails on any violation.
+
 The album permission suite (`family-album-permission.spec.ts`) uses stubbed routes in English and Spanish. It verifies that a relative sees no album section without the owner's permission, that every album request from a permitted relative carries their invitation, that owner-only controls are not offered, and that the owner can turn the permission on and off.

@@ -8,7 +8,7 @@ The lane updates this file in each pull request. The coordinator folds it into `
 
 ## Status
 
-In progress. L8.4 production runbook and launch checklist merged (PR #73, `371fd79`); L8.5 acceptance kit written (`docs/EXECUTION/ACCEPTANCE_KIT_V1.md`), CI pending. L8.1–L8.3 need staging (O1–O4).
+In progress. L8.4 production runbook and launch checklist merged (PR #73, `371fd79`); L8.5 acceptance kit merged (PR #76, `0d677a5`). L8.1–L8.3 need staging (O1–O4).
 
 ## Merged
 
