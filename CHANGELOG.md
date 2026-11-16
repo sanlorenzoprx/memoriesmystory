@@ -1,5 +1,9 @@
 # Foundation Package Changelog
 
+## Scheduled integrity checks — 2026-11-16
+
+- A daily cron re-hashes stored originals and sources against their preservation hashes and records match, mismatch or missing in the append-only `fixity_checks` table. Migration 0025 is required. It never repairs or rewrites media. Memory deletion removes the matching rows. No deployment is claimed.
+
 ## Dependency advisories and CI audit — 2026-11-16
 
 - React Router 8.5.1, Vite 8.3.8 and Vitest 4.1.12 clear their advisories. Wrangler and other tooling moved to the latest versions within their existing ranges. CI now runs `npm audit --omit=dev --audit-level=high`. One moderate RealtimeKit `uuid` advisory is accepted and recorded in `docs/SECURITY/DEPENDENCY_ADVISORIES.md`. No deployment is claimed.

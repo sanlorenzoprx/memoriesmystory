@@ -17,6 +17,8 @@
       "/sitemap.xml"
     ]
   },
+  // Daily integrity (fixity) pass over stored files; see worker/fixity.ts.
+  "triggers": { "crons": ["37 7 * * *"] },
   "observability": {
     "enabled": true
   },

@@ -56,3 +56,11 @@ Apply after 0020 and before the matching Worker and client. It adds
 `family_album_authors`, and replaces the `family_chapter_member_scope` trigger so
 the recorded maker of an album may place the owner's complete memories in it.
 No stored row is changed.
+
+## 0025 — scheduled integrity (fixity) checks
+
+Apply after 0021 and before the matching Worker. It adds the append-only
+`fixity_checks` table and a trigger that refuses updates. Deleting a memory
+removes its rows, so no hash of deleted family media is kept. No stored row is
+changed. Migrations 0022–0024 are reserved for lane L2 and may land later; 0025
+does not depend on them.

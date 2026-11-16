@@ -226,7 +226,9 @@ async function deleteMemory(
     statements.push(
       env.DB.prepare(
         "DELETE FROM operation_receipts WHERE scope_type = 'asset' AND scope_id = ?"
-      ).bind(asset.id)
+      ).bind(asset.id),
+      // A deleted memory keeps no hash of its media in integrity history.
+      env.DB.prepare("DELETE FROM fixity_checks WHERE source_id = ?").bind(asset.id)
     );
   }
 

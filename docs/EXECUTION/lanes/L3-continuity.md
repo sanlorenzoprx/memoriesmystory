@@ -8,7 +8,7 @@ The lane updates this file in each pull request. The coordinator folds it into `
 
 ## Status
 
-In progress. L3.1 merged.
+In progress. L3.1 merged; L3.2 fixity checks implemented by the coordinator, CI pending.
 
 ## Merged
 
@@ -17,10 +17,11 @@ In progress. L3.1 merged.
 ## Evidence level reached
 
 L3.1: INTEGRATION_PROVEN (receipt `docs/IMPLEMENTATION/EXPORT_VERIFICATION_2026-11-16.md`). A large export on a real phone is still needed.
+L3.2: INTEGRATION_PROVEN locally (receipt `docs/IMPLEMENTATION/FIXITY_CHECKS_2026-11-16.md`); migration 0025.
 
 ## Next
 
-L3.2 fixity checks on stored originals; then a server-built export for archives over the device limit.
+A server-built export for archives over the device limit; backup and restore rehearsal with L8 on staging.
 
 ## Waiting on the owner
 
