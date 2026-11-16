@@ -102,3 +102,12 @@ table (person, scope `family_friends` or `public`, wording version, time).
 After this deploys, a share link cannot be created until the owner has made
 the friends-and-family choice once. Existing links keep working. No stored row
 is changed.
+
+## 0039 — reminder cadence
+
+Allocated by the coordinator to lane L2. Apply after 0038 and before the
+matching Worker. It adds `email_preferences.reminder_cadence` (`weekly`,
+`biweekly` or `monthly`; default `weekly`) and replaces the
+`owner_reminders_monthly` index with `owner_reminders_daily` (at most one sent
+reminder per person per day). The reminder pass enforces each person's chosen
+cadence. No stored row is changed.

@@ -102,7 +102,8 @@ These files are edited by almost every slice. Parallel edits to them cause most 
 | 0034–0035 | L7 hardening and legal records |
 | 0036–0037 | L1 albums and keepsakes |
 | 0038 | L2 owner reminders (allocated 2026-11-16) |
-| 0039+ | Coordinator allocates on request |
+| 0039 | L2 reminder cadence (allocated 2026-11-16) |
+| 0040+ | Coordinator allocates on request |
 
 Gaps are fine. Migrations apply in numeric order, so a lane must not depend on a higher-numbered lane's table.
 

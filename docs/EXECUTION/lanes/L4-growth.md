@@ -8,7 +8,7 @@ The lane updates this file in each pull request. The coordinator folds it into `
 
 ## Status
 
-L4.1–L4.2 merged; one-time sharing agreement (owner decision 2026-11-16) implemented by the coordinator, CI pending. L4.3 waits on the G04 owner question.
+L4.1–L4.2 and the one-time sharing agreement (PR #69, `47b5cb2`) merged. L4.3 waits on the G04 owner question.
 
 ## Merged
 

@@ -7,7 +7,7 @@ import { translate } from "../../app/localization/messages";
 for (const locale of ["en-US", "es-PR"] as const)
   test(`${locale}: optional emails start off and a choice is shown saved only after confirmation`, async ({ page }) => {
     const copy = (key: string) => translate(key, locale);
-    let stored = { family_updates: false, owner_reminders: false, version: 0 },
+    let stored = { family_updates: false, owner_reminders: false, reminderCadence: "weekly", version: 0 },
       failNext = true;
     const puts: unknown[] = [];
     await page.addInitScript((value) => localStorage.setItem("memoriesmystory:ui-locale", value), locale);
@@ -38,5 +38,11 @@ for (const locale of ["en-US", "es-PR"] as const)
     await reminder.click();
     await expect(page.getByText(copy("Your email choices are saved."), { exact: true })).toBeVisible();
     await expect(reminder).toBeChecked();
-    expect(puts.at(-1)).toEqual({ family_updates: false, owner_reminders: true, version: 0 });
+    expect(puts.at(-1)).toEqual({ family_updates: false, owner_reminders: true, reminderCadence: "weekly", version: 0 });
+    // Once reminders are on, the person chooses how often; weekly is preselected.
+    const often = page.getByLabel(copy("How often"), { exact: true });
+    await expect(often).toHaveValue("weekly");
+    await often.selectOption("biweekly");
+    await expect(often).toHaveValue("biweekly");
+    expect(puts.at(-1)).toEqual({ family_updates: false, owner_reminders: true, reminderCadence: "biweekly", version: 1 });
   });

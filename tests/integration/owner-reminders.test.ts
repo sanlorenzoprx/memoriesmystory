@@ -8,7 +8,7 @@ afterEach(() => {
   for (const fn of cleanup.splice(0)) fn();
 });
 
-async function setup(options: { sending?: boolean; optedIn?: boolean } = {}) {
+async function setup(options: { sending?: boolean; optedIn?: boolean; cadence?: "weekly" | "biweekly" | "monthly" } = {}) {
   const s = await setupLegacyFixture();
   cleanup.push(() => s.db.close());
   const db = s.db.database,
@@ -16,7 +16,7 @@ async function setup(options: { sending?: boolean; optedIn?: boolean } = {}) {
   db.prepare("UPDATE users SET email=? WHERE id=?").run("owner@example.test", owner);
   db.prepare("INSERT INTO family_memory_labels(memory_story_id,title,updated_by_user_id,updated_at) VALUES(?,?,?,?)").run(s.memory, "La cocina de la tía María", owner, new Date().toISOString());
   if (options.optedIn !== false)
-    db.prepare("INSERT INTO email_preferences(user_id,family_updates,owner_reminders,updated_at) VALUES(?,0,1,?)").run(owner, new Date().toISOString());
+    db.prepare("INSERT INTO email_preferences(user_id,family_updates,owner_reminders,reminder_cadence,updated_at) VALUES(?,0,1,?,?)").run(owner, options.cadence ?? "monthly", new Date().toISOString());
   const sent: { to: string; subject: string; text: string; html: string; headers?: Record<string, string> }[] = [];
   const env = s.env as typeof s.env & Record<string, unknown>;
   env.PUBLIC_APP_ORIGIN = "https://app.example.test";
@@ -29,7 +29,7 @@ async function setup(options: { sending?: boolean; optedIn?: boolean } = {}) {
   return { ...s, sent, run };
 }
 
-describe("opt-in owner reminders, monthly at most (L2.5)", () => {
+describe("opt-in owner reminders at the person's chosen cadence (L2.5)", () => {
   it("sends and records nothing while email is off", async () => {
     const s = await setup({ sending: false });
     expect(await s.run("2027-01-10T08:00:00.000Z")).toEqual({ skipped: "email_sending_off", sent: 0, notSent: 0 });
@@ -40,7 +40,8 @@ describe("opt-in owner reminders, monthly at most (L2.5)", () => {
     expect((await s.run("2027-01-10T08:00:00.000Z")).sent).toBe(1);
     const message = s.sent[0]!;
     expect(message.to).toBe("owner@example.test");
-    expect(message.text).toContain("https://app.example.test/");
+    // The link opens straight into starting a new memory.
+    expect(message.text).toContain("https://app.example.test/?start=camera");
     expect(message.text).toContain("at most once a month");
     expect(message.headers?.["List-Unsubscribe-Post"]).toBe("List-Unsubscribe=One-Click");
     for (const part of [message.subject, message.text, message.html])
@@ -50,6 +51,20 @@ describe("opt-in owner reminders, monthly at most (L2.5)", () => {
     expect((await s.run("2027-02-01T08:00:00.000Z")).sent).toBe(0); // new month, but only 22 days
     expect((await s.run("2027-02-10T08:00:00.000Z")).sent).toBe(1);
     expect(s.sent).toHaveLength(2);
+  });
+
+  it("follows a weekly or every-two-weeks choice", async () => {
+    const weekly = await setup({ cadence: "weekly" });
+    expect((await weekly.run("2027-01-04T08:00:00.000Z")).sent).toBe(1);
+    expect(weekly.sent[0]!.text).toContain("about once a week");
+    expect((await weekly.run("2027-01-08T08:00:00.000Z")).sent).toBe(0);
+    expect((await weekly.run("2027-01-11T08:00:00.000Z")).sent).toBe(1);
+    expect((await weekly.run("2027-01-11T20:00:00.000Z")).sent).toBe(0);
+    const biweekly = await setup({ cadence: "biweekly" });
+    expect((await biweekly.run("2027-01-04T08:00:00.000Z")).sent).toBe(1);
+    expect((await biweekly.run("2027-01-11T08:00:00.000Z")).sent).toBe(0);
+    expect((await biweekly.run("2027-01-18T08:00:00.000Z")).sent).toBe(1);
+    expect(biweekly.sent[0]!.text).toContain("about every two weeks");
   });
 
   it("stays silent without the owner's choice, or soon after they finished a memory", async () => {

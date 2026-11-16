@@ -1,5 +1,11 @@
 # Foundation Package Changelog
 
+## Resend-first email, reminder cadence and direct links — 2026-11-16
+
+- Email is sent through Resend first (with an idempotency key), falling back to Cloudflare Email Service. Sending remains off until switched on.
+- Reminders follow each person's choice of every week (preselected), every two weeks or monthly (migration 0039).
+- Reminder emails link straight into starting a new memory. No deployment is claimed.
+
 ## One-time sharing agreement — 2026-11-16
 
 - By owner decision, sharing is agreed once (friends and family, and optionally public), saved with its wording version and not asked again. Facebook appears only after the public choice, and a share link requires the agreement. The Share Policy V2 gains an amendment note, and a decision record also covers the email provider order (Resend first) and person-chosen reminder cadence. Migration 0028. No deployment is claimed.

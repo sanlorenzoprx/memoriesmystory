@@ -11,7 +11,9 @@ import { authenticateAppSession, type AuthSessionEnv } from "./auth-session";
  */
 export const emailKinds = ["family_updates", "owner_reminders"] as const;
 export type EmailKind = (typeof emailKinds)[number];
-export type EmailPreferences = Record<EmailKind, boolean> & { version: number };
+export const reminderCadences = ["weekly", "biweekly", "monthly"] as const;
+export type ReminderCadence = (typeof reminderCadences)[number];
+export type EmailPreferences = Record<EmailKind, boolean> & { reminderCadence: ReminderCadence; version: number };
 
 const json = (value: unknown, status = 200) =>
   Response.json(value, {
@@ -65,13 +67,14 @@ async function readToken(secret: string, token: string | null) {
 
 export async function readEmailPreferences(env: { DB: D1Database }, userId: string): Promise<EmailPreferences> {
   const row = await env.DB.prepare(
-    "SELECT family_updates,owner_reminders,version FROM email_preferences WHERE user_id=?",
+    "SELECT family_updates,owner_reminders,reminder_cadence,version FROM email_preferences WHERE user_id=?",
   )
     .bind(userId)
-    .first<{ family_updates: number; owner_reminders: number; version: number }>();
+    .first<{ family_updates: number; owner_reminders: number; reminder_cadence: ReminderCadence; version: number }>();
   return {
     family_updates: row?.family_updates === 1,
     owner_reminders: row?.owner_reminders === 1,
+    reminderCadence: row?.reminder_cadence ?? "weekly",
     version: row?.version ?? 0,
   };
 }
@@ -79,16 +82,16 @@ export async function readEmailPreferences(env: { DB: D1Database }, userId: stri
 function changeStatements(
   env: { DB: D1Database },
   userId: string,
-  next: Record<EmailKind, boolean>,
+  next: Record<EmailKind, boolean> & { reminderCadence: ReminderCadence },
   previous: EmailPreferences,
   source: "settings" | "unsubscribe_link",
   now: string,
 ) {
   const statements = [
     env.DB.prepare(
-      `INSERT INTO email_preferences(user_id,family_updates,owner_reminders,version,updated_at) VALUES(?1,?2,?3,1,?4)
-       ON CONFLICT(user_id) DO UPDATE SET family_updates=?2,owner_reminders=?3,version=version+1,updated_at=?4`,
-    ).bind(userId, next.family_updates ? 1 : 0, next.owner_reminders ? 1 : 0, now),
+      `INSERT INTO email_preferences(user_id,family_updates,owner_reminders,reminder_cadence,version,updated_at) VALUES(?1,?2,?3,?5,1,?4)
+       ON CONFLICT(user_id) DO UPDATE SET family_updates=?2,owner_reminders=?3,reminder_cadence=?5,version=version+1,updated_at=?4`,
+    ).bind(userId, next.family_updates ? 1 : 0, next.owner_reminders ? 1 : 0, now, next.reminderCadence),
   ];
   for (const kind of emailKinds)
     if (next[kind] !== previous[kind])
@@ -156,13 +159,21 @@ export async function handleEmailPreferenceRoute(
   if (
     !body ||
     typeof body.version !== "number" ||
-    emailKinds.some((kind) => typeof body[kind] !== "boolean")
+    emailKinds.some((kind) => typeof body[kind] !== "boolean") ||
+    (body.reminderCadence !== undefined && !(reminderCadences as readonly string[]).includes(body.reminderCadence))
   )
     return json({ error: { code: "email_preferences_invalid" } }, 400);
   const current = await readEmailPreferences(env, session.userId);
   if (body.version !== current.version) return json({ error: { code: "email_preferences_conflict" } }, 409);
   await env.DB.batch(
-    changeStatements(env, session.userId, body as Record<EmailKind, boolean>, current, "settings", new Date().toISOString()),
+    changeStatements(
+      env,
+      session.userId,
+      { family_updates: body.family_updates!, owner_reminders: body.owner_reminders!, reminderCadence: body.reminderCadence ?? current.reminderCadence },
+      current,
+      "settings",
+      new Date().toISOString(),
+    ),
   );
   return json(await readEmailPreferences(env, session.userId));
 }
