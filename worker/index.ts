@@ -12,6 +12,7 @@ import type { RealtimeKitEnv } from "./realtimekit";
 import { enforceRateLimit, type RateLimitEnv } from "./rate-limit";
 import { enforceDailyCeiling } from "./usage-ceilings";
 import { runFixityPass } from "./fixity";
+import type { ViewingImagesBinding } from "./private-media";
 import { runFamilyUpdatePass, runOwnerReminderPass } from "./notifications";
 import { handleEmailPreferenceRoute } from "./email-preferences";
 import { handleReferralRoute } from "./referral";
@@ -59,6 +60,7 @@ export interface Env extends RealtimeKitEnv, RateLimitEnv, EmailProviderEnv {
   CLERK_JWT_KEY?: string;
   CLERK_AUTHORIZED_PARTIES?: string;
   PUBLIC_APP_ORIGIN?: string;
+  IMAGES?: ViewingImagesBinding;
 }
 
 const handler: ExportedHandler<Env, TranscriptionQueueMessage> = {

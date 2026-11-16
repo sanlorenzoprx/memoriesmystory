@@ -1,6 +1,7 @@
 import { FamilyContributionsPanel } from '../family-archive/FamilyContributionsPanel';
 import { recordGrowthEvent, storedReferral } from "../../services/growth-events";
 import { ShareAgreementCard } from "./ShareAgreementCard";
+import { displayUrl } from "../../services/display-url";
 import { t, notice, useLocale } from "../../localization/language";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
@@ -616,7 +617,7 @@ export function LivingMemoryExperience() {
           <h1>{t("Only this will leave your archive.")}</h1>
           {sharePreview.caption && <p className="share-preview-caption">{sharePreview.caption}</p>}
           <div className="story-photo-focus">
-            <img src={snapshot.originals.photo.mediaUrl} alt={t("Photograph in the family share")} />
+            <img src={displayUrl(snapshot.originals.photo.mediaUrl)} alt={t("Photograph in the family share")} />
           </div>
           {sharePreview.voice && (
             <audio className="voice-player" controls src={snapshot.originals.audio.mediaUrl}>{t("Your browser cannot play this recording.")}</audio>
@@ -777,7 +778,7 @@ function OriginalPair({
   return (
     <>
       <div className={compact ? "story-photo-focus compact-story-photo" : "story-photo-focus"}>
-        <img src={snapshot.originals.photo.mediaUrl} alt={t("Your preserved photograph")} />
+        <img src={displayUrl(snapshot.originals.photo.mediaUrl)} alt={t("Your preserved photograph")} />
       </div>
       <SavedScanGallery draftId={snapshot.livingMemoryId}/>
       <audio className="voice-player" controls src={snapshot.originals.audio.mediaUrl}>{t("Your browser cannot play your preserved original recording.")}</audio>
