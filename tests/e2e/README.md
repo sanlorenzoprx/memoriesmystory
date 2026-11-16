@@ -31,4 +31,6 @@ The timeline suite (`family-timeline.spec.ts`) uses stubbed routes in English an
 
 The export suite (`archive-export.spec.ts`) uses stubbed routes and synthetic bytes in English and Spanish. It downloads the real ZIP, reads it with an independent parser, and verifies that a same-length wrong-bytes file is left out with the export marked incomplete, and that a second run round-trips every original to its manifest hash.
 
+The album export suite (`album-export.spec.ts`) uses stubbed routes in English and Spanish. It chooses one album and verifies that only that album's original is fetched and packaged, that a recollection the owner has not included for family is never fetched, and that the readable page is titled for the album.
+
 The album permission suite (`family-album-permission.spec.ts`) uses stubbed routes in English and Spanish. It verifies that a relative sees no album section without the owner's permission, that every album request from a permitted relative carries their invitation, that owner-only controls are not offered, and that the owner can turn the permission on and off.

@@ -168,8 +168,17 @@ export type ArchiveExportManifest = {
   /** Plain statements of what is not included, so a partial export is never mistaken for a whole one. */
   notIncluded: { code: string; count: number | null }[];
   memories: ArchiveExportMemory[];
+  /** The owner's albums, each organizing its Chapters in order. */
+  albums?: {
+    id: string;
+    title: string;
+    description: string;
+    chapterIds: string[];
+  }[];
   chapters: {
     id: string;
+    /** The album this Chapter belongs to. */
+    albumId?: string;
     title: string;
     description: string;
     memoryIds: string[];
@@ -273,12 +282,13 @@ export function renderExportIndex(
   verification: ArchiveExportVerification,
   label: (key: string, values?: Record<string, string | number>) => string,
   language: string,
+  album?: { title: string; description: string },
 ): string {
   const text = (key: string, values?: Record<string, string | number>) =>
       escapeHtml(label(key, values)),
     verified = new Map(verification.files.map((file) => [file.path, file.verified]));
-  const memories = manifest.memories
-    .map((memory) => {
+  const renderMemory = (memory: ArchiveExportMemory) => {
+      const h = album ? 3 : 2;
       const files = memory.files
         .map(
           (file) =>
@@ -299,14 +309,30 @@ export function renderExportIndex(
             return `<li><strong>${escapeHtml(entry.attribution)}</strong>${written ? `<blockquote>${escapeHtml(written.text)}</blockquote>` : ""}</li>`;
           })
           .join("");
-      return `<section><h2>${memory.title ? escapeHtml(memory.title) : text("Living Memory")}</h2><ul>${files}</ul>${current ? `<h3>${text(current.writtenBy === "machine" ? "Words from the recording (machine transcript, not reviewed by a person)" : "Words from the recording (reviewed by the storyteller)")}</h3><blockquote>${escapeHtml(current.text)}</blockquote>` : ""}${context ? `<h3>${text("What the storyteller said")}</h3><ul>${context}</ul>` : ""}${contributions ? `<h3>${text("Family recollections")}</h3><ul>${contributions}</ul>` : ""}</section>`;
-    })
-    .join("");
+      return `<section><h${h}>${memory.title ? escapeHtml(memory.title) : text("Living Memory")}</h${h}><ul>${files}</ul>${current ? `<h${h + 1}>${text(current.writtenBy === "machine" ? "Words from the recording (machine transcript, not reviewed by a person)" : "Words from the recording (reviewed by the storyteller)")}</h${h + 1}><blockquote>${escapeHtml(current.text)}</blockquote>` : ""}${context ? `<h${h + 1}>${text("What the storyteller said")}</h${h + 1}><ul>${context}</ul>` : ""}${contributions ? `<h${h + 1}>${text("Family recollections")}</h${h + 1}><ul>${contributions}</ul>` : ""}</section>`;
+  };
+  const heading = album
+    ? text("Album: {title}", { title: album.title })
+    : text("Your family archive export");
+  const byId = new Map(manifest.memories.map((memory) => [memory.id, memory]));
+  // An album reads in its own order: each Chapter, then its memories.
+  const memories = album
+    ? manifest.chapters
+        .map(
+          (chapter) =>
+            `<h2>${escapeHtml(chapter.title)}</h2>${chapter.description ? `<p>${escapeHtml(chapter.description)}</p>` : ""}${chapter.memoryIds
+              .map((id) => byId.get(id))
+              .filter((memory): memory is ArchiveExportMemory => Boolean(memory))
+              .map(renderMemory)
+              .join("")}`,
+        )
+        .join("")
+    : manifest.memories.map(renderMemory).join("");
   const missing = manifest.notIncluded
     .map(
       (item) =>
         `<li>${text(`export not included: ${item.code}`)}${item.count === null ? "" : ` (${item.count})`}</li>`,
     )
     .join("");
-  return `<!doctype html><html lang="${escapeHtml(language)}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${text("Your family archive export")}</title><style>body{font-family:system-ui,sans-serif;max-width:760px;margin:auto;padding:24px;line-height:1.5}code{font-size:.8rem;word-break:break-all}blockquote{white-space:pre-wrap;margin:8px 0;padding-left:12px;border-left:3px solid #999}</style></head><body><h1>${text("Your family archive export")}</h1><p>${text("Exported {date}", { date: manifest.generatedAt })}</p><p><strong>${text(manifest.complete && verification.allFilesVerified ? "Every file listed here was checked against the preserved original." : "This export is not complete. Read what is missing below.")}</strong></p>${missing ? `<h2>${text("Not included in this export")}</h2><ul>${missing}</ul>` : ""}<p>${text("The file manifest.json lists every file with its SHA-256 so the originals can be checked again at any time.")}</p>${memories}</body></html>`;
+  return `<!doctype html><html lang="${escapeHtml(language)}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${heading}</title><style>body{font-family:system-ui,sans-serif;max-width:760px;margin:auto;padding:24px;line-height:1.5}code{font-size:.8rem;word-break:break-all}blockquote{white-space:pre-wrap;margin:8px 0;padding-left:12px;border-left:3px solid #999}</style></head><body><h1>${heading}</h1>${album?.description ? `<p>${escapeHtml(album.description)}</p>` : ""}<p>${text("Exported {date}", { date: manifest.generatedAt })}</p><p><strong>${text(manifest.complete && verification.allFilesVerified ? "Every file listed here was checked against the preserved original." : "This export is not complete. Read what is missing below.")}</strong></p>${missing ? `<h2>${text("Not included in this export")}</h2><ul>${missing}</ul>` : ""}<p>${text("The file manifest.json lists every file with its SHA-256 so the originals can be checked again at any time.")}</p>${memories}</body></html>`;
 }

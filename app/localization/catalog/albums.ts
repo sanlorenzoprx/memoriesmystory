@@ -11,5 +11,16 @@ export const spanish: Readonly<Record<string, string>> = {
   "Photograph from this memory": "Fotografía de este recuerdo",
   "This person's album could not be opened. Please try again.":
     "No se pudo abrir el álbum de esta persona. Vuelve a intentarlo.",
+  "What would you like to export?": "¿Qué te gustaría exportar?",
+  "My whole archive": "Todo mi archivo",
+  "Album: {title} (memories: {count})": "Álbum: {title} (recuerdos: {count})",
+  "Chapter: {title}, in {album} (memories: {count})": "Capítulo: {title}, en {album} (recuerdos: {count})",
+  "An album copy holds its photographs, voices and your words, plus only the family recollections you included for family. Anyone you give it to can open it without the app.":
+    "Una copia del álbum contiene sus fotografías, voces y tus palabras, y solo los recuerdos de familiares que incluiste para la familia. Cualquier persona a quien se la des puede abrirla sin la aplicación.",
+  "Prepare the album export": "Preparar la exportación del álbum",
+  "This album has nothing to export right now. Nothing was changed.":
+    "Este álbum no tiene nada que exportar ahora. No se cambió nada.",
+  "Album: {title}": "Álbum: {title}",
+  "Recollections you have not included for family": "Recuerdos que no has incluido para la familia",
 };
 export const errors: Readonly<Record<string, string>> = {};

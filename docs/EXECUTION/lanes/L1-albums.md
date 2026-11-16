@@ -8,19 +8,20 @@ The lane updates this file in each pull request. The coordinator folds it into `
 
 ## Status
 
-In progress. L1.1 person albums implemented by the coordinator, CI pending.
+In progress. L1.2 album export implemented by the coordinator, CI pending.
 
 ## Merged
 
-None yet.
+- L1.1 person albums — PR #58, `bc39ce7`.
 
 ## Evidence level reached
 
-L1.1: INTEGRATION_PROVEN locally (receipt `docs/IMPLEMENTATION/PERSON_ALBUMS_2026-11-16.md`).
+L1.1: INTEGRATION_PROVEN (receipt `docs/IMPLEMENTATION/PERSON_ALBUMS_2026-11-16.md`).
+L1.2: INTEGRATION_PROVEN locally (receipt `docs/IMPLEMENTATION/ALBUM_EXPORT_2026-11-16.md`).
 
 ## Next
 
-L1.2 album export (G01).
+L1.3 reload-safe unsent media; L1.4 HEIC viewing copy. Relative-added images wait on owner decision D3.
 
 ## Waiting on the owner
 
