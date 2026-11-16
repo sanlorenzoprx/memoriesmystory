@@ -8,7 +8,7 @@ The lane updates this file in each pull request. The coordinator folds it into `
 
 ## Status
 
-Not started.
+In progress. L3.1 export verification implemented by the coordinator, CI pending.
 
 ## Merged
 
@@ -16,11 +16,11 @@ None yet.
 
 ## Evidence level reached
 
-—
+L3.1: INTEGRATION_PROVEN locally (receipt `docs/IMPLEMENTATION/EXPORT_VERIFICATION_2026-11-16.md`). A large export on a real phone is still needed.
 
 ## Next
 
-The first packet in section 4 of `../V1_LAUNCH_PARALLEL_HANDOFF_2026-11-16.md`.
+L3.2 fixity checks on stored originals; then a server-built export for archives over the device limit.
 
 ## Waiting on the owner
 
