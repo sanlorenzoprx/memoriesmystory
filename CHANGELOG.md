@@ -1,5 +1,9 @@
 # Foundation Package Changelog
 
+## Album export — 2026-11-16
+
+- From Export my archive, an owner can choose one album or one Chapter and save a verified ZIP that opens without the app, with its Chapters in order. Available on every plan. It carries only the owner's own recollections and the ones they included for family, and names what it leaves out. The export manifest gains albums and each Chapter's album. No migration; no deployment is claimed.
+
 ## Person albums — 2026-11-16
 
 - Each named person now has an album of the memories a human linked to them, in English and Spanish. People with the same name stay separate; nothing is added by recognizing faces or voices. Owner only; no migration; no deployment is claimed.

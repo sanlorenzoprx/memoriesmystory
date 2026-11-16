@@ -573,13 +573,18 @@ async function manifest(env: ArchiveExportEnv, owner: string) {
       at: row.created_at,
     });
 
+  const albums = await all<{ id: string; title: string; description: string }>(
+    "SELECT a.id,a.title,a.description FROM family_archives a WHERE a.owner_user_id=?1 ORDER BY a.created_at,a.id",
+    owner,
+  );
   const chapters = await all<{
     id: string;
+    album_id: string;
     title: string;
     description: string;
     members: string | null;
   }>(
-    "SELECT c.id,c.title,c.description,(SELECT json_group_array(memory_story_id) FROM (SELECT cm.memory_story_id FROM family_chapter_memories cm WHERE cm.chapter_id=c.id ORDER BY cm.position)) AS members FROM family_chapters c JOIN family_archives a ON a.id=c.archive_id WHERE a.owner_user_id=?1 ORDER BY a.id,c.position,c.id",
+    "SELECT c.id,c.archive_id AS album_id,c.title,c.description,(SELECT json_group_array(memory_story_id) FROM (SELECT cm.memory_story_id FROM family_chapter_memories cm WHERE cm.chapter_id=c.id ORDER BY cm.position)) AS members FROM family_chapters c JOIN family_archives a ON a.id=c.archive_id WHERE a.owner_user_id=?1 ORDER BY a.id,c.position,c.id",
     owner,
   );
   const peopleRecords = await all<{ id: string; kind: string; document_json: string }>(
@@ -607,8 +612,17 @@ async function manifest(env: ArchiveExportEnv, owner: string) {
     complete: notIncluded.length === 0,
     notIncluded,
     memories: [...memories.values()],
+    albums: albums.map((album) => ({
+      id: album.id,
+      title: album.title,
+      description: album.description,
+      chapterIds: chapters
+        .filter((chapter) => chapter.album_id === album.id)
+        .map((chapter) => chapter.id),
+    })),
     chapters: chapters.map((chapter) => ({
       id: chapter.id,
+      albumId: chapter.album_id,
       title: chapter.title,
       description: chapter.description,
       memoryIds: (JSON.parse(chapter.members ?? "[]") as string[]).filter((id) =>

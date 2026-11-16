@@ -7,6 +7,11 @@ import {
   type ArchiveExportManifest,
   type ArchiveExportVerification,
 } from "../../domain/archive-export";
+import {
+  albumExportChoices,
+  selectAlbumExport,
+  type AlbumExportChoice,
+} from "../../domain/album-export";
 import { apiMessageKey } from "../../localization/errors";
 import { getLocale, t, notice, useLocale } from "../../localization/language";
 
@@ -43,6 +48,8 @@ const indexWording: Record<string, string> = {
     "Recollections withdrawn by the person who gave them",
   "export not included: unfinished_memories":
     "Memories that are not finished yet",
+  "export not included: recollections_not_included_for_family":
+    "Recollections you have not included for family",
   "export not included: files_not_verified":
     "Files that could not be downloaded or did not match",
 };
@@ -76,7 +83,10 @@ export function ArchiveExportPanel() {
       null,
     ),
     [error, setError] = useState<string | null>(null),
-    [prepared, setPrepared] = useState<Prepared | null>(null);
+    [prepared, setPrepared] = useState<Prepared | null>(null),
+    [choices, setChoices] = useState<AlbumExportChoice[]>([]),
+    [chosen, setChosen] = useState("archive");
+  const choicesLoaded = useRef(false);
   const pending = useRef<AbortController | null>(null),
     objectUrl = useRef<string | null>(null);
   useEffect(
@@ -86,6 +96,26 @@ export function ArchiveExportPanel() {
     },
     [],
   );
+
+  // The album list comes from the same manifest the export uses, so a choice
+  // offered here is always one the export can fulfil.
+  async function loadChoices() {
+    if (choicesLoaded.current) return;
+    choicesLoaded.current = true;
+    try {
+      const response = await fetch("/resources/archive-export/manifest", {
+        credentials: "same-origin",
+      });
+      const manifest = (await response.json().catch(() => null)) as
+        | ArchiveExportManifest
+        | null;
+      if (response.ok && manifest?.format === archiveExportFormat)
+        setChoices(albumExportChoices(manifest));
+      else choicesLoaded.current = false;
+    } catch {
+      choicesLoaded.current = false;
+    }
+  }
 
   async function prepare() {
     pending.current?.abort();
@@ -103,17 +133,25 @@ export function ArchiveExportPanel() {
         credentials: "same-origin",
         signal,
       });
-      const manifest = (await response.json().catch(() => null)) as
+      const fetched = (await response.json().catch(() => null)) as
         | (ArchiveExportManifest & { error?: { code?: string } })
         | null;
       if (!response.ok)
-        throw new Error(apiMessageKey(manifest?.error?.code, fallback));
+        throw new Error(apiMessageKey(fetched?.error?.code, fallback));
       if (
-        !manifest ||
-        manifest.format !== archiveExportFormat ||
-        !Array.isArray(manifest.memories)
+        !fetched ||
+        fetched.format !== archiveExportFormat ||
+        !Array.isArray(fetched.memories)
       )
         throw new Error(fallback);
+      const choice = choices.find((entry) => `${entry.kind}:${entry.id}` === chosen),
+        selected = choice ? selectAlbumExport(fetched, choice) : null;
+      if (choice && !selected)
+        throw new Error(
+          "This album has nothing to export right now. Nothing was changed.",
+        );
+      const manifest = selected ? selected.manifest : fetched,
+        album = selected?.album;
       const files = manifest.memories.flatMap((memory) => memory.files);
       if (
         files.reduce((sum, file) => sum + file.byteSize, 0) >
@@ -182,6 +220,7 @@ export function ArchiveExportPanel() {
               verification,
               indexLabel,
               getLocale(),
+              album,
             ),
           ),
         },
@@ -194,7 +233,7 @@ export function ArchiveExportPanel() {
       objectUrl.current = url;
       setPrepared({
         url,
-        name: `family-archive-export-${finalManifest.generatedAt.slice(0, 10)}.zip`,
+        name: `${album ? "family-album-export" : "family-archive-export"}-${finalManifest.generatedAt.slice(0, 10)}.zip`,
         complete: finalManifest.complete,
         files: entries.length,
         unverified,
@@ -209,13 +248,62 @@ export function ArchiveExportPanel() {
   }
 
   return (
-    <details className="memory-review-section">
+    <details
+      className="memory-review-section"
+      onToggle={(event) => {
+        if (event.currentTarget.open) void loadChoices();
+      }}
+    >
       <summary>{t("Export my archive")}</summary>
       <p>
         {t(
           "Take a copy of your originals and their history with you. Each file is checked against the preserved original before it is packaged. Nothing in your archive is changed.",
         )}
       </p>
+      {choices.length > 0 && (
+        <fieldset disabled={busy}>
+          <legend>{t("What would you like to export?")}</legend>
+          <label>
+            <input
+              type="radio"
+              name="archive-export-choice"
+              value="archive"
+              checked={chosen === "archive"}
+              onChange={() => setChosen("archive")}
+            />{" "}
+            {t("My whole archive")}
+          </label>
+          {choices.map((choice) => {
+            const value = `${choice.kind}:${choice.id}`;
+            return (
+              <label key={value}>
+                <input
+                  type="radio"
+                  name="archive-export-choice"
+                  value={value}
+                  checked={chosen === value}
+                  onChange={() => setChosen(value)}
+                />{" "}
+                {choice.kind === "album"
+                  ? t("Album: {title} (memories: {count})", {
+                      title: choice.title,
+                      count: choice.memoryCount,
+                    })
+                  : t("Chapter: {title}, in {album} (memories: {count})", {
+                      title: choice.title,
+                      album: choice.albumTitle ?? "",
+                      count: choice.memoryCount,
+                    })}
+              </label>
+            );
+          })}
+          <p>
+            {t(
+              "An album copy holds its photographs, voices and your words, plus only the family recollections you included for family. Anyone you give it to can open it without the app.",
+            )}
+          </p>
+        </fieldset>
+      )}
       {error && <p role="alert">{notice(error)}</p>}
       <button
         type="button"
@@ -223,7 +311,13 @@ export function ArchiveExportPanel() {
         disabled={busy}
         onClick={() => void prepare()}
       >
-        {t(prepared ? "Prepare the export again" : "Prepare my archive export")}
+        {t(
+          prepared
+            ? "Prepare the export again"
+            : chosen === "archive"
+              ? "Prepare my archive export"
+              : "Prepare the album export",
+        )}
       </button>
       {busy && progress && (
         <p role="status">

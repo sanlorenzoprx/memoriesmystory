@@ -102,7 +102,8 @@ describe("owner archive export", () => {
     expect(voiceEntry).toMatchObject({ kind: "human_voice", attribution: "Prima Lucía", byOwner: false, fileId: spoken.id });
     expect(voiceEntry.speakerWrittenWords.map((words) => words.text)).toEqual(["Dije que fue en mayo."]);
     expect(memory.familyContributions.find((entry) => entry.id === s.textId)!.writtenVersions.map((v) => v.text)).toEqual(["Yo recuerdo 1951."]);
-    expect(body.chapters).toEqual([{ id: "chapter_export_one", title: "Summers", description: "Synthetic", memoryIds: [s.memory] }]);
+    expect(body.chapters).toEqual([{ id: "chapter_export_one", albumId: "family_export_archive", title: "Summers", description: "Synthetic", memoryIds: [s.memory] }]);
+    expect(body.albums).toEqual([{ id: "family_export_archive", title: "Synthetic family", description: "", chapterIds: ["chapter_export_one"] }]);
     expect(body.people).toHaveLength(1);
   });
 
@@ -124,6 +125,7 @@ describe("owner archive export", () => {
       { body } = await s.manifest("export_stranger");
     expect(body.memories).toEqual([]);
     expect(body.chapters).toEqual([]);
+    expect(body.albums).toEqual([]);
     expect(body.people).toEqual([]);
     const owned = (await s.manifest()).body.memories.flatMap((memory) => memory.files);
     for (const file of owned) {
