@@ -8,6 +8,14 @@ import {
 } from "../app/domain";
 import { authenticateAppSession, sha256Text, type AuthSessionEnv } from "./auth-session";
 
+// A family share address is a bearer secret: keep it out of search engines and
+// out of the Referer header sent to any other site (review finding F2).
+const bearerLinkHeaders = {
+  "X-Robots-Tag": "noindex, nofollow, noarchive",
+  "Referrer-Policy": "no-referrer",
+  "X-Content-Type-Options": "nosniff"
+} as const;
+
 export type SharingEnv = AuthSessionEnv & {
   readonly DB: D1Database;
   readonly MEDIA_BUCKET: R2Bucket;
@@ -591,6 +599,7 @@ ${brand}
       "Cache-Control": "private, no-store",
       "Content-Type": "text/html; charset=utf-8",
       "Vary": "Accept-Language",
+      ...bearerLinkHeaders,
       "Content-Security-Policy":
         "default-src 'none'; img-src 'self'; media-src 'self'; style-src 'unsafe-inline'; base-uri 'none'; frame-ancestors 'none'"
     }
@@ -629,7 +638,8 @@ async function publicShareMedia(
   return privateMediaResponse(object, ranged, media.byte_size, {
     "Cache-Control": "private, no-store",
     "Content-Type": media.content_type,
-    ETag: object.httpEtag
+    ETag: object.httpEtag,
+    ...bearerLinkHeaders
   });
 }
 export async function handleSharingRoute(
@@ -703,7 +713,7 @@ export async function handleSharingRoute(
       const locale = requestUiLocale(request);
       const message = translate("This family link is unavailable. Ask its owner for a new link.", locale);
       return new Response(`<!doctype html><html lang="${locale}"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escapeHtml(translate("A Living Memory", locale))}</title><main><h1>${escapeHtml(message)}</h1><a href="/">${escapeHtml(translate("Return home", locale))}</a></main></html>`, {
-        status: routeError.status, headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "private, no-store", "Content-Security-Policy": "default-src 'none'; base-uri 'none'; frame-ancestors 'none'", "Vary": "Accept-Language" }
+        status: routeError.status, headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "private, no-store", "Content-Security-Policy": "default-src 'none'; base-uri 'none'; frame-ancestors 'none'", "Vary": "Accept-Language", ...bearerLinkHeaders }
       });
     }
     return json(

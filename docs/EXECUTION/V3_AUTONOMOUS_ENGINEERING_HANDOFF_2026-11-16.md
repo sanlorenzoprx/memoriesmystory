@@ -74,6 +74,9 @@ npm run test:e2e
 - **Database triggers enforce authorship.** Several inserts require the actor to be the archive owner. When a new actor is legitimately allowed, replace the trigger in a new migration; do not mislabel who acted.
 - **Numbered SQL parameters.** Several routes use `?1`, `?2` … so one value can be reused. Every index up to the highest must be bound.
 - **Wrapping labels.** A `<label>` that wraps its `<textarea>` gets an accessible name that includes the typed text, so exact-name lookups fail after typing. Use `htmlFor` and `id`.
+- **Wrangler telemetry hangs the local server in this sandbox.** With the agent proxy blocking `sparrow.cloudflare.com`, `wrangler dev` can accept connections and never answer. Set `WRANGLER_SEND_METRICS=false` before `wrangler dev` or `npm run test:e2e`.
+- **Agent worktrees break lint.** ESLint scans `.claude/worktrees/` and fails with "multiple candidate TSConfigRootDirs". Remove finished worktrees (`git worktree remove`) before running `npm run verify:core` in the main checkout.
+- **Parallel agents share one usage budget.** Three Opus agents started together exhausted a five-hour limit in minutes. Start one or two lanes at a time.
 - **Sandbox browser.** Cloud sandboxes may ship a different Chromium build than the project's pinned Playwright. Run the suite with a temporary config that sets `launchOptions.executablePath`. `tests/e2e/legacy-recording.spec.ts` launches its own browser and cannot use that override, so its 9 checks only run in CI. Every receipt says so; CI is the authority.
 - **Schema-wide deletes.** `worker/deletion.ts` deletes R2 objects before the D1 cascade. Every new stored object type must be added there, including a prefix sweep for unreferenced attempts.
 - **Export.** Every new source type must be added to `worker/archive-export.ts`, or the export must list it under `notIncluded`.

@@ -54,6 +54,30 @@ export interface Env extends RealtimeKitEnv {
 
 const handler: ExportedHandler<Env, TranscriptionQueueMessage> = {
   async fetch(request, env) {
+    try {
+      return await route(request, env);
+    } catch {
+      // Last line of defence (review finding F9): no stack, message or private
+      // detail leaves the Worker; the client maps the stable code to its own copy.
+      return Response.json(
+        { error: { code: "unavailable" } },
+        {
+          status: 503,
+          headers: {
+            "Cache-Control": "private, no-store",
+            "X-Content-Type-Options": "nosniff",
+          },
+        },
+      );
+    }
+  },
+
+  async queue(batch, env) {
+    await processTranscriptionBatch(batch, env);
+  }
+};
+
+async function route(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
 
     if (url.pathname === "/health") {
@@ -134,11 +158,6 @@ const handler: ExportedHandler<Env, TranscriptionQueueMessage> = {
     if (sharingResponse) return sharingResponse;
 
     return env.ASSETS.fetch(request);
-  },
-
-  async queue(batch, env) {
-    await processTranscriptionBatch(batch, env);
-  }
-};
+}
 
 export default handler;
