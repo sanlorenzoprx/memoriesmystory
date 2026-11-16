@@ -21,7 +21,8 @@
     "deploy:dry-run": "npm run build && wrangler deploy --dry-run",
     "deploy": "npm run build && wrangler deploy",
     "deploy:staging": "node --env-file-if-exists=.env.staging.local scripts/deploy-staging.mjs",
-    "preflight:legacy:staging": "node --env-file-if-exists=.env.staging.local scripts/preflight-legacy-staging.mjs"
+    "preflight:legacy:staging": "node --env-file-if-exists=.env.staging.local scripts/preflight-legacy-staging.mjs",
+    "cost:report": "node --disable-warning=ExperimentalWarning scripts/cost-report.mjs"
   },
   "dependencies": {
     "@clerk/backend": "^3.11.6",

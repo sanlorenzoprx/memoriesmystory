@@ -1,0 +1,9 @@
+{
+  "_note": "Unit rates in US dollars for scripts/cost-report.mjs. null means not set: the report then shows units only. Set each from the provider's current price list before relying on a total (V1 launch handoff H01).",
+  "storageGbMonth": null,
+  "transcriptionAudioMinute": null,
+  "museModelCall": null,
+  "voiceReplyTranscriptionMinute": null,
+  "remoteRecordingMinute": null,
+  "emailMessage": null
+}
