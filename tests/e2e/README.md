@@ -35,4 +35,6 @@ The album export suite (`album-export.spec.ts`) uses stubbed routes in English a
 
 The export check suite (`export-check.spec.ts`) builds exports with the app's own ZIP writer in English and Spanish and checks them in the browser: a matching export, a changed file named by its path, and a non-ZIP refused, with no request sent.
 
+The share handoff case in `family-links.spec.ts` checks that the WhatsApp and Facebook links carry exactly the bounded share address, never the memory id, and that the reach of the link is stated. `referral-visit.spec.ts` checks that a referred visit is recorded once per session with only the opaque referral id.
+
 The album permission suite (`family-album-permission.spec.ts`) uses stubbed routes in English and Spanish. It verifies that a relative sees no album section without the owner's permission, that every album request from a permitted relative carries their invitation, that owner-only controls are not offered, and that the owner can turn the permission on and off.

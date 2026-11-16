@@ -13,6 +13,7 @@ import { enforceRateLimit, type RateLimitEnv } from "./rate-limit";
 import { runFixityPass } from "./fixity";
 import { runFamilyUpdatePass, runOwnerReminderPass } from "./notifications";
 import { handleEmailPreferenceRoute } from "./email-preferences";
+import { handleReferralRoute } from "./referral";
 import type { EmailProviderEnv } from "./providers/email-provider";
 import { appIdentity } from "../config/app-identity";
 import { handleLegacyRecordingRoute } from "./legacy-recordings";
@@ -128,6 +129,9 @@ async function route(request: Request, env: Env): Promise<Response> {
 
     const emailPreferenceResponse = await handleEmailPreferenceRoute(request, env);
     if (emailPreferenceResponse) return emailPreferenceResponse;
+
+    const referralResponse = await handleReferralRoute(request, env);
+    if (referralResponse) return referralResponse;
 
     const archiveResponse=await handleArchiveRoute(request,env);
     if(archiveResponse)return archiveResponse;

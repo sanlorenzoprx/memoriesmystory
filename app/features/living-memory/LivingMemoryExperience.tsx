@@ -1,4 +1,5 @@
 import { FamilyContributionsPanel } from '../family-archive/FamilyContributionsPanel';
+import { recordGrowthEvent, storedReferral } from "../../services/growth-events";
 import { t, notice, useLocale } from "../../localization/language";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
@@ -169,6 +170,16 @@ export function LivingMemoryExperience() {
     return () => { journeyEpoch.current += 1; };
   }, [draftId]);
 
+  // Content-free growth events; the server keeps each once and grants nothing.
+  const memoryKey = snapshot?.livingMemoryId;
+  useEffect(() => {
+    if (stage === "complete" && memoryKey) recordGrowthEvent({ event: "share_prompt_viewed", memoryId: memoryKey });
+  }, [stage, memoryKey]);
+  useEffect(() => {
+    const ref = storedReferral();
+    if (ref && memoryKey) recordGrowthEvent({ event: "referred_first_started", ref });
+  }, [memoryKey]);
+
   useEffect(() => {
     if (stage !== "processing") return;
     let active = true;
@@ -276,6 +287,8 @@ export function LivingMemoryExperience() {
       await completeLivingMemory(draftId, snapshot.version);
       setSnapshot(await loadLivingMemory(draftId));
       setStage("complete");
+      const ref = storedReferral();
+      if (ref) recordGrowthEvent({ event: "referred_first_completed", ref }, `first_completed_${draftId}`.replace(/[^A-Za-z0-9_-]/g, "").slice(0, 80));
     } catch (error) {
       setMessage(apiMessage(error));
       setStage("review");
@@ -344,6 +357,7 @@ export function LivingMemoryExperience() {
 
   async function handOffShare() {
     if (!shareUrl) return;
+    if (snapshot) recordGrowthEvent({ event: "share_started", memoryId: snapshot.livingMemoryId, channel: typeof navigator.share === "function" ? "native" : "copy" });
     const nativeShare = (
       navigator as Navigator & {
         share?: (data?: ShareData) => Promise<void>;
@@ -628,11 +642,21 @@ export function LivingMemoryExperience() {
             <input readOnly value={shareUrl} />
           </label>
         )}
+        {shareUrl && (
+          <p className="privacy-promise">{t("Anyone who receives this link can open it without signing in. On Facebook, everyone who can see your post can open it. You can revoke the link to stop future access, but copies people already saved cannot be recalled.")}</p>
+        )}
         {message && <p className="preservation-status" role="status">{notice(message)}</p>}
         <div className="capture-actions">
           <button className="primary-action" type="button" disabled={!shareUrl} onClick={() => void handOffShare()}>{t("Share private link")}</button>
           {shareUrl && (
             <a className="secondary-action" href={shareUrl} target="_blank" rel="noreferrer">{t("Open family view")}</a>
+          )}
+          {shareUrl && (
+            // Hand-off links only: nothing is posted for the person, and they choose who receives it.
+            <a className="secondary-action" href={`https://wa.me/?text=${encodeURIComponent(`${t("I wanted to share this memory with you.")} ${shareUrl}`)}`} target="_blank" rel="noopener noreferrer" onClick={() => recordGrowthEvent({ event: "share_started", memoryId: snapshot.livingMemoryId, channel: "whatsapp" })}>{t("Send on WhatsApp")}</a>
+          )}
+          {shareUrl && (
+            <a className="secondary-action" href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`} target="_blank" rel="noopener noreferrer" onClick={() => recordGrowthEvent({ event: "share_started", memoryId: snapshot.livingMemoryId, channel: "facebook" })}>{t("Share on Facebook")}</a>
           )}
           <Link className="secondary-action" to="/archive">{t("Return to my archive")}</Link>
         </div>

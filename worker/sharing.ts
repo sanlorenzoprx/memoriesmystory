@@ -7,6 +7,7 @@ import {
   type LivingMemoryShareArtifactSelection
 } from "../app/domain";
 import { authenticateAppSession, sha256Text, type AuthSessionEnv } from "./auth-session";
+import { recordShareOpened, referralIdForShare } from "./referral";
 
 // A family share address is a bearer secret: keep it out of search engines and
 // out of the Referer header sent to any other site (review finding F2).
@@ -564,9 +565,12 @@ async function publicSharePage(
   const narrator = share.include_narrator_attribution === 1
     ? `<p>${copy("Story told in the storyteller's own voice.")}</p>`
     : "";
+  const referralId = await referralIdForShare(requirePepper(env), share.share_id);
   const brand = share.include_brand_attribution === 1
-    ? `<p class="brand">${copy("Preserved with {brand}", { brand: appIdentity.brandName })}</p>`
+    ? `<p class="brand">${copy("Preserved with {brand}", { brand: appIdentity.brandName })}</p><p><a href="/?ref=${referralId}">${copy("Create your own Living Memory")}</a></p>`
     : "";
+  // Content-free and at most once a day per share; a failure never blocks the page.
+  await recordShareOpened(env, { shareId: share.share_id, storyId: share.story_id, referralId }).catch(() => undefined);
 
   const html = `<!doctype html>
 <html lang="${locale}">

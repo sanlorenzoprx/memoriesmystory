@@ -233,6 +233,28 @@ describe("bounded Living Memory family sharing", () => {
     cookie = cookieHeader((await createAppSession(env, userId)).cookie);
   });
 
+  it("offers a discovery link only with attribution, and counts opens once a day without identifiers", async () => {
+    const path = `/resources/living-memories/${storyId}/shares`;
+    const branded = await (await handleSharingRoute(ownerRequest(path, cookie, "POST", { includeVoice: false, includeBrandAttribution: true }, "share_referral_brand_001"), env))!.json() as { sharePath: string };
+    const plain = await (await handleSharingRoute(ownerRequest(path, cookie, "POST", { includeVoice: false, includeBrandAttribution: false }, "share_referral_plain_001"), env))!.json() as { sharePath: string };
+    const token = branded.sharePath.split("/").pop()!;
+    const page = await (await handleSharingRoute(new Request(`https://example.test${branded.sharePath}?lang=en-US`), env))!.text();
+    const ref = /href="\/\?ref=(ref_[a-f0-9]{24})"/.exec(page)?.[1];
+    expect(ref).toBeDefined();
+    expect(page).toContain("Create your own Living Memory");
+    expect(ref).not.toContain(token.slice(0, 12));
+    await handleSharingRoute(new Request(`https://example.test${branded.sharePath}`), env);
+    expect(await (await handleSharingRoute(new Request(`https://example.test${plain.sharePath}?lang=en-US`), env))!.text()).not.toContain("Create your own Living Memory");
+    const opened = d1.database.prepare("SELECT referral_id,user_id,share_channel,idempotency_key FROM product_events WHERE event_name='living_memory_share_opened'").all() as { referral_id: string; idempotency_key: string; user_id: string | null }[];
+    // Two shares opened (one twice): one row each for today, with no visitor or token.
+    expect(opened).toHaveLength(2);
+    expect(opened.map((row) => row.referral_id)).toContain(ref);
+    for (const row of opened) {
+      expect(row.user_id).toBeNull();
+      expect(JSON.stringify(row)).not.toContain(token);
+    }
+  });
+
   it("localizes family views and revoked-link errors without translating selected testimony", async () => {
     const created = await handleSharingRoute(ownerRequest(`/resources/living-memories/${storyId}/shares`, cookie, "POST",
       { includeCaptions: true, includeVoice: false, expectedTranscriptRevisionId: transcriptId }, "share_spanish_ui_001"), env);

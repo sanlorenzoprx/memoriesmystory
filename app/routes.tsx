@@ -1,7 +1,8 @@
 import { FamilyAccessExperience } from './features/family-archive/FamilyAccessExperience';
 import { t, notice, useLocale, getLocale } from "./localization/language";
 import type { RouteObject } from "react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { rememberReferral } from "./services/growth-events";
 import {
   Link,
   useNavigate,
@@ -87,6 +88,8 @@ function AppShell() {
 function HomeRoute() {
   useLocale();
   const data = useLoaderData() as HomeLoaderData;
+  // A visitor arriving from a share page; nothing else about them is recorded.
+  useEffect(() => rememberReferral(window.location.search), []);
 
   return (
     <div className="home-page">
