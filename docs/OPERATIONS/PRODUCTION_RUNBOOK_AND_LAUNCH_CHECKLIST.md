@@ -133,7 +133,7 @@ Each line needs a receipt under `docs/IMPLEMENTATION/` or `docs/EXECUTION/`. Sou
 | 3 | Legal pages with owner-approved wording, versioned acceptance | Not started; waits on D2 |
 | 4 | Whole application on staging with all migrations and staging proofs | Not run; needs O1–O4 |
 | 5 | Backup, restore and rollback rehearsed | Not run; needs staging |
-| 6 | Device and human acceptance recorded | Not run |
+| 6 | Device and human acceptance recorded | Not run; scripts and evidence form ready in `docs/EXECUTION/ACCEPTANCE_KIT_V1.md` |
 | 7 | Prices and terms approved; sandbox commerce passes | Waits on D1 and O5 |
 | 8 | `main` green; release commit recorded | `main` green at each merge; release commit not chosen |
 | 9 | Owner's three authorizations | Not given |

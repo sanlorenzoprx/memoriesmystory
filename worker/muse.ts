@@ -9,6 +9,8 @@ import {
   type UserId
 } from "../app/domain";
 import { authenticateAppSession, type AuthSessionEnv } from "./auth-session";
+import { fallbackQuestion, judgmentPattern, normalizeQuestion } from "./muse-guard";
+import { museRememberingSystemPrompt } from "./muse-prompts";
 import {
   ensureLivingMemoryFoundation,
   LivingMemoryPersistenceError,
@@ -62,9 +64,6 @@ class MuseRouteError extends Error {
 
 const requestHeader = "muse-v1";
 const identifierPattern = /^[A-Za-z0-9_-]{8,160}$/;
-const judgmentPattern =
-  /\b(are you sure|is that true|was that really|actually|correct|incorrect|wrong|accurate|inaccurate|verify|verified|prove|contradict|disputed|reliable|unreliable)\b/i;
-
 function json(body: unknown, status = 200): Response {
   return Response.json(body, {
     status,
@@ -102,25 +101,6 @@ async function sha256(value: string): Promise<string> {
   return [...digest].map((byte) => byte.toString(16).padStart(2, "0")).join("");
 }
 
-function fallbackQuestion(locale: string): string {
-  return locale.toLowerCase().startsWith("es")
-    ? "¿Qué más recuerdas cuando miras esta foto?"
-    : "What else comes back to you when you look at this photograph?";
-}
-
-function normalizeQuestion(candidate: string, locale: string): string {
-  const singleLine = candidate.replace(/\s+/g, " ").trim().replace(/^["“]|["”]$/g, "");
-  const sentence = singleLine.split(/(?<=[?])\s+/)[0]?.trim() ?? "";
-  if (
-    !sentence ||
-    sentence.length > 220 ||
-    !sentence.endsWith("?") ||
-    judgmentPattern.test(sentence)
-  ) {
-    return fallbackQuestion(locale);
-  }
-  return sentence;
-}
 
 async function transcriptFor(
   env: MuseEnv,
@@ -197,13 +177,13 @@ async function generateMuseQuestion(
     try {
       const provider = createMuseTextProvider(env);
       const result = await provider.generate({
-        system:
-          "You are Muse, a quiet remembering companion. Ask exactly one warm question that may help the storyteller remember more of their own experience. Use only what the storyteller said below as context. Never fact-check, correct, challenge, verify, judge, rank, diagnose, or introduce facts. Do not say the memory is true, false, accurate, disputed, or unreliable. Ask in the storyteller's language. Output only the question, with no preamble.",
+        system: museRememberingSystemPrompt,
+
         user: `Storyteller transcript:\n${transcript.text}`,
         maxTokens: 80,
         temperature: 0.4
       });
-      question = normalizeQuestion(result, transcript.locale);
+      question = normalizeQuestion(result, transcript.locale, transcript.text);
     } catch {
       modelConfigVersion = "deterministic-fallback-v1";
     }

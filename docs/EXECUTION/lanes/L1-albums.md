@@ -8,7 +8,7 @@ The lane updates this file in each pull request. The coordinator folds it into `
 
 ## Status
 
-L1.1–L1.3 merged (L1.3 in PR #74, `095e3a5`); L1.4 HEIC viewing copy implemented by the coordinator, CI pending. L1.5 waits on D3.
+L1.1–L1.4 merged (L1.4 in PR #75, `de18623`). L1.5 waits on D3.
 
 ## Merged
 
