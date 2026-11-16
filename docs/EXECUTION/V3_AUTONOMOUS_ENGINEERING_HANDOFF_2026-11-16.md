@@ -9,6 +9,8 @@
 
 > **Mandate.** Finish the expanded first release (MVP v0.5) of a private-first, voice-first Living Memory Archive: one real photograph, the person's real voice and unjudged recollections, an optional helping conversation, and an enduring family archive that relatives can add to, find things in, take with them, and pass on.
 
+For the launch scope and the plan for running several agents in parallel, see `V1_LAUNCH_PARALLEL_HANDOFF_2026-11-16.md`.
+
 This document is a dated cross-reference. The live ledger is `docs/EXECUTION/TASK_QUEUE.json` and the live status page is `docs/CURRENT_STATE.md`. Where this document and the code disagree, the code and its receipts win; fix this document.
 
 ---

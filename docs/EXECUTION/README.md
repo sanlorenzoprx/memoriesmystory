@@ -13,6 +13,7 @@ Read the campaign controls in this order:
 
 Current sprint references:
 
+- `V1_LAUNCH_PARALLEL_HANDOFF_2026-11-16.md` — what version 1 still needs to reach the market, split into parallel lanes with owned paths, pre-allocated migrations, owner inputs, the launch gate and agent prompts.
 - `V3_AUTONOMOUS_ENGINEERING_HANDOFF_2026-11-16.md` — dated handoff for the next implementer: what is built, owner decisions, remaining work in order, and working conventions. A cross-reference, not a second ledger.
 
 - `EXPANDED_FIRST_RELEASE.md` — required first-release capabilities, dependencies, evidence and activation prerequisites.
