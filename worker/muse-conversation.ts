@@ -22,10 +22,12 @@ import {
 } from "./providers/muse-provider";
 import { showsCrisisSignal, supportReply } from "./muse-safety";
 import { readRemembered, type RememberedEntry } from "./muse-memory";
+import { ensurePhotoNote, readPhotoNote, type MusePhotoEnv } from "./muse-photo";
 
 export type MuseConversationEnv = AuthSessionEnv &
   LivingMemoryPersistenceEnv &
-  MuseProviderEnv;
+  MuseProviderEnv &
+  Pick<MusePhotoEnv, "MEDIA_BUCKET" | "IMAGES">;
 
 type TranscriptRow = {
   id: string;
@@ -306,7 +308,8 @@ async function generateNextQuestion(
   turns: readonly TurnRow[],
   context: readonly StoryContextEntry[],
   responseLocale?: string,
-  remembered: readonly RememberedEntry[] = []
+  remembered: readonly RememberedEntry[] = [],
+  photoNote: string | null = null
 ): Promise<{ question: string; focus: MuseFocus; modelConfigVersion: string }> {
   const locale = responseLocale ?? sourceLanguageTag(transcript.locale);
   const language = locale.startsWith("es") ? "Spanish" : "English";
@@ -330,11 +333,14 @@ async function generateNextQuestion(
     const provider = createMuseTextProvider(env);
     const result = await provider.generate({
       system:
-        "You are Muse, a warm conversational story elicitor for a private family memory. Your job is to help the storyteller remember and tell more of their own story, one short question at a time. Never fact-check, correct, challenge, verify, judge, reconcile, rank, diagnose, or introduce a person, place, date, event, motive, feeling, or detail the storyteller did not provide. Never tell the storyteller what their memory means. Prefer natural follow-ups about vivid detail, what happened next, people, place, time, feeling, sensory memory, or why the memory matters. Avoid checklist language and do not repeat something already answered. The system tracks four preservation anchors: person, place, time, event. All anchors are optional. The storyteller may finish at any time without answering them; never pressure them to resolve a checklist. Output JSON only in this exact shape: {\"question\":\"one question\",\"focus\":\"person|place|time|event|detail|meaning|sensory|emotion|sequence|open\"}. Respond in the requested interface language.\n" + `Use ${language} (${locale}) for the next question. Keep quoted human testimony unchanged.`,
+        "You are Muse, a warm conversational story elicitor for a private family memory. Your job is to help the storyteller remember and tell more of their own story, one short question at a time. Never fact-check, correct, challenge, verify, judge, reconcile, rank, diagnose, or introduce a person, place, date, event, motive, feeling, or detail the storyteller did not provide. You may ask about something visible in the photograph, phrased only as a question about what can be seen (for example \"Who is the person in the white dress?\"), never saying who, when, where or why. Never tell the storyteller what their memory means. Prefer natural follow-ups about vivid detail, what happened next, people, place, time, feeling, sensory memory, or why the memory matters. Avoid checklist language and do not repeat something already answered. The system tracks four preservation anchors: person, place, time, event. All anchors are optional. The storyteller may finish at any time without answering them; never pressure them to resolve a checklist. Output JSON only in this exact shape: {\"question\":\"one question\",\"focus\":\"person|place|time|event|detail|meaning|sensory|emotion|sequence|open\"}. Respond in the requested interface language.\n" + `Use ${language} (${locale}) for the next question. Keep quoted human testimony unchanged.`,
       user:
         `Original storyteller transcript:\n${transcript.text}\n\nConversation so far:\n${dialogue || "(none yet)"}\n\nUnresolved preservation anchors: ${unresolved.join(", ") || "none"}.\nMuse questions already asked: ${questionCount}.` +
         (remembered.length
           ? `\n\nWhat this storyteller confirmed in their other memories, in their own words. You may gently ask whether one of these connects to this memory; never assume it does, and never state it as fact:\n${remembered.map((entry) => `${entry.kind}: ${entry.value}`).join("\n")}`
+          : "") +
+        (photoNote
+          ? `\n\nWhat Muse can see in the photograph (Muse's own observation, not the storyteller's words; ask about it, never state it): ${photoNote}`
           : ""),
       maxTokens: 120,
       temperature: 0.45
@@ -675,7 +681,7 @@ async function continueConversation(
       );
       return snapshot(env, foundation.livingMemoryId, draftId);
     }
-    const next = await generateNextQuestion(env, transcript, turns, context, responseLocale, await rememberedElsewhere(env, userId, foundation.livingMemoryId));
+    const next = await generateNextQuestion(env, transcript, turns, context, responseLocale, await rememberedElsewhere(env, userId, foundation.livingMemoryId), await ensurePhotoNote(env, foundation.livingMemoryId, responseLocale));
     await insertMuseTurn(
       env,
       foundation.livingMemoryId,
@@ -835,7 +841,7 @@ async function continueConversation(
   }
 
   if (lastTurn?.speaker === "storyteller") {
-    const next = await generateNextQuestion(env, transcript, turns, context, responseLocale, await rememberedElsewhere(env, userId, foundation.livingMemoryId));
+    const next = await generateNextQuestion(env, transcript, turns, context, responseLocale, await rememberedElsewhere(env, userId, foundation.livingMemoryId), await readPhotoNote(env, foundation.livingMemoryId).catch(() => null));
     const nextIndex =
       Math.max(...turns.map((turn) => turn.turn_index), -1) + 1;
     await insertMuseTurn(

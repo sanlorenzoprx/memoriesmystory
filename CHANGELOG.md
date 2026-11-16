@@ -5,7 +5,8 @@
 - By owner decision, Muse becomes a storytelling companion with every companion safeguard built in from the start (`DECISIONS/2026-11-16-talk-with-muse.md`; AI Behavior Guide 0.2).
 - Muse asks Gemini first: directly at Google with the owner's own Gemini key when it is set, otherwise through Cloudflare AI Gateway, where only zero-data-retention models may receive a family's words. Workers AI answers when Gemini cannot.
 - First-person words of wanting to die or self-harm are answered before any question, with real people to reach in the person's country and language.
-- The archive shows where the person left off and what Muse remembers, which is only their own confirmed words. Muse forgets on request without changing any memory, and can ask whether a new memory connects to an earlier one. Migration 0040. No deployment is claimed.
+- The archive shows where the person left off and what Muse remembers, which is only their own confirmed words. Muse forgets on request without changing any memory, and can ask whether a new memory connects to an earlier one. Migration 0040.
+- Muse looks at the photograph once and asks about what can be seen, never saying who, when or where. The description is stored as Muse's own material (migration 0041). No deployment is claimed.
 
 ## Welcome splash for returning people — 2026-11-16
 

@@ -119,7 +119,11 @@ export const phase1Config = {
     museDirectGeminiEndpoint: "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
     museDirectTimeoutMs: 15000,
     musePromptVersion: "remembering-companion-v1",
-    museConversationPromptVersion: "story-elicitor-v1",
+    museConversationPromptVersion: "story-elicitor-v2",
+    musePhotoNotePromptVersion: "photo-note-v1",
+    // A photograph larger than this is sent only as a JPEG copy made by the
+    // Images binding; without the binding Muse simply asks from the words.
+    musePhotoInlineLimitBytes: 7 * 1024 * 1024,
     museTtsProvider: "elevenlabs",
     museTtsModelId: "eleven_multilingual_v2",
     museTtsOutputFormat: "mp3_44100_128",

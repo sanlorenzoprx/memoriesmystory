@@ -31,14 +31,16 @@ E03 on `feat/scoped-family-invitations` adds verified-recipient expiring invitat
 
 E04a on `feat/attributed-family-contributions` adds independently attributed human text, immutable revision lineage and versioned review intent, author-only revision/withdrawal, owner selection of a specific family-visible version, source-grant rechecks and recoverable on-device writing. Two EN/ES browser journeys, ten route cases, native D1/R2 source/receipt/lineage checks and draft cleanup/API boundary checks passed. Local core passed 238 tests with 88 schema objects and all 55 phone-browser checks passed. PR #44 merged as `d0a550b` after main CI 43692868082 passed. Migration 0017 is required. This is text only; E04 voice/photo sources and each author's transcript review remain required. See `IMPLEMENTATION/ATTRIBUTED_FAMILY_TEXT_2026-11-15.md`.
 
-## Talk with Muse — M1 merged, M2 in review
+## Talk with Muse — M1 and M2 merged, M3 in review
 
 By owner decisions 2026-11-16 (`DECISIONS/2026-11-16-talk-with-muse.md`), Muse becomes a storytelling companion with companion safeguards built in for US-first, then global, use.
 
 - **M1 (PR #80, `2a778f9`):** Muse asks `google/gemini-3-flash` first through AI Gateway. Only zero-data-retention models may receive a family's words, and Workers AI is the fallback. A danger check answers first-person words of wanting to die or self-harm with 988 and 911 (US and Puerto Rico) or a global helpline directory.
 - **Direct Gemini:** with the Worker secret `GEMINI_API_KEY` (a billing-enabled Google project), Muse calls Google directly on the owner's Gemini credits.
 - **M2:** where you left off, and what Muse remembers. That is only the person's own confirmed words, which they can see, open and ask Muse to forget. Muse can ask whether a new memory connects to an earlier one. Migration 0040.
-- **Next:** M3 photo-aware questions; M4 the voice-first Talk with Muse conversation.
+- **M2 merged** (PR #81, `d06c0d2`).
+- **M3:** Muse looks at the photograph once, describes only what can be seen (no names, dates or places; any digit discards the note), and asks about it. Migration 0041.
+- **Next:** M4, the voice-first Talk with Muse conversation.
 - **Waiting on the owner:** a paid-tier Gemini API key for the Worker secret and the live evaluation, and review of crisis wording per country.
 
 See `IMPLEMENTATION/MUSE_COMPANION_M1_2026-11-16.md` and `IMPLEMENTATION/MUSE_COMPANION_M2_2026-11-16.md`.

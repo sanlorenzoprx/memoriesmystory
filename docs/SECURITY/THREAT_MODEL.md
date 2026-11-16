@@ -1,7 +1,7 @@
 # Threat model — Memories: My Story V1
 
 **Status:** Prepared 2026-11-16 (lane L7). Review again before launch and after any new external surface.
-**Scope:** The Cloudflare Worker, D1, R2, Queue, Durable Object, scheduled jobs, the React app, email, and third-party providers (Clerk, ElevenLabs, Workers AI, RealtimeKit, Resend, Cloudflare Email).
+**Scope:** The Cloudflare Worker, D1, R2, Queue, Durable Object, scheduled jobs, the React app, email, and third-party providers (Clerk, ElevenLabs, Workers AI, Google Gemini directly or through Cloudflare AI Gateway, RealtimeKit, Resend, Cloudflare Email).
 
 ## What we protect
 
@@ -39,6 +39,7 @@
 | T11 | Deleted family data lingering | Deletion removes media, rows, integrity rows, and records a minimal receipt and ledger entry | `memory-deletion.test.ts` | Backups and Time Travel keep data for up to 30 days; no "deleted everywhere" claim (D10) |
 | T12 | Vulnerable dependency | CI fails on high or critical production advisories | `.github/workflows/ci.yml`; `DEPENDENCY_ADVISORIES.md` | One moderate RealtimeKit `uuid` advisory is accepted with its reason |
 | T13 | Unexpected Worker error leaking internals | Top-level fallback returns a stable `503` with no message or stack | `security-headers.test.ts` | Low |
+| T15 | A family's words or photographs kept or reused by a model provider | Gemini direct only with a billing-enabled (paid-tier) key, whose prompts and responses Google does not use to improve its products; through AI Gateway, only models listed as zero data retention; the text-only Workers AI fallback never receives a photograph; one photo note per memory, with no names, dates or places | `muse-provider.test.ts`, `muse-photo.test.ts`; decision 2026-11-16 Talk with Muse | The paid tier cannot be checked in code: the owner confirms billing on the key's project. Google may still keep data briefly for abuse monitoring under its terms; legal review (D2) |
 | T14 | Provider compromise or misuse of family data | Only approved providers; relatives' voices are not sent to transcription under the current agreement (D5); secrets are only in Worker secrets | Code review; `SECRETS_AND_CONFIGURATION.md` | A new provider needs an owner decision and an updated agreement |
 
 ## Open items before launch

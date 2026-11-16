@@ -114,4 +114,21 @@ describe("Muse model routing (owner decision 2026-11-16: Gemini first)", () => {
       expect(calls[0]!.model).toBe("google/gemini-3-flash");
     });
   });
+
+  it("sends a photograph inline to Gemini on either route, and never to the text-only fallback", async () => {
+    const image = { mimeType: "image/jpeg", base64: "CQk=" };
+    const google: RequestInit[] = [];
+    vi.stubGlobal("fetch", async (_url: string, init: RequestInit) => (google.push(init), Response.json({ choices: [{ message: { content: "A porch." } }] })));
+    const direct = fakeAi(() => ({ response: "unused" }));
+    expect(await createMuseTextProvider({ AI: direct.ai, GEMINI_API_KEY: "synthetic-key" }).generate({ ...request, image })).toBe("A porch.");
+    const sent = JSON.parse(String(google[0]!.body)) as { messages: { content: unknown }[] };
+    expect(sent.messages[1]!.content).toEqual([
+      { type: "text", text: request.user },
+      { type: "image_url", image_url: { url: "data:image/jpeg;base64,CQk=" } },
+    ]);
+    vi.unstubAllGlobals();
+    const gateway = fakeAi((call) => { if (call.model.startsWith("@cf/")) throw new Error("must not be called"); throw new Error("gemini down"); });
+    await expect(createMuseTextProvider({ AI: gateway.ai }).generate({ ...request, image })).rejects.toThrow();
+    expect(gateway.calls.map((call) => call.model)).toEqual(["google/gemini-3-flash"]);
+  });
 });
