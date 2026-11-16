@@ -1,5 +1,6 @@
 import { FamilyContributionsPanel } from '../family-archive/FamilyContributionsPanel';
 import { recordGrowthEvent, storedReferral } from "../../services/growth-events";
+import { ShareAgreementCard } from "./ShareAgreementCard";
 import { t, notice, useLocale } from "../../localization/language";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
@@ -21,7 +22,9 @@ import {
   type MuseConversationView,
   type ProcessingView,
   type SharePreview,
-  type ShareSelection
+  type ShareSelection,
+  loadShareAgreement,
+  type ShareAgreement
 } from "../../services/living-memory-api";
 import { deleteLocalDraft } from "../../services/local-draft-store";
 import { deleteMemory } from "../../services/memory-deletion";
@@ -179,6 +182,14 @@ export function LivingMemoryExperience() {
     const ref = storedReferral();
     if (ref && memoryKey) recordGrowthEvent({ event: "referred_first_started", ref });
   }, [memoryKey]);
+
+  // The one-time sharing agreement; when it cannot be read, the server still decides.
+  const [agreement, setAgreement] = useState<ShareAgreement | null>(null);
+  const [askPublic, setAskPublic] = useState(false);
+  const sharing = stage === "share-settings" || stage === "share-created";
+  useEffect(() => {
+    if (sharing && !agreement) void loadShareAgreement().then(setAgreement).catch(() => undefined);
+  }, [sharing, agreement]);
 
   useEffect(() => {
     if (stage !== "processing") return;
@@ -522,7 +533,7 @@ export function LivingMemoryExperience() {
             <Link className="secondary-action" to="/archive">{t("Return to my archive")}</Link>
           </div>
           <StoryReview draftId={draftId} snapshot={snapshot} onUpdated={refreshReview} onEditingChange={setReviewEditing} />
-          <FamilyLinkManager key={snapshot.livingMemoryId} livingMemoryId={snapshot.livingMemoryId} onRevoked={() => setSharePath(null)} />
+        <FamilyLinkManager key={snapshot.livingMemoryId} livingMemoryId={snapshot.livingMemoryId} onRevoked={() => setSharePath(null)} />
           <FamilyContributionsPanel key={snapshot.livingMemoryId} memoryId={snapshot.livingMemoryId}/>
           <DeleteMemoryAction deleting={deleting} onDelete={() => void deleteCurrentMemory()} />
         </section>
@@ -536,6 +547,7 @@ export function LivingMemoryExperience() {
         <section className="living-memory-card">
           <p className="eyebrow">{t("Optional family sharing")}</p>
           <h1>{t("You decide what leaves your archive.")}</h1>
+          {agreement && !agreement.familyAndFriends && <ShareAgreementCard agreement={agreement} onSaved={setAgreement} />}
           <p className="capture-lede">{t("Anyone with this link can open it without signing in. The photograph is included. Your original voice is included by default. Context and other archive details stay private.")}</p>
           <label className="share-option">
             <input
@@ -587,7 +599,7 @@ export function LivingMemoryExperience() {
           </label>
           {message && <p className="inline-error" role="alert">{notice(message)}</p>}
           <div className="capture-actions">
-            <button className="primary-action" type="button" onClick={() => void prepareSharePreview()}>{t("Preview what family will see")}</button>
+            <button className="primary-action" type="button" disabled={Boolean(agreement && !agreement.familyAndFriends)} onClick={() => void prepareSharePreview()}>{t("Preview what family will see")}</button>
             <button className="secondary-action" type="button" onClick={() => setStage("complete")}>{t("Cancel new share")}</button>
           </div>
           <DeleteMemoryAction deleting={deleting} onDelete={() => void deleteCurrentMemory()} />
@@ -642,9 +654,6 @@ export function LivingMemoryExperience() {
             <input readOnly value={shareUrl} />
           </label>
         )}
-        {shareUrl && (
-          <p className="privacy-promise">{t("Anyone who receives this link can open it without signing in. On Facebook, everyone who can see your post can open it. You can revoke the link to stop future access, but copies people already saved cannot be recalled.")}</p>
-        )}
         {message && <p className="preservation-status" role="status">{notice(message)}</p>}
         <div className="capture-actions">
           <button className="primary-action" type="button" disabled={!shareUrl} onClick={() => void handOffShare()}>{t("Share private link")}</button>
@@ -655,7 +664,10 @@ export function LivingMemoryExperience() {
             // Hand-off links only: nothing is posted for the person, and they choose who receives it.
             <a className="secondary-action" href={`https://wa.me/?text=${encodeURIComponent(`${t("I wanted to share this memory with you.")} ${shareUrl}`)}`} target="_blank" rel="noopener noreferrer" onClick={() => recordGrowthEvent({ event: "share_started", memoryId: snapshot.livingMemoryId, channel: "whatsapp" })}>{t("Send on WhatsApp")}</a>
           )}
-          {shareUrl && (
+          {shareUrl && agreement && !agreement.public && (
+            <button className="light-text-action" type="button" onClick={() => setAskPublic(true)}>{t("Also allow public sharing")}</button>
+          )}
+          {shareUrl && agreement?.public && (
             <a className="secondary-action" href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`} target="_blank" rel="noopener noreferrer" onClick={() => recordGrowthEvent({ event: "share_started", memoryId: snapshot.livingMemoryId, channel: "facebook" })}>{t("Share on Facebook")}</a>
           )}
           <Link className="secondary-action" to="/archive">{t("Return to my archive")}</Link>
@@ -664,6 +676,9 @@ export function LivingMemoryExperience() {
           shareKeyRef.current = `share_${draftId}_${crypto.randomUUID()}`;
           setStage("share-settings");
         }}>{t("Create another family link")}</button>
+        {askPublic && agreement && !agreement.public && (
+          <ShareAgreementCard agreement={agreement} onSaved={(saved) => { setAgreement(saved); setAskPublic(false); }} />
+        )}
         <FamilyLinkManager key={snapshot.livingMemoryId} livingMemoryId={snapshot.livingMemoryId} onRevoked={() => setSharePath(null)} />
         <DeleteMemoryAction deleting={deleting} onDelete={() => void deleteCurrentMemory()} />
       </section>

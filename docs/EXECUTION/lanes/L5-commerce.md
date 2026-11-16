@@ -8,15 +8,15 @@ The lane updates this file in each pull request. The coordinator folds it into `
 
 ## Status
 
-In progress. L5.1 cost metering report implemented by the coordinator, CI pending.
+In progress. L5.1 merged.
 
 ## Merged
 
-None yet.
+- L5.1 cost metering report — PR #68, `920727e`.
 
 ## Evidence level reached
 
-L5.1: INTEGRATION_PROVEN locally against fixtures (receipt `docs/IMPLEMENTATION/COST_METERING_2026-11-16.md`); rates not set.
+L5.1: INTEGRATION_PROVEN against fixtures (receipt `docs/IMPLEMENTATION/COST_METERING_2026-11-16.md`); rates not set.
 
 ## Next
 

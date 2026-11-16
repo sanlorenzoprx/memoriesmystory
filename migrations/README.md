@@ -94,3 +94,11 @@ before the matching Worker. It adds the append-only `owner_reminders` table
 (person, month, status and stable code; no address or body), with a partial
 unique index so a person is recorded as reminded at most once per calendar
 month. It does not depend on any of 0026–0037. No stored row is changed.
+
+## 0028 — one-time sharing agreement
+
+Apply before the matching Worker. It adds the append-only `share_agreements`
+table (person, scope `family_friends` or `public`, wording version, time).
+After this deploys, a share link cannot be created until the owner has made
+the friends-and-family choice once. Existing links keep working. No stored row
+is changed.

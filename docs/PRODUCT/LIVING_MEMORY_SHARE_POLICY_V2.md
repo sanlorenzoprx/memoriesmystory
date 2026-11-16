@@ -63,3 +63,7 @@ At minimum:
 ## External-platform truth
 
 Once a copy is shared outside the private archive, Memories: My Story cannot guarantee recall of every external copy. The product must communicate that boundary clearly without using fear-based language.
+
+### Amendment 2026-11-16 — communicated once
+
+By owner decision (`docs/DECISIONS/2026-11-16-sharing-agreement-email-provider-reminders.md`), this boundary is communicated once, in a one-time sharing agreement with two choices: friends and family, and public. It is not repeated on every share. The agreement is saved with its wording version. Public channels such as Facebook appear only after the public choice. Every share remains a deliberate act with a preview, and revocation remains available.

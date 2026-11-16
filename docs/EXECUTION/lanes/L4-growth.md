@@ -8,7 +8,7 @@ The lane updates this file in each pull request. The coordinator folds it into `
 
 ## Status
 
-Paused for an owner decision on G04. L4.1–L4.2 merged; L4.4 share-page headers landed with L7.1.
+L4.1–L4.2 merged; one-time sharing agreement (owner decision 2026-11-16) implemented by the coordinator, CI pending. L4.3 waits on the G04 owner question.
 
 ## Merged
 

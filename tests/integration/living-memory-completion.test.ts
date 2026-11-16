@@ -12,6 +12,7 @@ import { createAppSession } from "../../worker/auth-session";
 import { handleCompletionRoute, type CompletionEnv } from "../../worker/completion";
 import { handleStoryReviewRoute } from "../../worker/story-review";
 import { handleSharingRoute } from "../../worker/sharing";
+import { shareAgreementVersion } from "../../worker/share-agreement";
 import { handleDeletionRoute } from "../../worker/deletion";
 
 class TestD1Statement {
@@ -76,6 +77,7 @@ class TestD1 {
       "0020_family_voice_written_words.sql",
       "0021_family_album_permissions.sql",
       "0025_fixity_checks.sql",
+      "0028_share_agreements.sql",
     ]) {
       this.database.exec(
         readFileSync(new URL(`../../migrations/${migration}`, import.meta.url), "utf8")
@@ -426,6 +428,7 @@ describe("Living Memory durable completion", () => {
 
     it("edits a completed memory without reopening, spending capacity again, or changing existing shared captions", async () => {
       expect((await handleCompletionRoute(completeRequest(cookie), env))?.status).toBe(201);
+      d1.database.prepare("INSERT INTO share_agreements(user_id,scope,agreement_version,agreed_at) VALUES(?,'family_friends',?,?)").run(userId, shareAgreementVersion, now);
       const shareEnv = { ...env, SHARE_TOKEN_PEPPER: "test-pepper-".repeat(4), MEDIA_BUCKET: {} as R2Bucket };
       const makeShare = (key: string, revision = machineId) => new Request(`https://example.test/resources/living-memories/${draftId}/shares`, {
         method: "POST", headers: { Cookie: cookie, Origin: "https://example.test", "Content-Type": "application/json", "X-Memories-Request": "share-v1", "X-Idempotency-Key": key },
