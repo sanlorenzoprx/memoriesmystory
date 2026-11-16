@@ -31,9 +31,13 @@ E03 on `feat/scoped-family-invitations` adds verified-recipient expiring invitat
 
 E04a on `feat/attributed-family-contributions` adds independently attributed human text, immutable revision lineage and versioned review intent, author-only revision/withdrawal, owner selection of a specific family-visible version, source-grant rechecks and recoverable on-device writing. Two EN/ES browser journeys, ten route cases, native D1/R2 source/receipt/lineage checks and draft cleanup/API boundary checks passed. Local core passed 238 tests with 88 schema objects and all 55 phone-browser checks passed. PR #44 merged as `d0a550b` after main CI 43692868082 passed. Migration 0017 is required. This is text only; E04 voice/photo sources and each author's transcript review remain required. See `IMPLEMENTATION/ATTRIBUTED_FAMILY_TEXT_2026-11-15.md`.
 
-## Album export — implemented locally; CI pending
+## Request-rate limiting — implemented locally; CI pending
 
-An owner can export one album or one Chapter as a verified ZIP that opens without the app, on any plan. It carries only recollections the owner shows family and names what it leaves out. No migration. See `IMPLEMENTATION/ALBUM_EXPORT_2026-11-16.md`.
+Routes reachable without an account and routes that spend model or call budget now have per-address limits through three Workers Rate Limiting bindings. A missing or failing limiter lets the request through, so a counter outage never stops someone saving a memory. Thresholds need staging evidence. No migration. See `IMPLEMENTATION/RATE_LIMITING_2026-11-16.md`.
+
+## Album export — merged
+
+An owner can export one album or one Chapter as a verified ZIP that opens without the app, on any plan. It carries only recollections the owner shows family and names what it leaves out. No migration (PR #59, `cb550d4`). See `IMPLEMENTATION/ALBUM_EXPORT_2026-11-16.md`.
 
 ## Person albums — merged
 

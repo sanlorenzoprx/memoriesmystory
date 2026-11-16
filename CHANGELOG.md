@@ -1,5 +1,9 @@
 # Foundation Package Changelog
 
+## Request-rate limiting — 2026-11-16
+
+- Public routes, budget-spending routes (Muse, speech, transcription, scans, calls) and other writes now have per-address limits through three Workers Rate Limiting bindings declared in `wrangler.jsonc`. An over-limit request gets `429 rate_limited` with `Retry-After`. A missing or failing limiter lets the request through. No migration; no deployment is claimed.
+
 ## Album export — 2026-11-16
 
 - From Export my archive, an owner can choose one album or one Chapter and save a verified ZIP that opens without the app, with its Chapters in order. Available on every plan. It carries only the owner's own recollections and the ones they included for family, and names what it leaves out. The export manifest gains albums and each Chapter's album. No migration; no deployment is claimed.

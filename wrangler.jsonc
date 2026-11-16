@@ -44,6 +44,13 @@
   "ai": {
     "binding": "AI"
   },
+  // Abuse limits per client address and Cloudflare location (worker/rate-limit.ts).
+  // Periods may only be 10 or 60 seconds.
+  "ratelimits": [
+    { "name": "REQUEST_LIMIT_PUBLIC", "namespace_id": "4101", "simple": { "limit": 120, "period": 60 } },
+    { "name": "REQUEST_LIMIT_COSTLY", "namespace_id": "4102", "simple": { "limit": 30, "period": 60 } },
+    { "name": "REQUEST_LIMIT_WRITES", "namespace_id": "4103", "simple": { "limit": 300, "period": 60 } }
+  ],
   "queues": {
     "producers": [
       {
