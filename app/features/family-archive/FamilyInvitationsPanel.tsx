@@ -21,12 +21,15 @@ export function FamilyInvitationsPanel({
     [busy, setBusy] = useState(false),
     [error, setError] = useState<string | null>(null),
     [link, setLink] = useState<string | null>(null),
-    [copied, setCopied] = useState(false);
+    [copied, setCopied] = useState(false),
+    [emailIt, setEmailIt] = useState(false),
+    [emailNote, setEmailNote] = useState<string | null>(null);
   const key = useRef<string | null>(null);
   useEffect(() => () => onDirty(false), [onDirty]);
   function changed() {
     key.current = null;
     setLink(null);
+    setEmailNote(null);
     setCopied(false);
     onDirty(true);
   }
@@ -86,6 +89,7 @@ export function FamilyInvitationsPanel({
               id: string;
               version: number;
               joinPath: string;
+              email?: { status: "sent" } | { status: "not_sent"; code: string };
             }>(
               "/grants",
               "POST",
@@ -95,6 +99,7 @@ export function FamilyInvitationsPanel({
                 scopeId: scope === "archive" ? view.archiveId : scopeId,
                 role,
                 targetEmail: email,
+                emailInvitation: emailIt,
               },
               key.current,
             );
@@ -104,6 +109,16 @@ export function FamilyInvitationsPanel({
               );
             await refresh();
             setLink(new URL(result.joinPath, window.location.origin).href);
+            // Say plainly whether the email went; the link always works by hand.
+            setEmailNote(
+              !result.email
+                ? null
+                : result.email.status === "sent"
+                  ? "We emailed this invitation to them."
+                  : result.email.code === "family_invitation_inactive"
+                    ? "This invitation is no longer active, so it was not emailed."
+                    : "Email is not available yet, so nothing was emailed. Send the link below yourself.",
+            );
             onDirty(false);
           });
         }}
@@ -122,6 +137,15 @@ export function FamilyInvitationsPanel({
                 changed();
               }}
             />
+          </label>
+          <label>
+            <input
+              type="checkbox"
+              checked={emailIt}
+              // Changing only this keeps the same invitation, so asking again emails it.
+              onChange={(e) => setEmailIt(e.target.checked)}
+            />{" "}
+            {t("Also email the invitation link to this address")}
           </label>
           <label>
             {t("Family permission")}
@@ -222,6 +246,7 @@ export function FamilyInvitationsPanel({
       {link && (
         <div>
           <p role="status">{t("Your family invitation is ready.")}</p>
+          {emailNote && <p>{t(emailNote)}</p>}
           <label htmlFor="family-invitation-link">
             {t("Private family invitation link")}
           </label>

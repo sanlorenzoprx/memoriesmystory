@@ -8,7 +8,7 @@ The lane updates this file in each pull request. The coordinator folds it into `
 
 ## Status
 
-Not started.
+In progress. L2.1 email adapter and L2.2 invitations by email implemented by the coordinator, sending off, CI pending.
 
 ## Merged
 
@@ -16,12 +16,13 @@ None yet.
 
 ## Evidence level reached
 
-—
+L2.1–L2.2: INTEGRATION_PROVEN locally with a test double (receipt `docs/IMPLEMENTATION/INVITATION_EMAIL_2026-11-16.md`); migration 0022.
 
 ## Next
 
-The first packet in section 4 of `../V1_LAUNCH_PARALLEL_HANDOFF_2026-11-16.md`.
+L2.3 preferences and signed one-step unsubscribe; L2.4 "something new is waiting" notices to invited family (sending off).
 
 ## Waiting on the owner
 
-—
+- O2: sending domain onboarded for Cloudflare Email and the sender address.
+- D6: reminder cadence and wording (default: off, monthly at most, one-step unsubscribe).
