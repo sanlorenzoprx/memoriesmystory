@@ -1,3 +1,4 @@
+import { getPrivateObject, privateMediaResponse } from "./private-media";
 import { phase1Config } from "../config/phase-1";
 import {
   legacyConsentVersion,
@@ -394,32 +395,17 @@ export async function handleLegacyRecordingRoute(
         .bind(rid)
         .first<Media>();
       if (!media) legacyFail(404, "legacy_not_found");
-      const object = await env.MEDIA_BUCKET.get(
+      const { object, ranged } = await getPrivateObject(
+        env.MEDIA_BUCKET,
         media.r2_key,
-        request.headers.has("Range") ? { range: request.headers } : undefined,
+        request,
       );
       if (!object) legacyFail(503, "legacy_recording_pending");
-      const headers = new Headers({
+      return privateMediaResponse(object, ranged, media.byte_size, {
         "Content-Type": media.content_type,
         "Cache-Control": "private, no-store",
-        "Accept-Ranges": "bytes",
         "X-Content-Type-Options": "nosniff",
       });
-      if (
-        object.range &&
-        "offset" in object.range &&
-        typeof object.range.offset === "number"
-      ) {
-        const length = object.range.length ?? object.size - object.range.offset;
-        headers.set(
-          "Content-Range",
-          `bytes ${object.range.offset}-${object.range.offset + length - 1}/${media.byte_size}`,
-        );
-        headers.set("Content-Length", String(length));
-        return new Response(object.body, { status: 206, headers });
-      }
-      headers.set("Content-Length", String(media.byte_size));
-      return new Response(object.body, { headers });
     }
     legacyFail(405, "method");
   } catch (error) {

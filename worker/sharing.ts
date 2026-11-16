@@ -1,3 +1,4 @@
+import { getPrivateObject, privateMediaResponse } from "./private-media";
 import { requestUiLocale, sourceLanguageTag } from "../app/localization/locale";
 import { translate } from "../app/localization/messages";
 import { appIdentity } from "../config/app-identity";
@@ -620,31 +621,16 @@ async function publicShareMedia(
     throw new SharingRouteError(404, "share_media_not_found", "That shared media is unavailable.");
   }
 
-  const object = request.headers.has("Range")
-    ? await env.MEDIA_BUCKET.get(media.r2_key, { range: request.headers })
-    : await env.MEDIA_BUCKET.get(media.r2_key);
+  const { object, ranged } = await getPrivateObject(env.MEDIA_BUCKET, media.r2_key, request);
   if (!object) {
     throw new SharingRouteError(503, "share_media_unavailable", "That shared media is temporarily unavailable.");
   }
 
-  const headers = new Headers({
-    "Accept-Ranges": "bytes",
+  return privateMediaResponse(object, ranged, media.byte_size, {
     "Cache-Control": "private, no-store",
     "Content-Type": media.content_type,
     ETag: object.httpEtag
   });
-  const range = object.range;
-  if (request.headers.has("Range") && range && "offset" in range && typeof range.offset === "number") {
-    const length = range.length ?? object.size - range.offset;
-    headers.set("Content-Length", String(length));
-    headers.set(
-      "Content-Range",
-      `bytes ${range.offset}-${range.offset + length - 1}/${media.byte_size}`
-    );
-    return new Response(object.body, { status: 206, headers });
-  }
-  headers.set("Content-Length", String(media.byte_size));
-  return new Response(object.body, { status: 200, headers });
 }
 export async function handleSharingRoute(
   request: Request,

@@ -2,7 +2,7 @@
 
 **Version:** 1.0 — 2026-11-16
 **Repository:** `https://github.com/sanlorenzoprx/memoriesmystory`
-**Base:** `main` `d0b5fa1790044aef70be4d3518d2b7af2bda38ac` (PR #54). Confirm the current `main` before starting.
+**Base:** `main` `1671e804aae4db76bfa2063d35cb9a54d574a56e` (PR #55). Confirm the current `main` before starting.
 **Companion:** `V3_AUTONOMOUS_ENGINEERING_HANDOFF_2026-11-16.md` — what is built, the rules, the patterns to reuse and the traps. Read it first. This document adds the launch scope and the plan for running several agents at once.
 **Goal:** version 1 published to the market with every required capability working, proven and operable.
 
@@ -86,7 +86,7 @@ These files are edited by almost every slice. Parallel edits to them cause most 
 | `worker/index.ts` | Add one import and one two-line route registration, nothing else. |
 | `wrangler.jsonc` | Coordinator only. Request a binding or route prefix in your pull request description. |
 | `config/phase-1.ts` | Add a new top-level key for your lane; do not edit another lane's key. |
-| `app/localization/messages.ts`, `errors.ts` | Until scaffolding S2 lands, append at the end of the object. After S2, edit only your lane's catalog file. |
+| `app/localization/messages.ts`, `errors.ts` | Do not edit. Put Spanish wording and error codes in your lane's `app/localization/catalog/<lane>.ts`. |
 | `worker/deletion.ts`, `worker/archive-export.ts` | Add your object type in one small block. Lane L3 owns these files' structure. |
 | `docs/CURRENT_STATE.md`, `docs/EXECUTION/TASK_QUEUE.json`, `CHANGELOG.md`, `tests/unit/handoff-contract.test.ts` | **Coordinator only.** Lanes write a status fragment instead (scaffolding S3). |
 | `app/routes.tsx`, `app/styles/global.css` | Add; do not reorganize. |
@@ -107,7 +107,9 @@ Gaps are fine. Migrations apply in numeric order, so a lane must not depend on a
 
 ### 2.5 Scaffolding — coordinator does this first (lane L0)
 
-Three small pull requests before the lanes start. They remove most collisions.
+**Status 2026-11-16: S1–S3 done** (receipt `docs/IMPLEMENTATION/PARALLEL_LANE_SCAFFOLDING_2026-11-16.md`). The confirmed-original upload was not extracted; copy its pattern from `worker/family-contributions.ts`.
+
+Three small changes before the lanes start. They remove most collisions.
 
 - **S1. Lane ledger.** Add `docs/EXECUTION/lanes/` with one `<lane>.md` per lane. Lanes record status, evidence and next step there. The coordinator folds fragments into `CURRENT_STATE.md`, `TASK_QUEUE.json` and `CHANGELOG.md` at each merge.
 - **S2. Split copy catalogs.** Move `spanishMessages` and the error map into per-area files (`app/localization/catalog/<area>.ts`) merged by `messages.ts` and `errors.ts`. Behaviour and keys unchanged; `tests/unit/localization.test.ts` must still pass.

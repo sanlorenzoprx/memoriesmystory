@@ -1,8 +1,9 @@
 import type { UiLocale } from "./locale";
+import { laneCatalogs } from "./catalog";
 
 // English message text is the stable catalog key. Only interface copy uses this
 // catalog; personal titles, testimony, transcripts, captions and names do not.
-export const spanishMessages: Readonly<Record<string, string>> = {
+export const coreSpanishMessages: Readonly<Record<string, string>> = {
  "Added {date}":"Añadido {date}",
  "Find a memory":"Buscar un recuerdo",
  "This person can make their own albums from the memories you shared with them.":"Esta persona puede crear sus propios álbumes con los recuerdos que compartiste con ella.",
@@ -968,6 +969,13 @@ export const spanishMessages: Readonly<Record<string, string>> = {
   "Story told in the storyteller's own voice.": "Historia contada con la voz original de quien la recuerda.",
   "Preserved with {brand}": "Conservado con {brand}"
 };
+
+// Lane catalogs add keys; tests/unit/localization-catalogs.test.ts refuses duplicates.
+export const spanishMessages: Readonly<Record<string, string>> = Object.assign(
+  {},
+  coreSpanishMessages,
+  ...Object.values(laneCatalogs).map((catalog) => catalog.spanish),
+);
 
 export function translate(key: string, locale: UiLocale, values: Record<string, string | number> = {}): string {
   const normalized = key.replace(/\s+/g, " ").trim();

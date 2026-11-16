@@ -1,3 +1,4 @@
+import { getPrivateObject, privateMediaResponse } from "./private-media";
 import { authenticateAppSession, sha256Text } from "./auth-session";
 import { readBoundedText } from "./request-body";
 import {
@@ -176,43 +177,25 @@ export async function handleFamilyAccessRoute(
             !(await grantAllowsMemory(env, grant, asset.memory_story_id))
           )
             fail(403, "family_access_denied");
-          const object = request.headers.has("Range")
-            ? await env.MEDIA_BUCKET.get(asset.r2_key, {
-                range: request.headers,
-              })
-            : await env.MEDIA_BUCKET.get(asset.r2_key);
+          const { object, ranged } = await getPrivateObject(
+            env.MEDIA_BUCKET,
+            asset.r2_key,
+            request,
+          );
           if (!object) fail(503, "family_access_unavailable");
-          const headers = new Headers({
-              "Content-Type": asset.content_type,
-              "Cache-Control": "private, no-store",
-              "Accept-Ranges": "bytes",
-              "X-Content-Type-Options": "nosniff",
-              "X-Content-SHA256": asset.sha256,
-              "Referrer-Policy": "no-referrer",
-            }),
-            range = object.range;
           // Re-check revocation after storage awaits before sending private bytes.
           if (
             !(await activeFamilyGrant(env, user, grant.id)) ||
             !(await grantAllowsMemory(env, grant, asset.memory_story_id))
           )
             fail(403, "family_access_denied");
-          if (
-            request.headers.has("Range") &&
-            range &&
-            "offset" in range &&
-            typeof range.offset === "number"
-          ) {
-            const length = range.length ?? object.size - range.offset;
-            headers.set("Content-Length", String(length));
-            headers.set(
-              "Content-Range",
-              `bytes ${range.offset}-${range.offset + length - 1}/${asset.byte_size}`,
-            );
-            return new Response(object.body, { status: 206, headers });
-          }
-          headers.set("Content-Length", String(asset.byte_size));
-          return new Response(object.body, { headers });
+          return privateMediaResponse(object, ranged, asset.byte_size, {
+            "Content-Type": asset.content_type,
+            "Cache-Control": "private, no-store",
+            "X-Content-Type-Options": "nosniff",
+            "X-Content-SHA256": asset.sha256,
+            "Referrer-Policy": "no-referrer",
+          });
         }
         const after = url.searchParams.get("after");
         if (after) id(after);
