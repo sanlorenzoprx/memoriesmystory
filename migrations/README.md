@@ -78,3 +78,11 @@ Apply after 0022 and before the matching Worker. It adds `email_preferences`
 (every optional kind defaults off) and the append-only
 `email_preference_events` history, which records changes made in settings and
 through signed unsubscribe links. No stored row is changed.
+
+## 0024 — family update notices
+
+Apply after 0023 and before the matching Worker. It adds the append-only
+`family_update_notices` table (member, day, status and stable code; no address
+or body), with a partial unique index so a person is recorded as notified at
+most once a day. No stored row is changed. This completes lane L2's reserved
+range 0022–0024.

@@ -8,20 +8,22 @@ The lane updates this file in each pull request. The coordinator folds it into `
 
 ## Status
 
-In progress, sending off. L2.1–L2.2 merged; L2.3 preferences and unsubscribe implemented by the coordinator, CI pending.
+In progress, sending off. L2.1–L2.3 merged; L2.4 family update notices implemented by the coordinator, CI pending.
 
 ## Merged
 
 - L2.1 email adapter and L2.2 invitations by email — PR #64, `4fa3fbd`.
+- L2.3 preferences and one-step unsubscribe — PR #65, `fda32f6`.
 
 ## Evidence level reached
 
 L2.1–L2.2: INTEGRATION_PROVEN with a test double (receipt `docs/IMPLEMENTATION/INVITATION_EMAIL_2026-11-16.md`); migration 0022.
-L2.3: INTEGRATION_PROVEN locally (receipt `docs/IMPLEMENTATION/EMAIL_PREFERENCES_2026-11-16.md`); migration 0023.
+L2.3: INTEGRATION_PROVEN (receipt `docs/IMPLEMENTATION/EMAIL_PREFERENCES_2026-11-16.md`); migration 0023.
+L2.4: INTEGRATION_PROVEN locally with a test double (receipt `docs/IMPLEMENTATION/FAMILY_UPDATE_NOTICES_2026-11-16.md`); migration 0024.
 
 ## Next
 
-L2.4 "something new is waiting" notices to invited family (sending off).
+L2.5 opt-in owner reminders: waits on D6 cadence and wording; the preference and unsubscribe already exist.
 
 ## Waiting on the owner
 

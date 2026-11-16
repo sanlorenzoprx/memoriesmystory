@@ -1,5 +1,9 @@
 # Foundation Package Changelog
 
+## Family update notices — 2026-11-16
+
+- A daily pass emails opted-in invited relatives, at most once a day, when something new is shared inside their accepted scope. The email has a link to the family view, one-click unsubscribe headers and no memory content. Migration 0024 records each real send attempt. Nothing is sent or recorded while email is off. No deployment is claimed.
+
 ## Email preferences and one-step unsubscribe — 2026-11-16
 
 - Email choices for owners and invited relatives, all off until turned on, with an append-only history (migration 0023). Signed unsubscribe links work without signing in, change nothing when opened, and turn off one kind of email for one person on a button press or a one-click POST. No email is sent yet. No deployment is claimed.
