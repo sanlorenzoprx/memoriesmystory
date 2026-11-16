@@ -372,6 +372,14 @@ describe("bounded Living Memory family sharing", () => {
     );
     expect(voice?.status).toBe(200);
     expect(voice?.headers.get("Content-Type")).toBe("audio/webm");
+    // A share address is a bearer secret: not indexed, not sent as a Referer.
+    for (const response of [publicPage!, voice!]) {
+      expect(response.headers.get("X-Robots-Tag")).toContain("noindex");
+      expect(response.headers.get("Referrer-Policy")).toBe("no-referrer");
+    }
+    const missing = await handleSharingRoute(new Request(`https://example.test/shared/${"z".repeat(43)}`), env);
+    expect(missing?.headers.get("X-Robots-Tag")).toContain("noindex");
+    expect(missing?.headers.get("Referrer-Policy")).toBe("no-referrer");
   });
   it("lists only owner-scoped safe metadata after a return and revokes every public media path idempotently", async () => {
     const path = `/resources/living-memories/${storyId}/shares`;

@@ -1,5 +1,11 @@
 # Foundation Package Changelog
 
+## Security headers and Worker error fallback — 2026-11-16
+
+- Baseline security headers on the app shell and static files, with the Content-Security-Policy in report-only mode until staging confirms its allowed origins.
+- Share pages and share media are marked `noindex` and send no Referer, because their address is a bearer secret.
+- An unexpected Worker error now returns a stable `503` code with no message or stack. No migration; no deployment is claimed.
+
 ## Parallel lane scaffolding — 2026-11-16
 
 - Added lane status files and per-lane copy catalogs so several agents can work without editing the same lines; a test refuses duplicate copy keys.
