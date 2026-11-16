@@ -1,5 +1,9 @@
 # Foundation Package Changelog
 
+## Per-account daily ceilings — 2026-11-16
+
+- Budget-spending operations have per-person daily ceilings, enforced atomically before routing (migration 0031). Uploads, saves and reads are never counted. Refusals say plainly that memories are safe. No deployment is claimed.
+
 ## Entitlement ledger and landing-page decision — 2026-11-16
 
 - An append-only entitlement ledger records grants, completed memories and deletions, and agrees with the enforcement counters. Deletion follows a stated, versioned policy, keeping today's behaviour of returning capacity (migration 0030). The plan model holds one free plan with no price shown.

@@ -119,3 +119,10 @@ table and two triggers. A new allowance records its grant, and each completion
 records its use in the same transaction as the counter. It then backfills one
 grant per existing allowance and one use per completed memory. Deletion
 records what the stated deletion policy did. No existing row is changed.
+
+## 0031 — per-account daily ceilings
+
+Apply before the matching Worker. It adds `account_daily_usage` (person, day,
+operation, count) for the daily ceilings on budget-spending operations in
+`phase1Config.dailyCeilings`. Uploads, saves and reads are never counted. No
+stored row is changed.

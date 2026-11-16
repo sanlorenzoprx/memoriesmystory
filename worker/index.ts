@@ -10,6 +10,7 @@ export { LegacyRecorder } from "./legacy-recorder";
 import { handleLegacyRemoteRoute } from "./legacy-remote";
 import type { RealtimeKitEnv } from "./realtimekit";
 import { enforceRateLimit, type RateLimitEnv } from "./rate-limit";
+import { enforceDailyCeiling } from "./usage-ceilings";
 import { runFixityPass } from "./fixity";
 import { runFamilyUpdatePass, runOwnerReminderPass } from "./notifications";
 import { handleEmailPreferenceRoute } from "./email-preferences";
@@ -118,6 +119,8 @@ async function route(request: Request, env: Env): Promise<Response> {
 
     const limited = await enforceRateLimit(request, env);
     if (limited) return limited;
+    const overCeiling = await enforceDailyCeiling(request, env);
+    if (overCeiling) return overCeiling;
 
     const discoveryResponse = handleDiscoveryRoute(request);
     if (discoveryResponse) return discoveryResponse;

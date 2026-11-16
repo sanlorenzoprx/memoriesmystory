@@ -31,9 +31,13 @@ E03 on `feat/scoped-family-invitations` adds verified-recipient expiring invitat
 
 E04a on `feat/attributed-family-contributions` adds independently attributed human text, immutable revision lineage and versioned review intent, author-only revision/withdrawal, owner selection of a specific family-visible version, source-grant rechecks and recoverable on-device writing. Two EN/ES browser journeys, ten route cases, native D1/R2 source/receipt/lineage checks and draft cleanup/API boundary checks passed. Local core passed 238 tests with 88 schema objects and all 55 phone-browser checks passed. PR #44 merged as `d0a550b` after main CI 43692868082 passed. Migration 0017 is required. This is text only; E04 voice/photo sources and each author's transcript review remain required. See `IMPLEMENTATION/ATTRIBUTED_FAMILY_TEXT_2026-11-15.md`.
 
-## Entitlement ledger and stated deletion policy — implemented locally; CI pending
+## Per-account daily ceilings — implemented locally; CI pending
 
-Every capacity change (grant, completed memory, deletion) is recorded in an append-only ledger that agrees with the enforcement counters. Deletion follows a stated, versioned policy; today's behaviour is kept, and deleting returns capacity. The choice is part of owner decision D1. One free plan with no price shown. Migration 0030. See `IMPLEMENTATION/ENTITLEMENT_LEDGER_2026-11-16.md`.
+Signed-in requests for budget-spending operations (Muse, speech, voice replies, transcription, scans, calls) are counted per person, day and operation, and refused past generous daily ceilings with a plain message that nothing is lost. Uploads and saves are never counted. Migration 0031. See `IMPLEMENTATION/DAILY_CEILINGS_2026-11-16.md`.
+
+## Entitlement ledger and stated deletion policy — merged
+
+Every capacity change (grant, completed memory, deletion) is recorded in an append-only ledger that agrees with the enforcement counters. Deletion follows a stated, versioned policy; today's behaviour is kept, and deleting returns capacity. The choice is part of owner decision D1. One free plan with no price shown. Migration 0030 (PR #71, `398f32b`). See `IMPLEMENTATION/ENTITLEMENT_LEDGER_2026-11-16.md`.
 
 ## Landing page — decided
 

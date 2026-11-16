@@ -16,6 +16,17 @@ export const phase1Config = {
     deletionReturnsCapacity: true,
     deletionPolicyVersion: "deletion-returns-capacity-v1"
   },
+  // Per-account daily ceilings on budget-spending operations (lanes L5.4, L7).
+  // Far above one person's day; uploads and saves are never counted.
+  dailyCeilings: {
+    muse: 300,
+    muse_speech: 300,
+    muse_conversation: 300,
+    voice_reply: 100,
+    transcription: 40,
+    scan: 60,
+    call: 20
+  },
   auth: {
     provider: "clerk",
     supportedMethods: ["email", "google"],
