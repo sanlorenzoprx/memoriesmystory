@@ -9,7 +9,12 @@ export const phase1Config = {
     freeStoryLimit: 1,
     initiallyUnlockedStories: 1,
     freeVoiceSecondsPerStory: 30,
-    shareRewardEnabled: false
+    shareRewardEnabled: false,
+    // Stated deletion policy (lane L5.2), recorded in the entitlement ledger
+    // with every deletion. Current behaviour: deleting a completed memory
+    // returns its capacity. Owner decision D1 may change this.
+    deletionReturnsCapacity: true,
+    deletionPolicyVersion: "deletion-returns-capacity-v1"
   },
   auth: {
     provider: "clerk",

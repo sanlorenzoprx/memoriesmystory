@@ -1,5 +1,10 @@
 # Foundation Package Changelog
 
+## Entitlement ledger and landing-page decision — 2026-11-16
+
+- An append-only entitlement ledger records grants, completed memories and deletions, and agrees with the enforcement counters. Deletion follows a stated, versioned policy, keeping today's behaviour of returning capacity (migration 0030). The plan model holds one free plan with no price shown.
+- Owner decision: the first screen is the landing page (G04). No deployment is claimed.
+
 ## Resend-first email, reminder cadence and direct links — 2026-11-16
 
 - Email is sent through Resend first (with an idempotency key), falling back to Cloudflare Email Service. Sending remains off until switched on.

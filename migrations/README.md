@@ -111,3 +111,11 @@ matching Worker. It adds `email_preferences.reminder_cadence` (`weekly`,
 `owner_reminders_monthly` index with `owner_reminders_daily` (at most one sent
 reminder per person per day). The reminder pass enforces each person's chosen
 cadence. No stored row is changed.
+
+## 0030 — entitlement ledger
+
+Apply before the matching Worker. It adds the append-only `entitlement_ledger`
+table and two triggers. A new allowance records its grant, and each completion
+records its use in the same transaction as the counter. It then backfills one
+grant per existing allowance and one use per completed memory. Deletion
+records what the stated deletion policy did. No existing row is changed.

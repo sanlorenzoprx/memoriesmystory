@@ -31,9 +31,17 @@ E03 on `feat/scoped-family-invitations` adds verified-recipient expiring invitat
 
 E04a on `feat/attributed-family-contributions` adds independently attributed human text, immutable revision lineage and versioned review intent, author-only revision/withdrawal, owner selection of a specific family-visible version, source-grant rechecks and recoverable on-device writing. Two EN/ES browser journeys, ten route cases, native D1/R2 source/receipt/lineage checks and draft cleanup/API boundary checks passed. Local core passed 238 tests with 88 schema objects and all 55 phone-browser checks passed. PR #44 merged as `d0a550b` after main CI 43692868082 passed. Migration 0017 is required. This is text only; E04 voice/photo sources and each author's transcript review remain required. See `IMPLEMENTATION/ATTRIBUTED_FAMILY_TEXT_2026-11-15.md`.
 
-## Resend-first email, reminder cadence and direct links — implemented locally; CI pending
+## Entitlement ledger and stated deletion policy — implemented locally; CI pending
 
-Email goes through Resend first, with an idempotency key, and falls back to Cloudflare Email. Sending stays off until switched on with `RESEND_API_KEY` and a verified domain. People choose reminders every week (preselected), every two weeks or monthly. Reminder links open straight into starting a memory. Migration 0039. See `IMPLEMENTATION/EMAIL_PROVIDER_AND_CADENCE_2026-11-16.md`.
+Every capacity change (grant, completed memory, deletion) is recorded in an append-only ledger that agrees with the enforcement counters. Deletion follows a stated, versioned policy; today's behaviour is kept, and deleting returns capacity. The choice is part of owner decision D1. One free plan with no price shown. Migration 0030. See `IMPLEMENTATION/ENTITLEMENT_LEDGER_2026-11-16.md`.
+
+## Landing page — decided
+
+By owner decision 2026-11-16, the first screen is the landing page; G04 needs no separate page (`DECISIONS/2026-11-16-first-screen-is-the-landing-page.md`).
+
+## Resend-first email, reminder cadence and direct links — merged
+
+Email goes through Resend first, with an idempotency key, and falls back to Cloudflare Email. Sending stays off until switched on with `RESEND_API_KEY` and a verified domain. People choose reminders every week (preselected), every two weeks or monthly. Reminder links open straight into starting a memory. Migration 0039 (PR #70, `74968e6`). See `IMPLEMENTATION/EMAIL_PROVIDER_AND_CADENCE_2026-11-16.md`.
 
 ## One-time sharing agreement — merged
 

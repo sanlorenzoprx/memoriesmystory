@@ -8,7 +8,7 @@ The lane updates this file in each pull request. The coordinator folds it into `
 
 ## Status
 
-L4.1–L4.2 and the one-time sharing agreement (PR #69, `47b5cb2`) merged. L4.3 waits on the G04 owner question.
+Complete. L4.1–L4.2 and the one-time sharing agreement (PR #69, `47b5cb2`) merged; L4.3 resolved by owner decision: the first screen is the landing page (`docs/DECISIONS/2026-11-16-first-screen-is-the-landing-page.md`).
 
 ## Merged
 
@@ -21,8 +21,8 @@ L4.1–L4.2: INTEGRATION_PROVEN (receipt `docs/IMPLEMENTATION/SHARE_HANDOFF_AND_
 
 ## Next
 
-Lane paused at L4.3 pending the owner question below.
+None; lane complete. Real-device handoff to WhatsApp and Facebook remains for acceptance.
 
 ## Waiting on the owner
 
-- **G04 landing page.** The current first screen already explains the product in English and Spanish and leads straight to capture. The first-five-minute decision (2026-07-15) rejects starting with a product tour, and `docs/FOUNDATION/03_USER_EXPERIENCE.md` governs this screen. Adding a demonstration section (synthetic photograph and voice) or a separate marketing page changes a locked contract, so it needs an owner decision: keep the first screen as the landing page, add a short demonstration below the first actions, or build a separate public page that links to capture.
+—

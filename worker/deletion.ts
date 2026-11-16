@@ -1,3 +1,4 @@
+import { phase1Config } from "../config/phase-1";
 import { requestRemoteRecordingStop, type RemoteRecordingEnv } from "./legacy-remote-recording-data";
 import { closeLegacyRemoteCall } from "./legacy-remote";
 import type { RealtimeKitEnv } from "./realtimekit";
@@ -251,16 +252,33 @@ async function deleteMemory(
       ).bind(story.id)
     );
     if (story.status === "complete" && authorization.ownerUserId) {
+      // The stated deletion policy decides, and the ledger records what it did.
+      const returns = phase1Config.entitlements.deletionReturnsCapacity;
+      if (returns)
+        statements.push(
+          env.DB.prepare(
+            `UPDATE story_entitlements
+             SET free_stories_completed = CASE
+                   WHEN free_stories_completed > 0 THEN free_stories_completed - 1
+                   ELSE 0
+                 END,
+                 updated_at = ?
+             WHERE user_id = ?`
+          ).bind(deletedAt, authorization.ownerUserId)
+        );
       statements.push(
         env.DB.prepare(
-          `UPDATE story_entitlements
-           SET free_stories_completed = CASE
-                 WHEN free_stories_completed > 0 THEN free_stories_completed - 1
-                 ELSE 0
-               END,
-               updated_at = ?
-           WHERE user_id = ?`
-        ).bind(deletedAt, authorization.ownerUserId)
+          `INSERT INTO entitlement_ledger(id,user_id,entry_kind,plan,granted,used_delta,memory_story_id,policy_version,created_at)
+           SELECT ?,user_id,?,plan,0,?,?,?,? FROM story_entitlements WHERE user_id=?`
+        ).bind(
+          `ledger_${crypto.randomUUID().replace(/-/g, "")}`,
+          returns ? "memory_deleted_capacity_returned" : "memory_deleted_capacity_kept",
+          returns ? -1 : 0,
+          story.id,
+          phase1Config.entitlements.deletionPolicyVersion,
+          deletedAt,
+          authorization.ownerUserId
+        )
       );
     }
   }

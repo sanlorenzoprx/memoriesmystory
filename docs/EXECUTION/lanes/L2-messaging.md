@@ -8,7 +8,7 @@ The lane updates this file in each pull request. The coordinator folds it into `
 
 ## Status
 
-L2.1–L2.5 merged; owner decision 2026-11-16 follow-up (Resend first, chosen cadence, direct links) implemented by the coordinator, CI pending. Sending off.
+Complete with sending off. L2.1–L2.5 and the owner decision 2026-11-16 follow-up (Resend first, chosen cadence, direct links; PR #70, `74968e6`) merged.
 
 ## Merged
 
