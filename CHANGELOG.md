@@ -1,5 +1,11 @@
 # Foundation Package Changelog
 
+## Muse evaluation, guard fixes and acceptance kit — 2026-11-16
+
+- An independent Muse evaluator with a synthetic English and Spanish corpus, plus a live runner (`npm run eval:muse`) that needs owner credentials.
+- The guard now also refuses Spanish judgment, preambles, invented names or numbers, and wrong-language questions, which the evaluation found reaching storytellers. The prompt wording is unchanged.
+- A device and human acceptance kit for staging. No migration; no deployment is claimed.
+
 ## HEIC viewing copy — 2026-11-16
 
 - HEIC and HEIF originals can be displayed through a JPEG viewing copy made on request by the Cloudflare Images binding. The copy is labelled with the original's id and hash, and the original is never changed. It is optional until the binding is provisioned. No migration; no deployment is claimed.

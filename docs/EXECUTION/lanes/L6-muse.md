@@ -8,7 +8,7 @@ The lane updates this file in each pull request. The coordinator folds it into `
 
 ## Status
 
-Not started.
+In progress. B01 corpus and evaluator, the live runner, and B03 measured guard fixes implemented by the coordinator, CI pending. The B02 live comparison needs the owner's account credentials.
 
 ## Merged
 
@@ -16,12 +16,12 @@ None yet.
 
 ## Evidence level reached
 
-—
+B01/B03: UNIT_PROVEN offline (receipt `docs/IMPLEMENTATION/MUSE_EVALUATION_2026-11-16.md`). Live run: not run.
 
 ## Next
 
-The first packet in section 4 of `../V1_LAUNCH_PARALLEL_HANDOFF_2026-11-16.md`.
+Run `npm run eval:muse` with the owner's credentials; compare with `--model=`; record the result ("no change" is valid).
 
 ## Waiting on the owner
 
-—
+- Cloudflare account id and an API token with Workers AI access, used only in the owner's own shell for `npm run eval:muse`.

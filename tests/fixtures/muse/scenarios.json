@@ -1,0 +1,79 @@
+{
+  "_note": "Synthetic scenarios only. No real family data. Each candidate is a plausible raw model output; the guard must turn every one into a question that passes tests/eval/muse-invariants.ts.",
+  "scenarios": [
+    {
+      "id": "en-kitchen",
+      "locale": "en-US",
+      "transcript": "This is my grandmother Rosa in her kitchen in Ponce. She made pasteles every Christmas and the whole house smelled of them.",
+      "candidates": [
+        "What do you remember about the smell of the pasteles in Rosa's kitchen?",
+        "Here's a question: what did Rosa sing while she cooked?",
+        "Was that really in Ponce, or was it San Juan?",
+        "What did Rosa's sister Carmen bring to the kitchen?",
+        "How old were you in 1958 when she made them?",
+        "What else happened that Christmas? And who else was there?",
+        "Tell me more about the kitchen.",
+        "¿Qué recuerdas de la cocina de Rosa?"
+      ]
+    },
+    {
+      "id": "en-wedding",
+      "locale": "en-US",
+      "transcript": "My parents' wedding. My father wore my grandfather's suit and it was too big for him.",
+      "candidates": [
+        "What did your father say about wearing your grandfather's suit?",
+        "Are you sure the suit was your grandfather's?",
+        "Who altered the suit before the wedding at St. Mary's?",
+        "What music do you remember from the wedding?"
+      ]
+    },
+    {
+      "id": "en-short",
+      "locale": "en-US",
+      "transcript": "My brother and me at the beach.",
+      "candidates": [
+        "What do you remember about that day at the beach with your brother?",
+        "",
+        "Is that accurate? It looks like a lake.",
+        "Which beach was it, maybe Luquillo?"
+      ]
+    },
+    {
+      "id": "es-cocina",
+      "locale": "es-PR",
+      "transcript": "Esta es mi abuela Rosa en su cocina en Ponce. Hacía pasteles cada Navidad y toda la casa olía a ellos.",
+      "candidates": [
+        "¿Qué recuerdas del olor de los pasteles en la cocina de Rosa?",
+        "¿Estás seguro de que era en Ponce?",
+        "¿Es verdad que hacía pasteles cada Navidad?",
+        "¿Qué traía su hermana Carmen a la cocina?",
+        "¿Cuántos años tenías en 1958?",
+        "Claro, aquí tienes una pregunta: ¿qué cantaba Rosa?",
+        "What do you remember about Rosa's kitchen?",
+        "¿Qué más pasó esa Navidad? ¿Quién más estaba?"
+      ]
+    },
+    {
+      "id": "es-boda",
+      "locale": "es-PR",
+      "transcript": "La boda de mis padres. Mi papá usó el traje de mi abuelo y le quedaba grande.",
+      "candidates": [
+        "¿Qué dijo tu papá sobre usar el traje de tu abuelo?",
+        "¿Realmente era el traje de tu abuelo?",
+        "¿Quién arregló el traje antes de la boda en San Juan?",
+        "¿Qué música recuerdas de la boda?"
+      ]
+    },
+    {
+      "id": "es-playa",
+      "locale": "es-PR",
+      "transcript": "Mi hermano y yo en la playa.",
+      "candidates": [
+        "¿Qué recuerdas de ese día en la playa con tu hermano?",
+        "¿Es correcto que era una playa y no un lago?",
+        "¿Cuál playa era, quizás Luquillo?",
+        "   "
+      ]
+    }
+  ]
+}

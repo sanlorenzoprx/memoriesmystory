@@ -31,9 +31,13 @@ E03 on `feat/scoped-family-invitations` adds verified-recipient expiring invitat
 
 E04a on `feat/attributed-family-contributions` adds independently attributed human text, immutable revision lineage and versioned review intent, author-only revision/withdrawal, owner selection of a specific family-visible version, source-grant rechecks and recoverable on-device writing. Two EN/ES browser journeys, ten route cases, native D1/R2 source/receipt/lineage checks and draft cleanup/API boundary checks passed. Local core passed 238 tests with 88 schema objects and all 55 phone-browser checks passed. PR #44 merged as `d0a550b` after main CI 43692868082 passed. Migration 0017 is required. This is text only; E04 voice/photo sources and each author's transcript review remain required. See `IMPLEMENTATION/ATTRIBUTED_FAMILY_TEXT_2026-11-15.md`.
 
-## HEIC viewing copy — implemented locally; CI pending
+## Muse evaluation and guard fixes; acceptance kit — implemented locally; CI pending
 
-The memory page asks for a display JPEG of a HEIC or HEIF original. The Worker makes it on request with the Cloudflare Images binding, labelled with the original's id and hash, and never presents it as the original. Without the binding the original is served as before. See `IMPLEMENTATION/HEIC_VIEWING_COPY_2026-11-16.md`.
+An independent evaluator and a synthetic English and Spanish corpus check that every question a storyteller sees is one short question, never judges, invents no names or numbers, and is in their language. The evaluation found Spanish judgment, preambles, invented names and wrong-language questions getting through; the guard now turns each into the fallback. `npm run eval:muse` runs the live model with the owner's credentials. The device and human acceptance kit (`EXECUTION/ACCEPTANCE_KIT_V1.md`) is ready for staging. See `IMPLEMENTATION/MUSE_EVALUATION_2026-11-16.md`.
+
+## HEIC viewing copy — merged
+
+The memory page asks for a display JPEG of a HEIC or HEIF original. The Worker makes it on request with the Cloudflare Images binding, labelled with the original's id and hash, and never presents it as the original. Without the binding the original is served as before (PR #75, `de18623`). See `IMPLEMENTATION/HEIC_VIEWING_COPY_2026-11-16.md`.
 
 ## Unsent contribution media survives a reload — merged
 

@@ -22,7 +22,8 @@
     "deploy": "npm run build && wrangler deploy",
     "deploy:staging": "node --env-file-if-exists=.env.staging.local scripts/deploy-staging.mjs",
     "preflight:legacy:staging": "node --env-file-if-exists=.env.staging.local scripts/preflight-legacy-staging.mjs",
-    "cost:report": "node --disable-warning=ExperimentalWarning scripts/cost-report.mjs"
+    "cost:report": "node --disable-warning=ExperimentalWarning scripts/cost-report.mjs",
+    "eval:muse": "node --experimental-strip-types scripts/muse-eval.ts"
   },
   "dependencies": {
     "@clerk/backend": "^3.11.6",

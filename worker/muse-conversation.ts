@@ -258,7 +258,8 @@ function parseDecision(
   raw: string,
   locale: string,
   unresolved: readonly CoreFocus[],
-  questionCount: number
+  questionCount: number,
+  storytellerWords?: string
 ): { question: string; focus: MuseFocus } {
   const stripped = raw
     .trim()
@@ -276,7 +277,7 @@ function parseDecision(
       : null;
     const question =
       typeof parsed.question === "string"
-        ? museValidation.normalizeQuestion(parsed.question, locale)
+        ? museValidation.normalizeQuestion(parsed.question, locale, storytellerWords)
         : "";
 
     if (focus && question) {
@@ -332,11 +333,18 @@ async function generateNextQuestion(
       maxTokens: 120,
       temperature: 0.45
     });
+    // Only the storyteller's own words may supply names, places and numbers.
+    const storytellerWords = [
+      transcript.text,
+      ...turns.filter((turn) => turn.speaker === "storyteller").map((turn) => turn.content),
+      ...context.map((entry) => entry.value ?? ""),
+    ].join("\n");
     const decision = parseDecision(
       result,
       locale,
       unresolved,
-      questionCount
+      questionCount,
+      storytellerWords
     );
     return {
       ...decision,
