@@ -31,6 +31,7 @@ import { deleteLocalDraft } from "../../services/local-draft-store";
 import { deleteMemory } from "../../services/memory-deletion";
 import { MuseVoiceButton } from "../MuseVoiceButton";
 import { MuseVoiceReplyRecorder } from "../MuseVoiceReplyRecorder";
+import { MuseSupportLines } from "./MuseSupportLines";
 import { FamilyLinkManager } from "./FamilyLinkManager";
 import { StoryReview } from "./StoryReview";
 
@@ -827,6 +828,7 @@ function MuseStoryConversation({
             <div className="muse-bubble">
               <strong>Muse</strong>
               <p>{turn.content}</p>
+              {turn.support && <MuseSupportLines support={turn.support} />}
               <MuseVoiceButton
                 draftId={draftId}
                 text={turn.content}

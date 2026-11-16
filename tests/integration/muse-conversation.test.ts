@@ -75,7 +75,7 @@ const userId = "user_muse_conversation_001";
 const draftId = "draft_muse_conversation_001";
 const sessionSecret = "muse-conversation-session-secret-that-is-long-enough";
 
-function seed(d1: TestD1): void {
+function seed(d1: TestD1, story = "Every Sunday Abuela made arroz con gandules and everyone crowded into her kitchen."): void {
   const now = "2026-09-23T12:00:00.000Z";
   d1.database.prepare(
     "INSERT INTO users (id, email, created_at, updated_at) VALUES (?, ?, ?, ?)"
@@ -155,7 +155,7 @@ function seed(d1: TestD1): void {
     "transcript_muse_conversation_001",
     draftId,
     "asset_audio_muse_conversation",
-    "Every Sunday Abuela made arroz con gandules and everyone crowded into her kitchen.",
+    story,
     now
   );
 }
@@ -315,5 +315,69 @@ describe("Muse conversational story elicitation", () => {
       { kind: "place", value: "Her kitchen in Santurce.", context_state: "stated" },
       { kind: "time", value: null, context_state: "unknown" }
     ]);
+  });
+
+  // Decision 2026-11-16 (Talk with Muse): a person who may be in danger is
+  // answered before any question; their words stay as testimony; the
+  // conversation stays open.
+  type Snapshot = {
+    currentQuestion: { turnId: string; content: string; focus: string; support: { lines: { phone: string | null }[]; emergencyNumber: string | null } | null } | null;
+    turns: { speaker: string; content: string }[];
+    done: boolean;
+  };
+
+  it("answers words of danger with real people to reach, keeps the words, and lets the person continue", async () => {
+    let body = (await (await handleMuseConversationRoute(conversationRequest(cookie), env))!.json()) as Snapshot;
+    const firstQuestion = body.currentQuestion!;
+    expect(firstQuestion.support).toBeNull();
+    const callsBefore = aiCall;
+
+    const reply = conversationRequest(cookie, { replyToTurnId: firstQuestion.turnId, answer: "Since she died I don't want to live anymore.", state: "stated" });
+    reply.headers.set("X-UI-Locale", "es-PR");
+    body = (await (await handleMuseConversationRoute(reply, env))!.json()) as Snapshot;
+
+    // No model call: the support message is fixed, reviewed wording.
+    expect(aiCall).toBe(callsBefore);
+    expect(body.currentQuestion!.content).toContain("inteligencia artificial");
+    expect(body.currentQuestion!.content).toContain("988");
+    expect(body.currentQuestion!.support).toEqual({ lines: [expect.objectContaining({ phone: "988", sms: "988" })], emergencyNumber: "911" });
+    expect(body.done).toBe(false);
+    // The words are kept as said, but never attached to the memory as context.
+    expect(body.turns.some((turn) => turn.speaker === "storyteller" && turn.content === "Since she died I don't want to live anymore.")).toBe(true);
+    expect(d1.database.prepare("SELECT COUNT(*) AS n FROM living_memory_context_entries").get()).toEqual({ n: 0 });
+
+    // A retry of the same reply does not add a second support message.
+    const retry = conversationRequest(cookie, { replyToTurnId: firstQuestion.turnId, answer: "Since she died I don't want to live anymore.", state: "stated" });
+    retry.headers.set("X-UI-Locale", "es-PR");
+    body = (await (await handleMuseConversationRoute(retry, env))!.json()) as Snapshot;
+    expect(body.turns.filter((turn) => turn.content.includes("988"))).toHaveLength(1);
+
+    // The person can keep telling the story; Muse asks its next question.
+    body = (await (await handleMuseConversationRoute(conversationRequest(cookie, { replyToTurnId: body.currentQuestion!.turnId, answer: "Her kitchen always smelled of sofrito.", state: "stated" }), env))!.json()) as Snapshot;
+    expect(body.currentQuestion!.support).toBeNull();
+    expect(aiCall).toBe(callsBefore + 1);
+  });
+
+  it("answers danger even on the answer that would finish the conversation", async () => {
+    let body = (await (await handleMuseConversationRoute(conversationRequest(cookie), env))!.json()) as Snapshot;
+    for (const answer of ["Abuela and my sisters.", "Her kitchen in Santurce.", "About 1962.", "Sunday dinner."]) {
+      body = (await (await handleMuseConversationRoute(conversationRequest(cookie, { replyToTurnId: body.currentQuestion!.turnId, answer, state: "stated" }), env))!.json()) as Snapshot;
+    }
+    body = (await (await handleMuseConversationRoute(conversationRequest(cookie, { replyToTurnId: body.currentQuestion!.turnId, answer: "Honestly I want to die some days.", state: "stated" }), env))!.json()) as Snapshot;
+    expect(body.done).toBe(false);
+    expect(body.currentQuestion!.content).toContain("call or text 988");
+  });
+
+  it("opens with the support message when the recording itself signals danger", async () => {
+    // Transcript revisions are append-only, so the test seeds a second
+    // memory whose recording carries the words.
+    d1 = new TestD1();
+    seed(d1, "This was our wedding day. Lately I think about ending my life.");
+    env = { ...env, DB: d1 as unknown as D1Database };
+    cookie = cookieHeader((await createAppSession(env, userId)).cookie);
+    const body = (await (await handleMuseConversationRoute(conversationRequest(cookie), env))!.json()) as Snapshot;
+    expect(aiCall).toBe(0);
+    expect(body.currentQuestion!.content).toContain("I'm an AI");
+    expect(body.currentQuestion!.support!.emergencyNumber).toBe("911");
   });
 });

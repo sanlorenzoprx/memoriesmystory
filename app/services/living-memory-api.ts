@@ -118,6 +118,16 @@ export type MuseConversationTurn = {
   readonly replyTo: string | null;
   readonly voiceReplyAssetId: string | null;
   readonly voiceReplyMediaUrl: string | null;
+  /** Present on Muse's support message: real people to reach now. */
+  readonly support?: {
+    readonly lines: readonly {
+      readonly label: { readonly en: string; readonly es: string };
+      readonly phone: string | null;
+      readonly sms: string | null;
+      readonly url: string | null;
+    }[];
+    readonly emergencyNumber: string | null;
+  } | null;
   readonly createdAt: string;
 };
 
