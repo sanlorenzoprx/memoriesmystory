@@ -1,3 +1,4 @@
+import { removeUnsentMediaForMemory } from "./contribution-media-store";
 import { removeLocalContributionDrafts } from "./family-contributions";
 import { removeLegacyMemoryRecordings } from "./legacy-recording-store";
 import { apiMessageKey } from "../localization/errors";
@@ -46,6 +47,7 @@ export async function deleteMemory(
   try {
     await removeLegacyMemoryRecordings(draftId);
     removeLocalContributionDrafts(draftId);
+    await removeUnsentMediaForMemory(draftId);
   } catch {
     throw new MemoryDeletionError(
       "The archive record was deleted, but device draft cleanup needs another try.",

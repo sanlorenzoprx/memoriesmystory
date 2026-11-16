@@ -1,5 +1,9 @@
 # Foundation Package Changelog
 
+## Unsent contribution media survives a reload — 2026-11-16
+
+- A relative's unsent voice recording or photograph is kept on the device, with its request key, until a confirmed send, a discard or the memory's deletion. No migration; no deployment is claimed.
+
 ## Runbook, threat model and route splitting — 2026-11-16
 
 - A production runbook and launch checklist, with production still closed, and a threat model mapping threats to controls and tests.

@@ -31,9 +31,13 @@ E03 on `feat/scoped-family-invitations` adds verified-recipient expiring invitat
 
 E04a on `feat/attributed-family-contributions` adds independently attributed human text, immutable revision lineage and versioned review intent, author-only revision/withdrawal, owner selection of a specific family-visible version, source-grant rechecks and recoverable on-device writing. Two EN/ES browser journeys, ten route cases, native D1/R2 source/receipt/lineage checks and draft cleanup/API boundary checks passed. Local core passed 238 tests with 88 schema objects and all 55 phone-browser checks passed. PR #44 merged as `d0a550b` after main CI 43692868082 passed. Migration 0017 is required. This is text only; E04 voice/photo sources and each author's transcript review remain required. See `IMPLEMENTATION/ATTRIBUTED_FAMILY_TEXT_2026-11-15.md`.
 
-## Runbook, threat model and route splitting — prepared; CI pending
+## Unsent contribution media survives a reload — implemented locally; CI pending
 
-A production runbook and launch checklist (`OPERATIONS/PRODUCTION_RUNBOOK_AND_LAUNCH_CHECKLIST.md`) collect provisioning, migration order, deploy, verification, rollback, backups and incident response. Production stays closed. A threat model (`SECURITY/THREAT_MODEL.md`) maps fourteen threats to controls and tests. Pages after the first screen now load on demand, cutting the main bundle from 729 kB to 562 kB. Staging uses its own rate-limit namespaces.
+A relative's unsent voice recording or photograph is kept on the device with its request key until a confirmed send, a discard or the memory's deletion, so a reload loses nothing and a later send cannot save twice. See `IMPLEMENTATION/UNSENT_CONTRIBUTION_MEDIA_2026-11-16.md`.
+
+## Runbook, threat model and route splitting — merged
+
+A production runbook and launch checklist (`OPERATIONS/PRODUCTION_RUNBOOK_AND_LAUNCH_CHECKLIST.md`) collect provisioning, migration order, deploy, verification, rollback, backups and incident response. Production stays closed. A threat model (`SECURITY/THREAT_MODEL.md`) maps fourteen threats to controls and tests. Pages after the first screen now load on demand, cutting the main bundle from 729 kB to 562 kB. Staging uses its own rate-limit namespaces (PR #73, `371fd79`).
 
 ## Per-account daily ceilings — merged
 
