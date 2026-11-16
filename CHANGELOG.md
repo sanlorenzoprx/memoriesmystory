@@ -1,5 +1,11 @@
 # Foundation Package Changelog
 
+## Runbook, threat model and route splitting — 2026-11-16
+
+- A production runbook and launch checklist, with production still closed, and a threat model mapping threats to controls and tests.
+- Pages after the first screen load on demand, shrinking the main bundle from 729 kB to 562 kB.
+- Staging deploys use separate rate-limit namespaces. No migration; no deployment is claimed.
+
 ## Per-account daily ceilings — 2026-11-16
 
 - Budget-spending operations have per-person daily ceilings, enforced atomically before routing (migration 0031). Uploads, saves and reads are never counted. Refusals say plainly that memories are safe. No deployment is claimed.

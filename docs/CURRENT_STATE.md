@@ -31,9 +31,13 @@ E03 on `feat/scoped-family-invitations` adds verified-recipient expiring invitat
 
 E04a on `feat/attributed-family-contributions` adds independently attributed human text, immutable revision lineage and versioned review intent, author-only revision/withdrawal, owner selection of a specific family-visible version, source-grant rechecks and recoverable on-device writing. Two EN/ES browser journeys, ten route cases, native D1/R2 source/receipt/lineage checks and draft cleanup/API boundary checks passed. Local core passed 238 tests with 88 schema objects and all 55 phone-browser checks passed. PR #44 merged as `d0a550b` after main CI 43692868082 passed. Migration 0017 is required. This is text only; E04 voice/photo sources and each author's transcript review remain required. See `IMPLEMENTATION/ATTRIBUTED_FAMILY_TEXT_2026-11-15.md`.
 
-## Per-account daily ceilings — implemented locally; CI pending
+## Runbook, threat model and route splitting — prepared; CI pending
 
-Signed-in requests for budget-spending operations (Muse, speech, voice replies, transcription, scans, calls) are counted per person, day and operation, and refused past generous daily ceilings with a plain message that nothing is lost. Uploads and saves are never counted. Migration 0031. See `IMPLEMENTATION/DAILY_CEILINGS_2026-11-16.md`.
+A production runbook and launch checklist (`OPERATIONS/PRODUCTION_RUNBOOK_AND_LAUNCH_CHECKLIST.md`) collect provisioning, migration order, deploy, verification, rollback, backups and incident response. Production stays closed. A threat model (`SECURITY/THREAT_MODEL.md`) maps fourteen threats to controls and tests. Pages after the first screen now load on demand, cutting the main bundle from 729 kB to 562 kB. Staging uses its own rate-limit namespaces.
+
+## Per-account daily ceilings — merged
+
+Signed-in requests for budget-spending operations (Muse, speech, voice replies, transcription, scans, calls) are counted per person, day and operation, and refused past generous daily ceilings with a plain message that nothing is lost. Uploads and saves are never counted. Migration 0031 (PR #72, `9f84221`). See `IMPLEMENTATION/DAILY_CEILINGS_2026-11-16.md`.
 
 ## Entitlement ledger and stated deletion policy — merged
 

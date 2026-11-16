@@ -8,7 +8,7 @@ The lane updates this file in each pull request. The coordinator folds it into `
 
 ## Status
 
-Not started.
+In progress. L8.4 production runbook and launch checklist written by the coordinator (`docs/OPERATIONS/PRODUCTION_RUNBOOK_AND_LAUNCH_CHECKLIST.md`), CI pending. L8.1–L8.3 need staging (O1–O4).
 
 ## Merged
 
@@ -16,11 +16,11 @@ None yet.
 
 ## Evidence level reached
 
-—
+L8.4: CODED (documentation; commands checked against the installed Wrangler). Staging separates rate-limit namespaces (+1000).
 
 ## Next
 
-The first packet in section 4 of `../V1_LAUNCH_PARALLEL_HANDOFF_2026-11-16.md`.
+L8.5 acceptance kit (device and human scripts, evidence forms). L8.1–L8.3 once O1–O4 exist.
 
 ## Provisioning list (collected by the coordinator)
 
